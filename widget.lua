@@ -6,8 +6,6 @@
 --
 -- File: widget.lua
 --
--- Version 0.1.8 (BETA)
---
 -- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
 --
 --*********************************************************************************************
@@ -25,7 +23,7 @@ local currentStage = display.getCurrentStage()
 --
 --
 
-version = "0.1.8 (Beta)"
+version = "0.1.9 (Beta)"
 
 -- use as a substitute for nil params tables
 local dummyEmpty = {}
@@ -1781,6 +1779,14 @@ newButton = function( params )
 	
 	--
 	
+	buttonGroup.oldRemove = buttonGroup.removeSelf		-- added this to clear out button table if .view is removed (e.g. parent group is removed)
+	function buttonGroup:removeSelf()
+		t:removeSelf( true ); t = nil
+		self:oldRemove()
+	end
+	
+	--
+	
 	function t:setReferencePoint( refPoint )
 		if refPoint then
 			buttonGroup:setReferencePoint( refPoint )
@@ -1789,7 +1795,7 @@ newButton = function( params )
 	
 	--
 	
-	function t:removeSelf()
+	function t:removeSelf( skipGroup )
 		
 		-- In case user tries to remove the button when it has already been removed
 		-- (e.g. it's parent was removed and the button was removed as a result), perform
@@ -1801,11 +1807,11 @@ newButton = function( params )
 			buttonGroup.touch = nil
 		end
 		
-		display.remove( buttonGroup )
-		buttonGroup = nil
+		if not skipGroup then 
+			display.remove( buttonGroup )
+			buttonGroup = nil
+		end
 		self = nil
-		
-		return nil
 	end
 	
 	--====================================================
@@ -6445,4 +6451,3 @@ function newPickerWheel( params )
 	
 	return t
 end
-  
