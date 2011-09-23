@@ -37,7 +37,7 @@
 
 display.setStatusBar( display.DarkStatusBar )
 
-local widget = require "widget"
+local widget = require "widgetnew"
 
 -- Skin options: ios, red, mono
 -- widget.setSkin( "mono" )
