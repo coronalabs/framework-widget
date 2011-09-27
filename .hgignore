@@ -1,2 +1,4 @@
 syntax: glob
 .DS_Store
+testbed
+testbed/main\.lua
