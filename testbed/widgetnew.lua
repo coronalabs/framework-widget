@@ -1490,7 +1490,7 @@ local newButton = function( params )
 	local	leftImages = params.leftImages or { up = skinPackage .. "/" .. leftTable.up, down = skinPackage .. "/" .. leftTable.down, w = leftTable.w, h = leftTable.h, base = skinBase }
 	local	midImages = params.midImages or { up = skinPackage .. "/" .. midTable.up, down = skinPackage .. "/" .. midTable.down, w = midTable.w, h = midTable.h, base = skinBase }
 	local	rightImages = params.rightImages or { up = skinPackage .. "/" .. rightTable.up, down = skinPackage .. "/" .. rightTable.down, w = rightTable.w, h = rightTable.h, base = skinBase }
-	local	isEmbossed = not params.emboss or skinSetting.uiButton.fontEmboss
+	local	isEmbossed = true; if params.emboss ~= nil and params.emboss == false then isEmbossed = false; end
 	local	labelPadding = params.padding or skinSetting.uiButton.labelPadding
 	local	onPress = params.onPress
 	local	onRelease = params.onRelease
