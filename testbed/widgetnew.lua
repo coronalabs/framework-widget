@@ -4249,7 +4249,7 @@ local function newTableView( params )
 				currentCategory = dataTable[i].categoryName
 				
 				-- add this entry to the categories table
-				scrollV.categories[#scrollV.categories+1] = { categoryName=dataTable[i].categoryName, dataIndex=dataTable[i].id }
+				scrollV.categories[#scrollV.categories+1] = { categoryName=dataTable[i].categoryName, dataIndex=dataTable[i].id, iconFile=dataTable[i].iconFile }
 			else
 				rowHeight = defaultHeight
 			end
@@ -4589,15 +4589,11 @@ local function newTableView( params )
 									
 									-- Create new category item (identical to self)
 									-- to make the category appear to "stick"
-									local categoryLabel
+									local categoryLabel = self.titleText.text or "Category"
+									local categoryIcon
+									if self.catIcon and self.catIcon.sourceFile then categoryIcon = self.catIcon.sourceFile end
 									
-									if not self.titleText.text then
-										categoryLabel = "Category"
-									else
-										categoryLabel = self.titleText.text
-									end
-									
-									local newCategory = t:renderCategory( categoryLabel, self.id )
+									local newCategory = t:renderCategory( categoryLabel, self.id, categoryIcon )
 									
 									newCategory.x = scrollV.x
 									newCategory.y = top
@@ -4649,7 +4645,7 @@ local function newTableView( params )
 													
 													if nextId == 0 then nextId = scrollV.categories[#scrollV.categories].dataIndex; end
 													
-													local newCategory = t:renderCategory( previousCategory.categoryName, self.id-1 )
+													local newCategory = t:renderCategory( previousCategory.categoryName, self.id-1, previousCategory.iconFile )
 													
 													newCategory.x = scrollV.x
 													newCategory.y = top
@@ -4672,7 +4668,7 @@ local function newTableView( params )
 												
 												if nextId == 0 then nextId = scrollV.categories[#scrollV.categories].dataIndex; end
 												
-												local newCategory = t:renderCategory( previousCategory.categoryName, self.id-1 )
+												local newCategory = t:renderCategory( previousCategory.categoryName, self.id-1, previousCategory.iconFile )
 												
 												newCategory.x = scrollV.x
 												newCategory.y = top
@@ -5003,6 +4999,8 @@ local function newTableView( params )
 	
 	function t:renderItem( listEntryObject, dataIndex, listIndex )
 		
+		-- Renders actual items AND categories (but not sticky categories used to display current category)
+		
 		local scrollV = scrollView.display
 		local dataI = dataIndex or 1
 		local listI = listIndex or 1
@@ -5011,6 +5009,9 @@ local function newTableView( params )
 		
 		local dataItem = scrollV.data[dataIndex]
 		local listItem = listEntryObject
+		
+		-- remove any category icon if one is already present
+		if listItem.catIcon then display.remove( listItem.catIcon ); end
 		
 		-- if faulty data item requested, exit the function
 		if not dataItem then return false end;
@@ -5040,7 +5041,7 @@ local function newTableView( params )
 		local rowHeight = dataItem.rowHeight or scrollV.rowHeight
 		
 		-- individual content elements (for list item):
-		local icon = dataItem.icon or nil
+		local icon = dataItem.icon or dataItem.iconFile or nil
 		local title = dataItem.title or nil
 		local subtitle = dataItem.subtitle or nil
 		local hideArrow = dataItem.hideArrow or false
@@ -5159,13 +5160,26 @@ local function newTableView( params )
 			listItem:insert( catBg )
 			listItem.bgObj = catBg
 			
+			local nextX = 5
+			if icon then
+				local catIcon = display.newImage( icon )
+				catIcon:setReferencePoint( display.CenterLeftReferencePoint )
+				catIcon.x = nextX
+				catIcon.y = rowHeight * 0.5
+				catIcon.sourceFile = icon
+
+				listItem:insert( catIcon )
+				listItem.catIcon = catIcon
+				nextX = nextX + catIcon.width + 5
+			end
+			
 			-- create embossed text
 			titleTextObj = newEmbossedText( titleText, 0, 0, categoryFont[1], categoryFont[3], categoryFont[2], true )
 			titleTextObj:setReferencePoint( display.CenterLeftReferencePoint )
-			titleTextObj.x = 0
+			titleTextObj.x = nextX
 			titleTextObj.y = 0 --rowHeight * 0.5
 			
-			xPos = 10
+			xPos = 0
 			yPos = rowHeight * 0.5
 		
 		else
@@ -5367,9 +5381,10 @@ local function newTableView( params )
 	--
 	--
 	
-	function t:renderCategory( labelText, dataIndex )
-		
+	function t:renderCategory( labelText, dataIndex, iconFile )
 		local scrollV = scrollView.display
+		
+		display.remove( scrollV.category ); scrollV.category = nil
 		
 		if not labelText then labelText = "Category"; end
 		if not dataIndex then dataIndex = 1; end
@@ -5389,10 +5404,24 @@ local function newTableView( params )
 		listItem:insert( catBg )
 		listItem.bgObj = catBg
 		
+		-- create category icon (if specified)
+		local nextX = 5
+		if iconFile then
+			local catIcon = display.newImage( iconFile )
+			catIcon:setReferencePoint( display.CenterLeftReferencePoint )
+			catIcon.x = nextX
+			catIcon.y = rowHeight * 0.5
+			catIcon.sourceFile = iconFile
+			
+			listItem:insert( catIcon )
+			listItem.catIcon = catIcon
+			nextX = nextX + catIcon.width + 5
+		end
+		
 		-- create embossed text
 		titleTextObj = newEmbossedText( labelText, 0, 0, categoryFont[1], categoryFont[3], categoryFont[2], true )
 		titleTextObj:setReferencePoint( display.CenterLeftReferencePoint )
-		titleTextObj.x = 10
+		titleTextObj.x = nextX
 		titleTextObj.y = rowHeight * 0.5
 		
 		listItem:insert( titleTextObj )
