@@ -1,3 +1,17 @@
+--*********************************************************************************************
+--
+-- ====================================================================
+-- Corona SDK Widget Module
+-- ====================================================================
+--
+-- File: widget.lua
+--
+-- Version 0.2 (BETA)
+--
+-- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
+--
+--*********************************************************************************************
+
 local modname = ...
 -----------------------------------------------------------------------------------------
 --
@@ -9,149 +23,6 @@ local widget = {}
 package.loaded[modname] = widget
 
 -----------------------------------------------------------------------------------------
-
--- display function to create retina-compatible text for double-pixel devices
-
-function display.newRetinaText( ... )
-	
-	-- parse arguments
-	local parentG, w, h
-	local argOffset = 0
-	
-	-- determine if a parentGroup was specified
-	if arg and type(arg[1]) == "table" then
-		parentG = arg[1]; argOffset = 1
-	end
-	
-	local string = arg[1+argOffset] or ""
-	local x = arg[2+argOffset] or 0
-	local y = arg[3+argOffset] or 0
-	
-	local newOffset = 3+argOffset
-	if type(arg[4+argOffset]) == "number" then w = arg[4+argOffset]; newOffset=newOffset+1; end
-	if w and #arg >= 7+argOffset then h = arg[5+argOffset]; newOffset=newOffset+1; end
-	
-	local font = arg[1+newOffset] or native.systemFont
-	local size = arg[2+newOffset] or 12
-	
-	---------------------------------------------
-	
-	-- check if user is on a retina-enabled device (pixels are exactly double contenWidth/Height)
-	local csX, csY = display.contentScaleX, display.contentScaleY
-	local xS, yS = 1.0, 1.0
-	
-	if csX and csY == 0.5 then	-- retina device
-		size = size * 2
-		if w then w = w * 2; end
-		xS, yS = 0.5, 0.5
-	end
-	
-	local text
-	if w and h then
-		text = display.newText( string, x, y, w, h, font, size )
-	else
-		text = display.newText( string, x, y, font, size )
-	end
-	text:setReferencePoint( display.TopLeftReferencePoint )
-	text.xScale, text.yScale = xS, yS
-	if parentG then parentG:insert( text ); end
-	
-	return text
-end
-
------------------------------------------------------------------------------------------
-
--- display function to create embossed text (relies on display.newRetinaText)
-
-function display.newEmbossedText( ... )
-	
-	-- parse arguments
-	local parentG, w, h
-	local argOffset = 0
-	
-	-- determine if a parentGroup was specified
-	if arg and type(arg[1]) == "table" then
-		parentG = arg[1]; argOffset = 1
-	end
-	
-	local string = arg[1+argOffset] or ""
-	local x = arg[2+argOffset] or 0
-	local y = arg[3+argOffset] or 0
-	
-	local newOffset = 3+argOffset
-	if type(arg[4+argOffset]) == "number" then w = arg[4+argOffset]; newOffset=newOffset+1; end
-	if w and #arg >= 7+argOffset then h = arg[5+argOffset]; newOffset=newOffset+1; end
-	
-	local font = arg[1+newOffset] or native.systemFont
-	local size = arg[2+newOffset] or 12
-	local color = arg[3+newOffset] or { 255, 255, 255, 255 }
-	local yOffset = arg[4+newOffset] or 0
-	
-	---------------------------------------------
-	
-	if not color[1] then color[1] = 255; end
-	if not color[2] then color[2] = 255; end
-	if not color[3] then color[3] = 255; end
-	if not color[4] then color[4] = 255; end
-	
-	local r, g, b, a = color[1], color[2], color[3], color[4]
-	local textBrightness = ( r + g + b ) / 3
-	
-	local highlight = display.newRetinaText( string, 0.5, 1+yOffset, font, size )
-	if ( textBrightness > 127) then
-		highlight:setTextColor( 255, 255, 255, 20 )
-	else
-		highlight:setTextColor( 255, 255, 255, 140 )
-	end
-	
-	local shadow = display.newRetinaText( string, -0.5, -1+yOffset, font, size )
-	if ( textBrightness > 127) then
-		shadow:setTextColor( 0, 0, 0, 128 )
-	else
-		shadow:setTextColor( 0, 0, 0, 20 )
-	end
-	
-	local label = display.newRetinaText( string, 0, yOffset, font, size )
-	label:setTextColor( r, g, b, a )
-	
-	-- create display group, insert all embossed text elements, and position it
-	local text = display.newGroup()
-	text:insert( highlight ); text.highlight = highlight
-	text:insert( shadow ); text.shadow = shadow
-	text:insert( label ); text.label = label
-	text.color = color
-	text.x, text.y = x, y
-	
-	-- setTextColor method
-	function text:setTextColor( red, green, blue, alpha )
-		local red = red or self.color[1]
-		local green = green or self.color[2]
-		local blue = blue or self.color[3]
-		local alpha = alpha or self.color[4]
-		
-		local textBrightness = ( red + green + blue ) / 3
-		if ( textBrightness > 127) then
-			self.highlight:setTextColor( 255, 255, 255, 20 )
-			self.shadow:setTextColor( 0, 0, 0, 128 )
-		else
-			self.highlight:setTextColor( 255, 255, 255, 140 )
-			self.shadow:setTextColor( 0, 0, 0, 20 )
-		end
-		self.label:setTextColor( red, green, blue, alpha )
-	end
-	
-	-- setText method
-	function text:setText( newString )
-		local newString = newString or self.text
-		self.highlight.text = newString
-		self.shadow.text = newString
-		self.label.text = newString
-		self.text = newString
-	end
-	
-	text.text = string	-- for reference
-	return text
-end
 
 --***************************************************************************************
 --***************************************************************************************
