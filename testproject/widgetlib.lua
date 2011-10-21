@@ -1,157 +1,21 @@
-local modname = ...
------------------------------------------------------------------------------------------
+--*********************************************************************************************
 --
--- widget.lua
+-- ====================================================================
+-- Corona SDK Widget Module
+-- ====================================================================
 --
------------------------------------------------------------------------------------------
+-- File: widget.lua
+--
+-- Version 0.2 (BETA)
+--
+-- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
+--
+--*********************************************************************************************
 
+local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-
------------------------------------------------------------------------------------------
-
--- display function to create retina-compatible text for double-pixel devices
-
-function display.newRetinaText( ... )
-	
-	-- parse arguments
-	local parentG, w, h
-	local argOffset = 0
-	
-	-- determine if a parentGroup was specified
-	if arg and type(arg[1]) == "table" then
-		parentG = arg[1]; argOffset = 1
-	end
-	
-	local string = arg[1+argOffset] or ""
-	local x = arg[2+argOffset] or 0
-	local y = arg[3+argOffset] or 0
-	
-	local newOffset = 3+argOffset
-	if type(arg[4+argOffset]) == "number" then w = arg[4+argOffset]; newOffset=newOffset+1; end
-	if w and #arg >= 7+argOffset then h = arg[5+argOffset]; newOffset=newOffset+1; end
-	
-	local font = arg[1+newOffset] or native.systemFont
-	local size = arg[2+newOffset] or 12
-	
-	---------------------------------------------
-	
-	-- check if user is on a retina-enabled device (pixels are exactly double contenWidth/Height)
-	local csX, csY = display.contentScaleX, display.contentScaleY
-	local xS, yS = 1.0, 1.0
-	
-	if csX and csY == 0.5 then	-- retina device
-		size = size * 2
-		if w then w = w * 2; end
-		xS, yS = 0.5, 0.5
-	end
-	
-	local text
-	if w and h then
-		text = display.newText( string, x, y, w, h, font, size )
-	else
-		text = display.newText( string, x, y, font, size )
-	end
-	text:setReferencePoint( display.TopLeftReferencePoint )
-	text.xScale, text.yScale = xS, yS
-	if parentG then parentG:insert( text ); end
-	
-	return text
-end
-
------------------------------------------------------------------------------------------
-
--- display function to create embossed text (relies on display.newRetinaText)
-
-function display.newEmbossedText( ... )
-	
-	-- parse arguments
-	local parentG, w, h
-	local argOffset = 0
-	
-	-- determine if a parentGroup was specified
-	if arg and type(arg[1]) == "table" then
-		parentG = arg[1]; argOffset = 1
-	end
-	
-	local string = arg[1+argOffset] or ""
-	local x = arg[2+argOffset] or 0
-	local y = arg[3+argOffset] or 0
-	
-	local newOffset = 3+argOffset
-	if type(arg[4+argOffset]) == "number" then w = arg[4+argOffset]; newOffset=newOffset+1; end
-	if w and #arg >= 7+argOffset then h = arg[5+argOffset]; newOffset=newOffset+1; end
-	
-	local font = arg[1+newOffset] or native.systemFont
-	local size = arg[2+newOffset] or 12
-	local color = arg[3+newOffset] or { 255, 255, 255, 255 }
-	local yOffset = arg[4+newOffset] or 0
-	
-	---------------------------------------------
-	
-	if not color[1] then color[1] = 255; end
-	if not color[2] then color[2] = 255; end
-	if not color[3] then color[3] = 255; end
-	if not color[4] then color[4] = 255; end
-	
-	local r, g, b, a = color[1], color[2], color[3], color[4]
-	local textBrightness = ( r + g + b ) / 3
-	
-	local highlight = display.newRetinaText( string, 0.5, 1+yOffset, font, size )
-	if ( textBrightness > 127) then
-		highlight:setTextColor( 255, 255, 255, 20 )
-	else
-		highlight:setTextColor( 255, 255, 255, 140 )
-	end
-	
-	local shadow = display.newRetinaText( string, -0.5, -1+yOffset, font, size )
-	if ( textBrightness > 127) then
-		shadow:setTextColor( 0, 0, 0, 128 )
-	else
-		shadow:setTextColor( 0, 0, 0, 20 )
-	end
-	
-	local label = display.newRetinaText( string, 0, yOffset, font, size )
-	label:setTextColor( r, g, b, a )
-	
-	-- create display group, insert all embossed text elements, and position it
-	local text = display.newGroup()
-	text:insert( highlight ); text.highlight = highlight
-	text:insert( shadow ); text.shadow = shadow
-	text:insert( label ); text.label = label
-	text.color = color
-	text.x, text.y = x, y
-	
-	-- setTextColor method
-	function text:setTextColor( red, green, blue, alpha )
-		local red = red or self.color[1]
-		local green = green or self.color[2]
-		local blue = blue or self.color[3]
-		local alpha = alpha or self.color[4]
-		
-		local textBrightness = ( red + green + blue ) / 3
-		if ( textBrightness > 127) then
-			self.highlight:setTextColor( 255, 255, 255, 20 )
-			self.shadow:setTextColor( 0, 0, 0, 128 )
-		else
-			self.highlight:setTextColor( 255, 255, 255, 140 )
-			self.shadow:setTextColor( 0, 0, 0, 20 )
-		end
-		self.label:setTextColor( red, green, blue, alpha )
-	end
-	
-	-- setText method
-	function text:setText( newString )
-		local newString = newString or self.text
-		self.highlight.text = newString
-		self.shadow.text = newString
-		self.label.text = newString
-		self.text = newString
-	end
-	
-	text.text = string	-- for reference
-	return text
-end
+widget.version = "0.2 (BETA)"
 
 --***************************************************************************************
 --***************************************************************************************
@@ -574,7 +438,7 @@ function widget.slider()
 					-- execute the callback listener if it exists (and if it's a function)
 					if t._callBack and type( t._callBack ) == "function" then
 						local newEvent = event
-						sliderControl.value = t.value
+						sliderControl.value = newValue
 						newEvent.target = sliderControl
 						newEvent.value = newValue
 
@@ -811,11 +675,27 @@ function widget.pickerwheel()
 		local list = widget.tableview().new( nil, options )
 
 		for i=1,#columnData do
+			local labelX = 14
+			local alignment = "left"
+			local ref = display.CenterLeftReferencePoint
+			
+			if columnData.alignment then
+				alignment = columnData.alignment
+				
+				if alignment == "center" then
+					labelX = options.width * 0.5
+					ref = display.CenterReferencePoint
+				elseif alignment == "right" then
+					labelX = options.width - 14
+					ref = display.CenterRightReferencePoint
+				end
+			end
+			
 			local function renderRow( event )
 				local label = display.newRetinaText( columnData[i], 0, 0, options.font, options.fontSize )
 				label:setTextColor( options.fontColor[1], options.fontColor[2] or options.fontColor[1], options.fontColor[3] or options.fontColor[1], options.fontColor[4] or 255 )
-				label:setReferencePoint( display.CenterLeftReferencePoint )
-				label.x = 14
+				label:setReferencePoint( ref )
+				label.x = labelX
 				label.y = event.view.height * 0.5
 				
 				event.target.value = columnData[i]
@@ -844,8 +724,12 @@ function widget.pickerwheel()
 			if col.width then
 				currentWidth = currentWidth + col.width
 			else
-				currentWidth = maxWidth - currentWidth
-				col.width = currentWidth
+				if index == 1 and #columnTable == 2 then
+					currentWidth = maxWidth / #columnTable
+				else
+					currentWidth = maxWidth - currentWidth
+					col.width = currentWidth
+				end
 			end
 		end
 		
@@ -875,7 +759,7 @@ function widget.pickerwheel()
 
 		-- parse parameters (options) or set defaults (or theme defaults)
 		local id = options.id or ""
-		local width = options.width or theme.width or 252
+		local width = options.width or theme.width or 296 --252
 		local height = options.height or theme.height or 222
 		local left = options.left or 0
 		local top = options.top or 0
@@ -925,13 +809,27 @@ function widget.pickerwheel()
 			bg.touch = disableTouchLeak
 			bg:addEventListener( "touch", bg )
 		end
+		
+		local currentX = 0
+		local function getRemainingWidth( currentX, maxCols, index )
+			if columns[index].width then
+				local w = columns[index].width
+				currentX = currentX + w
+				return w
+			else
+				local leftOver = width - currentX
+				local newWidth = leftOver / (maxCols)
+				currentX = currentX + newWidth
+				return newWidth
+			end
+		end	
 
 		for i=1,#columns do
 			local col = columns[i]
 			
 			local params = {}
 			params.bgColor = columnColor
-			params.width = col.width or autoWidth( i, columns, width ); col.width = params.width
+			params.width = getRemainingWidth( currentX, #columns, i )	--autoWidth( i, columns, width ); col.width = params.width
 			params.height = height
 			params.topPadding = (height*0.5)-(selectionHeight*0.5)
 			params.bottomPadding = (height*0.5)-(selectionHeight*0.5)
@@ -943,7 +841,6 @@ function widget.pickerwheel()
 			params.font = font
 			params.fontSize = fontSize
 			params.fontColor = fontColor
-			
 			params.maskFile = maskFile
 
 			if #col < 3 then
@@ -1525,16 +1422,17 @@ function widget.tabbar()
 
 	-----------------------------------------------------------------------------------------
 
-	local function createTabBar( options, buttons, themeOptions )
+	local function createTabBar( options, themeOptions )
 		local tabBar = {}
 
 		local options = options or {}	-- to prevent errors if no options are passed
 		local theme = themeOptions or {}
+		local buttons = options.buttons or {}
 
 		local width = options.width or theme.width or display.contentWidth
 		local height = options.height or theme.height or 50
 		local background = options.background or theme.background or nil
-		local topGradient = options.topGradient or theme.topGradient or nil
+		local topGradient = options.topGradient or theme.topGradient or nil	-- if used, topGradient must be a gradient object created using graphics.newGradient()
 		local bottomFill = options.bottomFill or theme.bottomFill or { 0, 0, 0, 255 }
 		local left = options.left or 0
 		local top = options.top or 0
@@ -1555,6 +1453,14 @@ function widget.tabbar()
 		elseif topGradient then
 			bg = display.newRect( 0, 0, width, height )
 			bg:setFillColor( topGradient )
+		end
+		
+		-- setup bottomFill parameter (if set)
+		if bottomFill then
+			bottomFill[1] = bottomFill[1] or 0
+			bottomFill[2] = bottomFill[2] or bottomFill[1]
+			bottomFill[3] = bottomFill[3] or bottomFill[1]
+			bottomFill[4] = bottomFill[4] or 255
 		end
 
 		-- position background
@@ -1819,19 +1725,24 @@ function widget.tableview()
 			local row = rows[i]
 			row.listIndex = i
 			row.top = y
+			
+			local rowTop = row.top
+			local viewTop = view.top
+			local viewY = view.y
+			local cat = tbContent.cat
 
 			-- next code block handles category "pushing" effect
-			if row.isCategory and tbContent.cat then
-				local catBottom = view.top + tbContent.cat.height - 3
-				if row.top+view.top <= catBottom and row.top+view.top > view.y then		
-					tbContent.cat.y = row.top - tbContent.catGroup.height + 3
+			if row.isCategory and cat then
+				local catBottom = viewTop + cat.height - 3
+				if rowTop+viewTop <= catBottom and rowTop+viewTop > viewY then		
+					tbContent.cat.y = rowTop - tbContent.catGroup.height + 3
 				else
 					tbContent.cat.y = 0
 				end
 			end
 
 			-- check to see which category should be rendered
-			if row.isCategory and row.top+view.top <= view.y then
+			if row.isCategory and rowTop+viewTop <= viewY then
 				currentCategoryIndex = i
 			end
 
@@ -2216,7 +2127,7 @@ function widget.tableview()
 		
 		if self.parentObject.parent.parent then
 			-- picker wheel
-			yPosition = -(rows[rowIndex].top) + 112 + rows[rowIndex].height * 1.45
+			yPosition = -(rows[rowIndex].top) + 109 + rows[rowIndex].height * 1.45
 		end
 		
 		if yPosition then scrollToY( self, yPosition, timeInMs ); end
@@ -2396,6 +2307,144 @@ function widget.new( widgetName, options, arg1, arg2 )
 	local widgetType = widget[string.lower(widgetName)]()	-- old: local widgetMod = require( "widget_" .. string.lower( widgetName ) )
 	local uiWidget = widgetType.new( widget.theme, options, arg1, arg2 ); widgetMod = nil
 	return uiWidget
+end
+
+-----------------------------------------------------------------------------------------
+
+function widget.newButton( options )
+	if options.x then
+		print( "WARNING: The 'x' parameter for widget.newButton() has been deprecated. Please set the 'left' parameter insetad.")
+		options.left = options.x
+	end
+	
+	if options.y then
+		print( "WARNING: The 'y' parameter for widget.newButton() has been deprecated. Please set the 'top' parameter insetad.")
+		options.top = options.y
+	end
+	
+	if options.labelColor and type(options.labelColor[1]) ~= "table" then
+		print( "WARNING: The correct format for the 'labelColor' parameter is: { default={r,g,b,a}, over={r,g,b,a} }." )
+	end
+	
+	if options.size then
+		print( "WARNING: The 'size' parameter for widget.newButton() has been deprecated. Please set the 'fontSize' parameter instead." )
+		options.fontSize = options.size
+	end
+	
+	if options.offset then
+		print( "WARNING: The 'offset' parameter for widget.newButton() has been deprecated. Please set the 'labelOffset' parameter instead." )
+		options.labelOffset = options.offset
+	end
+	
+	if options.buttonTheme then
+		print( "WARNING: The 'buttonTheme' parameter for widget.newButton() has been deprecated. Please include a widget theme in your resource folder and use widget.setTheme()." )
+	end
+	
+	return widget.new( "button", options )
+end
+
+-----------------------------------------------------------------------------------------
+
+function widget.newTableView( options )
+	if options.x then
+		print( "WARNING: The 'x' parameter for widget.newTableView() has been deprecated. Please set the 'left' parameter insetad.")
+		options.left = options.x
+	end
+	
+	if options.y then
+		print( "WARNING: The 'y' parameter for widget.newTableView() has been deprecated. Please set the 'top' parameter insetad.")
+		options.top = options.y
+	end
+	
+	if options.mask then
+		print( "WARNING: The 'mask' parameter for widget.newTableView() has been deprecated. Please set the 'maskFile' parameter instead." )
+		options.maskFile = options.mask
+	end
+	
+	if options.background then
+		print( "WARNING: The 'background' parameter for widget.newTableView() has been deprecated and is no longer functional in this version." )
+	end
+	
+	if options.backgroundColor then
+		print( "WARNING: The 'backgroundColor' parameter for widget.newTableView() has been deprecated. Please set the 'bgColor' parameter instead." )
+		options.bgColor = options.backgroundColor
+	end
+	
+	if options.isInfinite then
+		print( "WARNING: The 'isInfinite' parameter for widget.newTableView() has been deprecated and is no longer functional in this version." )
+	end
+	
+	return widget.new( "tableView", options )
+end
+
+-----------------------------------------------------------------------------------------
+
+function widget.newScrollView( options )
+	if options.x then
+		print( "WARNING: The 'x' parameter for widget.newScrollView() has been deprecated. Please set the 'left' parameter insetad.")
+		options.left = options.x
+	end
+	
+	if options.y then
+		print( "WARNING: The 'y' parameter for widget.newScrollView() has been deprecated. Please set the 'top' parameter insetad.")
+		options.top = options.y
+	end
+	
+	if options.mask then
+		print( "WARNING: The 'mask' parameter for widget.newScrollView() has been deprecated. Please set the 'maskFile' parameter instead." )
+		options.maskFile = options.mask
+	end
+	
+	if options.background then
+		print( "WARNING: The 'background' parameter for widget.newScrollView() has been deprecated and is no longer functional in this version." )
+	end
+	
+	if options.backgroundColor then
+		print( "WARNING: The 'backgroundColor' parameter for widget.newScrollView() has been deprecated. Please set the 'bgColor' parameter instead." )
+		options.bgColor = options.backgroundColor
+	end
+	
+	return widget.new( "scrollView", options )
+end
+
+-----------------------------------------------------------------------------------------
+
+function widget.newTabBar( options )
+	return widget.new( "tabBar", options )
+end
+
+-----------------------------------------------------------------------------------------
+
+function widget.newSlider( options )
+	return widget.new( "slider", options )
+end
+
+-----------------------------------------------------------------------------------------
+
+function widget.newPickerWheel( options )
+	if options.column1 then
+		print( "WARNING: The widget.newPickerWheel() API has changed. Please see the updated documentation if you are having problems." )
+	end
+	
+	return widget.new( "pickerWheel", options )
+end
+
+-----------------------------------------------------------------------------------------
+
+function widget.newToolbar()
+	print( "WARNING: widget.newToolbar() has been deprecated. Please use widget.newTabBar() with no buttons, in conjunction with display.newEmbossedText()." )
+end
+
+-----------------------------------------------------------------------------------------
+
+function widget.newSegmentedControl()
+	print( "WARNING: widget.newSegmentedControl() has been deprecated and is no longer functional in this version." )
+end
+
+-----------------------------------------------------------------------------------------
+
+function widget.setSkin()
+	print( "WARNING: widget.setSkin() has been deprecated and is no longer functional in this version. Please use widget.setTheme() instead (don't forget to place the specified theme module and assets directory in your project folder)." )
 end
 
 -----------------------------------------------------------------------------------------

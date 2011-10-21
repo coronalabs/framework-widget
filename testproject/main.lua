@@ -1,6 +1,6 @@
 display.setStatusBar( display.DefaultStatusBar )
 
-local widget = require( "widgetlib" )
+local widget = require( "widget" )
 widget.setTheme( "theme_ios" )
 
 local options = {}
@@ -11,7 +11,7 @@ options.bottomPadding = 0
 options.height = 410
 options.maskFile = "assets/mask-410.png"
 
-local list = widget.new( "tableView", options )
+local list = widget.newTableView( options )
 
 local startN = 1
 
@@ -95,7 +95,7 @@ local buttonsTable = {
 }
 
 -- create tab bar
-local tabBar = widget.new( "tabBar", { top=480-50 }, buttonsTable )
+local tabBar = widget.newTabBar( { top=480-50, buttons=buttonsTable } )
 
 --tabBar:removeSelf()
 --list:removeSelf()
@@ -109,20 +109,23 @@ end, 1 )
 
 local columnData = {
 	{ "One", "Two", "Three", "Four", "Five" },
-	--{ "One", "Two", "Three", "Four", "Five" },
+	{ "One", "Two", "Three", "Four", "Five" },
 	{ "AM", "PM" }
 }
 
-columnData[1].width = 168
+columnData[1].width = 128
+columnData[1].alignment = "right"
 columnData[1].startIndex = 4
 
---[[
-local picker = widget.new( "pickerWheel", {
+---[[
+local picker = widget.newPickerWheel( {
 	id="pickerWheel",
 	font="Helvetica-Bold",
-	top=258-50,
+	top=480+222,--258-50,
 	columns=columnData,
 } )
+
+transition.to( picker.view, { time=500, y=258, transition=easing.outQuad } )
 --]]
 
 local function getColumnData()
@@ -137,7 +140,11 @@ timer.performWithDelay( 4000, function()
 	--picker:removeSelf()
 end, 1 )
 
---local slider = widget.new( "slider", { x=100, y=200, width=100 } )
+local function sliderCallback( event )
+	print( event.value )
+end
+
+local slider = widget.new( "slider", { x=100, y=200, width=100, callback=sliderCallback } )
 
 --timer.performWithDelay( 2000, function() list:removeSelf(); list = nil; end, 1 )
 
