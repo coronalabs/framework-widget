@@ -3,9 +3,63 @@
 -- theme_ios.lua
 --
 -----------------------------------------------------------------------------------------
-
+local modname = ...
 local themeTable = {}
+package.loaded[modname] = themeTable
 local assetDir = "widget_ios/"
+
+-----------------------------------------------------------------------------------------
+--
+-- button
+--
+-----------------------------------------------------------------------------------------
+
+-- specify a "style" parameter to use different button styles on a per-button basis
+
+themeTable.button = {
+	
+	
+	smallToolbar = {
+		
+	},
+	
+	mediumToolbar = {
+		
+	},
+	
+	largeToolbar = {
+		
+	},
+	
+	smallBack = {
+		
+	},
+	
+	mediumBack = {
+		
+	},
+	
+	largeBack = {
+		
+	},
+	
+	smallForward = {
+		
+	},
+	
+	mediumForward = {
+		
+	},
+	
+	largeForward = {
+		
+	},
+	
+	sheetButton = {
+		
+	}
+}
+
 
 -----------------------------------------------------------------------------------------
 --
@@ -29,11 +83,12 @@ themeTable.slider = {
 -----------------------------------------------------------------------------------------
 
 themeTable.pickerWheel = {
+	width = 296,
 	maskFile=assetDir .. "pickerWheel/pickermask.png",
 	glassFile=assetDir .. "pickerWheel/pickerglass.png",
-	glassWidth=290, glassHeight=222,
+	glassWidth=320, glassHeight=222,
 	background=assetDir .. "pickerWheel/bg.png",
-	backgroundWidth=2, backgroundHeight=222,
+	backgroundWidth=1, backgroundHeight=222,
 	separator=assetDir .. "pickerWheel/separator.png",
 	separatorWidth=8, separatorHeight=1
 }
