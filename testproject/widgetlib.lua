@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- Version 0.2 (BETA)
+-- Version 0.2.1 (BETA)
 --
 -- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
 --
@@ -15,7 +15,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.2 (BETA)"
+widget.version = "0.2.1 (BETA)"
 
 --***************************************************************************************
 --***************************************************************************************
@@ -138,12 +138,11 @@ function widget.button()
 		local	id = params.id
 		local	left = params.left or 0
 		local	top = params.top or 0
-		local	offset = params.offset or theme.offset or 0
+		local	offset = params.offset or theme.offset or 0		-- offsets y value of the label
 		local	label = params.label or ""
 		local 	font = params.font or theme.font or native.systemFont
 		local 	fontSize = params.fontSize or theme.fontSize or 14
 		local 	labelColor = params.labelColor or theme.labelColor or { default={ 0 }, over={ 255 } }
-		local 	labelOffset = params.labelOffset or theme.labelOffset	-- offsets y value of the label
 		local  	emboss = params.emboss or theme.emboss
 		local   onPress = params.onPress
 		local 	onRelease = params.onRelease
@@ -1140,6 +1139,7 @@ function widget.scrollview()
 		local bottomPadding = options.bottomPadding or 0
 		local width = options.width or (display.contentWidth-left)
 		local height = options.height or (display.contentHeight-top)
+		local friction = options.friction or 0.935
 		local r, g, b, a = options.bgColor[1] or 255, options.bgColor[2] or 255, options.bgColor[3] or 255, options.bgColor[4] or 255
 
 		-- Create the "view" display object, its properties, and methods (will become scrollView._view)
@@ -1149,9 +1149,9 @@ function widget.scrollview()
 		view.content = display.newGroup()
 		view.content.y = topPadding
 		view.content.top = 0
-		view.content.bottom = bottomPadding
+		view.content.bottom = display.contentHeight - height + topPadding - bottomPadding
 		view.content.widgetHeight = height
-		view.content.friction = 0.9
+		view.content.friction = friction
 		view.content.enterFrame = onUpdate	-- enterFrame listener function
 		view.content.touch = onContentTouch; view.content:addEventListener( "touch", view.content )
 
@@ -2329,11 +2329,6 @@ function widget.newButton( options )
 	if options.size then
 		print( "WARNING: The 'size' parameter for widget.newButton() has been deprecated. Please set the 'fontSize' parameter instead." )
 		options.fontSize = options.size
-	end
-	
-	if options.offset then
-		print( "WARNING: The 'offset' parameter for widget.newButton() has been deprecated. Please set the 'labelOffset' parameter instead." )
-		options.labelOffset = options.offset
 	end
 	
 	if options.buttonTheme then

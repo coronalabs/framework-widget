@@ -11,36 +11,18 @@ options.bottomPadding = 0
 options.height = 410
 options.maskFile = "assets/mask-410.png"
 
-local list = widget.newTableView( options )
+local list = widget.newScrollView( options )
 
-local startN = 1
+local testImage = display.newImage( "assets/coronaIcon.png" )
+testImage.y = 100
+list:insert( testImage )
 
-------------------------------
+local testImage = display.newImage( "assets/coronaIcon.png" )
+testImage.y = 800
+list:insert( testImage )
 
-local function onRowRender( event )
-	local row = event.target
-	local i = event.index
-	local rowGroup = event.view
-	local rowX = 15
-	if row.isCategory then rowX=12 end
-	local fontSize = 18
-	
-	local rowString = "Row Item #" .. i
-	local text = display.newRetinaText( rowString, rowX, 0, "Helvetica-Bold", fontSize )
-	text:setReferencePoint( display.CenterLeftReferencePoint )
-	text.y = row.height * 0.5-1
-	if row.isCategory then
-		text:setTextColor( 255, 255, 255, 255 )
-	else
-		text:setTextColor( 0, 0, 0, 255 )
-	end
-	
-	rowGroup:insert( text )
-end
-
-------------------------------
-
-local function onRowEvent( event )
+-- onEvent listener for the tableView
+local function onRowTouch( event )
 	local row = event.target
 	local rowGroup = event.view
 	
@@ -51,36 +33,55 @@ local function onRowEvent( event )
 		
 		if not row.isCategory then
 			row.reRender = true
-			print( "You touched " .. event.index .. "." )
+			print( "You touched row #" .. event.index )
 		end
 	end
 	
 	return true
 end
 
-------------------------------
-
-local function addTwentyFive()
-	for i=startN,startN+99 do
-		
-		local rowHeight, isCategory, rowColor, lineColor
-		if i == 25 then rowHeight = 24; isCategory = true; rowColor={ 70, 70, 130, 255 }; lineColor={0,0,0,255}; end
-		if i == 45 then rowHeight = 24; isCategory = true; rowColor={ 70, 70, 130, 255 }; lineColor={0,0,0,255}; end
-
-		list:insertRow{
-			onEvent=onRowEvent,
-			onRender=onRowRender,
-			height=rowHeight,
-			isCategory=isCategory,
-			rowColor=rowColor,
-			lineColor=lineColor
-		}
+-- onRender listener for the tableView
+local function onRowRender( event )
+	local row = event.target
+	local rowGroup = event.view
+	
+	local text = display.newRetinaText( "Row #" .. event.index, 12, 0, "Helvetica-Bold", 18 )
+	text:setReferencePoint( display.CenterLeftReferencePoint )
+	text.y = row.height * 0.5
+	if not row.isCategory then
+		text.x = 15
+		text:setTextColor( 0 )
 	end
 	
-	startN = startN+49
+	-- must insert everything into event.view:
+	rowGroup:insert( text )
 end
 
-addTwentyFive()
+-- Add 100 rows, and two categories to the tableView:
+--[[
+for i=1,100 do
+	local rowHeight, rowColor, lineColor, isCategory
+
+	-- make the 25th item a category
+	if i == 25 then
+		isCategory = true; rowHeight = 24; rowColor={ 70, 70, 130, 255 }; lineColor={0,0,0,255}
+	end
+
+	-- make the 45th item a category as well
+	if i == 45 then
+		isCategory = true; rowHeight = 24; rowColor={ 70, 70, 130, 255 }; lineColor={0,0,0,255}
+	end
+
+	list:insertRow{
+		onEvent=onRowTouch,
+		onRender=onRowRender,
+		height=rowHeight,
+		isCategory=isCategory,
+		rowColor=rowColor,
+		lineColor=lineColor
+	}
+end
+--]]
 
 local onTabPress = function( event )
 	print( "You pressed a tab button: " .. event.target.id )
@@ -90,7 +91,7 @@ end
 local buttonsTable = {
 	{ label="First Tab", up="assets/coronaIcon.png", down="assets/coronaIcon-down.png", width=32, height=32, onPress=onTabPress, selected=true },
 	{ label="Second", up="assets/coronaIcon.png", down="assets/coronaIcon-down.png", width=32, height=32, onPress=onTabPress },
-	--{ label="Third", up="assets/coronaIcon.png", down="assets/coronaIcon-down.png", width=32, height=32, onPress=onTabPress },
+	{ label="Third", up="assets/coronaIcon.png", down="assets/coronaIcon-down.png", width=32, height=32, onPress=onTabPress },
 	--{ label="Fourth", up="assets/coronaIcon.png", down="assets/coronaIcon-down.png", width=32, height=32, onPress=onTabPress },
 }
 
@@ -106,7 +107,7 @@ timer.performWithDelay( 2000, function()
 	--list:deleteRow( 100 )
 	--list:scrollToIndex( 50 )
 end, 1 )
-
+---[[
 local columnData = {
 	{ "One", "Two", "Three", "Four", "Five" },
 	{ "One", "Two", "Three", "Four", "Five" },
@@ -115,9 +116,10 @@ local columnData = {
 
 columnData[1].width = 128
 columnData[1].alignment = "right"
-columnData[1].startIndex = 4
+columnData[3].startIndex = 2
+--]]
 
----[[
+--[[
 local picker = widget.newPickerWheel( {
 	id="pickerWheel",
 	font="Helvetica-Bold",
@@ -144,7 +146,7 @@ local function sliderCallback( event )
 	print( event.value )
 end
 
-local slider = widget.new( "slider", { x=100, y=200, width=100, callback=sliderCallback } )
+--local slider = widget.new( "slider", { x=100, y=200, width=100, callback=sliderCallback } )
 
 --timer.performWithDelay( 2000, function() list:removeSelf(); list = nil; end, 1 )
 
