@@ -13,50 +13,164 @@ local assetDir = "widget_ios/"
 -- button
 --
 -----------------------------------------------------------------------------------------
-
--- specify a "style" parameter to use different button styles on a per-button basis
+--
+-- specify a "style" option to use different button styles on a per-button basis
+--
+-- example:
+-- local button = widget.newButton{ style="blue1Small" }
+--
+-- NOTE: using a "style" is not required.
+--
+-----------------------------------------------------------------------------------------
 
 themeTable.button = {
+	-- if no style is specified, will use button default:
+	default = assetDir .. "button/default.png",
+	over = assetDir .. "button/over.png",
+	width = 278, height = 46,
+	font = "Helvetica-Bold",
+	fontSize = 20,
+	labelColor = { default={0}, over={255} },
+	emboss = true,
 	
-	
-	smallToolbar = {
-		
+	blue1Small = {
+		default = assetDir .. "button/blue1Small/default.png",
+		over = assetDir .. "button/blue1Small/over.png",
+		width = 60, height = 30,
+		font = "Helvetica-Bold",
+		fontSize = 12,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
 	},
 	
-	mediumToolbar = {
-		
+	blue1Large = {
+		default = assetDir .. "button/blue1Large/default.png",
+		over = assetDir .. "button/blue1Large/over.png",
+		width = 90, height = 30,
+		font = "Helvetica-Bold",
+		fontSize = 12,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
 	},
 	
-	largeToolbar = {
-		
+	blue2Small = {
+		default = assetDir .. "button/blue2Small/default.png",
+		over = assetDir .. "button/blue2Small/over.png",
+		width = 60, height = 30,
+		font = "Helvetica-Bold",
+		fontSize = 12,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
 	},
 	
-	smallBack = {
-		
+	blue2Large = {
+		default = assetDir .. "button/blue2Large/default.png",
+		over = assetDir .. "button/blue2Large/over.png",
+		width = 90, height = 30,
+		font = "Helvetica-Bold",
+		fontSize = 12,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
 	},
 	
-	mediumBack = {
-		
+	blackSmall = {
+		default = assetDir .. "button/blackSmall/default.png",
+		over = assetDir .. "button/blackSmall/over.png",
+		width = 60, height = 30,
+		font = "Helvetica-Bold",
+		fontSize = 12,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
 	},
 	
-	largeBack = {
-		
+	blackLarge = {
+		default = assetDir .. "button/blackLarge/default.png",
+		over = assetDir .. "button/blackLarge/over.png",
+		width = 90, height = 30,
+		font = "Helvetica-Bold",
+		fontSize = 12,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
 	},
 	
-	smallForward = {
-		
+	redSmall = {
+		default = assetDir .. "button/redSmall/default.png",
+		over = assetDir .. "button/redSmall/over.png",
+		width = 60, height = 30,
+		font = "Helvetica-Bold",
+		fontSize = 12,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
 	},
 	
-	mediumForward = {
-		
+	redLarge = {
+		default = assetDir .. "button/redLarge/default.png",
+		over = assetDir .. "button/redLarge/over.png",
+		width = 90, height = 30,
+		font = "Helvetica-Bold",
+		fontSize = 12,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
 	},
 	
-	largeForward = {
-		
+	backSmall = {
+		default = assetDir .. "button/backSmall/default.png",
+		over = assetDir .. "button/backSmall/over.png",
+		width = 60, height = 30,
+		font = "Helvetica-Bold",
+		fontSize = 12,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
 	},
 	
-	sheetButton = {
-		
+	backLarge = {
+		default = assetDir .. "button/backLarge/default.png",
+		over = assetDir .. "button/backLarge/over.png",
+		width = 90, height = 30,
+		font = "Helvetica-Bold",
+		fontSize = 12,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
+	},
+	
+	sheetGreen = {
+		default = assetDir .. "button/sheetGreen/default.png",
+		over = assetDir .. "button/sheetGreen/over.png",
+		width = 278, height = 46,
+		font = "Helvetica-Bold",
+		fontSize = 20,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
+	},
+	
+	sheetRed = {
+		default = assetDir .. "button/sheetRed/default.png",
+		over = assetDir .. "button/sheetRed/over.png",
+		width = 278, height = 46,
+		font = "Helvetica-Bold",
+		fontSize = 20,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
+	},
+	
+	sheetBlack = {
+		default = assetDir .. "button/sheetBlack/default.png",
+		over = assetDir .. "button/sheetBlack/over.png",
+		width = 278, height = 46,
+		font = "Helvetica-Bold",
+		fontSize = 20,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
+	},
+	
+	sheetYellow = {
+		default = assetDir .. "button/sheetYellow/default.png",
+		over = assetDir .. "button/sheetYellow/over.png",
+		width = 278, height = 46,
+		font = "Helvetica-Bold",
+		fontSize = 20,
+		labelColor = { default={255}, over={255} },
+		emboss = true,
 	}
 }
 

@@ -1,6 +1,6 @@
 display.setStatusBar( display.DefaultStatusBar )
 
-local widget = require( "widget" )
+local widget = require( "widgetlib" )
 widget.setTheme( "theme_ios" )
 
 local options = {}
@@ -9,10 +9,13 @@ options.top = display.statusBarHeight
 options.topPadding = 0
 options.bottomPadding = 0
 options.height = 410
-options.maskFile = "assets/mask-410.png"
+options.maskFile = "assets/mask-320x410.png"
 
-local list = widget.newScrollView( options )
 
+
+local list = widget.newTableView( options )
+
+--[[
 local testImage = display.newImage( "assets/coronaIcon.png" )
 testImage.y = 100
 list:insert( testImage )
@@ -20,6 +23,7 @@ list:insert( testImage )
 local testImage = display.newImage( "assets/coronaIcon.png" )
 testImage.y = 800
 list:insert( testImage )
+--]]
 
 -- onEvent listener for the tableView
 local function onRowTouch( event )
@@ -27,7 +31,7 @@ local function onRowTouch( event )
 	local rowGroup = event.view
 	
 	if event.phase == "press" then
-		if not row.isCategory then rowGroup.alpha = 0.5; end
+		if not row.isCategory then rowGroup.alpha = 0.5;end
 
 	elseif event.phase == "release" then
 		
@@ -58,7 +62,7 @@ local function onRowRender( event )
 end
 
 -- Add 100 rows, and two categories to the tableView:
---[[
+---[[
 for i=1,100 do
 	local rowHeight, rowColor, lineColor, isCategory
 
