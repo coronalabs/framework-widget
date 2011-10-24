@@ -1146,10 +1146,10 @@ function widget.scrollview()
 		local parentView = display.newGroup()
 		local view = display.newGroup(); parentView:insert( view )
 		view.parentObject = scrollView
-		view.content = display.newGroup()
+		view.content = display.newGroup(); parentView:insert( view.content )
 		view.content.y = topPadding
 		view.content.top = 0
-		view.content.bottom = display.contentHeight - height + topPadding - bottomPadding
+		view.content.bottom = bottomPadding --display.contentHeight - height + topPadding - bottomPadding
 		view.content.widgetHeight = height
 		view.content.friction = friction
 		view.content.enterFrame = onUpdate	-- enterFrame listener function
