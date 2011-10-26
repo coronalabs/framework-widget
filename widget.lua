@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- Version 0.2.1 (BETA)
+-- version 0.2.5 (BETA)
 --
 -- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
 --
@@ -15,7 +15,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.2.1 (BETA)"
+widget.version = "0.2.5 (BETA)"
 
 --***************************************************************************************
 --***************************************************************************************
@@ -642,6 +642,13 @@ function widget.pickerwheel()
 		end,
 
 		__newindex = function(t,k,v)
+			if k == "y" then
+				-- update the 'top' property of the pickerWheel
+				local top = t.top
+				local yDiff = v - top
+				t.top = top + yDiff
+			end
+			
 			t._view[k] = v
 		end
 	}
@@ -658,6 +665,7 @@ function widget.pickerwheel()
 		
 		for i=1,#self.columns do
 			local row, rowIndex = self.columns[i]:getRowAtY( self.top + 112 )
+			
 			if row then
 				columnValues[i] = {}
 				columnValues[i].value = row.value
@@ -993,7 +1001,7 @@ function widget.scrollview()
 			self.velocity = self.velocity * self.friction 	
 			self.y = math.floor( self.y + (self.velocity * timePassed) )
 
-			local upperLimit = self.top
+			local upperLimit = self.topPadding --self.top
 			local lowerLimit = self.widgetHeight - self.height - self.bottom
 
 			limitMovement( self, upperLimit, lowerLimit )
@@ -1148,7 +1156,8 @@ function widget.scrollview()
 		view.parentObject = scrollView
 		view.content = display.newGroup(); parentView:insert( view.content )
 		view.content.y = topPadding
-		view.content.top = 0
+		view.content.top = top
+		view.content.topPadding = topPadding
 		view.content.bottom = bottomPadding --display.contentHeight - height + topPadding - bottomPadding
 		view.content.widgetHeight = height
 		view.content.friction = friction
@@ -1550,6 +1559,20 @@ function widget.tableview()
 		end,
 
 		__newindex = function(t,k,v)
+			if k == "y" then
+				-- update the catGroup's y position whenever widget's 'y' is updated
+				if t._view.content.catGroup then
+					t._view.content.catGroup.y = v
+				end
+				
+				-- update the 'top' property of the tableView
+				local top = t._view.content.top
+				local yDiff = v - top
+				t._view.content.top = top + yDiff
+				
+				-- update the mask location
+				t._parentView.maskY = v + (t._view.content.widgetHeight * 0.5)
+			end
 			t._view[k] = v
 		end
 	}
@@ -1593,12 +1616,17 @@ function widget.tableview()
 
 	local function createRowBackgroundAndLine( row, parentGroup )
 		local bg = display.newRect( 0, 0, row.width, row.height )
-		bg:setFillColor( row.rowColor[1], row.rowColor[2], row.rowColor[3], row.rowColor[4])
+		local rowColor = row.rowColor or { 255, 255, 255, 255 }
+			rowColor[1] = rowColor[1] or 255
+			rowColor[2] = rowColor[2] or rowColor[1]
+			rowColor[3] = rowColor[3] or rowColor[1]
+			rowColor[4] = rowColor[4] or 255
+		bg:setFillColor( rowColor[1], rowColor[2], rowColor[3], rowColor[4] )
 		parentGroup:insert( bg )
 
 		local line = display.newLine( 0, row.height-1, row.width, row.height-1 )
 		line.width = 1
-		line:setColor( row.lineColor[1], row.lineColor[2], row.lineColor[3], row.lineColor[4] )
+		line:setColor( row.lineColor[1], row.lineColor[2], row.lineColor[3], 255 )
 		parentGroup:insert( line )
 	end
 
@@ -1690,7 +1718,7 @@ function widget.tableview()
 	local function getRowAtCoordinate( tbContent, yPosition, rows )
 		for i=1,#rows do
 			local row = rows[i]
-			local top = row.top + tbContent.parentObject.top
+			local top = row.top + tbContent.parentObject.y --tbContent.parentObject.top
 			if tbContent.parentObject.parent.parent then
 				-- picker wheel
 				top = top + tbContent.parentObject.parent.parent.y
@@ -1727,14 +1755,14 @@ function widget.tableview()
 			row.top = y
 			
 			local rowTop = row.top
-			local viewTop = view.top
+			local viewTop = tbContent.top --view.top
 			local viewY = view.y
 			local cat = tbContent.cat
-
+			
 			-- next code block handles category "pushing" effect
 			if row.isCategory and cat then
 				local catBottom = viewTop + cat.height - 3
-				if rowTop+viewTop <= catBottom and rowTop+viewTop > viewY then		
+				if rowTop+viewTop <= catBottom and rowTop+viewTop > viewY then	
 					tbContent.cat.y = rowTop - tbContent.catGroup.height + 3
 				else
 					tbContent.cat.y = 0
@@ -1753,13 +1781,13 @@ function widget.tableview()
 				if row._view then display.remove( row._view ); row._view = nil; end
 				row.reRender = false
 			end
-
+			
 			if row.isRendered then
 				ensureRowIsRendered( tbContent, row )		-- ROW *SHOULD* BE RENDERED
 			else
 				ensureRowIsNotRendered( tbContent, row )	-- ROW SHOULD *NOT* BE RENDERED
 			end
-
+			
 			y = y + row.height	-- set the y-position for the next row
 		end
 
@@ -1818,7 +1846,15 @@ function widget.tableview()
 		local width = params.width or defaults.width
 		local height = params.height or defaults.rowHeight
 		local rowColor = params.rowColor or defaults.rowColor
+			rowColor[1] = rowColor[1] or 255
+			rowColor[2] = rowColor[2] or rowColor[1]
+			rowColor[3] = rowColor[3] or rowColor[1]
+			rowColor[4] = rowColor[4] or 255
 		local lineColor = params.lineColor or defaults.lineColor
+			lineColor[1] = lineColor[1] or 128
+			lineColor[2] = lineColor[2] or lineColor[1]
+			lineColor[3] = lineColor[3] or lineColor[1]
+			lineColor[4] = 255
 		local isCategory = params.isCategory or false
 		local onEvent = params.onEvent
 		local onRender = params.onRender
@@ -1966,7 +2002,7 @@ function widget.tableview()
 			self.velocity = self.velocity * self.friction 	
 			self.y = math.floor( self.y + (self.velocity * timePassed) )
 
-			local upperLimit = self.top --+ self.top
+			local upperLimit = self.topPadding --self.top
 			local lowerLimit = self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
 
 			limitMovement( self, upperLimit, lowerLimit )
@@ -2207,7 +2243,8 @@ function widget.tableview()
 		view.content = display.newGroup(); view:insert( view.content )
 		view.content.parentObject = view
 		view.content.y = topPadding
-		view.content.top = topPadding --view.content.y
+		view.content.top = top --topPadding --view.content.y
+		view.content.topPadding = topPadding
 		view.content.bottom = bottomPadding
 		view.content.widgetHeight = height
 		view.content.friction = friction
@@ -2222,7 +2259,7 @@ function widget.tableview()
 		view.content.defaults = {
 			width = width, rowHeight = 64,
 			rowColor = { 255, 255, 255, 255 },	-- r, g, b, alpha
-			lineColor = { 0, 0, 0, 75 }	-- r, g, b, alpha
+			lineColor = { 128, 128, 128, 255 }	-- r, g, b, alpha
 		}
 
 		-- Create background rectangle for widget

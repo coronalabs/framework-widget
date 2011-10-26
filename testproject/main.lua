@@ -15,6 +15,10 @@ options.maskFile = "assets/mask-320x410.png"
 
 local list = widget.newTableView( options )
 
+--list.y = list.y + 100
+
+--transition.to( list, { time=500, y=list.y+100 })
+
 --[[
 local testImage = display.newImage( "assets/coronaIcon.png" )
 testImage.y = 100
@@ -68,12 +72,12 @@ for i=1,100 do
 
 	-- make the 25th item a category
 	if i == 25 then
-		isCategory = true; rowHeight = 24; rowColor={ 70, 70, 130, 255 }; lineColor={0,0,0,255}
+		isCategory = true; rowHeight = 24; rowColor={ 70, 70, 130, 255 }; --lineColor={0,0,0,255}
 	end
 
 	-- make the 45th item a category as well
 	if i == 45 then
-		isCategory = true; rowHeight = 24; rowColor={ 70, 70, 130, 255 }; lineColor={0,0,0,255}
+		isCategory = true; rowHeight = 24; rowColor={ 70, 70, 130, 255 }; --lineColor={0,0,0,255}
 	end
 
 	list:insertRow{
@@ -123,15 +127,15 @@ columnData[1].alignment = "right"
 columnData[3].startIndex = 2
 --]]
 
---[[
+----[[
 local picker = widget.newPickerWheel( {
 	id="pickerWheel",
 	font="Helvetica-Bold",
-	top=480+222,--258-50,
+	top=480+222, --258-50,
 	columns=columnData,
 } )
 
-transition.to( picker.view, { time=500, y=258, transition=easing.outQuad } )
+transition.to( picker, { time=500, y=258, transition=easing.outQuad } )
 --]]
 
 local function getColumnData()
@@ -142,9 +146,9 @@ local function getColumnData()
 	end
 end
 
-timer.performWithDelay( 4000, function()
-	--picker:removeSelf()
-end, 1 )
+--getColumnData()
+
+timer.performWithDelay( 4000, getColumnData, 1 )
 
 local function sliderCallback( event )
 	print( event.value )
