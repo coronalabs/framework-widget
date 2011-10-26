@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- version 0.2.5 (BETA)
+-- version 0.2.6 (BETA)
 --
 -- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
 --
@@ -15,7 +15,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.2.5 (BETA)"
+widget.version = "0.2.6 (BETA)"
 
 --***************************************************************************************
 --***************************************************************************************
@@ -184,6 +184,8 @@ function widget.button()
 				button.over = display.newImage( over, baseDir )
 				button.over:setReferencePoint( display.TopLeftReferencePoint )
 				button.over.x, button.over.y = 0, 0
+				
+				width, height = button.default.width, button.default.height
 			end
 
 			button.over.isVisible = false
