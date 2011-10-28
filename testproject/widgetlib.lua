@@ -119,13 +119,19 @@ function widget.button()
 
 	-----------------------------------------------------------------------------------------
 
-	local function removeSelf( self ) 
+	local function removeSelf( self )
+		display.remove( self.default ); self.default = nil
+		display.remove( self.over ); self.over = nil
+		display.remove( self.label ); self.label = nil
+		
 		if self._view then
-			display.remove( self.default ); self.default = nil
-			display.remove( self.over ); self.over = nil
-
 			self._view:cached_removeSelf()
 			self.view = nil; self._view = nil
+		else
+			if self.cached_removeSelf then
+				self:cached_removeSelf()
+				self.view = nil; self._view = nil
+			end
 		end
 	end
 
