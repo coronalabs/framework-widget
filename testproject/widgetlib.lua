@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- version 0.2.6 (BETA)
+-- version 0.2.7 (BETA)
 --
 -- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
 --
@@ -15,7 +15,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.2.6 (BETA)"
+widget.version = "0.2.7 (BETA)"
 
 --***************************************************************************************
 --***************************************************************************************
@@ -254,7 +254,7 @@ function widget.button()
 		end
 		button.label:setReferencePoint( display.CenterReferencePoint )
 		button.label.x = width * 0.5
-		button.label.y = height * 0.5
+		button.label.y = (height * 0.5) + offset
 		button.label.color = labelColor
 		button._view:insert( button.label )
 
