@@ -2361,7 +2361,7 @@ function widget.newButton( options )
 		options.top = options.y
 	end
 	
-	if options.labelColor and type(options.labelColor[1]) ~= "table" then
+	if options.labelColor and options.labelColor.default == nil then
 		print( "WARNING: The correct format for the 'labelColor' parameter is: { default={r,g,b,a}, over={r,g,b,a} }." )
 	end
 	

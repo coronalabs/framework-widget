@@ -127,7 +127,7 @@ columnData[1].alignment = "right"
 columnData[3].startIndex = 2
 --]]
 
-----[[
+--[[
 local picker = widget.newPickerWheel( {
 	id="pickerWheel",
 	font="Helvetica-Bold",
