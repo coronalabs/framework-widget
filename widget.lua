@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- version 0.2.7 (BETA)
+-- version 0.2.8 (BETA)
 --
 -- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
 --
@@ -15,7 +15,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.2.7 (BETA)"
+widget.version = "0.2.8 (BETA)"
 
 --***************************************************************************************
 --***************************************************************************************
@@ -94,7 +94,14 @@ function widget.button()
 				end
 
 			elseif phase == "ended" or phase == "cancelled" then
-
+				if self.default and self.over then
+					self.default.isVisible = true
+					self.over.isVisible = false
+					local r, g, b, a = self.label.color.default[1] or 0, self.label.color.default[2] or self.label.color.default[1], self.label.color.default[3] or self.label.color.default[1], self.label.color.default[4] or 255
+					self.label:setTextColor( r, g, b, a )
+				end
+				
+				-- trigger appropriate event listener if released within bounds of button
 				if isWithinBounds then
 					event.phase = "release"
 					if self.onEvent then
@@ -104,11 +111,7 @@ function widget.button()
 					end
 				end
 
-				self.default.isVisible = true
-				self.over.isVisible = false
-				local r, g, b, a = self.label.color.default[1] or 0, self.label.color.default[2] or self.label.color.default[1], self.label.color.default[3] or self.label.color.default[1], self.label.color.default[4] or 255
-				self.label:setTextColor( r, g, b, a )
-
+				-- remove focus from button
 				display.getCurrentStage():setFocus( nil )
 				self.isFocus = false
 			end
@@ -284,7 +287,7 @@ function widget.button()
 		button._view:setReferencePoint( display.TopLeftReferencePoint )
 		button._view.x, button._view.y = left, top
 		button._view:setReferencePoint( display.CenterReferencePoint )
-
+		
 		return button
 	end
 
