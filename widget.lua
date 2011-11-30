@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- version 0.2.8 (BETA)
+-- version 0.2.9 (BETA)
 --
 -- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
 --
@@ -15,7 +15,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.2.8 (BETA)"
+widget.version = "0.2.9 (BETA)"
 
 --***************************************************************************************
 --***************************************************************************************
@@ -42,6 +42,23 @@ function widget.button()
 	}
 
 	-----------------------------------------------------------------------------------------
+	
+	local function setLabel( self, newLabel )
+		if newLabel and self.label.text ~= newLabel then
+			local x, y = self.label.x, self.label.y
+			
+			if self.label.setText then
+				-- embossed text
+				self.label:setText( newLabel )
+			else
+				self.label.text = newLabel
+			end
+			
+			-- reposition text
+			self.label:setReferencePoint( display.CenterReferencePoint )
+			self.label.x, self.label.y = x, y
+		end
+	end
 
 	local function onButtonTouch( self, event )
 		local result = true
