@@ -1776,7 +1776,8 @@ function widget.tableview()
 		local y = topY
 		local currentCategoryIndex
 
-		-- update top (e.g. "y") location of each row
+		local catCount = 0
+		-- update top (e.g. "y") location of each row (and handle category pushing)
 		for i=1,#rows do
 			local row = rows[i]
 			row.listIndex = i
@@ -1789,11 +1790,26 @@ function widget.tableview()
 			
 			-- next code block handles category "pushing" effect
 			if row.isCategory and cat then
+				-- the following code 'pushes' the previous category up if next category is overlapping (from top or bottom)
 				local catBottom = viewTop + cat.height - 3
-				if rowTop+viewTop <= catBottom and rowTop+viewTop > viewY then	
+				if rowTop+viewTop <= catBottom and rowTop+viewTop > viewY then
 					tbContent.cat.y = rowTop - tbContent.catGroup.height + 3
-				else
-					tbContent.cat.y = 0
+				end
+			elseif cat and not row.isCategory then
+				-- check to see if a category is "stuck" in the wrong position, if so, place category in correct position
+				if cat.y < 0 then
+					if not cat.prevY then cat.prevY = cat.y; end
+					
+					if cat.prevY then
+						if cat.prevY == cat.y then
+							catCount = catCount + 1
+							
+							if catCount >= 3 then
+								catCount = 0
+								cat.y = 0
+							end
+						end
+					end
 				end
 			end
 
