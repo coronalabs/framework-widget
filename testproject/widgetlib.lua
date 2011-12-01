@@ -1851,13 +1851,19 @@ function widget.tableview()
 	local function deleteRow( self, rowOrIndex )
 		local tbContent = self._view.content
 		local rows = tbContent.rows
-
+		
 		if type(rowOrIndex) == "table" then
+			if rowOrIndex.isRendered then
+				if rowOrIndex._view then display.remove( rowOrIndex._view ); rowOrIndex._view = nil; end
+			end
 			table.remove( rows, rowOrIndex.listIndex )
 		else
+			if rows[rowOrIndex].isRendered then
+				if rows[rowOrIndex]._view then display.remove( rows[rowOrIndex]._view ); rows[rowOrIndex]._view = nil; end
+			end
 			table.remove( rows, rowOrIndex )
 		end
-
+		
 		updateRowLocations( tbContent )
 	end
 
@@ -1887,6 +1893,7 @@ function widget.tableview()
 		params = params or {}	-- create "dummy" table if params not set
 
 		-- extract parameters and/or set defaults
+		local id = params.id
 		local width = params.width or defaults.width
 		local height = params.height or defaults.rowHeight
 		local rowColor = params.rowColor or defaults.rowColor
@@ -1908,6 +1915,7 @@ function widget.tableview()
 		local row = {}
 
 		-- row parameters (user-set)
+		row.id = id
 		row.width = width
 		row.height = height
 		row.rowColor = rowColor
