@@ -1654,7 +1654,7 @@ function widget.tableview()
 
 		local line = display.newLine( 0, row.height-1, row.width, row.height-1 )
 		line.width = 1
-		line:setColor( row.lineColor[1], row.lineColor[2], row.lineColor[3], 255 )
+		line:setColor( row.lineColor[1], row.lineColor[2], row.lineColor[3], row.lineColor[4] )
 		parentGroup:insert( line )
 	end
 
@@ -1898,7 +1898,7 @@ function widget.tableview()
 			lineColor[1] = lineColor[1] or 128
 			lineColor[2] = lineColor[2] or lineColor[1]
 			lineColor[3] = lineColor[3] or lineColor[1]
-			lineColor[4] = 255
+			lineColor[4] = lineColor[4] or 255
 		local isCategory = params.isCategory or false
 		local onEvent = params.onEvent
 		local onRender = params.onRender
