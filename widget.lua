@@ -894,7 +894,7 @@ function widget.pickerwheel()
 
 			picker._view.columns[i] = createColumn( col, params )
 			picker._view:insert( picker._view.columns[i].view )
-			picker._view.columns[i].x = x; x = x + params.width
+			picker._view.columns[i].view.x = x; x = x + params.width
 			
 			if col.startIndex then
 				picker._view.columns[i]:scrollToIndex( col.startIndex, 0 )
