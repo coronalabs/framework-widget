@@ -877,6 +877,7 @@ function widget.pickerwheel()
 			params.fontSize = fontSize
 			params.fontColor = fontColor
 			params.maskFile = maskFile
+			params.isPicker = true
 
 			if #col < 3 then
 				params.bottomPadding = params.topPadding + selectionHeight - (selectionHeight*2-5)
@@ -2196,9 +2197,11 @@ function widget.tableview()
 		local tbContent = self.content
 
 		if timeInMs > 0 then
-			transition.to( tbContent, { y=yPosition, time=timeInMs, transition=easing.outQuad } )
+			local updateTimer
+			local cancelUpdateTimer = function() timer.cancel( updateTimer ); updateTimer = nil; end
+			transition.to( tbContent, { y=yPosition, time=timeInMs, transition=easing.outQuad, onComplete=cancelUpdateTimer } )
 			local updateRows = function() updateRowLocations( tbContent ); end
-			timer.performWithDelay( 1, updateRows, timeInMs )
+			updateTimer = timer.performWithDelay( 1, updateRows, timeInMs )
 		else
 			-- no effect; move content instantly (timeInMs set to 0)
 			tbContent.y = yPosition
@@ -2211,9 +2214,9 @@ function widget.tableview()
 	function scrollToIndex( self, rowIndex, timeInMs )
 		local tbContent = self.content
 		local rows = tbContent.rows
-		local yPosition = -(rows[rowIndex].top)
+		local yPosition = -(rows[rowIndex].top) + tbContent.y
 		
-		if self.parentObject.parent.parent then
+		if self.isPicker then
 			-- picker wheel
 			yPosition = -(rows[rowIndex].top) + 109 + rows[rowIndex].height * 1.45
 		end
@@ -2286,6 +2289,7 @@ function widget.tableview()
 		local renderThresh = options.renderThresh or 150
 		local friction = options.friction or 0.935
 		local r, g, b, a = options.bgColor[1] or 255, options.bgColor[2] or 255, options.bgColor[3] or 255, options.bgColor[4] or 255
+		local isPicker = options.isPicker
 
 		-- Create the "view" display object, its properties, and methods (will become tableView._view)
 		local parentView = display.newGroup()
@@ -2325,6 +2329,7 @@ function widget.tableview()
 		tableView._view.bg = bgRect
 		tableView._view.trackVelocity = false	-- velocity is only tracked during a touch event
 		tableView.isLocked = false				-- when true, disables ability to scroll rows
+		tableView.isPicker = isPicker
 
 		-- assign methods to tableView
 		tableView.insertRow = insertRowIntoTableView
