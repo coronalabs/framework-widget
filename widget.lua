@@ -1610,6 +1610,8 @@ function widget.tableview()
 		__index = tableView.__index,
 		__newindex = tableView.__newindex
 	}
+	
+	local mAbs = math.abs
 
 	-----------------------------------------------------------------------------------------
 
@@ -2046,19 +2048,20 @@ function widget.tableview()
 			self.lastTime = self.lastTime + timePassed
 
 			-- stop scrolling when velocity gets close to zero
-			if math.abs( self.velocity ) < .01 then
+			if mAbs( self.velocity ) < .01 then
 				self.velocity = 0
 				Runtime:removeEventListener( "enterFrame", self )
+			else
+
+				-- update velocity and content location on every framestep
+				self.velocity = self.velocity * self.friction 	
+				self.y = math.floor( self.y + (self.velocity * timePassed) )
+
+				local upperLimit = self.topPadding --self.top
+				local lowerLimit = self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
+
+				limitMovement( self, upperLimit, lowerLimit )
 			end
-
-			-- update velocity and content location on every framestep
-			self.velocity = self.velocity * self.friction 	
-			self.y = math.floor( self.y + (self.velocity * timePassed) )
-
-			local upperLimit = self.topPadding --self.top
-			local lowerLimit = self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
-
-			limitMovement( self, upperLimit, lowerLimit )
 		else
 			trackVelocity( self, event )	-- track velocity if not ready to move
 		end
@@ -2100,6 +2103,8 @@ function widget.tableview()
 			self.trackRowSelection = false	-- stop tracking time user has their finger held down
 
 			local lowerLimit = self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
+			local moveThresh = 10
+			local movedPastThresh = mAbs(event.y - event.yStart) > moveThresh
 
 			self.delta = event.y - self.prevPosition
 			self.prevPosition = event.y
@@ -2110,11 +2115,11 @@ function widget.tableview()
 				self.y = self.y + self.delta
 			end
 
-			updateRowLocations( self )
+			--OLD: updateRowLocations( self )	-- commented out to improve performance; TODO: delete after more testing
 
 			-- make sure if the row that is being touched is "press" (held down too long), to de-select and force re-render
 			local row = getRowAtCoordinate( self, event.y, self.rows )
-			if row and row.isTouched then row.isTouched = false; row.reRender = true; end
+			if row and row.isTouched and movedPastThresh then row.isTouched = false; row.reRender = true; end
 		end
 	end
 
