@@ -2294,8 +2294,8 @@ function widget.tableview()
 		view.content.friction = friction
 		view.content.enterFrame = onUpdate	-- enterFrame listener function
 		view.content.touch = onContentTouch; view.content:addEventListener( "touch", view.content )
-		view.content.upperRenderBounds = view.content.top - renderThresh
-		view.content.lowerRenderBounds = view.content.top + height + renderThresh
+		view.content.upperRenderBounds = topPadding - renderThresh --view.content.top - renderThresh
+		view.content.lowerRenderBounds = topPadding + height + renderThresh --view.content.top + height + renderThresh
 		view.content.trackRowSelection = false	-- used to determine whether or not a row should be selected
 
 		-- set up table to hold row items, as well as default row values
