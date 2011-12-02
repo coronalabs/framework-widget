@@ -1877,15 +1877,12 @@ function widget.tableview()
 				-- check to see if a category is "stuck" in the wrong position, if so, place category in correct position
 				if cat.y < 0 then
 					if not cat.prevY then cat.prevY = cat.y; end
-					
-					if cat.prevY then
-						if cat.prevY == cat.y then
-							catCount = catCount + 1
-							
-							if catCount >= 3 then
-								catCount = 0
-								cat.y = 0
-							end
+					if cat.prevY == cat.y then
+						catCount = catCount + 1
+						
+						if catCount >= 3 then
+							catCount = 0
+							cat.y = 0
 						end
 					end
 				end
@@ -2011,19 +2008,6 @@ function widget.tableview()
 
 		-- ensure row locations are up-to-date
 		updateRowLocations( content )
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function trackVelocity( self, event )
-		if self.y ~= self.prevY then
-			self.eventCount = 0
-			local time = event.time
-			local timePassed = time - self.prevTime
-			self.prevTime = time
-			self.velocity = (self.y - self.prevY) / timePassed
-			self.prevY = self.y
-		end
 	end
 
 	-----------------------------------------------------------------------------------------
