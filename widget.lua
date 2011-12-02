@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- version 0.2.9 (BETA)
+-- version 0.3 (BETA)
 --
 -- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
 --
@@ -15,7 +15,34 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.2.9 (BETA)"
+widget.version = "0.3 (BETA)"
+
+--***************************************************************************************
+--***************************************************************************************
+--
+-- Modify factory functions to work with widgets
+--
+--***************************************************************************************
+--***************************************************************************************
+
+local cached_displayNewGroup = display.newGroup
+function display.newGroup()
+	local g = cached_displayNewGroup()
+	
+	-- sub-class removeSelf method
+	local cached_removeSelf = g.removeSelf
+	function g:removeSelf()
+		-- go through and check for widgets; widgets will be removed when group is
+		for i=self.numChildren,1,-1 do
+			if self[i]._isWidget then
+				self[i].parentObject:removeSelf()
+			end
+		end
+		cached_removeSelf( self )
+	end
+	
+	return g
+end
 
 --***************************************************************************************
 --***************************************************************************************
@@ -189,6 +216,8 @@ function widget.button()
 
 		local button = {}
 		button._view = display.newGroup()
+		button._view._isWidget = true
+		button._view.parentObject = button
 
 		if default then
 			if not over then over = default; end
@@ -647,6 +676,9 @@ function widget.slider()
 
 		-- assign properties to the table t
 		t.value = initialValue
+		t.view = t._view
+		t.view._isWidget = true
+		t.view.parentObject = t
 
 		-- return the sliderControl group
 		return t
@@ -780,8 +812,7 @@ function widget.pickerwheel()
 		end
 		self.columns = nil
 		
-		if self._view then self._view:cached_removeSelf(); end
-		self._view = nil
+		if self.view then self.view:cached_removeSelf(); end
 		self.view = nil
 		self = nil
 	end
@@ -830,6 +861,9 @@ function widget.pickerwheel()
 		local picker = {}
 		picker._view = display.newGroup(); picker.view = picker._view
 		picker._view.columns = {}
+		
+		picker.view._isWidget = true
+		picker.view.parentObject = picker
 
 		local x = (totalWidth * 0.5)-(width * 0.5)
 		
@@ -972,14 +1006,17 @@ function widget.scrollview()
 	-----------------------------------------------------------------------------------------
 
 	local function trackVelocity( self, event )
-		local timePassed = event.time - self.prevTime
-		self.prevTime = self.prevTime + timePassed
-		self.velocity = (self.y - self.prevY) / timePassed
-		self.prevY = self.y
+		if self.y ~= self.prevY then
+			local time = event.time
+			local timePassed = time - self.prevTime
+			self.prevTime = time
+			self.velocity = (self.y - self.prevY) / timePassed
+			self.prevY = self.y
+		end
 	end
 
 	-----------------------------------------------------------------------------------------
-
+	
 	local function limitMovement( self, upperLimit, lowerLimit )
 		if self.y > upperLimit then
 
@@ -1017,8 +1054,9 @@ function widget.scrollview()
 
 	local function onUpdate( self, event )	-- Reference: self = scrollView._view.content
 		if not self.trackVelocity then
-			local timePassed = event.time - self.lastTime
-			self.lastTime = self.lastTime + timePassed
+			local time = event.time
+			local timePassed = time - self.lastTime
+			self.lastTime = time
 
 			-- stop scrolling when velocity gets close to zero
 			if math.abs( self.velocity ) < .01 then
@@ -1181,6 +1219,8 @@ function widget.scrollview()
 
 		-- Create the "view" display object, its properties, and methods (will become scrollView._view)
 		local parentView = display.newGroup()
+		parentView._isWidget = true
+		parentView.parentObject = scrollView
 		local view = display.newGroup(); parentView:insert( view )
 		view.parentObject = scrollView
 		view.content = display.newGroup(); parentView:insert( view.content )
@@ -1434,6 +1474,36 @@ function widget.tabbar()
 			if button.label then button.label:setTextColor( button.label.color[1], button.label.color[2], button.label.color[3], button.label.color[4] ); end
 		end
 	end
+	
+	-----------------------------------------------------------------------------------------
+	
+	local function pressButton( self, buttonIndex, invokeListener )
+		self:deSelectAll()
+		
+		local button = self.buttons[buttonIndex]
+		if button then
+			-- ensure overlay and down graphic are showing
+			button.up.isVisible = false
+			button.overlay.isVisible = true
+			button.down.isVisible = true
+			button.selected = true
+			if button.label then button.label:setTextColor( 255, 255, 255, 255 ); end
+
+			-- call listener function
+			if invokeListener then
+				if button.onPress and type(button.onPress) == "function" then
+					local event = {
+						name = "tabButtonPress",
+						target = button,
+						targetParent = self
+					}
+					button.onPress( event )
+				end
+			end
+		else
+			print( "WARNING: Specified tab button '" .. buttonIndex .. "' does not exist." )
+		end
+	end
 
 	-----------------------------------------------------------------------------------------
 
@@ -1452,6 +1522,7 @@ function widget.tabbar()
 
 		if self._view then self._view:cached_removeSelf(); end
 		self.parentObject = nil
+		self.pressButton = nil
 		self.deSelectAll = nil
 		self._view = nil
 		self.view = nil
@@ -1474,6 +1545,7 @@ function widget.tabbar()
 		local bottomFill = options.bottomFill or theme.bottomFill or { 0, 0, 0, 255 }
 		local left = options.left or 0
 		local top = options.top or 0
+		local baseDir = options.baseDir or system.ResourceDirectory
 
 		-- setup gradient
 		if not background and not topGradient then
@@ -1482,12 +1554,13 @@ function widget.tabbar()
 
 		-- setup actual display object
 		local view = display.newGroup()
+		view._isWidget = true
 		view.parentObject = tabBar
 		local bg
 
 		-- create background for tabBar
 		if background then
-			bg = display.newImageRect( "background", width, height )
+			bg = display.newImageRect( background, baseDir, width, height )
 		elseif topGradient then
 			bg = display.newRect( 0, 0, width, height )
 			bg:setFillColor( topGradient )
@@ -1541,6 +1614,7 @@ function widget.tabbar()
 
 		-- methods
 		tabBar.deSelectAll = deSelectAll
+		tabBar.pressButton = pressButton
 
 		-- assign a reference to the display object
 		tabBar._view = view
@@ -1612,6 +1686,7 @@ function widget.tableview()
 	}
 	
 	local mAbs = math.abs
+	local mFloor = math.floor
 
 	-----------------------------------------------------------------------------------------
 
@@ -1941,10 +2016,14 @@ function widget.tableview()
 	-----------------------------------------------------------------------------------------
 
 	local function trackVelocity( self, event )
-		local timePassed = event.time - self.prevTime
-		self.prevTime = self.prevTime + timePassed
-		self.velocity = (self.y - self.prevY) / timePassed
-		self.prevY = self.y
+		if self.y ~= self.prevY then
+			self.eventCount = 0
+			local time = event.time
+			local timePassed = time - self.prevTime
+			self.prevTime = time
+			self.velocity = (self.y - self.prevY) / timePassed
+			self.prevY = self.y
+		end
 	end
 
 	-----------------------------------------------------------------------------------------
@@ -2023,17 +2102,17 @@ function widget.tableview()
 
 	-----------------------------------------------------------------------------------------
 
-	local function checkSelectionStatus( tbContent )
-		local timePassed = system.getTimer() - tbContent.startTime
-
-		if timePassed > 75 then		-- finger has been held down for more than 50 milliseconds
-
+	local function checkSelectionStatus( tbContent, time )
+		local timePassed = time - tbContent.startTime
+		
+		if timePassed > 125 then		-- finger has been held down for more than 50 milliseconds
+			tbContent.trackRowSelection = false
+			
 			-- initiate "press" event if a row is being touched
-			local row = getRowAtCoordinate( tbContent, tbContent.prevPosition, tbContent.rows )
+			local row = tbContent.currentSelectedRow --getRowAtCoordinate( tbContent, tbContent.prevPosition, tbContent.rows )
 			if row then
 				row.isTouched = true
 				initiateRowEvent( tbContent, row, "press" )
-				tbContent.trackRowSelection = false
 			end
 		end
 	end
@@ -2041,32 +2120,32 @@ function widget.tableview()
 	-----------------------------------------------------------------------------------------
 
 	local function onUpdate( self, event )	-- Reference: self = tableView._view.content
-		if self.trackRowSelection then checkSelectionStatus( self ); end
-
 		if not self.trackVelocity then
-			local timePassed = event.time - self.lastTime
-			self.lastTime = self.lastTime + timePassed
-
+			local time = event.time
+			local timePassed = time - self.lastTime
+			self.lastTime = time --self.lastTime + timePassed
+			
 			-- stop scrolling when velocity gets close to zero
 			if mAbs( self.velocity ) < .01 then
 				self.velocity = 0
+				self.y = mFloor( self.y )
 				Runtime:removeEventListener( "enterFrame", self )
 			else
-
 				-- update velocity and content location on every framestep
 				self.velocity = self.velocity * self.friction 	
-				self.y = math.floor( self.y + (self.velocity * timePassed) )
+				self.y = self.y + (self.velocity * timePassed) --math.floor( self.y + (self.velocity * timePassed) )
 
 				local upperLimit = self.topPadding --self.top
 				local lowerLimit = self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
 
 				limitMovement( self, upperLimit, lowerLimit )
 			end
+			
+			updateRowLocations( self )	-- ensure virtual rows y position matches that of content group
 		else
-			trackVelocity( self, event )	-- track velocity if not ready to move
+			-- for timing how long user has row held down
+			if self.trackRowSelection then checkSelectionStatus( self, event.time ); end
 		end
-
-		updateRowLocations( self )	-- ensure virtual rows y position matches that of content group
 	end
 
 	-----------------------------------------------------------------------------------------
@@ -2077,19 +2156,22 @@ function widget.tableview()
 			-- set focus on tableView's content
 			display.getCurrentStage():setFocus( self )
 			self.isFocus = true
-
+			
+			Runtime:removeEventListener( "enterFrame", self )	-- remove listener for auto-movement based on velocity
+			
 			-- set some variables necessary movement/scrolling
 			self.delta, self.velocity = 0, 0
-			self.prevTime, self.prevY = 0, 0
+			self.prevY = self.y
 			self.prevPosition = event.y
-
-			-- start enterFrame listener to track velocity, and to enact momentum-based scrolling
-			Runtime:removeEventListener( "enterFrame", self )	-- remove in case listener is still active for whatever reason
-			Runtime:addEventListener( "enterFrame", self )
-			self.trackVelocity = true	-- start tracking velocity
-
-			self.startTime = system.getTimer()
+			self.trackVelocity = true
+			self.lowerLimit = self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
+			
+			Runtime:addEventListener( "enterFrame", self )	-- begin this to monitor row presses
+			
+			self.currentSelectedRow = getRowAtCoordinate( self, event.y, self.rows )
 			self.trackRowSelection = true
+			self.startTime = event.time
+			self.eventStep = 0
 		end
 	end
 
@@ -2099,27 +2181,45 @@ function widget.tableview()
 		if self.isFocus then
 			-- This code handles finger movement, and prevents content from going
 			-- too far past its upper and lower boundaries.
+			local distance = mAbs( event.y - event.yStart )
+			if distance > 2 then
+				local lowerLimit = self.lowerLimit --self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
+				local moveThresh = 10
+				local movedPastThresh = distance > moveThresh
+				local y = event.y
+				
+				self.delta = y - self.prevPosition
+				self.prevPosition = y
 
-			self.trackRowSelection = false	-- stop tracking time user has their finger held down
+				if self.y > self.top or self.y < lowerLimit then
+					self.y = self.y + self.delta/2
+				else
+					self.y = self.y + self.delta
+				end
 
-			local lowerLimit = self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
-			local moveThresh = 10
-			local movedPastThresh = mAbs(event.y - event.yStart) > moveThresh
-
-			self.delta = event.y - self.prevPosition
-			self.prevPosition = event.y
-
-			if self.y > self.top or self.y < lowerLimit then
-				self.y = self.y + self.delta/2
-			else
-				self.y = self.y + self.delta
+				-- make sure if the row that is being touched is "press" (held down too long), to de-select and force re-render
+				local row = self.currentSelectedRow
+				if row and row.isTouched and movedPastThresh then
+					self.trackRowSelection = false	-- stop tracking amount of time user has their finger held down
+					row.isTouched = false
+					row.reRender = true
+				end
+				
+				-- modify velocity based on previous move phase
+				---[[
+				--if self.y ~= self.prevY then
+				if self.eventStep > 1 then
+					self.eventStep = 0
+					self.velocity = (self.y - self.prevY) / (event.time - self.startTime)
+					self.prevY = self.y
+					self.startTime = event.time
+				else
+					self.eventStep = self.eventStep + 1
+				end
+				--]]
+				
+				updateRowLocations( self )
 			end
-
-			--OLD: updateRowLocations( self )	-- commented out to improve performance; TODO: delete after more testing
-
-			-- make sure if the row that is being touched is "press" (held down too long), to de-select and force re-render
-			local row = getRowAtCoordinate( self, event.y, self.rows )
-			if row and row.isTouched and movedPastThresh then row.isTouched = false; row.reRender = true; end
 		end
 	end
 
@@ -2127,14 +2227,21 @@ function widget.tableview()
 
 	local function endContentTouch( self, event )	-- "ended" phase for onContentTouch
 		if self.isFocus then
-			self.lastTime = event.time	-- this is necessary for calculating scrolling movement (see onUpdate)
+			local time = event.time
+			self.lastTime = time	-- this is necessary for calculating scrolling movement (see onUpdate)
+			--self.velocity = (self.y - self.prevY) / (time - self.startTime)
 			self.trackVelocity = false	-- stop tracking velocity
+			self.trackRowSelection = nil
+			self.startTime = nil
 
 			-- check to see if a row was selected
-			local row = getRowAtCoordinate( self, event.y, self.rows )
+			local row = self.currentSelectedRow	--getRowAtCoordinate( self, event.y, self.rows )
 			if row and row.isTouched then
 				initiateRowEvent( self, row, "release" )
 				row.isTouched = false
+				row = nil
+				self.currentSelectedRow = nil
+				updateRowLocations( self )
 			end
 
 			-- remove focus from tableView's content
@@ -2263,6 +2370,7 @@ function widget.tableview()
 				end
 
 				self._view.parentObject = nil
+				self.view.parentObject = nil
 			end
 
 			self._view.content = nil; self._view.parentObject = nil
@@ -2292,12 +2400,14 @@ function widget.tableview()
 		local width = options.width or (display.contentWidth-left)
 		local height = options.height or (display.contentHeight-top)
 		local renderThresh = options.renderThresh or 150
-		local friction = options.friction or 0.935
+		local friction = options.friction or 0.925 --0.935
 		local r, g, b, a = options.bgColor[1] or 255, options.bgColor[2] or 255, options.bgColor[3] or 255, options.bgColor[4] or 255
 		local isPicker = options.isPicker
 
 		-- Create the "view" display object, its properties, and methods (will become tableView._view)
 		local parentView = display.newGroup()
+		parentView._isWidget = true
+		parentView.parentObject = tableView
 		local view = display.newGroup(); parentView:insert( view )
 		view.top = top
 		view.parentObject = tableView
@@ -2385,7 +2495,7 @@ function widget.tableview()
 
 	function tableView.new( widgetTheme, options )
 		local tableView_widget = createTableView( options )
-
+		
 		return setmetatable( tableView_widget, tableView_mt )
 	end
 	
