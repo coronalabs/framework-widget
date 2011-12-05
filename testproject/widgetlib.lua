@@ -2126,6 +2126,9 @@ function widget.tableview()
 			
 			updateRowLocations( self )	-- ensure virtual rows y position matches that of content group
 		else
+			-- continuously reset y-position while tracking velocity
+			self.prevY = self.y
+			
 			-- for timing how long user has row held down
 			if self.trackRowSelection then checkSelectionStatus( self, event.time ); end
 		end
@@ -2164,11 +2167,46 @@ function widget.tableview()
 		if self.isFocus then
 			-- This code handles finger movement, and prevents content from going
 			-- too far past its upper and lower boundaries.
-			local distance = mAbs( event.y - event.yStart )
-			if distance > 2 then
+			local swipeThresh = 50
+			local moveThresh = 10
+			local xDistance = event.x - event.xStart
+			local yDistance = mAbs( event.y - event.yStart )
+			local movedPastThresh = yDistance > moveThresh
+			local row = self.currentSelectedRow
+			
+			if not movedPastThresh then
+				if row then
+					-- check to see if a "swipe" event should be dispatched
+					if xDistance > swipeThresh then
+						initiateRowEvent( self, row, "swipeRight" )
+						row.isTouched = false
+						row = nil
+						self.currentSelectedRow = nil
+						updateRowLocations( self )
+					
+						-- remove focus from tableView's content
+						display.getCurrentStage():setFocus( nil )
+						self.isFocus = nil; self.oy = nil
+					elseif xDistance < -swipeThresh then
+						initiateRowEvent( self, row, "swipeLeft" )
+						row.isTouched = false
+						row = nil
+						self.currentSelectedRow = nil
+						updateRowLocations( self )
+					
+						-- remove focus from tableView's content
+						display.getCurrentStage():setFocus( nil )
+						self.isFocus = nil; self.oy = nil
+					end
+				end
+			else
+				-- prevent row from being tracked after initial movement past threshold
+				self.trackRowSelection = false
+			end
+			
+			
+			if yDistance > 2 then
 				local lowerLimit = self.lowerLimit --self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
-				local moveThresh = 10
-				local movedPastThresh = distance > moveThresh
 				local y = event.y
 				
 				self.delta = y - self.prevPosition
@@ -2181,7 +2219,6 @@ function widget.tableview()
 				end
 
 				-- make sure if the row that is being touched is "press" (held down too long), to de-select and force re-render
-				local row = self.currentSelectedRow
 				if row and row.isTouched and movedPastThresh then
 					self.trackRowSelection = false	-- stop tracking amount of time user has their finger held down
 					row.isTouched = false
@@ -2189,17 +2226,13 @@ function widget.tableview()
 				end
 				
 				-- modify velocity based on previous move phase
-				---[[
-				--if self.y ~= self.prevY then
 				if self.eventStep > 1 then
 					self.eventStep = 0
 					self.velocity = (self.y - self.prevY) / (event.time - self.startTime)
-					self.prevY = self.y
 					self.startTime = event.time
 				else
 					self.eventStep = self.eventStep + 1
 				end
-				--]]
 				
 				updateRowLocations( self )
 			end
@@ -2212,8 +2245,7 @@ function widget.tableview()
 		if self.isFocus then
 			local time = event.time
 			self.lastTime = time	-- this is necessary for calculating scrolling movement (see onUpdate)
-			--self.velocity = (self.y - self.prevY) / (time - self.startTime)
-			self.trackVelocity = false	-- stop tracking velocity
+			self.trackVelocity = nil	-- stop tracking velocity
 			self.trackRowSelection = nil
 			self.startTime = nil
 
