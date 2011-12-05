@@ -1351,9 +1351,8 @@ function widget.tabbar()
 
 			-- call onButtonSelection()
 			self:onSelection()
-
-			return true
 		end
+		return true
 	end
 
 	-----------------------------------------------------------------------------------------
