@@ -2206,6 +2206,8 @@ function widget.tableview()
 						row = nil
 						self.currentSelectedRow = nil
 						updateRowLocations( self )
+						self.velocity = 0
+						self.trackRowSelection = false
 					
 						-- remove focus from tableView's content
 						display.getCurrentStage():setFocus( nil )
@@ -2216,6 +2218,8 @@ function widget.tableview()
 						row = nil
 						self.currentSelectedRow = nil
 						updateRowLocations( self )
+						self.velocity = 0
+						self.trackRowSelection = false
 					
 						-- remove focus from tableView's content
 						display.getCurrentStage():setFocus( nil )
