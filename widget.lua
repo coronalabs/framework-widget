@@ -114,9 +114,8 @@ function widget.button()
 			local bounds = self.contentBounds
 			local x, y = event.x, event.y
 			local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
-
+			
 			if phase == "moved" then
-
 				if not isWithinBounds then
 					self.default.isVisible = true
 					self.over.isVisible = false
@@ -1081,7 +1080,6 @@ function widget.scrollview()
 
 	local function onContentTouch( self, event )
 		if event.phase == "began" then
-
 			-- set focus on scrollView's content
 			display.getCurrentStage():setFocus( self )
 			self.isFocus = true
@@ -1171,6 +1169,30 @@ function widget.scrollview()
 			svContent.y = yPosition
 		end
 	end
+	
+	-----------------------------------------------------------------------------------------
+	
+	-- transfer touch focus from other display object and give to scrollView
+	local function stealFocus( self, event )
+		local target = event.target.view or event.target
+		
+		-- if button, restore back to "default" state
+		if target.default and target.over then
+			target.default.isVisible = true
+			target.over.isVisible = false
+			local r, g, b, a = target.label.color.default[1] or 0, target.label.color.default[2] or target.label.color.default[1], target.label.color.default[3] or target.label.color.default[1], target.label.color.default[4] or 255
+			target.label:setTextColor( r, g, b, a )
+		end
+
+		-- remove focus from target
+		display.getCurrentStage():setFocus( nil )
+		target.isFocus = false
+		
+		-- set event.target to scrollView and start back at "began" phase
+		event.target = self
+		event.phase = "began"
+		self.content.touch( self.content, event )
+	end
 
 	-----------------------------------------------------------------------------------------
 
@@ -1232,6 +1254,7 @@ function widget.scrollview()
 		view.content.friction = friction
 		view.content.enterFrame = onUpdate	-- enterFrame listener function
 		view.content.touch = onContentTouch; view.content:addEventListener( "touch", view.content )
+		view.stealFocus = stealFocus
 
 		-- Create background rectangle for widget
 		local bgRect = display.newRect( view, 0, 0, width, height )
