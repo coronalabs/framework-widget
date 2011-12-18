@@ -2149,16 +2149,17 @@ function widget.tableview()
 			if mAbs( self.velocity ) < .01 then
 				self.velocity = 0
 				self.y = mFloor( self.y )
-				Runtime:removeEventListener( "enterFrame", self )
+                
+                -- if pulled past upper/lower boundaries, tween content properly
+                limitMovement( self, self.upperLimit, self.lowerLimit )
+				
+                Runtime:removeEventListener( "enterFrame", self )
 			else
 				-- update velocity and content location on every framestep
 				self.velocity = self.velocity * self.friction 	
 				self.y = self.y + (self.velocity * timePassed) --math.floor( self.y + (self.velocity * timePassed) )
 
-				local upperLimit = self.topPadding --self.top
-				local lowerLimit = self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
-
-				limitMovement( self, upperLimit, lowerLimit )
+				limitMovement( self, self.upperLimit, self.lowerLimit )
 			end
 			
 			updateRowLocations( self )	-- ensure virtual rows y position matches that of content group
@@ -2184,6 +2185,7 @@ function widget.tableview()
 			self.prevY = self.y
 			self.prevPosition = event.y
 			self.trackVelocity = true
+            self.upperLimit = self.topPadding
 			self.lowerLimit = self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
 			
 			Runtime:addEventListener( "enterFrame", self )	-- begin this to monitor row presses
