@@ -1,6 +1,0 @@
-widget version 0.2.5 TODO:
---------------------------
-
-* button: remove the warning when it comes to using offset over labelOffset, and remove labelOffset parameter from actual button creation.
-
-* 

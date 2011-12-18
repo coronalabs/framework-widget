@@ -3,3 +3,5 @@ syntax: glob
 testbed
 testbed/main\.lua
 testproject/WidgetDemo
+nextversion-todo\.txt
+\.hgignore
