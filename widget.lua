@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- version 0.3 (BETA)
+-- version 0.4 (BETA)
 --
 -- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
 --
@@ -15,7 +15,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.3 (BETA)"
+widget.version = "0.4 (BETA)"
 
 --***************************************************************************************
 --***************************************************************************************
@@ -2109,18 +2109,32 @@ function widget.tableview()
 	-----------------------------------------------------------------------------------------
 
 	local function checkSelectionStatus( tbContent, time )
-		local timePassed = time - tbContent.startTime
-		
-		if timePassed > 125 then		-- finger has been held down for more than 50 milliseconds
-			tbContent.trackRowSelection = false
-			
-			-- initiate "press" event if a row is being touched
-			local row = tbContent.currentSelectedRow --getRowAtCoordinate( tbContent, tbContent.prevPosition, tbContent.rows )
-			if row then
-				row.isTouched = true
-				initiateRowEvent( tbContent, row, "press" )
-			end
-		end
+		if tbContent.trackRowSelection then
+            local timePassed = time - tbContent.startTime
+            
+            if timePassed > 100 then		-- finger has been held down for more than 100 milliseconds
+                tbContent.trackRowSelection = false
+                
+                -- initiate "press" event if a row is being touched
+                local row = tbContent.currentSelectedRow --getRowAtCoordinate( tbContent, tbContent.prevPosition, tbContent.rows )
+                if row then
+                    row.isTouched = true
+                    initiateRowEvent( tbContent, row, "press" )
+                end
+            end
+        else
+            -- if not tracking row selection, monitor how much time finger is held before releasing
+            if tbContent.prevY == tbContent.y then
+                if tbContent.eventStep > 5 then
+                    -- if finger is held down for 5 frames, ensure velocity is reset to 0
+                    tbContent.prevY = tbContent.y
+                    tbContent.velocity = 0
+                    tbContent.eventStep = 0
+                else
+                    tbContent.eventStep = tbContent.eventStep + 1
+                end
+            end
+        end
 	end
 
 	-----------------------------------------------------------------------------------------
@@ -2129,8 +2143,8 @@ function widget.tableview()
 		if not self.trackVelocity then
 			local time = event.time
 			local timePassed = time - self.lastTime
-			self.lastTime = time --self.lastTime + timePassed
-			
+			self.lastTime = time 
+
 			-- stop scrolling when velocity gets close to zero
 			if mAbs( self.velocity ) < .01 then
 				self.velocity = 0
@@ -2149,11 +2163,8 @@ function widget.tableview()
 			
 			updateRowLocations( self )	-- ensure virtual rows y position matches that of content group
 		else
-			-- continuously reset y-position while tracking velocity
-			self.prevY = self.y
-			
-			-- for timing how long user has row held down
-			if self.trackRowSelection then checkSelectionStatus( self, event.time ); end
+			-- for timing how long user has tableView held down
+            checkSelectionStatus( self, event.time )
 		end
 	end
 
@@ -2253,13 +2264,10 @@ function widget.tableview()
 				end
 				
 				-- modify velocity based on previous move phase
-				if self.eventStep > 1 then
-					self.eventStep = 0
-					self.velocity = (self.y - self.prevY) / (event.time - self.startTime)
-					self.startTime = event.time
-				else
-					self.eventStep = self.eventStep + 1
-				end
+                self.eventStep = 0
+                self.velocity = (self.y - self.prevY) / (event.time - self.startTime)
+                self.startTime = event.time
+                self.prevY = self.y    -- ensure self.prevY is set to currently selection (for next move phase)
 				
 				updateRowLocations( self )
 			end
