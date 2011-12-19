@@ -35,7 +35,9 @@ function display.newGroup()
 		-- go through and check for widgets; widgets will be removed when group is
 		for i=self.numChildren,1,-1 do
 			if self[i]._isWidget then
-				self[i].parentObject:removeSelf()
+				if self[i].parentObject then
+                    self[i].parentObject:removeSelf()
+                end
 			end
 		end
 		cached_removeSelf( self )
