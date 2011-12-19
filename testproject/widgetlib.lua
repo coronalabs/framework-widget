@@ -2203,7 +2203,7 @@ function widget.tableview()
 		if self.isFocus then
 			-- This code handles finger movement, and prevents content from going
 			-- too far past its upper and lower boundaries.
-			local swipeThresh = 50
+			local swipeThresh = 12
 			local moveThresh = 10
 			local xDistance = event.x - event.xStart
 			local yDistance = mAbs( event.y - event.yStart )
