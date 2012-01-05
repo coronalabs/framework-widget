@@ -21,7 +21,7 @@ local mFloor = math.floor
 
 -- defaults
 local scrollFriction = 0.935
-local pickerFriction = 0.925
+local pickerFriction = 0.88
 
 -- modify factory function to ensure widgets are properly cleaned on group removal
 local cached_displayNewGroup = display.newGroup
@@ -979,9 +979,9 @@ function widget.newPickerWheel( options )
 			params.topPadding = selectionTop
 			params.bottomPadding = height - (selectionTop+selectionHeight)
 			params.width = col.width or width/#columns
-			params.height = height -- selectionTop
+			params.height = height
 			params.bgColor = columnColor
-			params.friction = 0.88
+			params.friction = pickerFriction
 			params.keepRowsPastTopVisible = true
 			
 			-- if last column, ensure width fills remaining space
