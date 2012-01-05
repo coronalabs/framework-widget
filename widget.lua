@@ -1,4 +1,4 @@
---*********************************************************************************************
+--****************************************************************************************
 --
 -- ====================================================================
 -- Corona SDK Widget Module
@@ -6,95 +6,271 @@
 --
 -- File: widget.lua
 --
--- version 0.4 (BETA)
+-- Copyright (C) 2012 ANSCA Inc. All Rights Reserved.
 --
--- Copyright (C) 2011 ANSCA Inc. All Rights Reserved.
---
---*********************************************************************************************
+--****************************************************************************************
 
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.4 (BETA)"
+widget.version = "0.5b"
 
---***************************************************************************************
---***************************************************************************************
---
--- Modify factory functions to work with widgets
---
---***************************************************************************************
---***************************************************************************************
+-- cached locals
+local mAbs = math.abs
+local mFloor = math.floor
 
+-- defaults
+local scrollFriction = 0.935
+local pickerFriction = 0.925
+
+-- modify factory function to ensure widgets are properly cleaned on group removal
 local cached_displayNewGroup = display.newGroup
 function display.newGroup()
 	local g = cached_displayNewGroup()
 	
-	-- sub-class removeSelf method
-	local cached_removeSelf = g.removeSelf
-	function g:removeSelf()
-		-- go through and check for widgets; widgets will be removed when group is
-		for i=self.numChildren,1,-1 do
-			if self[i]._isWidget then
-				if self[i].parentObject then
-                    self[i].parentObject:removeSelf()
-                end
+	-- function to find/remove widgets within group
+	local function removeWidgets( group )
+		if group.numChildren then
+			for i=group.numChildren,1,-1 do
+				if group[i]._isWidget then
+					group[i]:removeSelf()
+				
+				elseif not group[i]._isWidget and group[i].numChildren then
+					-- nested group (that is not a widget)
+					removeWidgets( group[i] )
+				end
 			end
 		end
-		cached_removeSelf( self )
 	end
 	
+	-- store reference to original removeSelf method
+	local cached_removeSelf = g.removeSelf
+	
+	-- subclass removeSelf method
+	function g:removeSelf()
+		removeWidgets( self )	-- remove widgets first
+		cached_removeSelf( self )	-- continue removing group as usual
+	end
 	return g
 end
 
---***************************************************************************************
---***************************************************************************************
---
--- button
---
---***************************************************************************************
---***************************************************************************************
+-- set current theme from external .lua module
+function widget.setTheme( themeModule )
+	widget.theme = require( themeModule )	-- should return table w/ theme data
+end
 
-function widget.button()
-	local button = {
-		__index = function(t,k)
-			return t._view[k]
-		end,
-
-		__newindex = function(t,k,v)
-			t._view[k] = v
-		end
-	}
-	--package.loaded[modname] = button
-	local button_mt = {
-		__index = button.__index,
-		__newindex = button.__newindex
-	}
-
-	-----------------------------------------------------------------------------------------
+-- creates very sharp text for high resolution/high density displays
+function widget.retinaText( ... )
+	local arg = { ... }
+	local text
+	local csX, csY = display.contentScaleX, display.contentScaleY
 	
-	local function setLabel( self, newLabel )
-		if newLabel and self.label.text ~= newLabel then
-			local x, y = self.label.x, self.label.y
-			
-			if self.label.setText then
-				-- embossed text
-				self.label:setText( newLabel )
-			else
-				self.label.text = newLabel
-			end
-			
-			-- reposition text
-			self.label:setReferencePoint( display.CenterReferencePoint )
-			self.label.x, self.label.y = x, y
+	if 1.0 ~= csX and 1.0 ~= csY then
+		-- parse arguments
+		local parentG, w, h
+		local argOffset = 0
+		
+		-- determine if a parentGroup was specified
+		if arg[1] and type(arg[1]) == "table" then
+			parentG = arg[1]; argOffset = 1
 		end
-	end
+		
+		local string = arg[1+argOffset] or ""
+		local x = arg[2+argOffset] or 0
+		local y = arg[3+argOffset] or 0
+		
+		local newOffset = 3+argOffset
+		if type(arg[4+argOffset]) == "number" then w = arg[4+argOffset]; newOffset=newOffset+1; end
+		if w and #arg >= 7+argOffset then h = arg[5+argOffset]; newOffset=newOffset+1; end
+		
+		local font = arg[1+newOffset] or native.systemFont
+		local size = arg[2+newOffset] or 12
+		
+		---------------------------------------------
+		
+		size = size / csX
+		if w then w = w / csX; end
+		if h then h = h / csY; end
+	    
+        -- retinaText returns display group, workaround for casenum: 10124
+        text = display.newGroup()
+        
+        local txtObject
 
-	local function onButtonTouch( self, event )
+		if w and h then
+			txtObj = display.newText( text, string, 0, 0, w, h, font, size )
+		else
+			txtObj = display.newText( text, string, 0, 0, font, size )
+		end
+        
+        text.txtObj = txtObj	-- create reference to actual text object
+        text.text = string 		-- set the text property
+
+		-- set reference point to top-left for scaling
+		txtObj:setReferencePoint( display.TopLeftReferencePoint )
+		txtObj.xScale, txtObj.yScale = csX, csY
+		txtObj.x, txtObj.y = 0, 0
+		
+		-- position text group according to user parameters and set reference point to center
+		text.x, text.y = x, y
+        text:setReferencePoint( display.CenterReferencePoint )
+
+        -- methods
+        function text:setTextColor( ... )
+            local r, g, b, a; local arg = { ... }
+            
+            if #arg == 4 then
+                r = arg[1]; g = arg[2]; b = arg[3]; a = arg[4]
+            elseif #arg == 3 then
+                r = arg[1]; g = arg[2]; b = arg[3]; a = 255
+            elseif #arg == 2 then
+                r = arg[1]; g = r; b = r; a = arg[2]
+            elseif #arg == 1 then
+            	if type(arg[1]) == "number" then
+            		r = arg[1]; g = r; b = r; a = 255
+            	
+            	elseif type(arg[1]) == "userdata" then
+            		-- gradient object
+            		self.txtObj:setFillColor( arg[1] )
+            		return
+            	end
+            end
+
+            self.txtObj:setTextColor( r, g, b, a )
+        end
+
+        function text:setText( newText )
+            if not newText then return; end
+            local txtObj = self.txtObj
+
+            txtObj.text = newText
+            self.text = newText -- update the group's .text property
+        end
+        
+		if parentG then parentG:insert( text ) end
+	else
+        -- user is not on a retina device, display text normally:
+		text = display.newText( ... )
+        
+        -- method (to remain consistent with retina text)
+        function text:setText( newText )
+            self.text = newText
+        end
+	end
+	return text
+end; display.newRetinaText = widget.retinaText
+
+-- creates sharp (retina) text with an embossed/inset effect
+function widget.embossedText( ... )
+	local arg = { ... }
+	
+	-- parse arguments
+	local parentG, w, h
+	local argOffset = 0
+	
+	-- determine if a parentGroup was specified
+	if arg[1] and type(arg[1]) == "table" then
+		parentG = arg[1]; argOffset = 1
+	end
+	
+	local string = arg[1+argOffset] or ""
+	local x = arg[2+argOffset] or 0
+	local y = arg[3+argOffset] or 0
+	
+	local newOffset = 3+argOffset
+	if type(arg[4+argOffset]) == "number" then w = arg[4+argOffset]; newOffset=newOffset+1; end
+	if w and #arg >= 7+argOffset then h = arg[5+argOffset]; newOffset=newOffset+1; end
+	
+	local font = arg[1+newOffset] or native.systemFont
+	local size = arg[2+newOffset] or 12
+	local color = { 0, 0, 0, 255 }
+	
+	---------------------------------------------
+	
+	local r, g, b, a = color[1], color[2], color[3], color[4]
+	local textBrightness = ( r + g + b ) / 3
+	
+	local highlight = widget.retinaText( string, 0.5, 1, font, size )
+	if ( textBrightness > 127) then
+		highlight:setTextColor( 255, 255, 255, 20 )
+	else
+		highlight:setTextColor( 255, 255, 255, 140 )
+	end
+	
+	local shadow = widget.retinaText( string, -0.5, -1, font, size )
+	if ( textBrightness > 127) then
+		shadow:setTextColor( 0, 0, 0, 128 )
+	else
+		shadow:setTextColor( 0, 0, 0, 20 )
+	end
+	
+	local label = widget.retinaText( string, 0, 0, font, size )
+	label:setTextColor( r, g, b, a )
+	
+	-- create display group, insert all embossed text elements, and position it
+	local text = display.newGroup()
+	text:insert( highlight ); text.highlight = highlight
+	text:insert( shadow ); text.shadow = shadow
+	text:insert( label ); text.label = label
+	text.x, text.y = x, y
+	text:setReferencePoint( display.CenterReferencePoint )
+	
+	-- setTextColor method
+	function text:setTextColor( ... )
+		local r, g, b, a; local arg = { ... }
+		
+		if #arg == 4 then
+			r = arg[1]; g = arg[2]; b = arg[3]; a = arg[4]
+		elseif #arg == 3 then
+			r = arg[1]; g = arg[2]; b = arg[3]; a = 255
+		elseif #arg == 2 then
+			r = arg[1]; g = r; b = r; a = arg[2]
+		elseif #arg == 1 then
+			if type(arg[1]) == "number" then
+				r = arg[1]; g = r; b = r; a = 255
+			end
+		end
+		
+		local textBrightness = ( r + g + b ) / 3
+		if ( textBrightness > 127) then
+			self.highlight:setTextColor( 255, 255, 255, 20 )
+			self.shadow:setTextColor( 0, 0, 0, 128 )
+		else
+			self.highlight:setTextColor( 255, 255, 255, 140 )
+			self.shadow:setTextColor( 0, 0, 0, 20 )
+		end
+		self.label:setTextColor( r, g, b, a )
+	end
+	
+	-- setText method
+	function text:setText( newString )
+		local newString = newString or self.text
+		self.highlight:setText( newString )
+		self.shadow:setText( newString )
+		self.label:setText( newString )
+		self.text = newString
+	end
+	
+	if parentG then parentG:insert( text ) end
+	text.text = string
+	return text
+end; display.newEmbossedText = widget.embossedText
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+--
+-- button widget
+--
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
+function widget.newButton( options )
+	
+	local function onButtonTouch( self, event )	-- self == button
 		local result = true
 		local phase = event.phase
-		local event = event
 		event.name = "buttonEvent"
-		event.target = self.parentObject
+		event.target = self
 
 		if phase == "began" then
 			display.getCurrentStage():setFocus( self )
@@ -164,89 +340,109 @@ function widget.button()
 
 		return result
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function removeSelf( self )
-		display.remove( self.default ); self.default = nil
-		display.remove( self.over ); self.over = nil
-		display.remove( self.label ); self.label = nil
+	
+	local function setLabel( self, newLabel )	-- self == button
+		if not newLabel then return; end
 		
-		if self._view then
-			self._view:cached_removeSelf()
-			self.view = nil; self._view = nil
+		if self.label.setText then
+			self.label:setText( newLabel )
 		else
-			if self.cached_removeSelf then
-				self:cached_removeSelf()
-				self.view = nil; self._view = nil
-			end
+			self.label.text = newLabel
 		end
+		
+		-- re-center label on button
+		self.label:setReferencePoint( display.CenterReferencePoint )
+		self.label.x = (self.contentWidth*0.5) + self.label.xOffset
+		self.label.y = (self.contentHeight*0.5) + self.label.yOffset
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function createButton( params, themeOptions )
-
-		local 	params = params or {}
-		local 	theme = themeOptions or {}
-		local	id = params.id
-		local	left = params.left or 0
-		local	top = params.top or 0
-		local	offset = params.offset or theme.offset or 0		-- offsets y value of the label
-		local	label = params.label or ""
-		local 	font = params.font or theme.font or native.systemFont
-		local 	fontSize = params.fontSize or theme.fontSize or 14
-		local 	labelColor = params.labelColor or theme.labelColor or { default={ 0 }, over={ 255 } }
-		local  	emboss = params.emboss or theme.emboss
-		local   onPress = params.onPress
-		local 	onRelease = params.onRelease
-		local 	onDrag = params.onDrag
-		local 	onEvent = params.onEvent
-		local 	default = params.default or theme.default
-		local 	over = params.over or theme.over
-		local 	defaultColor = params.defaultColor or theme.defaultColor
-		local 	overColor = params.overColor or theme.overColor
-		local 	strokeColor = params.strokeColor or theme.strokeColor
-		local 	strokeWidth = params.strokeWidth or theme.strokeWidth
-		local 	cornerRadius = params.cornerRadius or theme.cornerRadius
-		local 	width = params.width or theme.width
-		local 	height = params.height or theme.height
-		local 	baseDir = params.baseDir or theme.baseDir or system.ResourceDirectory
-
-		---------------------------------------------
-
-		local button = {}
-		button._view = display.newGroup()
-		button._view._isWidget = true
-		button._view.parentObject = button
-
+	
+	local function getLabel( self )
+		return self.label.text
+	end
+	
+	local function removeSelf( self )	-- self == button
+		-- check to see if there is a clean method; if so, call it
+		if self.clean then self:clean(); end
+		
+		-- remove all children of default and over
+		if self.default and self.default.numChildren then
+			for i=self.default.numChildren,1,-1 do
+				display.remove( self.default.numChildren[i] )
+			end
+			display.remove( self.default )
+		end
+		
+		if self.over and self.over.numChildren then
+			for i=self.over.numChildren,1,-1 do
+				display.remove( self.over.numChildren[i] )
+			end
+			display.remove( self.over )
+		end
+		
+		-- remove label
+		display.remove( self.label )
+		
+		-- remove button group
+		self:cached_removeSelf()
+	end
+	
+	local function createButton( options, theme )
+		local	defaultBtnWidth = 124
+		local	defaultBtnHeight = 42
+		
+		local 	options = options or {}
+		local 	theme = theme or {}
+		local	id = options.id or "widget_button"
+		local	left = options.left or 0
+		local	top = options.top or 0
+		local	xOffset = options.xOffset or theme.xOffset or 0		-- offsets x value of the label text
+		local	yOffset = options.yOffset or options.offset or theme.yOffset or theme.offset or 0		-- offsets y value of the label text
+		local	label = options.label or ""
+		local 	font = options.font or theme.font or native.systemFont
+		local 	fontSize = options.fontSize or theme.fontSize or 14
+		local	emboss = options.emboss or theme.emboss
+		local	textFunction = widget.retinaText; if emboss then textFunction = widget.embossedText; end
+		local 	labelColor = options.labelColor or theme.labelColor or { default={ 0 }, over={ 255 } }
+		local   onPress = options.onPress
+		local 	onRelease = options.onRelease
+		local 	onDrag = options.onDrag
+		local 	onEvent = options.onEvent
+		local 	default = options.default or theme.default
+		local 	defaultColor = options.defaultColor or theme.defaultColor
+		local	over = options.over or theme.over
+		local 	overColor = options.overColor or theme.overColor
+		local 	strokeColor = options.strokeColor or theme.strokeColor
+		local 	strokeWidth = options.strokeWidth or theme.strokeWidth
+		local 	cornerRadius = options.cornerRadius or theme.cornerRadius
+		local 	width = options.width or theme.width
+		local 	height = options.height or theme.height
+		local 	baseDir = options.baseDir or theme.baseDir or system.ResourceDirectory
+		
+		local button = display.newGroup()
+		
 		if default then
 			if not over then over = default; end
 
 			-- user-provided image for default and over state
 			if width and height then
-				button.default = display.newImageRect( default, baseDir, width, height )
+				button.default = display.newImageRect( button, default, baseDir, width, height )
 				button.default:setReferencePoint( display.TopLeftReferencePoint )
 				button.default.x, button.default.y = 0, 0
 
-				button.over = display.newImageRect( over, baseDir, width, height )
+				button.over = display.newImageRect( button, over, baseDir, width, height )
 				button.over:setReferencePoint( display.TopLeftReferencePoint )
 				button.over.x, button.over.y = 0, 0
 			else
-				button.default = display.newImage( default, baseDir )
+				button.default = display.newImage( button, default, baseDir )
 				button.default:setReferencePoint( display.TopLeftReferencePoint )
 				button.default.x, button.default.y = 0, 0
 
-				button.over = display.newImage( over, baseDir )
+				button.over = display.newImage( button, over, baseDir )
 				button.over:setReferencePoint( display.TopLeftReferencePoint )
 				button.over.x, button.over.y = 0, 0
 				
-				width, height = button.default.width, button.default.height
+				width, height = button.default.contentWidth, button.default.contentHeight
 			end
-
-			button.over.isVisible = false
-			button._view:insert( button.default )
-			button._view:insert( button.over )
 
 			if defaultColor then
 				if defaultColor[1] then
@@ -260,16 +456,13 @@ function widget.button()
 				end
 			end
 		else
-			-- no images; button constructed using newRoundedRect
-			if not width then width = 124; end
-			if not height then height = 42; end
+			-- no images; construct button using newRoundedRect
+			if not width then width = defaultBtnWidth; end
+			if not height then height = defaultBtnHeight; end
 			if not cornerRadius then cornerRadius = 8; end
 
-			button.default = display.newRoundedRect( 0, 0, width, height, cornerRadius )
-			button.over = display.newRoundedRect( 0, 0, width, height, cornerRadius )
-			button.over.isVisible = false
-			button._view:insert( button.default )
-			button._view:insert( button.over )
+			button.default = display.newRoundedRect( button, 0, 0, width, height, cornerRadius )
+			button.over = display.newRoundedRect( button, 0, 0, width, height, cornerRadius )
 
 			if defaultColor and defaultColor[1] then
 				button.default:setFillColor( defaultColor[1], defaultColor[2] or defaultColor[1], defaultColor[3] or defaultColor[1], defaultColor[4] or 255 )
@@ -296,542 +489,435 @@ function widget.button()
 				button.over.strokeWidth = 1
 			end
 		end
-
+		button.over.isVisible = false	-- hide "down/over" state of button
+		
 		-- create the label
 		if not labelColor then labelColor = {}; end
 		if not labelColor.default then labelColor.default = { 0 }; end
 		if not labelColor.over then labelColor.over = { 255 }; end
 		local r, g, b, a = labelColor.default[1] or 0, labelColor.default[2] or labelColor.default[1], labelColor.default[3] or labelColor.default[1], labelColor.default[4] or 255
-		if emboss then
-			button.label = display.newEmbossedText( label, 0, 0, font, fontSize, { r, g, b, a }, offset )
-		else
-			button.label = display.newRetinaText( label, 0, 0+offset, font, fontSize )
-			button.label:setTextColor( r, g, b, a)
-		end
+
+		button.label = textFunction( button, label, 0, 0, font, fontSize )
+		button.label:setTextColor( r, g, b, a )
 		button.label:setReferencePoint( display.CenterReferencePoint )
-		button.label.x = width * 0.5
-		button.label.y = (height * 0.5) + offset
+		button.label.x = (button.contentWidth * 0.5) + xOffset
+		button.label.y = (button.contentHeight * 0.5) + yOffset
 		button.label.color = labelColor
-		button._view:insert( button.label )
-
-		-- references, methods, and touch listener
-		button._view.id = id
-		button.view = button._view
-		button._view.parentObject = button
-		button._view.label = button.label
-		button._view.default = button.default
-		button._view.over = button.over
-		button._view.onPress = onPress
-		button._view.onRelease = onRelease
-		button._view.onEvent = onEvent
-		button._view.onDrag = onDrag
-		button._view.touch = onButtonTouch; button._view:addEventListener( "touch", button._view )
-		button._view.cached_removeSelf = button._view.removeSelf
-		button._view.removeSelf = removeSelf
-		button._view.setLabel = setLabel
-
+		button.label.xOffset = xOffset
+		button.label.yOffset = yOffset
+		
+		-- set properties and methods
+		button._isWidget = true
+		button.id = id
+		button.onPress = onPress
+		button.onDrag = onDrag
+		button.onRelease = onRelease
+		button.onEvent = onEvent
+		button.touch = onButtonTouch; button:addEventListener( "touch", button )
+		button.cached_removeSelf = button.removeSelf
+		button.removeSelf = removeSelf
+		button.setLabel = setLabel
+		button.getLabel = getLabel
+		
 		-- position the button
-		button._view:setReferencePoint( display.TopLeftReferencePoint )
-		button._view.x, button._view.y = left, top
-		button._view:setReferencePoint( display.CenterReferencePoint )
+		button:setReferencePoint( display.TopLeftReferencePoint )
+		button.x, button.y = left, top
+		button:setReferencePoint( display.CenterReferencePoint )
 		
 		return button
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	function button.new( widgetTheme, options )	-- constructor
-		local themeOptions
-		if widgetTheme then
-			if options and options.style then
-				themeOptions = widgetTheme.button[options.style]
+	
+	-- this widget supports visual customization via themes
+	local themeOptions
+	if widget.theme then
+		local buttonTheme = widget.theme.button
+		
+		if buttonTheme then
+			if options and options.style then	-- style parameter optionally set by user
+				
+				-- for themes that support various "styles" per widget
+				local style = buttonTheme[options.style]
+				
+				if style then themeOptions = style; end
 			else
-				themeOptions = widgetTheme.button
+				-- if no style parameter set, use default style specified by theme
+				themeOptions = buttonTheme
 			end
 		end
-
-		local button_widget = createButton( options, themeOptions )
-
-		return setmetatable( button_widget, button_mt )
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	return button
+	
+	return createButton( options, themeOptions )
 end
 
---***************************************************************************************
---***************************************************************************************
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 --
--- slider
+-- slider widget
 --
---***************************************************************************************
---***************************************************************************************
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
-function widget.slider()
+function widget.newSlider( options )
 	
-	local slider = {}
-	
-	function slider.new( widgetTheme, params )
-
-		-- override skinSetting if one is specified for this widget
-		local sliderSkin = widgetTheme.slider
-		local params = params or {}
-		local currentStage = display.getCurrentStage()
-		local mFloor = math.floor
-
-		-- extract parameters or set defaults
-		local	id = params.id or "uiSlider"
-		local	initialValue = params.initialValue or params.value or 50
-		local	x = params.x or 0
-		local	y = params.y or 0
-		local	width = params.width or sliderSkin.width
-		local 	skinBase = params.baseDir or system.ResourceDirectory
-		local	leftImage = params.leftImage or { sliderSkin.leftImage[1], sliderSkin.leftImage[2], sliderSkin.leftImage[3], skinBase }
-		local	rightImage = params.rightImage or { sliderSkin.rightImage[1], sliderSkin.rightImage[2], sliderSkin.rightImage[3], skinBase }
-		local	maskImage = params.maskImage or { sliderSkin.maskImage[1], sliderSkin.maskImage[2], sliderSkin.maskImage[3], skinBase }
-		local	fillImage = params.fillImage or { sliderSkin.fillImage[1], sliderSkin.fillImage[2], sliderSkin.fillImage[3], skinBase }
-		local	handleImage = params.handleImage or { sliderSkin.handleImage[1], sliderSkin.handleImage[2], sliderSkin.handleImage[3], skinBase }
-		local	callBack = params.callback or params.callBack or params.onEvent
-
-		-- don't let width go higher than 400 px
-		if width > 400 then width = 400 end
-
-		-- calculate xMin and xMax (contentBounds) based on width and x position of slider
-		local halfW = (width * 0.5) + 2
-		local xMin = x - halfW
-		local xMax = x + halfW
-
-		-- create groups
-		local sliderControl = display.newGroup()	--> holds entire switch
-		local maskGroup = display.newGroup()		--> will mask everything within this group
-		local edgeGroup = display.newGroup()		--> will contain rounded edge images (underneath mask)
-
-		-- set up table and metatable for intercepting property changes
-		---local t = { _view = sliderControl, _value = initialValue }
-		local t = { _view = sliderControl, _value = initialValue }
-		local mt = {}
-
-		-- set the id of the slider
-		sliderControl.id = id
-
-		-- assign a callback function to t if it exists
-		if callBack then
-			t._callBack = callBack
+	-- set slider value from 0 to 100
+	local function setSliderValue( self, value )	-- self == slider
+		-- make sure value is not less than 0 or greater than 100
+		if value < 0 then
+			value = 0
+		elseif value > 100 then
+			value = 100
+		else
+			value = mFloor( value )	-- round to the nearest whole number
 		end
-
-		-- assign default properties to the table t
-		t.sliderWidth = width
-
-		-- insert mask group into the slider control group:
-		sliderControl:insert( edgeGroup )
-		sliderControl:insert( maskGroup )
-
-		-- create the slider "fill" graphic
-		local sliderFill = display.newImageRect( fillImage[1], fillImage[4], fillImage[2], fillImage[3] )
-
-		-- determine position of fill depending on slider width
-		local pixelPosition = ((initialValue * width) / 100) - (width * 0.5)
-		sliderFill:setReferencePoint( display.CenterReferencePoint )
-		sliderFill.x = pixelPosition
-
-		maskGroup:insert( sliderFill )
-
-		-- create the left and right rounded ends of the slider control
-		local leftEdge = display.newImageRect( leftImage[1], leftImage[4], leftImage[2], leftImage[3] )
-		leftEdge:setReferencePoint( display.CenterRightReferencePoint )
-
-		local rightEdge = display.newImageRect( rightImage[1], rightImage[4], rightImage[2], rightImage[3] )
-		rightEdge:setReferencePoint( display.CenterLeftReferencePoint )
-
-		edgeGroup:insert( leftEdge )
-		edgeGroup:insert( rightEdge )
-
-		-- create the slider handle
-		sliderControl.handle = display.newImageRect( handleImage[1], handleImage[4], handleImage[2], handleImage[3] )
-
-		-- determine position and adjust accordingly
-		sliderControl.handle:setReferencePoint( display.CenterReferencePoint )
-		sliderControl.handle.x = pixelPosition
-
-		sliderControl:insert( sliderControl.handle )
-
-		-- create a bitmap mask and set it on the whole group
-		local sliderMask = graphics.newMask( maskImage[1] )
-		maskGroup:setMask( sliderMask )
-
-		-- calculate the xScale of graphics mask depending on width of widget
-		local widgetScale = width / 220
-		maskGroup.maskScaleX = widgetScale * 0.5
-		maskGroup.maskScaleY = 0.5
-
-		-- localize math.floor
-		local mFloor = mFloor
-
-		-- TOUCH EVENT HANDLER
-
-		function sliderFill:touch( event )
-			local isWithinBounds = xMin-10 <= event.x and xMax+10 >= event.x
-
-			if event.phase == "began" then
-
-				if isWithinBounds then
-
-					currentStage:setFocus( self, event.id )
-					self.isFocus = true
-
-					-- calculate the position things are supposed to be
-					local positionCalc = event.x - x
-
-					-- set the value of the control
-					local mFloor = mFloor
-					local newValue = mFloor(((( (width*0.5) + positionCalc) * 100) / width))
-
-					if newValue < 0 then newValue = 0 end
-					if newValue > 100 then newValue = 100 end
-
-					t.value = newValue
-
-					-- execute the callback listener if it exists (and if it's a function)
-					if t._callBack and type( t._callBack ) == "function" then
-						local newEvent = event
-						sliderControl.value = newValue
-						newEvent.target = sliderControl
-						newEvent.value = newValue
-
-						t._callBack( newEvent )
-					end
-				end
-
-			elseif self.isFocus then
-
-				if event.phase == "moved" then
-
-					-- calculate the position things are supposed to be
-					local positionCalc = event.x - x
-
-					-- set the value of the control
-					local mFloor = mFloor
-					local newValue = mFloor(((( (width*0.5) + positionCalc) * 100) / width))
-
-					if newValue < 0 then newValue = 0 end
-					if newValue > 100 then newValue = 100 end
-
-					t.value = newValue
-
-					-- execute the callback listener if it exists (and if it's a function)
-					if t._callBack and type( t._callBack ) == "function" then
-						local newEvent = event
-						sliderControl.value = t.value
-						newEvent.target = sliderControl
-						newEvent.value = newValue
-
-						t._callBack( newEvent )
-					end
-
-				elseif event.phase == "ended" or event.phase == "cancelled" then
-
-					currentStage:setFocus( nil )
-					self.isFocus = false
-
-				end
-			end
-
-			return true
-		end
-
-		-- assign touch listener to sliderFill object
-		sliderFill:addEventListener( "touch", sliderFill )
 		
-		local function onHandleTouch( self, event )
-			display.getCurrentStage():setFocus( sliderFill )
-			sliderFill:touch( event )
-			return true
-		end
-		sliderControl.handle.touch = onHandleTouch
-		sliderControl.handle:addEventListener( "touch", sliderControl.handle )
-
-		--==========================================================================
-
-		-- PUBLIC METHODS
-
-		--==========================================================================
-
-		--
-
-		function sliderControl:setValue( valueNum )
-			sliderFill.x = ((valueNum * width) / 100) - (width * 0.5)
-			self.handle.x = sliderFill.x
-		end
-
-		--
-
-		function sliderControl:adjustWidth( newWidth )
-			if not newWidth then return nil; end
-			if newWidth > 400 then newWidth = 400; end
-
-			width = newWidth
-
-			halfW = (width * 0.5) + 2
-			xMin = x - halfW
-			xMax = x + halfW
-
-			widgetScale = width / 220
-			maskGroup.maskScaleX = widgetScale * 0.5
-
-			leftEdge.x = -(x - xMin) + 20
-			rightEdge.x = (x - xMin) - 20
-
-			-- recalculate where the slider should be at
-			positionCalc = ((t._value * width) / 100) - (width * 0.5)
-
-			local newValue = mFloor(((( (width*0.5) + positionCalc) * 100) / width))
-
-
-			-- reposition the handle and the slider fill
-			sliderFill.x = ((newValue * width) / 100) - (width * 0.5)
-			self.handle.x = sliderFill.x
-
-
-			-- reposition the entire sliderControl
-			self.x, self.y = x, y
-		end
-
-		--
-
-		function t:removeSelf()
-
-			display.remove( sliderControl )
-			sliderControl = nil
-			self = nil
-
-			return nil
-		end
-
-
-		-- position the sliderControl group
-		sliderControl.x, sliderControl.y = x, y
-
-		--  - (x - (x - (width * 0.5)))
-		-- position the left and right edges
-		leftEdge.x = leftEdge.x - (x - xMin) + 9
-		rightEdge.x = rightEdge.x + (x - xMin) - 9
-
-		-- METAMETHODS to intercept property calls/assignments
-
-		mt.__index = function( tb, key )
-			if key == "value" then
-				return rawget( tb, "_value" )
-
-			elseif key == "view" then
-				return rawget( tb, "_view" )
-
-			elseif key == "width" then
-				return width
-
-			elseif key == "x" then
-				return sliderControl.x
-
-			elseif key == "y" then
-				return sliderControl.y
-
-			elseif key == "id" then
-				return sliderControl.id
-
-			end
-		end
-
-		mt.__newindex = function( tb, key, value )
-
-			if key == "value" then
-
-				if value < 0 then value = 0 end
-				if value > 100 then value = 100 end
-
-				t._value = value
-				sliderControl:setValue( value )
-
-			elseif key == "x" then
-				x = value
-				xMin = x - halfW
-				xMax = x + halfW
-
-				sliderControl.x = x
-
-			elseif key == "y" then
-				y = value
-				sliderControl.y = y
-
-			elseif key == "width" then
-
-				sliderControl:adjustWidth( value )
-
-			elseif key == "id" then
-
-				sliderControl.id = value
-
-			end
-		end
-
-		setmetatable( t, mt )
-
-		-- assign properties to the table t
-		t.value = initialValue
-		t.view = t._view
-		t.view._isWidget = true
-		t.view.parentObject = t
-
-		-- return the sliderControl group
-		return t
+		local width = self.max - self.min
+		
+		-- calculate percentage based on slidable width
+		local percent = value / 100
+		
+		-- move handle to new position
+		local x = (width * percent) + self.min
+		self.handle.x = x
+		
+		-- stretch fill image from left side to handle
+		local fillScaleX = (self.handle.x - self.min) / self.fillWidth
+		if fillScaleX <= 0 then fillScaleX = 0.1; end
+		self.fill.xScale = fillScaleX
+		
+		-- update reference to value
+		self.value = value
 	end
 	
-	return slider
+	-- dispatch slider event
+	local function dispatchSliderEvent( self )	-- self == slider
+		if self.listener then
+			local e = {}
+			e.name = "sliderEvent"
+			e.type = "sliderMoved"
+			e.target = self
+			e.value = self.value
+			
+			self.listener( e )
+		end
+	end
+	
+	-- slider touch event
+	local function onSliderTouch( self, event )	-- self == slider
+		if event.phase == "began" then
+			display.getCurrentStage():setFocus( self )
+			self.isFocus = true
+			
+			self:setReferencePoint( display.CenterReferencePoint )
+			
+			local x = event.x - self.x
+			local width = self.max - self.min
+			local percent = mFloor(((( (width*0.5) + x) * 100) / width))
+			self:setValue( percent )
+			
+			dispatchSliderEvent( self )
+			
+		elseif self.isFocus then
+			local isWithinBounds = self.min <= event.x and self.max >= event.x
+			
+			if event.phase == "moved" then
+				
+				local x = event.x - self.x
+				local width = self.max - self.min
+				local percent = mFloor(((( (width*0.5) + x) * 100) / width))
+				self:setValue( percent )
+				
+				dispatchSliderEvent( self )
+			
+			elseif event.phase == "ended" or event.phase == "cancelled" then
+				
+				display.getCurrentStage():setFocus( nil )
+				self.isFocus = nil
+			end
+		end
+		
+		return true
+	end
+	
+	-- removeSelf() method for slider widget
+	local function removeSelf( self )
+		if self.clean and type(self.clean) == "function" then self:clean(); end
+		
+		if self.fill then self.fill:removeSelf(); self.fill = nil; end
+		if self.handle then self.handle:removeSelf(); self.handle = nil; end
+		self.fillWidth = nil
+		self.value = nil
+		
+		self:cached_removeSelf()
+	end
+	
+	local function createSlider( options, theme )
+		local options = options or {}
+		local theme = theme or {}
+		local id = options.id or "widget_slider"
+		
+		local left = options.left or 0
+		local top = options.top or 0
+		local width = options.width or theme.width or 200
+		local height = options.height or theme.height or 10
+		local background = options.background or theme.background
+		local handleImage = options.handle or theme.handle
+		local handleWidth = options.handleWidth or theme.handleWidth
+		local handleHeight = options.handleHeight or theme.handleHeight
+		local leftImage = options.leftImage or theme.leftImage
+		local leftWidth = options.leftWidth or theme.leftWidth or 16
+		local fillImage = options.fillImage or theme.fillImage
+		local fillWidth = options.fillWidth or theme.fillWidth or 2
+		local cornerRadius = options.cornerRadius or theme.cornerRadius or 5
+		local value = options.value or 50
+		local listener = options.listener or options.callback
+		local baseDir = options.baseDir or theme.baseDir or system.ResourceDirectory
+		
+		local fillColor = options.fillColor or theme.fillColor or {}
+				fillColor[1] = fillColor[1] or 0
+				fillColor[2] = fillColor[2] or 100
+				fillColor[3] = fillColor[3] or 230
+				fillColor[4] = fillColor[4] or 255
+		
+		local handleColor = options.handleColor or theme.handleColor or {}
+				handleColor[1] = handleColor[1] or 189
+				handleColor[2] = handleColor[2] or 189
+				handleColor[3] = handleColor[3] or 189
+				handleColor[4] = handleColor[4] or 255
+		
+		local handleStroke = options.handleStroke or theme.handleStroke or {}
+				handleStroke[1] = handleStroke[1] or 143
+				handleStroke[2] = handleStroke[2] or 143
+				handleStroke[3] = handleStroke[3] or 143
+				handleStroke[4] = handleStroke[4] or 255
+		
+		local bgFill = options.bgFill or theme.bgFill or {}
+				bgFill[1] = bgFill[1] or 225
+				bgFill[2] = bgFill[2] or 225
+				bgFill[3] = bgFill[3] or 225
+				bgFill[4] = bgFill[4] or 255
+		
+		local bgStroke = options.bgStroke or theme.bgStroke or {}
+				bgStroke[1] = bgStroke[1] or 102
+				bgStroke[2] = bgStroke[2] or 102
+				bgStroke[3] = bgStroke[3] or 102
+				bgStroke[4] = bgStroke[4] or 255
+		
+		-- construct slider widget based on provided parameters (or defaults)
+		local slider = display.newGroup()
+		local bg, leftSide, fill, handle
+		
+		if not background and not fillImage then		
+			bg = display.newRoundedRect( slider, 0, 0, width, height, cornerRadius )
+			bg.strokeWidth = 1
+			bg:setStrokeColor( bgStroke[1], bgStroke[2], bgStroke[3], bgStroke[4] )
+			bg:setFillColor( bgFill[1], bgFill[2], bgFill[3], bgFill[4] )
+			
+			leftSide = display.newRoundedRect( slider, 0, 0, leftWidth, height, cornerRadius )
+			leftSide:setReferencePoint( display.CenterReferencePoint )
+			leftSide:setFillColor( fillColor[1], fillColor[2], fillColor[3], fillColor[4] )
+			
+			fill = display.newRect( slider, leftWidth*0.5, 0, fillWidth, height )
+			fill:setReferencePoint( display.CenterLeftReferencePoint )
+			fill:setFillColor( fillColor[1], fillColor[2], fillColor[3], fillColor[4] )
+		
+		elseif background and fillImage then
+			bg = display.newImageRect( slider, background, baseDir, width, height )
+			bg:setReferencePoint( display.TopLeftReferencePoint )
+			bg.x, bg.y = 0, 0
+			
+			fill = display.newImageRect( slider, fillImage, baseDir, fillWidth, height )
+			fill:setReferencePoint( display.CenterLeftReferencePoint )
+			fill.x, fill.y = leftWidth, height * 0.5
+		else
+			if background and not fillImage then
+				print( "WARNING: You must also specify a fillImage when using a custom background with the slider widget." )
+				return
+			elseif fillImage and not background then
+				print( "WARNING: You must specify a custom background when using a custom fillImage with the slider widget." )
+				return
+			end
+		end
+		
+		slider.fill = fill
+		slider.fillWidth = fillWidth
+		
+		if not handleImage or not handleWidth or not handleHeight then
+			handle = display.newCircle( slider, width*0.5, height*0.5, height )
+			handle:setReferencePoint( display.CenterReferencePoint )
+			handle:setFillColor( handleColor[1], handleColor[2], handleColor[3], handleColor[4] )
+			handle.strokeWidth = 1
+			handle:setStrokeColor( handleStroke[1], handleStroke[2], handleStroke[3], handleStroke[4] )
+		else
+			handle = display.newImageRect( slider, handleImage, handleWidth, handleHeight )
+			handle:setReferencePoint( display.CenterReferencePoint )
+			handle.x, handle.y = width*0.5, height*0.5
+		end
+		slider.handle = handle
+		
+		-- properties and methods
+		slider._isWidget = true
+		slider.id = id
+		slider.min = leftWidth*0.5
+		slider.max = width - (leftWidth * 0.5)
+		slider.setValue = setSliderValue
+		slider.touch = onSliderTouch
+		slider:addEventListener( "touch", slider )
+		slider.listener = listener
+		
+		slider.cached_removeSelf = slider.removeSelf
+		slider.removeSelf = removeSelf
+		
+		local fillScaleX = (handle.x - slider.min) / fillWidth
+		fill.xScale = fillScaleX
+		
+		-- position the widget and set reference point to center
+		slider.x, slider.y = left, top
+		slider:setReferencePoint( display.CenterReferencePoint )
+		
+		-- set initial value
+		slider:setValue( value )
+		
+		return slider
+	end
+	
+	-- this widget supports visual customization via themes
+	local themeOptions
+	if widget.theme then
+		local sliderTheme = widget.theme.slider
+		
+		if sliderTheme then
+			if options and options.style then	-- style parameter optionally set by user
+				
+				-- for themes that support various "styles" per widget
+				local style = sliderTheme[options.style]
+				
+				if style then themeOptions = style; end
+			else
+				-- if no style parameter set, use default style specified by theme
+				themeOptions = sliderTheme
+			end
+		end
+	end
+	
+	return createSlider( options, themeOptions )
 end
 
---***************************************************************************************
---***************************************************************************************
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 --
--- pickerWheel
+-- pickerWheel widget
 --
---***************************************************************************************
---***************************************************************************************
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
-function widget.pickerwheel()
-	local picker = {
-		__index = function(t,k)
-			return t._view[k]
-		end,
-
-		__newindex = function(t,k,v)
-			if k == "y" then
-				-- update the 'top' property of the pickerWheel
-				local top = t.top
-				local yDiff = v - top
-				t.top = top + yDiff
-			end
-			
-			t._view[k] = v
-		end
-	}
-	--package.loaded[modname] = picker
-	local picker_mt = {
-		__index = picker.__index,
-		__newindex = picker.__newindex
-	}
-
-	-----------------------------------------------------------------------------------------
-	
-	local function getValues( self )
+function widget.newPickerWheel( options )
+	-- get selection values of pickerWheel columns (returns table)
+	local function getValues( self )	-- self == pickerWheel
 		local columnValues = {}
+		local columns = self.columns
+		local top = self.y
+		local selectionTop = self.selectionTop
+		local selectionHeight = self.selectionHeight
 		
-		for i=1,#self.columns do
-			local row, rowIndex = self.columns[i]:getRowAtY( self.top + 112 )
+		for i=1,columns.numChildren do
+			local col = columns[i]
+			local realSelectionY = top + selectionTop + (selectionHeight*0.5)
+			local row = col:getRowAtCoordinate( realSelectionY )
 			
-			if row then
+			if row and row.value and row.index then
 				columnValues[i] = {}
 				columnValues[i].value = row.value
-				columnValues[i].index = row.listIndex
+				columnValues[i].index = row.index
 			end
 		end
 		
 		return columnValues
 	end
 	
-	-----------------------------------------------------------------------------------------
-
-	local function createColumn( columnData, options )
-		local list = widget.tableview().new( nil, options )
-
+	
+	-- creates new pickerWheel column
+	local function newPickerColumn( pickerWheel, parentGroup, columnData, params )
+		local column = widget.newTableView( params )
+		
+		-- create individual 'rows' for the column
 		for i=1,#columnData do
 			local labelX = 14
-			local alignment = "left"
 			local ref = display.CenterLeftReferencePoint
 			
-			if columnData.alignment then
-				alignment = columnData.alignment
-				
-				if alignment == "center" then
-					labelX = options.width * 0.5
+			if columnData.alignment and columnData.alignment ~= "left" then
+				if columnData.alignment == "center" then
+					labelX = params.width * 0.5
 					ref = display.CenterReferencePoint
-				elseif alignment == "right" then
-					labelX = options.width - 14
+				elseif columnData.alignment == "right" then
+					labelX = params.width - 14
 					ref = display.CenterRightReferencePoint
 				end
 			end
 			
 			local function renderRow( event )
-				local label = display.newRetinaText( columnData[i], 0, 0, options.font, options.fontSize )
-				label:setTextColor( options.fontColor[1], options.fontColor[2] or options.fontColor[1], options.fontColor[3] or options.fontColor[1], options.fontColor[4] or 255 )
+				local row = event.row
+				local view = event.view
+				local fc = params.fontColor
+				
+				local label = widget.retinaText( columnData[i], 0, 0, params.font, params.fontSize )
+				label:setTextColor( fc[1], fc[2], fc[3], fc[4] )
 				label:setReferencePoint( ref )
 				label.x = labelX
-				label.y = event.view.height * 0.5
+				label.y = row.height * 0.5
 				
-				event.target.value = columnData[i]
-				event.view:insert( label )
+				row.value = columnData[i]
+				view:insert( label )
 			end
-
-			list:insertRow{
-				onRender=renderRow,
-				width = options.width,
-				height=options.rowHeight or 32,
-				rowColor=options.bgColor or { 255, 255, 255, 255 },
-				lineColor=options.bgColor or { 255, 255, 255, 255 }
+			
+			column:insertRow{
+				onRender = renderRow,
+				width = params.width,
+				height = params.rowHeight or 32,
+				rowColor = params.bgColor or { 255, 255, 255, 255 },
+				lineColor = params.bgColor or { 255, 255, 255, 255 },
+				skipRender = true
 			}
 		end
-
-		return list
+		
+		parentGroup:insert( column )
+		
+		return column
 	end
 	
-	-----------------------------------------------------------------------------------------
-	
-	local function autoWidth( index, columnTable, maxWidth )
-		local currentWidth = 0
-		for i=1,index do
-			local col = columnTable[i]
-			
-			if col.width then
-				currentWidth = currentWidth + col.width
-			else
-				if index == 1 and #columnTable == 2 then
-					currentWidth = maxWidth / #columnTable
-				else
-					currentWidth = maxWidth - currentWidth
-					col.width = currentWidth
-				end
-			end
+	-- subclassed removeSelf method for pickerWheel
+	local function removeSelf( self )	-- self == pickerWheel
+		-- check to see if there is a clean method; if so, call it
+		if self.clean then self:clean(); end
+		
+		-- remove mask if it exists
+		if self.mask then
+			self.columns:setMask( nil )
+			self.mask = nil
 		end
 		
-		return currentWidth
-	end
-	
-	-----------------------------------------------------------------------------------------
-	
-	local function removeSelf( self )
-		for i=#self.columns,1,-1 do
+		-- remove each column one by one
+		for i=self.columns.numChildren,1,-1 do
 			self.columns[i]:removeSelf()
-			self.columns[i] = nil
 		end
 		self.columns = nil
-		
-		if self.view then self.view:cached_removeSelf(); end
-		self.view = nil
-		self = nil
+				
+		-- remove pickerWheel widget
+		self:cached_removeSelf()
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function createPicker( options, themeOptions )
+	
+	local function createPickerWheel( options, themeOptions )
 		local options = options or {}
 		local theme = themeOptions or {}
 
 		-- parse parameters (options) or set defaults (or theme defaults)
-		local id = options.id or ""
-		local width = options.width or theme.width or 296 --252
-		local height = options.height or theme.height or 222
+		local id = options.id or "widget_pickerWheel"
 		local left = options.left or 0
 		local top = options.top or 0
-		local totalWidth = options.totalWidth or theme.totalWidth or display.contentWidth
-		local selectionHeight = options.selectionheight or theme.selectionHeight or 46
+		local width = options.width or theme.width or 296
+		local height = options.height or theme.height or 222
+		local bgWidth = options.bgWidth or options.totalWidth or theme.bgWidth or theme.totalWidth or display.contentWidth
+		local selectionTop = options.selectionTop or theme.selectionTop or 90
+		local selectionHeight = options.selectionHeight or theme.selectionHeight or 46
 		local font = options.font or theme.font or system.nativeFontBold
 		local fontSize = options.fontSize or theme.fontSize or 22
 		local fontColor = options.fontColor or theme.fontColor or {}
@@ -846,336 +932,517 @@ function widget.pickerwheel()
 			columnColor[4] = columnColor[4] or 255
 		local columns = options.columns or { { "One", "Two", "Three", "Four", "Five" } }
 		local maskFile = options.maskFile or theme.maskFile
-		local background = options.background or theme.background
-		local backgroundWidth = options.backgroundWidth or theme.backgroundWidth
-		local backgroundHeight = options.backgroundHeight or theme.backgroundHeight
-		local glassFile = options.glassFile or theme.glassFile
-		local glassWidth = options.glassWidth or theme.glassWidth
-		local glassHeight = options.glassHeight or theme.glassHeight
+		local bgImage = options.bgImage or options.background or theme.bgImage or theme.background
+		local bgImageWidth = options.bgImageWidth or options.backgroundWidth or theme.bgImageWidth or theme.backgroundWidth
+		local bgImageHeight = options.bgImageHeight or options.backgroundHeight or theme.bgImageHeight or theme.backgroundHeight or height
+		local overlayImage = options.overlayImage or options.glassFile or theme.overlayImage or theme.glassFile
+		local overlayWidth = options.overlayWidth or options.glassWidth or theme.overlayWidth or theme.glassWidth
+		local overlayHeight = options.overlayHeight or options.glassHeight or theme.overlayHeight or theme.glassHeight
 		local separator = options.separator or theme.separator
 		local separatorWidth = options.separatorWidth or theme.separatorWidth
 		local separatorHeight = options.separatorHeight or theme.separatorHeight
 		local baseDir = options.baseDir or theme.baseDir or system.ResourceDirectory
-
-		---------------------------------------------
-
-		local picker = {}
-		picker._view = display.newGroup(); picker.view = picker._view
-		picker._view.columns = {}
 		
-		picker.view._isWidget = true
-		picker.view.parentObject = picker
-
-		local x = (totalWidth * 0.5)-(width * 0.5)
+		local pickerWheel = display.newGroup()
+		local columnGroup = display.newGroup()	-- will hold all column groups (tableViews)
 		
-		if background then
-			local bg = display.newImageRect( background, baseDir, backgroundWidth, backgroundHeight )
+		-- create background image
+		if bgImage then
+			local bg = display.newImageRect( pickerWheel, bgImage, baseDir, bgImageWidth, bgImageHeight )
 			bg:setReferencePoint( display.TopLeftReferencePoint )
 			bg.x, bg.y = 0, 0
-			bg.xScale = totalWidth / bg.width
-			picker._view:insert( bg )
+			bg.xScale = bgWidth / bg.contentWidth
 			
 			local function disableTouchLeak() return true; end
 			bg.touch = disableTouchLeak
 			bg:addEventListener( "touch", bg )
 		end
 		
-		local currentX = 0
-		local function getRemainingWidth( currentX, maxCols, index )
-			if columns[index].width then
-				local w = columns[index].width
-				currentX = currentX + w
-				return w
-			else
-				local leftOver = width - currentX
-				local newWidth = leftOver / (maxCols)
-				currentX = currentX + newWidth
-				return newWidth
-			end
-		end	
-
+		-- insert the columns group into the pickerWheel widget group
+		pickerWheel:insert( columnGroup )
+		columnGroup.x = (bgWidth * 0.5) - width * 0.5
+		columnGroup.y = 0
+		
+		local currentX = 0	-- variable that used for x-location of each column
+		
+		-- create all columns
 		for i=1,#columns do
 			local col = columns[i]
 			
+			-- set up tableView options (each column is a tableView widget)
 			local params = {}
-			params.bgColor = columnColor
-			params.width = getRemainingWidth( currentX, #columns, i )	--autoWidth( i, columns, width ); col.width = params.width
-			params.height = height
-			params.topPadding = (height*0.5)-(selectionHeight*0.5)
-			params.bottomPadding = (height*0.5)-(selectionHeight*0.5)
-			params.friction = 0.88
+			-- tableView specific parameters
+			params.id = "pickerColumn_" .. i
+			params.renderThresh = (height - selectionTop) + selectionHeight
 			params.left = 0
 			params.top = 0
-
+			params.topPadding = selectionTop
+			params.bottomPadding = height - (selectionTop+selectionHeight)
+			params.width = col.width or width/#columns
+			params.height = height -- selectionTop
+			params.bgColor = columnColor
+			params.friction = 0.88
+			params.keepRowsPastTopVisible = true
+			
+			-- if last column, ensure width fills remaining space
+			if i == #columns then params.width = width - currentX; end
+			
+			-- picker-specific parameters
 			params.rowHeight = selectionHeight
 			params.font = font
 			params.fontSize = fontSize
 			params.fontColor = fontColor
-			params.maskFile = maskFile
-			params.isPicker = true
-
-			if #col < 3 then
-				params.bottomPadding = params.topPadding + selectionHeight - (selectionHeight*2-5)
-			end
 			
+			-- create line separator that goes between the rows
 			local separatorLine
 			if separator and i ~= #columns then
-				separatorLine = display.newImageRect( separator, baseDir, separatorWidth, separatorHeight )
+				separatorLine = display.newImageRect( pickerWheel, separator, baseDir, separatorWidth, separatorHeight )
 				separatorLine:setReferencePoint( display.TopLeftReferencePoint )
-				separatorLine.x = x + params.width - separatorLine.width*0.5
+				separatorLine.x = (currentX + params.width) + columnGroup.x
 				separatorLine.y = 0
 				separatorLine.yScale = height / separatorLine.height
-				picker._view:insert( separatorLine )
-			end
-
-			picker._view.columns[i] = createColumn( col, params )
-			picker._view:insert( picker._view.columns[i].view )
-			picker._view.columns[i].view.x = x; x = x + params.width
-			
-			if col.startIndex then
-				picker._view.columns[i]:scrollToIndex( col.startIndex, 0 )
 			end
 			
-			if separatorLine then separatorLine:toFront(); end
+			-- create the column
+			local pickerColumn = newPickerColumn( pickerWheel, columnGroup, col, params )
+			pickerColumn.x = currentX
+			if #col <= 2 then pickerColumn.content.shortList = true; end
+			
+			currentX = currentX + params.width
+			
+			-- scroll to startIndex if specified
+			if col.startIndex and col.startIndex > 1 then
+				pickerColumn:scrollToIndex( col.startIndex )
+			else
+				pickerColumn:scrollToIndex( 1 )
+			end
 		end
 		
-		if glassFile then
-			local pickerGlass = display.newImageRect( glassFile, baseDir, glassWidth, glassHeight )
-			pickerGlass:setReferencePoint( display.CenterReferencePoint )
-			pickerGlass.x = totalWidth * 0.5
-			pickerGlass.y = height * 0.5
-			picker._view:insert( pickerGlass )
+		-- apply mask to columnGroup
+		if maskFile then
+			pickerWheel.mask = graphics.newMask( maskFile )
+			columnGroup:setMask( pickerWheel.mask )
+			columnGroup.maskX = columnGroup.width * 0.5
+			columnGroup.maskY = height * 0.5
+			columnGroup.isHitTestMasked = false
 		end
-
-		---------------------------------------------
-
-		picker.id = id
-		picker._view.x = left
-		picker._view.y = top; picker.top = top
 		
+		-- create overlay to go above columns
+		if overlayImage then
+			local overlay
+			if overlayWidth and overlayHeight then
+				overlay = display.newImageRect( pickerWheel, overlayImage, overlayWidth, overlayHeight )
+			else
+				overlay = display.newImage( pickerWheel, overlayImage )
+			end
+			overlay:setReferencePoint( display.CenterReferencePoint )
+			overlay.x = bgWidth * 0.5
+			overlay.y = height * 0.5
+		end
 		
-		-- methods
-		picker._view.getValues = getValues
+		-- properties and methods
+		pickerWheel._isWidget = true
+		pickerWheel.id = id
+		pickerWheel.columns = columnGroup
+		pickerWheel.getValues = getValues
+		pickerWheel.selectionTop = selectionTop
+		pickerWheel.selectionHeight = selectionHeight
+		pickerWheel.cached_removeSelf = pickerWheel.removeSelf
+		pickerWheel.removeSelf = removeSelf
 		
-		-- subclass the tabBar._view.removeSelf() method
-		picker._view.cached_removeSelf = picker._view.removeSelf
-		picker._view.removeSelf = removeSelf
-
-		return picker
+		-- position the widget
+		pickerWheel.x, pickerWheel.y = left, top
+		
+		return pickerWheel
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	function picker.new( widgetTheme, options )	-- constructor
-		local themeOptions
-		if widgetTheme then themeOptions = widgetTheme.pickerWheel; end
-
-		local picker_widget = createPicker( options, themeOptions )
-
-		return setmetatable( picker_widget, picker_mt )
-	end
-
-	-----------------------------------------------------------------------------------------
 	
-	return picker
+	-- this widget requires visual customization via themes to work properly
+	local themeOptions
+	if widget.theme then
+		local pickerTheme = widget.theme.pickerWheel
+		
+		if pickerTheme then
+			if options and options.style then	-- style parameter optionally set by user
+				
+				-- for themes that support various "styles" per widget
+				local style = pickerTheme[options.style]
+				
+				if style then themeOptions = style; end
+			else
+				-- if no style parameter set, use default style specified by theme
+				themeOptions = pickerTheme
+			end
+			
+			return createPickerWheel( options, themeOptions )
+		else
+			print( "WARNING: The widget theme you are using does not support the pickerWheel widget." )
+			return
+		end
+	else
+		print( "WARNING: The pickerWheel widget requires a visual theme. Use widget.setTheme()." )
+		return
+	end
 end
 
---***************************************************************************************
---***************************************************************************************
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 --
--- scrollView
+-- scrollView widget
 --
---***************************************************************************************
---***************************************************************************************
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
-function widget.scrollview()
-	local scrollView = {
-		__index = function(t,k)
-			return t._view[k]
-		end,
-
-		__newindex = function(t,k,v)
-			t._view[k] = v
-		end
-	}
-	--package.loaded[modname] = scrollView
-	local scrollView_mt = {
-		__index = scrollView.__index,
-		__newindex = scrollView.__newindex
-	}
-
-	-----------------------------------------------------------------------------------------
-
-	local function trackVelocity( self, event )
-		if self.y ~= self.prevY then
-			local time = event.time
-			local timePassed = time - self.prevTime
-			self.prevTime = time
-			self.velocity = (self.y - self.prevY) / timePassed
-			self.prevY = self.y
-		end
+function widget.newScrollView( options )
+	local function dispatchBeganScroll( self ) 	-- self == content
+		local e = {}
+		e.name = "scrollEvent"
+		e.type = "beganScroll"
+		e.target = self.parent
+		self.listener( e )
 	end
-
-	-----------------------------------------------------------------------------------------
 	
-	local function limitMovement( self, upperLimit, lowerLimit )
-		if self.y > upperLimit then
-
+	local function dispatchEndedScroll( self )	-- self == content
+		local e = {}
+		e.name = "scrollEvent"
+		e.type = "endedScroll"
+		e.target = self.parent
+		self.listener( e )
+	end
+	
+	local function limitScrollViewMovement( self, upperLimit, lowerLimit )	-- self == content
+		local function endedScroll()
+			if self.listener then
+				dispatchEndedScroll( self )
+			end
+		end
+		
+		local tweenContent = function( limit )
+			if self.tween then transition.cancel( self.tween ); end
+			self.tween = transition.to( self, { time=400, y=limit, transition=easing.outQuad, onComplete=endedScroll } )
+		end
+		local moveProperty = "y"
+		local e = { name="scrollEvent", target=self.parent }
+		local eventMin = "movingToTopLimit"
+		local eventMax = "movingToBottomLimit"
+		
+		if self.moveDirection == "horizontal" then
+			tweenContent = function( limit )
+				if self.tween then transition.cancel( self.tween ); end
+				self.tween = transition.to( self, { time=400, x=limit, transition=easing.outQuad, onComplete=endedScroll } )
+			end
+			moveProperty = "x"
+			eventMin = "movingToLeftLimit"
+			eventMax = "movingToRightLimit"			
+		end
+		
+		if self[moveProperty] > upperLimit then
+	
 			-- Content has drifted above upper limit of scrollView
 			-- Stop content movement and transition back down to upperLimit
-
+	
 			self.velocity = 0
 			Runtime:removeEventListener( "enterFrame", self )
-			if self.tween then transition.cancel( self.tween ); end
-			self.tween = transition.to( self, { time=400, y=upperLimit, transition=easing.outQuad } )
-
-		elseif self.y < lowerLimit and lowerLimit < 0 then
-
-			-- Content has drifted below lower limit of scrollView (in case lower limit is above screen bounds)
-			-- Stop content movement and transition back up to lower limit.
-
+			tweenContent( upperLimit )
+			
+			-- dispatch scroll event
+			if self.listener then
+				e.type = eventMin
+				self.listener( e )
+			end
+	
+		elseif self[moveProperty] < lowerLimit and lowerLimit < 0 then
+	
+			-- Content has drifted below lower limit (in case lower limit is above screen bounds)
+			-- Stop content movement and transition back up to lowerLimit
+	
 			self.velocity = 0
 			Runtime:removeEventListener( "enterFrame", self )
-			if self.tween then transition.cancel( self.tween ); end
-			self.tween = transition.to( self, { time=400, y=lowerLimit, transition=easing.outQuad } )
-
-		elseif self.y < lowerLimit then
-
-			-- Top of content has went past lower limit of scrollView (in positive-y direction)
-			-- Stop content movement and transition content back to upper limit.
-
+			tweenContent( lowerLimit )
+			
+			-- dispatch scroll event
+			if self.listener then
+				e.type = eventMax
+				self.listener( e )
+			end
+			
+		elseif self[moveProperty] < lowerLimit then
+			
+			-- Top of content has went past lower limit (in positive-y direction)
+			-- Stop content movement and transition content back to upperLimit
+			
 			self.velocity = 0
 			Runtime:removeEventListener( "enterFrame", self )
-			if self.tween then transition.cancel( self.tween ); end
-			self.tween = transition.to( self, { time=400, y=upperLimit, transition=easing.outQuad } )
+			if not self.shortList then
+				tweenContent( upperLimit )
+			else
+				tweenContent( lowerLimit )
+			end
+			
+			-- dispatch scroll event
+			if self.listener then
+				e.type = eventMin
+				self.listener( e )
+			end
 		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function onUpdate( self, event )	-- Reference: self = scrollView._view.content
+	
+	local function onScrollViewUpdate( self, event )	-- self == content
 		if not self.trackVelocity then
 			local time = event.time
 			local timePassed = time - self.lastTime
-			self.lastTime = time
-
+			self.lastTime = time 
+	
 			-- stop scrolling when velocity gets close to zero
-			if math.abs( self.velocity ) < .01 then
+			if mAbs( self.velocity ) < .01 then
 				self.velocity = 0
+				
+				if self.moveDirection == "vertical" then
+					self.y = mFloor( self.y )
+				
+					-- if pulled past upper/lower boundaries, tween content properly
+					limitScrollViewMovement( self, self.upperLimit, self.lowerLimit )
+				else
+					self.x = mFloor( self.x )
+					
+					-- if pulled past left/right boundaries, tween content properly
+					limitScrollViewMovement( self, self.leftLimit, self.rightLimit )
+				end
+				
+				self.moveDirection = nil
 				Runtime:removeEventListener( "enterFrame", self )
+				
+				if self.listener then
+					-- dispatch an "endedScroll" event.type to user-specified listener
+					dispatchEndedScroll( self )
+				end
+			else
+				-- update velocity and content location on every framestep
+				local moveProperty = "y"
+				if self.moveDirection == "horizontal" then moveProperty = "x"; end
+				self.velocity = self.velocity * self.friction
+				self[moveProperty] = self[moveProperty] + (self.velocity * timePassed)
+				
+				if moveProperty == "y" then
+					limitScrollViewMovement( self, self.upperLimit, self.lowerLimit )
+				else
+					limitScrollViewMovement( self, self.leftLimit, self.rightLimit )
+				end
 			end
-
-			-- update velocity and content location on every framestep
-			self.velocity = self.velocity * self.friction 	
-			self.y = math.floor( self.y + (self.velocity * timePassed) )
-
-			local upperLimit = self.topPadding --self.top
-			local lowerLimit = self.widgetHeight - self.height - self.bottom
-
-			limitMovement( self, upperLimit, lowerLimit )
 		else
-			trackVelocity( self, event )	-- track velocity if not ready to move
+			-- for timing how long user has finger held down
+			if self.moveDirection == "vertical" then		
+				if self.prevY == self.y then
+					if self.eventStep > 5 then
+						-- if finger is held down for 5 frames, ensure velocity is reset to 0
+						self.prevY = self.y
+						self.velocity = 0
+						self.eventStep = 0
+					else
+						self.eventStep = self.eventStep + 1
+					end
+				end
+			elseif self.moveDirection == "horizontal" then
+				if self.prevX == self.x then
+					if self.eventStep > 5 then
+						-- if finger is held down for 5 frames, ensure velocity is reset to 0
+						self.prevX = self.x
+						self.velocity = 0
+						self.eventStep = 0
+					else
+						self.eventStep = self.eventStep + 1
+					end
+				end
+			end
 		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function onContentTouch( self, event )
-		if event.phase == "began" then
-			-- set focus on scrollView's content
+	
+	local function onContentTouch( self, event )	-- self == content
+		local scrollView = self.parent
+		local phase = event.phase
+		local time = event.time
+		
+		if phase == "began" and not scrollView.isLocked then
+			-- set focus on scrollView content
 			display.getCurrentStage():setFocus( self )
 			self.isFocus = true
-
+			
+			-- remove listener for auto-movement based on velocity
+			Runtime:removeEventListener( "enterFrame", self )
+			
 			-- set some variables necessary movement/scrolling
-			self.delta, self.velocity = 0, 0
-			self.prevTime, self.prevY = 0, 0
-			self.prevPosition = event.y
-
-			-- start enterFrame listener to track velocity, and to enact momentum-based scrolling
-			Runtime:removeEventListener( "enterFrame", self )	-- remove in case listener is still active for whatever reason
-			Runtime:addEventListener( "enterFrame", self )
-			self.trackVelocity = true	-- start tracking velocity
-
-		elseif self.isFocus then
-			if event.phase == "moved" then
-
-				-- This code handles finger movement, and prevents content from going
-				-- too far past its upper and lower boundaries.
-
-				local lowerLimit = self.widgetHeight - self.height - self.bottom
-
-				self.delta = event.y - self.prevPosition
-				self.prevPosition = event.y
-
-				if self.y > self.top or self.y < lowerLimit then
-					self.y = self.y + self.delta/2
-				else
-					self.y = self.y + self.delta
+			self.velocity = 0
+			self.prevX = self.x
+			self.prevY = self.y
+			self.prevPositionX = event.x
+			self.prevPositionY = event.y
+			self.trackVelocity = true
+			self.markTime = time
+			self.eventStep = 0
+			
+			self.upperLimit = scrollView.topPadding or 0
+			self.lowerLimit = self.maskHeight - self.contentHeight
+			
+			self.leftLimit = 0
+			self.rightLimit = self.maskWidth - self.contentWidth
+			
+			-- determine whether or not to disable horizontal/vertical scrolling
+			if self.contentWidth <= self.maskWidth or scrollView.isVirtualized then
+				self.horizontalScrollDisabled = true
+			end
+			
+			-- reset move direction
+			self.moveDirection = nil
+			
+			if not scrollView.isVirtualized then
+				if self.contentHeight <= self.maskHeight then
+					self.verticalScrollDisabled = true
 				end
-
-			elseif event.phase == "ended" or event.phase == "cancelled" then
-
-				self.lastTime = event.time	-- this is necessary for calculating scrolling movement (see onUpdate)
-				self.trackVelocity = false	-- stop tracking velocity
-
-				-- remove focus from scrollView's content
+			else
+				self.moveDirection = "vertical"
+			end
+			
+			-- begin enterFrame listener (for velocity calculations)
+			Runtime:addEventListener( "enterFrame", self )
+			
+			-- dispatch scroll event
+			if self.listener then
+				local event = event
+				event.name = "scrollEvent"
+				event.type = "contentTouch"
+				event.phase = "press"
+				event.target = scrollView
+				self.listener( event )
+			end
+			
+			-- change lowerLimit if scrollView is "virtualized" (used for tableViews)
+			if scrollView.isVirtualized and scrollView.virtualContentHeight then
+				self.lowerLimit = self.maskHeight - scrollView.virtualContentHeight
+				if scrollView.bottomPadding then
+					self.lowerLimit = self.lowerLimit - scrollView.bottomPadding
+				end
+			end
+		
+		elseif self.isFocus then
+			if phase == "moved" then
+			
+				-- ensure content isn't trying to move while user is dragging content
+				if self.tween then transition.cancel( self.tween ); self.tween = nil; end
+				
+				-- determine if user is attempting to move content left/right or up/down
+				if not self.moveDirection then
+					if not self.verticalScrollDisabled or not self.horizontalScrollDisabled then
+						local dx = mAbs(event.x - event.xStart)
+						local dy = mAbs(event.y - event.yStart)
+						local moveThresh = 8
+						
+						if dx > moveThresh or dy > moveThresh then
+							if dx > dy then
+								self.moveDirection = "horizontal"
+							else
+								self.moveDirection = "vertical"
+							end
+						end
+					end
+				else
+					
+					-- Finger movement and swiping; prevent content from sticking past boundaries
+					
+					if self.moveDirection == "vertical" and not self.verticalScrollDisabled then
+						-- VERTICAL movement
+						
+						self.delta = event.y - self.prevPositionY
+						self.prevPositionY = event.y
+						
+						-- do "elastic" effect when finger is dragging content past boundaries
+						if self.y > self.upperLimit or self.y < self.lowerLimit then
+							self.y = self.y + self.delta/2
+						else
+							self.y = self.y + self.delta
+						end
+						
+						-- modify velocity based on previous move phase
+						self.eventStep = 0
+						self.velocity = (self.y - self.prevY) / (time - self.markTime)
+						self.markTime = time
+						self.prevY = self.y
+					
+					elseif self.moveDirection == "horizontal" and not self.horizontalScrollDisabled then
+						-- HORIZONTAL movement
+						
+						self.delta = event.x - self.prevPositionX
+						self.prevPositionX = event.x
+						
+						-- do "elastic" effect when finger is dragging content past boundaries
+						if self.x > self.leftLimit or self.x < self.rightLimit then
+							self.x = self.x + self.delta/2
+						else
+							self.x = self.x + self.delta
+						end
+						
+						-- modify velocity based on previous move phase
+						self.eventStep = 0
+						self.velocity = (self.x - self.prevX) / (time - self.markTime)
+						self.markTime = time
+						self.prevX = self.x
+					end
+				end
+				
+				-- dispatch scroll event
+				if self.listener then
+					local event = event
+					event.name = "scrollEvent"
+					event.type = "contentTouch"
+					event.target = scrollView
+					self.listener( event )
+				end
+			
+			elseif phase == "ended" or phase == "cancelled" then
+				
+				self.lastTime = time		-- necessary for calculating scroll movement
+				self.trackVelocity = nil	-- stop tracking velocity
+				self.markTime = nil
+				
+				if self.listener and self.velocity ~= 0 then
+					-- dispatch a "beganScroll" event.type to user-specified listener
+					dispatchBeganScroll( self )
+				end
+				
+				-- dispatch scroll event
+				if self.listener then
+					local event = event
+					event.name = "scrollEvent"
+					event.type = "contentTouch"
+					event.phase = "release"
+					event.target = scrollView
+					self.listener( event )
+				end
+				
+				-- remove focus from tableView's content
 				display.getCurrentStage():setFocus( nil )
-				self.isFocus = nil; self.oy = nil	-- clear un-needed variables
+				self.isFocus = nil
 			end
 		end
-
+	
 		return true
 	end
-
-	-----------------------------------------------------------------------------------------
-
+	
 	local function onBackgroundTouch( self, event )
-
-		-- This function allows tableView/scrollView to be scrolled when only the background
-		-- of the widget is being touched (rather than having to touch the content itself)
-
+	
+		-- This function allows scrollView to be scrolled when only the background of the
+		-- widget is being touched (rather than having to touch the content itself)
+	
 		if event.phase == "began" then
-			local view = self.parent.content
-
-			view:touch( event )	-- transfer touch event to content group's touch event
-
-			return false
-		end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function insertIntoContent( self, obj )
-		-- insert into the content group instead
-		self.content:insert( obj )
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function getScrollPosition( self )
-		return self.content.y
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function scrollToY( self, yPosition, timeInMs )
-		yPosition = yPosition or 0
-		timeInMs = timeInMs or 1500
-
-		local svContent = self.content
-
-		if timeInMs > 0 then
-			transition.to( svContent, { y=yPosition, time=timeInMs, transition=easing.outQuad } )
-		else
-			-- no effect; move content instantly (timeInMs set to 0)
-			svContent.y = yPosition
+			local content = self.parent.content
+			content:touch( event )	-- transfer touch event to content group's touch event
 		end
 	end
 	
-	-----------------------------------------------------------------------------------------
+	local function getContentPosition( self )
+		local content = self.content
+		return content.x, content.y
+	end
 	
-	-- transfer touch focus from other display object and give to scrollView
-	local function stealFocus( self, event )
+	local function takeFocus( self, event )
 		local target = event.target.view or event.target
 		
 		-- if button, restore back to "default" state
@@ -1185,7 +1452,7 @@ function widget.scrollview()
 			local r, g, b, a = target.label.color.default[1] or 0, target.label.color.default[2] or target.label.color.default[1], target.label.color.default[3] or target.label.color.default[1], target.label.color.default[4] or 255
 			target.label:setTextColor( r, g, b, a )
 		end
-
+	
 		-- remove focus from target
 		display.getCurrentStage():setFocus( nil )
 		target.isFocus = false
@@ -1195,281 +1462,440 @@ function widget.scrollview()
 		event.phase = "began"
 		self.content.touch( self.content, event )
 	end
-
-	-----------------------------------------------------------------------------------------
-
+	
+	local function scrollToX( self, x, timeInMs, onComplete )	-- PRIVATE; self == scrollView
+		local content = self.content
+		if not self then print( "WARNING: The correct way to call scrollToX is with a ':' not a '.'" ); return; end
+		if not x then return; end
+		time = timeInMs or 500
+		
+		if content.tween then transition.cancel( content.tween ); end
+		content.tween = transition.to( content, { x=x, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+	end
+	
+	local function scrollToY( self, y, timeInMs, onComplete )	-- PRIVATE; self == scrollView
+		local content = self.content
+		if not self then print( "WARNING: The correct way to call scrollToY is with a ':' not a '.'" ); return; end
+		if not y then return; end
+		time = timeInMs or 500
+		
+		if content.tween then transition.cancel( content.tween ); end
+		content.tween = transition.to( content, { y=y, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+	end
+	
+	local function scrollToPosition( ... )
+		local self, x, y, timeInMs, onComplete	-- self == scrollView
+		
+		if arg[1] and type(arg[1]) == "table" then
+			self = arg[1]
+		end
+		
+		self = arg[1]
+		x = arg[2]
+		y = arg[3]
+		
+		if arg[4] and type(arg[4]) == "number" then
+			timeInMs = arg[4]
+		elseif arg[4] and type(arg[4]) == "function" then
+			onComplete = arg[4]
+		end
+		
+		if arg[5] and type(arg[5]) == "function" then
+			onComplete = arg[5]
+		end
+	
+		if not self then print( "WARNING: The correct way to call scrollToPosition is with a ':' not a '.'" ); return; end
+		if not x and not y then return; end
+		if x and not y then
+			scrollToX( self, x, timeInMs, onComplete )
+		end
+		
+		if y and not x then
+			scrollToY( self, y, timeInMs, onComplete )
+		end
+		
+		if x and y then
+			local content = self.content
+			time = timeInMs or 500
+			if content.tween then transition.cancel( content.tween ); end
+			content.tween = transition.to( content, { x=x, y=y, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+		end
+	end
+	
+	local function scrollToTop( ... )
+		local self, timeInMs, onComplete
+		
+		self = arg[1]
+		if arg[2] and type(arg[2]) == "number" then
+			timeInMs = arg[2]
+		elseif arg[2] and type(arg[2]) == "function" then
+			onComplete = arg[2]
+		end
+		
+		if arg[3] and type(arg[3]) == "function" then
+			onComplete = arg[3]
+		end
+		
+		local content = self.content
+		time = timeInMs or 500
+		
+		
+		if content.tween then transition.cancel( content.tween ); end
+		content.tween = transition.to( content, { y=0, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+	end
+	
+	local function scrollToBottom( ... )
+		local self, timeInMs, onComplete
+		
+		self = arg[1]
+		if arg[2] and type(arg[2]) == "number" then
+			timeInMs = arg[2]
+		elseif arg[2] and type(arg[2]) == "function" then
+			onComplete = arg[2]
+		end
+		
+		if arg[3] and type(arg[3]) == "function" then
+			onComplete = arg[3]
+		end
+		
+		local content = self.content
+		time = timeInMs or 500
+		local lowerLimit = content.maskHeight - content.contentHeight
+		
+		if content.tween then transition.cancel( content.tween ); end
+		content.tween = transition.to( content, { y=lowerLimit, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+	end
+	
+	local function scrollToLeft( ... )
+		local self, timeInMs, onComplete
+		
+		self = arg[1]
+		if arg[2] and type(arg[2]) == "number" then
+			timeInMs = arg[2]
+		elseif arg[2] and type(arg[2]) == "function" then
+			onComplete = arg[2]
+		end
+		
+		if arg[3] and type(arg[3]) == "function" then
+			onComplete = arg[3]
+		end
+		
+		local content = self.content
+		time = timeInMs or 500
+		
+		if content.tween then transition.cancel( content.tween ); end
+		content.tween = transition.to( content, { x=0, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+	end
+	
+	local function scrollToRight( ... )
+		local self, timeInMs, onComplete
+		
+		self = arg[1]
+		if arg[2] and type(arg[2]) == "number" then
+			timeInMs = arg[2]
+		elseif arg[2] and type(arg[2]) == "function" then
+			onComplete = arg[2]
+		end
+		
+		if arg[3] and type(arg[3]) == "function" then
+			onComplete = arg[3]
+		end
+		
+		local content = self.content
+		time = timeInMs or 500
+		local rightLimit = content.maskWidth - content.contentWidth
+		
+		if content.tween then transition.cancel( content.tween ); end
+		content.tween = transition.to( content, { x=rightLimit, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+	end
+	
 	local function removeSelf( self )
-		if self._view then
-			-- clean up content (to include event listeners, Runtime listeners, etc.)
-			if self._view.content.tween then transition.cancel( self._view.content.tween ); self._view.content.tween = nil; end
-			self._view.content:removeEventListener( "touch", self._view.content ); self._view.content.touch = nil
-			Runtime:removeEventListener( "enterFrame", self._view.content ); self._view.content.enterFrame = nil
-			for i=self._view.content.numChildren,1,-1 do
-				display.remove( self._view.content[i] )
+		-- check to see if there is a clean method; if so, call it
+		if self.clean then self:clean(); end
+		
+		-- remove scrollView content
+		if self.content then
+			-- cancel any active transitions
+			if self.content.tween then transition.cancel( self.content.tween ); self.content.tween = nil; end
+			
+			-- remove runtime listener
+			Runtime:removeEventListener( "enterFrame", self.content )
+			
+			-- remove all children from content group
+			for i=self.content.numChildren,1,-1 do
+				display.remove( self.content[i] )
 			end
-			display.remove( self._view.content )
-
-			-- clean up view
-			for i=self._view.numChildren,1,-1 do
-				display.remove( self._view[i] )
-			end
-
-			self._view.content = nil; self._view.parentObject = nil
-			self._view:cached_removeSelf(); self._view = nil
-			self._parentView:removeSelf(); self._parentView = nil
-			self.view = nil
-			self = nil
+			
+			display.remove( self.content )
+			self.content = nil
 		end
+		
+		-- removed fixed (non scrollable) content
+		if self.fixed then
+			-- remove all children from fixed group
+			for i=self.fixed.numChildren,1,-1 do
+				display.remove( self.fixed[i] )
+			end
+			
+			display.remove( self.fixed )
+			self.fixed = nil
+		end
+		
+		-- remove all children from virtual group
+		if self.virtual then
+			for i=self.virtual.numChildren,1,-1 do
+				display.remove( self.virtual[i] )
+			end
+			
+			display.remove( self.virtual )
+			self.virtual = nil
+		end
+		
+		-- remove bitmap mask
+		if self.mask then
+			self:setMask( nil )
+			self.mask = nil
+		end
+		
+		-- call original removeSelf method
+		self:cached_removeSelf()
 	end
-
-	-----------------------------------------------------------------------------------------
-
+	
 	local function createScrollView( options )
-		local scrollView = {}
-
-		-- to prevent errors if table parameters are not passed
-		local options = options or {}
-		options.bgColor = options.bgColor or {}
-
-		-- extract parameters from options, or use default values
-		local left = options.left or 0
-		local top = options.top or 0
-		local topPadding = options.topPadding or 0
-		local bottomPadding = options.bottomPadding or 0
-		local width = options.width or (display.contentWidth-left)
-		local height = options.height or (display.contentHeight-top)
-		local friction = options.friction or 0.935
-		local r, g, b, a = options.bgColor[1] or 255, options.bgColor[2] or 255, options.bgColor[3] or 255, options.bgColor[4] or 255
-
-		-- Create the "view" display object, its properties, and methods (will become scrollView._view)
-		local parentView = display.newGroup()
-		parentView._isWidget = true
-		parentView.parentObject = scrollView
-		local view = display.newGroup(); parentView:insert( view )
-		view.parentObject = scrollView
-		view.content = display.newGroup(); parentView:insert( view.content )
-		view.content.y = topPadding
-		view.content.top = top
-		view.content.topPadding = topPadding
-		view.content.bottom = bottomPadding --display.contentHeight - height + topPadding - bottomPadding
-		view.content.widgetHeight = height
-		view.content.friction = friction
-		view.content.enterFrame = onUpdate	-- enterFrame listener function
-		view.content.touch = onContentTouch; view.content:addEventListener( "touch", view.content )
-		view.stealFocus = stealFocus
-
-		-- Create background rectangle for widget
-		local bgRect = display.newRect( view, 0, 0, width, height )
-		bgRect:setFillColor( r, g, b, a )
-		bgRect.touch = onBackgroundTouch
-		bgRect:addEventListener( "touch", bgRect )
-
-		-- Give scrollview a ._view property, to hold reference to the display group
-		scrollView._view = view
-		scrollView._view.trackVelocity = false	-- velocity is only tracked during a touch event
-
-		-- subclass the scrollView._view.insert() method
-		function scrollView._view:insert( obj )
-			self.content:insert( obj )
+		-- extract parameters or use defaults
+		local	options = options or {}
+		local	id = options.id or "widget_scrollView"
+		local	left = options.left or 0
+		local	top = options.top or 0
+		local	width = options.width or (display.contentWidth-left)
+		local	height = options.height or (display.contentHeight-top)
+		local	scrollWidth = options.scrollWidth or width
+		local	scrollHeight = options.scrollHeight or height
+		local	friction = options.friction or scrollFriction
+		local	listener = options.listener
+		local	bgColor = options.bgColor or {}
+				bgColor[1] = bgColor[1] or 255
+				bgColor[2] = bgColor[1] or bgColor[1]
+				bgColor[3] = bgColor[3] or bgColor[1]
+				bgColor[4] = bgColor[4] or 255
+		local	maskFile = options.maskFile
+		local	hideBackground = options.hideBackground
+		local	isVirtualized = options.isVirtualized
+		local	topPadding = options.topPadding
+		local	bottomPadding = options.bottomPadding
+		
+		-- create display groups
+		local scrollView = display.newGroup()	-- display group for widget; will be masked
+		local content = display.newGroup()		-- will contain scrolling content
+		local virtual = display.newGroup()		-- will contain "virtual" content (such as tableView rows)
+		local fixed = display.newGroup()		-- will contain 'fixed' content (that doesn't scroll)
+		scrollView:insert( content )
+		scrollView:insert( virtual )
+		scrollView:insert( fixed )
+		
+		-- important references
+		scrollView.content = content
+		scrollView.virtual = virtual
+		scrollView.fixed = fixed
+		
+		-- set some scrollView properties (private properties attached to content group)
+		scrollView._isWidget = true
+		scrollView.id = id
+		scrollView.widgetWidth = width
+		scrollView.widgetHeight = height
+		scrollView.isVirtualized = isVirtualized
+		scrollView.topPadding = topPadding
+		scrollView.bottomPadding = bottomPadding
+		content.maskWidth = width
+		content.maskHeight = height
+		content.friction = friction
+		content.enterFrame = onScrollViewUpdate	-- enterFrame listener function
+		content.touch = onContentTouch; content:addEventListener( "touch", content )
+		content.listener = listener
+		
+		-- scrollView methods
+		scrollView.getContentPosition = getContentPosition
+		scrollView.takeFocus = takeFocus
+		scrollView.scrollToPosition = scrollToPosition
+		scrollView.scrollToTop = scrollToTop
+		scrollView.scrollToBottom = scrollToBottom
+		scrollView.scrollToLeft = scrollToLeft
+		scrollView.scrollToRight = scrollToRight
+		
+		-- create background rectangle for widget
+		local bgRect = display.newRect( 0, 0, width, height )
+		bgRect:setFillColor( bgColor[1], bgColor[2], bgColor[3], bgColor[4] )
+		if hideBackground then bgRect.isVisible = false; end
+		bgRect.isHitTestable = true
+		bgRect.touch = onBackgroundTouch; bgRect:addEventListener( "touch", bgRect )
+		scrollView:insert( 1, bgRect )
+		
+		-- create a background for actual content
+		local contentBg = display.newRect( 0, 0, scrollWidth, scrollHeight )
+		contentBg:setFillColor( 255, 100 )
+		contentBg.isVisible = false
+		content:insert( 1, contentBg )
+		
+		-- apply mask (if user set option)
+		if maskFile then
+			scrollView.mask = graphics.newMask( maskFile )
+			scrollView:setMask( scrollView.mask )
+	
+			scrollView.maskX = width * 0.5
+			scrollView.maskY = height * 0.5
+			scrollView.isHitTestMasked = false
 		end
-
-		-- subclass the scrollView._view.removeSelf() method
-		scrollView._view.cached_removeSelf = scrollView._view.removeSelf
-		scrollView._view.removeSelf = removeSelf
-
-		-- Position the widget based on left/top coordinates
-		scrollView._view:setReferencePoint( display.TopLeftReferencePoint )
-		scrollView._view.x, scrollView._view.y = left, top
-
-		scrollView._parentView = parentView
-		scrollView.view = scrollView._parentView
-
-		-- setup methods for the view object
-		scrollView._view.getScrollPosition = getScrollPosition
-		scrollView._view.scrollToY = scrollToY
-
-		-- apply mask (if set as parameter)
-		if options.maskFile then
-			scrollView._parentView.mask = graphics.newMask( options.maskFile )
-			scrollView._parentView:setMask( scrollView._parentView.mask )
-
-			scrollView._parentView.maskX = left + (width * 0.5)
-			scrollView._parentView.maskY = top + (height * 0.5)
+	
+		-- position widget based on left/top options
+		scrollView:setReferencePoint( display.TopLeftReferencePoint )
+		scrollView.x, scrollView.y = left, top
+	
+		-- override removeSelf method for scrollView (to ensure widget is properly removed)
+		scrollView.cached_removeSelf = scrollView.removeSelf
+		scrollView.removeSelf = removeSelf
+		
+		-- override insert method for scrollView to insert into content instead
+		scrollView.cached_insert = scrollView.insert
+		function scrollView:insert( arg1, arg2 )
+			local index, obj
+			
+			if arg1 and type(arg1) == "number" then
+				index = arg1
+			elseif arg1 and type(arg1) == "table" then
+				obj = arg1
+			end
+			
+			if arg2 and type(arg2) == "table" then
+				obj = arg2
+			end
+			
+			if index then
+				self.content:insert( index, obj )
+			else
+				self.content:insert( obj )
+			end
 		end
-
-		return scrollView
+		
+		return scrollView	-- returns a display group
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	function scrollView.new( widgetTheme, options )
-		local scrollView_widget = createScrollView( options )
-
-		return setmetatable( scrollView_widget, scrollView_mt )
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	return scrollView
+	
+	return createScrollView( options )
 end
 
-
---***************************************************************************************
---***************************************************************************************
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 --
--- tabBar
+-- tabBar widget
 --
---***************************************************************************************
---***************************************************************************************
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
-function widget.tabbar()
-	local tabBar = {
-		__index = function(t,k)
-			return t._view[k]
-		end,
-
-		__newindex = function(t,k,v)
-			t._view[k] = v
-		end
-	}
-	--package.loaded[modname] = tabBar
-	local tabBar_mt = {
-		__index = tabBar.__index,
-		__newindex = tabBar.__newindex
-	}
-
-	-----------------------------------------------------------------------------------------
-
-	local mFloor = math.floor
-
-	-----------------------------------------------------------------------------------------
-	--
-	--	PRIVATE FUNCTIONS
-	--
-	-----------------------------------------------------------------------------------------
-
-	local function onButtonSelection( self )
-		self.parentObject:deSelectAll()	-- deselect all tab buttons
-
+function widget.newTabBar( options )
+	
+	local function invokeTabButtonSelectionState( button )
 		-- ensure overlay and down graphic are showing
-		self.up.isVisible = false
-		self.overlay.isVisible = true
-		self.down.isVisible = true
-		self.selected = true
-		if self.label then self.label:setTextColor( 255, 255, 255, 255 ); end
+		button.up.isVisible = false
+		button.down.isVisible = true
+		button.selected = true
+		if button.label then button.label:setTextColor( 255 ); end
+		
+		-- if hideOverlay is not set to true, show overlay graphic (to represent selection)
+		if not button.hideOverlay then
+			button.overlay.isVisible = true
+		end
+	end
+	
+	local function onButtonSelection( self )	-- self == tab button
+		local tabBar = self.parent.parent
+		
+		if tabBar and tabBar.deselectAll then
+			tabBar:deselectAll()	-- deselect all tab buttons
+		end
+
+		invokeTabButtonSelectionState( self )
 
 		-- call listener function
 		if self.onPress and type(self.onPress) == "function" then
 			local event = {
 				name = "tabButtonPress",
 				target = self,
-				targetParent = self.parentObject
 			}
 			self.onPress( event )
 		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function onButtonTouch( self, event )
+	
+	local function onButtonTouch( self, event )		-- self == tab button
 		if event.phase == "began" then
-
-			-- call onButtonSelection()
-			self:onSelection()
+			self:onSelection()	-- see: onButtonSelection()
 		end
 		return true
 	end
-
-	-----------------------------------------------------------------------------------------
-
+	
 	local function createTabButton( params )
-
-		local params = params or {}
-
-		local id = params.id
-		local label = params.label
-		local labelFont = params.font or native.systemFontBold
-		local labelFontSize = params.size or 10
-		local labelColor = params.labelColor or { 124, 124, 124, 255 }
-		local width = params.barWidth or display.contentWidth
-		local height = params.barHeight or 50
-		local cornerRadius = params.cornerRadius or 4
-		local upGraphic = params.up or params.image
-		local upWidth, upHeight = params.upWidth or params.width or 32, params.upHeight or params.height or 32
-		local downGraphic = params.down
-		local downWidth, downHeight = params.downWidth or upWidth, params.downHeight or upHeight
-		local parentObject = params.parent
-		local selected = params.selected
-		local onPress = params.onPress
-		local upGradient = params.upGradient
-		local downGradient = params.downGradient
-		local autoColor = params.autoColor
-		local baseDir = params.baseDir or system.ResourceDirectory
+		local	params = params or {}
+		local	id = params.id
+		local	label = params.label
+		local	labelFont = params.font or native.systemFontBold
+		local	labelFontSize = params.size or 10
+		local	labelColor = params.labelColor or { 124, 124, 124, 255 }
+		local	overlayWidth = params.overlayWidth
+		local	overlayHeight = params.overlayHeight
+		local	disableOverlay = params.disableOverlay
+		local	width = params.width or 32		-- corresponds to up/down image width
+		local	height = params.height or 32	-- corresponds to up/down image height
+		local	cornerRadius = params.cornerRadius or 4
+		local	default = params.default or params.up or params.image	-- params.default is supported; others old/deprecated
+		local	down = params.down or params.over -- params.down is supported; others old/deprecated
+		local	parentObject = params.parent
+		local	selected = params.selected
+		local	onPress = params.onPress
+		local	upGradient = params.upGradient
+		local	downGradient = params.downGradient
+		local	baseDir = params.baseDir or system.ResourceDirectory
 
 		local button = display.newGroup()
 		button.id = id
-
-		button.overlay = display.newRoundedRect( 0, 0, width, height, cornerRadius )
+		button.hideOverlay = disableOverlay
+		
+		-- create overlay (which is the highlight when button is selected/down)
+		button.overlay = display.newRoundedRect( button, 0, 0, overlayWidth, overlayHeight, cornerRadius )
 		button.overlay:setFillColor( 255, 25 )
 		button.overlay:setStrokeColor( 0, 75 )
 		button.overlay.strokeWidth = 1
-		button:insert( button.overlay )
 		button.overlay.isVisible = false
 		button.overlay.isHitTestable = true
 
-		button.up = display.newImageRect( upGraphic, baseDir, upWidth, upHeight )
+		button.up = display.newImageRect( button, default, baseDir, width, height )
 		button.up:setReferencePoint( display.CenterReferencePoint )
 		button.up.x = button.overlay.width * 0.5
 		button.up.y = button.overlay.height * 0.5
-		button:insert( button.up )
 
-		if upGraphic and not downGraphic then downGraphic = upGraphic; end
-		button.down = display.newImageRect( downGraphic, baseDir, downWidth, downHeight )
+		if default and not down then down = default; end
+		button.down = display.newImageRect( button, down, baseDir, width, height )
 		button.down:setReferencePoint( display.CenterReferencePoint )
 		button.down.x = button.up.x
 		button.down.y = button.up.y
-		button:insert( button.down )
 		button.down.isVisible = false
 
 		if label then	-- label is optional
 			-- shift icon up
-			button.up.y = button.up.y - 7
-			button.down.y = button.down.y - 7
+			button.up.y = button.up.y - (labelFontSize-3)
+			button.down.y = button.down.y - (labelFontSize-3)
 
 			-- create label
-			button.label = display.newRetinaText( label, 0, 0, labelFont, labelFontSize )
+			button.label = widget.retinaText( label, 0, 0, labelFont, labelFontSize )
 			local color = { labelColor[1] or 124, labelColor[2] or 124, labelColor[3] or 124, labelColor[4] or 255 }
 			button.label:setTextColor( color[1], color[2], color[3], color[4] )
 			button.label.color = color
 			button.label:setReferencePoint( display.TopCenterReferencePoint )
 			button.label.x = button.up.x
-			button.label.y = button.up.contentBounds.yMax
+			button.label.y = button.up.y + (button.up.contentHeight*0.5)	-- button.up's reference point is center
 			button:insert( button.label )
 		end
 
-		-- apply gradient to up and down graphics (if not set to disabled)
-		if autoColor then
-			-- "up" state fill ( grey )
-			if not upGradient then
-				button.up:setFillColor( 154 )
-			end
-
-			-- "down" state fill ( blue )
-			if not downGradient then
-				button.down:setFillColor( 52,175,241,255 )
-			end
-		end
-
-		-- assign reference to tabBar object as button.parentObject
-		if parentObject then button.parentObject = parentObject; end
-
 		-- if selected, show overlay and 'down' graphic
 		if selected then
-			button.up.isVisible = false
-			button.overlay.isVisible = true
-			button.down.isVisible = true
-			button.selected = true
-			if button.label then button.label:setTextColor( 255, 255, 255, 255 ); end
+			invokeTabButtonSelectionState( button )
 		end
 
 		-- touch event
@@ -1478,17 +1904,15 @@ function widget.tabbar()
 
 		-- assign onPress event (user-specified listener function)
 		button.onPress = onPress
-
+		
 		-- selection method to represent button visually and call listener
 		button.onSelection = onButtonSelection
 
 		return button
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function deSelectAll( self )
-		for i=1,#self.buttons do
+	
+	local function deselectAllButtons( self )	-- self == tabBar
+		for i=1,self.buttons.numChildren do
 			local button = self.buttons[i]
 
 			button.overlay.isVisible = false
@@ -1499,27 +1923,20 @@ function widget.tabbar()
 		end
 	end
 	
-	-----------------------------------------------------------------------------------------
-	
-	local function pressButton( self, buttonIndex, invokeListener )
-		self:deSelectAll()
+	local function pressButton( self, buttonIndex, invokeListener )		-- self == tabBar
+		self:deselectAll()
+		invokeListener = invokeListener or true
 		
 		local button = self.buttons[buttonIndex]
 		if button then
-			-- ensure overlay and down graphic are showing
-			button.up.isVisible = false
-			button.overlay.isVisible = true
-			button.down.isVisible = true
-			button.selected = true
-			if button.label then button.label:setTextColor( 255, 255, 255, 255 ); end
+			invokeTabButtonSelectionState( button )
 
 			-- call listener function
 			if invokeListener then
 				if button.onPress and type(button.onPress) == "function" then
 					local event = {
 						name = "tabButtonPress",
-						target = button,
-						targetParent = self
+						target = button
 					}
 					button.onPress( event )
 				end
@@ -1528,1183 +1945,974 @@ function widget.tabbar()
 			print( "WARNING: Specified tab button '" .. buttonIndex .. "' does not exist." )
 		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function removeSelf( self )
-		for i=1,#self.parentObject.buttons do
-			display.remove( self.parentObject.buttons[i].overlay ); self.parentObject.buttons[i].overlay = nil
-			display.remove( self.parentObject.buttons[i].up ); self.parentObject.buttons[i].up = nil
-			display.remove( self.parentObject.buttons[i].down ); self.parentObject.buttons[i].down = nil
+	
+	local function removeSelf( self )	-- self == tabBar
+		-- check to see if there is a clean method; if so, call it
+		if self.clean then self:clean(); end
+		
+		-- remove all buttons
+		for i=self.buttons.numChildren,1,-1 do
+			display.remove( self.buttons[i] )
 		end
-		self.parentObject.buttons = nil
-
-		-- remove all children of this ._view object
-		for i=self.numChildren,1,-1 do
-			display.remove( self[i] )
+		display.remove( self.buttons )
+		
+		-- remove gradient (if in use)
+		if self.gradientRect then
+			self.gradientRect:setFillColor( 0 )	-- so it's no longer using gradient image
+			if self.gradient then
+				self.gradient = nil
+			end
 		end
-
-		if self._view then self._view:cached_removeSelf(); end
-		self.parentObject = nil
-		self.pressButton = nil
-		self.deSelectAll = nil
-		self._view = nil
-		self.view = nil
-		self = nil
+		
+		-- remove tab bar widget itself
+		self:cached_removeSelf()
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function createTabBar( options, themeOptions )
-		local tabBar = {}
-
-		local options = options or {}	-- to prevent errors if no options are passed
-		local theme = themeOptions or {}
-		local buttons = options.buttons or {}
-
+	
+	local function createTabBar( options, theme )
+		local options = options or {}
+		local theme = theme or {}
+		local id = options.id or "widget_tabBar"
+		local buttons = options.buttons
+		local maxTabWidth = options.maxTabWidth or 90
 		local width = options.width or theme.width or display.contentWidth
 		local height = options.height or theme.height or 50
-		local background = options.background or theme.background or nil
-		local topGradient = options.topGradient or theme.topGradient or nil	-- if used, topGradient must be a gradient object created using graphics.newGradient()
-		local bottomFill = options.bottomFill or theme.bottomFill or { 0, 0, 0, 255 }
+		local background = options.background or theme.background
+		local gradient = options.gradient or theme.gradient	-- gradient must be pre-created using graphics.newGradient
+		local topFill = options.topFill or theme.topFill
+		local bottomFill = options.bottomFill or theme.bottomFill
 		local left = options.left or 0
 		local top = options.top or 0
 		local baseDir = options.baseDir or system.ResourceDirectory
-
-		-- setup gradient
-		if not background and not topGradient then
-			topGradient = graphics.newGradient( { 39 }, { 0 }, "down" )
-		end
-
-		-- setup actual display object
-		local view = display.newGroup()
-		view._isWidget = true
-		view.parentObject = tabBar
-		local bg
-
-		-- create background for tabBar
-		if background then
-			bg = display.newImageRect( background, baseDir, width, height )
-		elseif topGradient then
-			bg = display.newRect( 0, 0, width, height )
-			bg:setFillColor( topGradient )
-		end
 		
-		-- setup bottomFill parameter (if set)
-		if bottomFill then
+		local tabBar = display.newGroup()
+		local barBg = display.newGroup(); tabBar:insert( barBg )
+		
+		local halfW = width * 0.5
+		local halfH = height * 0.5
+		
+		-- create tab bar background
+		if topFill and bottomFill then
+			-- background made from two equal halves (2 different fills)
+			
+			topFill[1] = topFill[1] or 0
+			topFill[2] = topFill[2] or topFill[1]
+			topFill[3] = topFill[3] or topFill[1]
+			topFill[4] = topFill[4] or 255
+			
 			bottomFill[1] = bottomFill[1] or 0
 			bottomFill[2] = bottomFill[2] or bottomFill[1]
 			bottomFill[3] = bottomFill[3] or bottomFill[1]
 			bottomFill[4] = bottomFill[4] or 255
+			
+			local topRect = display.newRect( barBg, 0, 0, width, halfH )
+			topRect:setFillColor( topFill[1], topFill[2], topFill[3], topFill[4] )
+			
+			local bottomRect = display.newRect( barBg, 0, halfH, width, halfH )
+			bottomRect:setFillColor( bottomFill[1], bottomFill[2], bottomFill[3], bottomFill[4] )
+		
+		elseif gradient and type(gradient) == "userdata" then
+			-- background made from rectangle w/ gradient fill
+			
+			local bg = display.newRect( barBg, 0, 0, width, height )
+			bg:setFillColor( gradient )
+			
+		elseif background and type(background) == "string" then
+			-- background made from user-provided image file
+			
+			local bg = display.newImageRect( barBg, background, baseDir, width, height )
+		else
+			-- no background or fills specified (default)
+			
+			-- create a gradient background
+			tabBar.gradient = graphics.newGradient( { 39 }, { 0 }, "down" )
+			tabBar.gradientRect = display.newRect( barBg, 0, 0, width, height )
+			tabBar.gradientRect:setFillColor( tabBar.gradient )
+			
+			-- create solid black rect for bottom half of background
+			local bottomRect = display.newRect( barBg, 0, halfH, width, halfH )
+			bottomRect:setFillColor( 0, 0, 0, 255 )
 		end
-
-		-- position background
-		bg:setReferencePoint( display.TopLeftReferencePoint )
-		bg.x, bg.y = 0, 0
-		view:insert( bg )
-
-		-- create bottom half of the background
-		if not background then
-			local bottomRect = display.newRect( 0, 0, width, height * 0.5 )
-			bottomRect:setFillColor( bottomFill[1] or 0, bottomFill[2] or 0, bottomFill[3] or 0, bottomFill[4] or 255 )
-			bottomRect:setReferencePoint( display.TopLeftReferencePoint )
-			bottomRect.x, bottomRect.y = 0, height * 0.5
-			view:insert( bottomRect )
-		end
-
-		-- set reference point for view and position it
-		view:setReferencePoint( display.TopLeftReferencePoint )
-		view.x, view.y = left, top
-
-		-- create all of the tab buttons and space them out evenly
-		tabBar.buttons = {}
-		if buttons then
+		
+		-- background created; create tab buttons
+		
+		tabBar.buttons = display.newGroup()
+		tabBar:insert( tabBar.buttons )
+		
+		if buttons and type(buttons) == "table" then
 			local buttonWidth = mFloor((width/#buttons)-4)
 			local buttonHeight = height-4
-			local padding = mFloor(width/buttonWidth)*2
-
+			local buttonPadding = mFloor(width/buttonWidth)*2
+			
+			-- ensure button width doesn't exceed maxButtonWidth
+			if buttonWidth > maxTabWidth then buttonWidth = maxTabWidth; end
+			
+			-- construct each button and insert into tabBar.buttons group
 			for i=1,#buttons do
 				buttons[i].id = buttons[i].id or i
-				buttons[i].barWidth = buttonWidth
-				buttons[i].barHeight = buttonHeight
+				buttons[i].overlayWidth = buttonWidth
+				buttons[i].overlayHeight = buttonHeight
 				buttons[i].parent = tabBar
 
-				tabBar.buttons[i] = createTabButton( buttons[i] )
-				tabBar.buttons[i].x = (buttonWidth*i-buttonWidth) + padding
-				tabBar.buttons[i].y = 2
-				view:insert( tabBar.buttons[i] )
+				local tab = createTabButton( buttons[i] )
+				tab:setReferencePoint( display.TopLeftReferencePoint )
+				tab.x = (buttonWidth*i-buttonWidth) + buttonPadding
+				tab.y = 0
+				tabBar.buttons:insert( tab )
 			end
+			
+			-- center the 'tabBar.buttons' group on the widget
+			tabBar.buttons:setReferencePoint( display.CenterReferencePoint )
+			tabBar.buttons.x, tabBar.buttons.y = halfW, halfH
 		end
-
-		-- methods
-		tabBar.deSelectAll = deSelectAll
-		tabBar.pressButton = pressButton
-
-		-- assign a reference to the display object
-		tabBar._view = view
-		tabBar.view = tabBar._view
-
-		-- subclass the tabBar._view.removeSelf() method
-		tabBar._view.cached_removeSelf = tabBar._view.removeSelf
-		tabBar._view.removeSelf = removeSelf
-
+		
+		-- position the widget
+		tabBar:setReferencePoint( display.TopLeftReferencePoint )
+		tabBar.x, tabBar.y = left, top
+		tabBar:setReferencePoint( display.CenterReferencePoint )
+		
+		-- prevent touches from going through tabBar background
+		local preventTouches = function( self, event ) return true; end
+		barBg.touch = preventTouches
+		barBg:addEventListener( "touch", barBg )
+		
+		-- override removeSelf method to ensure widget is properly freed from memory
+		tabBar.cached_removeSelf = tabBar.removeSelf
+		tabBar.removeSelf = removeSelf
+		
+		-- additional tabBar methods and properties
+		tabBar._isWidget = true
+		tabBar.id = id
+		tabBar.deselectAll = deselectAllButtons
+		tabBar.makeTabActive = pressButton
+		
 		return tabBar
 	end
-
-	-----------------------------------------------------------------------------------------
-	--
-	--	PUBLIC FUNCTIONS
-	--
-	-----------------------------------------------------------------------------------------
-
-	function tabBar.new( widgetTheme, options, buttons ) -- constructor
-		local themeOptions
-		if widgetTheme then themeOptions = widgetTheme.tabBar; end
-
-		local tabBar_widget = createTabBar( options, buttons, themeOptions )
-
-		return setmetatable( tabBar_widget, tabBar_mt )
+	
+	-- this widget supports visual customization via themes
+	local themeOptions
+	if widget.theme then
+		local tabBarTheme = widget.theme.tabBar
+		
+		if tabBarTheme then
+			if options and options.style then	-- style parameter optionally set by user
+				
+				-- for themes that support various "styles" per widget
+				local style = tabBarTheme[options.style]
+				
+				if style then themeOptions = style; end
+			else
+				-- if no style parameter set, use default style specified by theme
+				themeOptions = tabBarTheme
+			end
+		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	return tabBar
+	
+	return createTabBar( options, themeOptions )
 end
 
---***************************************************************************************
---***************************************************************************************
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 --
--- tableView
+-- tableView widget (based on scrollView widget)
 --
---***************************************************************************************
---***************************************************************************************
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
-function widget.tableview()
-	local tableView = {
-		__index = function(t,k)
-			return t._view[k]
-		end,
-
-		__newindex = function(t,k,v)
-			if k == "y" then
-				-- update the catGroup's y position whenever widget's 'y' is updated
-				if t._view.content.catGroup then
-					t._view.content.catGroup.y = v
-				end
-				
-				-- update the 'top' property of the tableView
-				local top = t._view.content.top
-				local yDiff = v - top
-				t._view.content.top = top + yDiff
-				
-				-- update the mask location
-				t._parentView.maskY = v + (t._view.content.widgetHeight * 0.5)
-			end
-			t._view[k] = v
-		end
-	}
-	--package.loaded[modname] = tableView
-	local tableView_mt = {
-		__index = tableView.__index,
-		__newindex = tableView.__newindex
-	}
+function widget.newTableView( options )
 	
-	local mAbs = math.abs
-	local mFloor = math.floor
-
-	-----------------------------------------------------------------------------------------
-
-	local function getRowIndex( row, rows )
-		local result
-		for i=1,#rows do
-			if rows[i] == row then
-				result = i; break
-			end
-		end
-		return result
+	-- creates group for row, as well as a background and bottom-line
+	local function newRowGroup( rowData )
+		local row = display.newGroup()
+		
+		-- create background
+		local bg = display.newRect( row, 0, 0, rowData.width, rowData.height )
+		bg:setFillColor( rowData.rowColor[1], rowData.rowColor[2], rowData.rowColor[3], rowData.rowColor[4] )
+		
+		-- create bottom-line
+		local line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
+		line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
+		
+		row.background = bg
+		row.line = line
+		
+		return row
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function getTotalHeight( rows )
-		local sum = 0
-		for i=1,#rows do sum = sum + rows[i].height end
-		return sum
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function checkRenderLimits( tbContent, row )
-		if row.top <= tbContent.upperRenderBounds or row.top >= tbContent.lowerRenderBounds then
-			row.isRendered = false
-		else
-			row.isRendered = true
-		end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function createRowBackgroundAndLine( row, parentGroup )
-		local bg = display.newRect( 0, 0, row.width, row.height )
-		local rowColor = row.rowColor or { 255, 255, 255, 255 }
-			rowColor[1] = rowColor[1] or 255
-			rowColor[2] = rowColor[2] or rowColor[1]
-			rowColor[3] = rowColor[3] or rowColor[1]
-			rowColor[4] = rowColor[4] or 255
-		bg:setFillColor( rowColor[1], rowColor[2], rowColor[3], rowColor[4] )
-		parentGroup:insert( bg )
-
-		local line = display.newLine( 0, row.height-1, row.width, row.height-1 )
-		line.width = 1
-		line:setColor( row.lineColor[1], row.lineColor[2], row.lineColor[3], row.lineColor[4] )
-		parentGroup:insert( line )
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function renderRow( tbContent, row, phase )
-		-- set up event table
-		local event = {}
-		event.name = "tableView_onRender"
-		event.tableView = tbContent.parentObject.parentObject	-- tableView (parent of view, which is parent of tbContent [tableView._view.content])
-		event.target = row
-		event.phase = phase or "render"		-- phases: render, selected, released, swipeLeft, swipeRight
-		event.index = row.listIndex 		-- getRowIndex( row, tbContent.rows )
-
-		if row._view then display.remove( row._view ); end; row._view = display.newGroup()
-		createRowBackgroundAndLine( row, row._view )
-		row._view.y = row.top
-		event.view = row._view
-
-		if row.onRender then row.onRender( event ); end
-
-		tbContent.parentObject:cached_insert( row._view )
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function renderCategory( tbContent, row, index )
-		-- setup event table
-		local event = {}
-		event.name = "tableView_onRender"
-		event.tableView = tbContent.parentObject.parentObject	-- tableView (parent of view, which is parent of tbContent [tableView._view.content])
-		event.target = row
-		event.phase = "render"
-		event.index = row.listIndex --getRowIndex( row, tbContent.rows )
-
-		if tbContent.cat then
-
-			-- If there is currently a category rendered, only re-render if it's a different category
-
-			if index ~= tbContent.cat.index then
-				display.remove( tbContent.cat )
-				tbContent.cat = display.newGroup()
-				createRowBackgroundAndLine( row, tbContent.cat )
-				tbContent.cat.x = 0
-				tbContent.cat.y = 0
-				tbContent.cat.index = index
-				event.view = tbContent.cat
-				tbContent.catGroup:insert( tbContent.cat )	-- insert into category group
-
-				if row.onRender then row.onRender( event ); end
-			end
-		else
-
-			-- Render category (no category currently rendered)
-
-			tbContent.cat = display.newGroup()
-			createRowBackgroundAndLine( row, tbContent.cat )
-			tbContent.cat.x = 0
-			tbContent.cat.y = 0
-			tbContent.cat.index = index
-			event.view = tbContent.cat
-			tbContent.catGroup:insert( tbContent.cat )	-- insert into category group
-
-			if row.onRender then row.onRender( event ); end
+	
+	-- render row based on index in tableView.content.rows table
+	local function renderRow( self, row )	-- self == tableView
+		local content = self.content
+		if row.view then row.view:removeSelf(); end
+		row.view = newRowGroup( row )
+		self.virtual:insert( row.view )
+		
+		row.view.x = 0
+		row.view.y = row.top
+		
+		if row.onRender then
+			-- set up event table
+			local e = {}
+			e.name = "tableView_rowRender"
+			e.type = "render"
+			e.parent = self	-- tableView that this row belongs to
+			e.target = row
+			e.row = row
+			e.id = row.id
+			e.view = row.view
+			e.background = row.view.background
+			e.line = row.view.line
+			e.data = row.data
+			e.phase = "render"		-- phases: render, press, release, swipeLeft, swipeRight
+			e.index = row.index
+			
+			row.onRender( e )
 		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function ensureRowIsRendered( tbContent, row )
-		if not row._view then
+	
+	local function renderCategory( self, row )	-- self == tableView
+		local content = self.content
+		
+		local newCategoryRender = function()
+			if content.category then display.remove( content.category ); end
+			
+			content.category = newRowGroup( row )
+			content.category.index = row.index
+			content.category.x, content.category.y = 0, 0 ---row.height
+			
+			self.fixed:insert( content.category )	-- insert into tableView's 'fixed' group
+			
 			if row.onRender then
-				renderRow( tbContent, row, "render" )
+				-- set up event table
+				local e = {}
+				e.name = "tableView_rowRender"
+				e.type = "render"
+				e.parent = self	-- tableView that this row belongs to
+				e.target = row
+				e.row = row
+				e.id = row.id
+				e.view = content.category
+				e.background = content.category.background
+				e.line = content.category.line
+				e.data = row.data
+				e.phase = "render"		-- phases: render, press, release, swipeLeft, swipeRight
+				e.index = row.index
+				
+				row.onRender( e )
 			end
+		end
+		
+		if not content.category then
+			-- new; no category currently rendered
+			newCategoryRender()
+			
 		else
-			row._view.y = row.top
-		end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function ensureRowIsNotRendered( tbContent, row )
-		-- remove row._view (display object) if it exists
-		if row._view then display.remove( row._view ); row._view = nil; end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function getRowAtCoordinate( tbContent, yPosition, rows )
-		for i=1,#rows do
-			local row = rows[i]
-			local top = row.top + tbContent.parentObject.y --tbContent.parentObject.top
-			if tbContent.parentObject.parent.parent then
-				-- picker wheel
-				top = top + tbContent.parentObject.parent.parent.y
-			end
-			local bounds = { yMin=top, yMax=top+row.height }
-			
-			if yPosition >= bounds.yMin and yPosition <= bounds.yMax then
-				return row, i
+			-- there is currently a category; render only if it's different
+			if content.category.index ~= row.index then
+				newCategoryRender()
 			end
 		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function getRowAtY( self, yPosition )
-		local tbContent = self.content
-		local rows = tbContent.rows
-		return getRowAtCoordinate( tbContent, yPosition, rows )
+	
+	-- renders row if it does not have a 'view' property (display group)
+	local function ensureRowIsRendered( self, row )	-- self == tableView
+		if not row.view then
+			renderRow( self, row )
+		else
+			row.view.y = row.top
+		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function updateRowLocations( tbContent )
-		local rows = tbContent.rows
-		local topY = tbContent.y
-		local view = tbContent.parentObject
-		local y = topY
-		local currentCategoryIndex
-
-		local catCount = 0
-		-- update top (e.g. "y") location of each row (and handle category pushing)
+	
+	-- determine the current top-most and bottom-most rendered row
+	local function getTopBottomRendered( self )	-- self == tableView
+		local rows = self.content.rows
+		local topIndex, bottomIndex
+		
 		for i=1,#rows do
-			local row = rows[i]
-			row.listIndex = i
-			row.top = y
+		
+			if not topIndex and rows[i].isRendered then
+				topIndex = i
+			end
 			
-			local rowTop = row.top
-			local viewTop = tbContent.top --view.top
-			local viewY = view.y
-			local cat = tbContent.cat
-			
-			-- next code block handles category "pushing" effect
-			if row.isCategory and cat then
-				-- the following code 'pushes' the previous category up if next category is overlapping (from top or bottom)
-				local catBottom = viewTop + cat.height - 3
-				if rowTop+viewTop <= catBottom and rowTop+viewTop > viewY then
-					tbContent.cat.y = rowTop - tbContent.catGroup.height + 3
-				end
-			elseif cat and not row.isCategory then
-				-- check to see if a category is "stuck" in the wrong position, if so, place category in correct position
-				if cat.y < 0 then
-					if not cat.prevY then cat.prevY = cat.y; end
-					if cat.prevY == cat.y then
-						catCount = catCount + 1
-						
-						if catCount >= 3 then
-							catCount = 0
-							cat.y = 0
-						end
+			if not bottomIndex then
+				if i == #rows then
+					if rows[i].isRendered then
+						bottomIndex = i
+					end
+				else
+					if rows[i].isRendered and not rows[i+1].isRendered then
+						bottomIndex = i
 					end
 				end
 			end
-
-			-- check to see which category should be rendered
-			if row.isCategory and rowTop+viewTop <= viewY then
-				currentCategoryIndex = i
-			end
-
-			-- modify isRendered property depending on if row is above or below thresh
-			checkRenderLimits( tbContent, row )
-
-			if row.reRender then
-				if row._view then display.remove( row._view ); row._view = nil; end
-				row.reRender = false
-			end
-			
-			if row.isRendered then
-				ensureRowIsRendered( tbContent, row )		-- ROW *SHOULD* BE RENDERED
-			else
-				ensureRowIsNotRendered( tbContent, row )	-- ROW SHOULD *NOT* BE RENDERED
-			end
-			
-			y = y + row.height	-- set the y-position for the next row
-		end
-
-		-- render proper category
-		if currentCategoryIndex then
-			renderCategory( tbContent, rows[currentCategoryIndex], currentCategoryIndex )
-		else
-			if tbContent.cat then
-				display.remove( tbContent.cat )
-				tbContent.cat = nil
-			end
-		end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function deleteRow( self, rowOrIndex )
-		local tbContent = self._view.content
-		local rows = tbContent.rows
-		
-		if type(rowOrIndex) == "table" then
-			if rowOrIndex.isRendered then
-				if rowOrIndex._view then display.remove( rowOrIndex._view ); rowOrIndex._view = nil; end
-			end
-			table.remove( rows, rowOrIndex.listIndex )
-		else
-			if rows[rowOrIndex].isRendered then
-				if rows[rowOrIndex]._view then display.remove( rows[rowOrIndex]._view ); rows[rowOrIndex]._view = nil; end
-			end
-			table.remove( rows, rowOrIndex )
 		end
 		
-		updateRowLocations( tbContent )
+		return topIndex, bottomIndex
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function getNextRowTop( tbContent )
-
-		-- FIND NEXT TOP TOP POSITION AFTER ULTIMATE ROW ITEM
-
-		local rows = tbContent.rows
-		local ultimateRow = rows[#rows]
-		local currentTop
-
-		if ultimateRow then
-			currentTop = ultimateRow.top + ultimateRow.height
-			return currentTop
+	
+	-- render rows within the render range ( -renderThresh <-- widget height --> renderThresh )
+	local function renderVisibleRows( self ) -- self == tableView
+		local content = self.content
+		
+		-- if widget has been removed during scrolling, be sure to remove certain enterFrame listeners
+		if not content or not content.y then
+			if content then Runtime:removeEventListener( "enterFrame", content ); end
+			Runtime:removeEventListener( "enterFrame", self.rowListener )
+			return
 		end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function insertRowIntoTableView( self, params )	--REFERENCE: self = tableView
-		local content = self._view.content
+		
+		-- if top/bottom-most rendered rows have not yet been set, retrieve them before continuing
+		if not self.topMostRendered or not self.bottomMostRendered then
+			self.topMostRendered, self.bottomMostRendered = getTopBottomRendered( self )
+			
+			if self.topMostRendered == nil and self.bottomMostRendered == nil then
+				-- no rows are rendered; perform initial rendering of rows
+				local renderHeight = (content.maskHeight + self.renderThresh)
+				local currentHeight = 0
+				local rows = content.rows
+				
+				for i=1,#rows do
+					local r = rows[i]
+					
+					local top = content.y + r.topOffset
+					local bottom = top + r.height
+					
+					-- only render rows that are within the render area
+					if bottom > 0 and top < content.maskHeight then
+						-- row is within viewable area; ensure it is rendered
+						r.isRendered = true
+						ensureRowIsRendered( self, r )
+						currentHeight = currentHeight + r.height
+					end
+					
+					if currentHeight > renderHeight then break; end
+				end
+				
+				self.topMostRendered, self.bottomMostRendered = getTopBottomRendered( self )
+			end
+		end
+		
+		local topIndex = self.topMostRendered
+		local bottomIndex = self.bottomMostRendered
 		local rows = content.rows
-		local defaults = content.defaults
-
-		params = params or {}	-- create "dummy" table if params not set
-
-		-- extract parameters and/or set defaults
-		local id = params.id
-		local width = params.width or defaults.width
-		local height = params.height or defaults.rowHeight
-		local rowColor = params.rowColor or defaults.rowColor
+		
+		-- determine if top row needs to be removed or if a new row needs to be rendered
+		local topRow = rows[topIndex]
+		topRow.top = content.y + topRow.topOffset
+		topRow.bottom = topRow.top + topRow.height
+		local topThresh = -self.renderThresh
+		
+		if topRow.top < topThresh and topIndex ~= 1 then
+			-- un-render the row (set new topMost)
+			if topRow.view then
+				topRow.view:removeSelf()
+				topRow.view = nil
+				topRow.isRendered = false
+			end
+			
+			-- render new row at the bottom
+			if bottomIndex < #rows then
+				self.bottomMostRendered = self.bottomMostRendered + 1
+				rows[self.bottomMostRendered].isRendered = true
+			end
+			
+			self.topMostRendered = self.topMostRendered + 1
+			rows[self.topMostRendered].isRendered = true
+		end
+		
+		if topIndex > 1 then
+			local nextTopHeight = rows[topIndex-1].height
+			
+			if topRow.top > topThresh and mAbs(topThresh-topRow.top) >= nextTopHeight then
+				-- new row needs to be rendered
+				self.topMostRendered = self.topMostRendered - 1
+				rows[self.topMostRendered].isRendered = true
+			end
+		end
+		topIndex = self.topMostRendered
+		bottomIndex = self.bottomMostRendered
+		
+		-- determine if bottom row needs to be removed or if a new row needs to be rendered
+		local bottomRow = rows[bottomIndex]
+		bottomRow.top = content.y + bottomRow.topOffset
+		bottomRow.bottom = bottomRow.top + bottomRow.height
+		local bottomThresh = content.maskHeight + self.renderThresh
+		
+		if bottomRow.top > bottomThresh and bottomIndex ~= #rows then
+			-- un-render the row (set new bottomMost)
+			if bottomRow.view then
+				bottomRow.view:removeSelf()
+				bottomRow.view = nil
+				bottomRow.isRendered = false
+			end
+			
+			-- render new row at the bottom
+			if topIndex > 1 then
+				self.topMostRendered = self.topMostRendered - 1
+				rows[self.topMostRendered].isRendered = true
+			end
+			
+			self.bottomMostRendered = self.bottomMostRendered - 1
+			rows[self.bottomMostRendered].isRendered = true
+		end
+		
+		if bottomIndex < #rows then
+			local nextBottomHeight = rows[bottomIndex+1].height
+			if bottomRow.top < bottomThresh and mAbs(bottomThresh - bottomRow.top) >= nextBottomHeight then
+				-- new row needs to be rendered
+				self.bottomMostRendered = self.bottomMostRendered + 1
+				rows[self.bottomMostRendered].isRendered = true
+			end
+		end
+		topIndex = self.topMostRendered
+		bottomIndex = self.bottomMostRendered
+		
+		local currentCategoryIndex
+		
+		-- ensure all rows that are marked .isRendered are rendered
+		for i=topIndex,bottomIndex do
+			local row = rows[i]
+			-- update top/bottom locations
+			row.top = content.y + row.topOffset
+			row.bottom = row.top + row.height
+			
+			-- category "pushing" effect
+			if content.category and row.isCategory and row.index ~= content.category.index then
+				if row.top < content.category.contentHeight-3 and row.top >= 0 then
+					-- push the category upward
+					content.category.y = row.top - (content.category.contentHeight-3)
+				end
+			end
+			
+			-- determine which category should be rendered (sticky category at top)	
+			if row.isCategory and row.top <= 0 then
+				currentCategoryIndex = i
+			
+			elseif row.isCategory and row.top >= 0 and content.category and row.index == content.category.index then
+				-- category moved below top of tableView, render previous category
+				
+				-- render the previous category, if this is not the first current category
+				if row.index ~= content.firstCategoryIndex then
+					currentCategoryIndex = content.categories["cat-" .. row.index]	-- stores reference to previous category index
+				else
+					-- remove current category if the first category moved below top of tableView
+					if content.category then
+						content.category:removeSelf()
+						content.category = nil
+						currentCategoryIndex = nil
+					end
+				end
+			end
+			
+			-- check to see if row needs to be re-rendered
+			if row.reRender then
+				if row.view then row.view:removeSelf(); row.view = nil; end
+				row.reRender = nil
+			end
+			
+			-- render the row
+			if row.isRendered then
+				ensureRowIsRendered( self, row )
+			else
+				-- remove row if it's not supposed to be rendered
+				if row.view then row.view:removeSelf(); row.view = nil; end
+			end
+			
+			-- hide the row's view if it happens to be outside of the viewable area
+			if not self.keepRowsPastTopVisible then
+				if row.bottom < 0 then
+					-- row is above viewable area; hide it
+					if row.view and row.view.isVisible then row.view.isVisible = false; end
+				
+				elseif row.top > content.maskHeight then
+					-- row is below viewable area; hide it
+					if row.view and row.view.isVisible then row.view.isVisible = false; end
+				else
+					-- row is within viewable area; show it
+					if row.view and not row.view.isVisible then row.view.isVisible = true; end
+				end
+			end
+			
+			-- hide category row whenever it becomes the "current" category
+			if row.isCategory and content.category and content.category.index == row.index then
+				row.view.isVisible = false
+			end
+		end
+		
+		-- render current category
+		if currentCategoryIndex then
+			renderCategory( self, rows[currentCategoryIndex] )
+		end
+	end
+	
+	-- find the next row insert location (y-coordinate)
+	local function getNextRowTop( content )
+		local rows = content.rows
+		local top, nextIndex = content.y, #rows+1
+		
+		local final = rows[#rows]
+		if final then
+			-- return final row's top location + its height
+			top = final.top + final.height
+		end
+		
+		return top, nextIndex	-- returns next 'top' coordinate, & the next avail. index
+	end
+	
+	-- iterate through all rows and update row data (such as content offset, total height, category info, etc)
+	local function updateRowData( self )	-- self == tableView
+		local content = self.content
+		local rows = content.rows
+		local top = content.y
+		local currentY = top
+		local firstCategory
+		local previousCategory
+		local totalHeight = 0
+		content.categories = {}
+		
+		for i=1,#rows do
+			rows[i].topOffset = currentY - top
+			
+			-- update index while we're at it
+			rows[i].index = i
+			
+			-- popuplate content.categories table
+			if rows[i].isCategory then
+				if not previousCategory then
+					content.categories["cat-" .. i] = "first"
+					previousCategory = i
+				else
+					content.categories["cat-" .. i] = previousCategory
+					previousCategory = i
+				end
+				
+				if not firstCategory then
+					-- store reference to very first category index
+					firstCategory = i
+				end
+			end
+			local height = rows[i].height
+			currentY = currentY + height + 1
+			totalHeight = totalHeight + height + 1
+		end
+		
+		-- make reference to first category
+		content.firstCategoryIndex = firstCategory
+		
+		-- force re-calculation of top/bottom most rendered rows
+		self.topMostRendered = nil
+		self.bottomMostRendered = nil
+		
+		-- update total height of all rows
+		self.virtualContentHeight = totalHeight
+	end
+	
+	-- used to insert new rows into tableView.content.rows table
+	local function insertRow( self, params )	-- self == tableView
+		local row = {}
+		row.id = params.id		-- custom id
+		row.data = params.data	-- custom data
+		row.width = self.content.maskWidth
+		row.height = params.height or 56	-- default row height is 56
+		row.isCategory = params.isCategory
+		row.onEvent = params.listener or params.onEvent
+		row.onRender = params.onRender
+		local rowColor = params.rowColor or {}
 			rowColor[1] = rowColor[1] or 255
 			rowColor[2] = rowColor[2] or rowColor[1]
 			rowColor[3] = rowColor[3] or rowColor[1]
 			rowColor[4] = rowColor[4] or 255
-		local lineColor = params.lineColor or defaults.lineColor
+		local lineColor = params.lineColor or {}
 			lineColor[1] = lineColor[1] or 128
 			lineColor[2] = lineColor[2] or lineColor[1]
 			lineColor[3] = lineColor[3] or lineColor[1]
 			lineColor[4] = lineColor[4] or 255
-		local isCategory = params.isCategory or false
-		local onEvent = params.onEvent
-		local onRender = params.onRender
-		local insertionPoint = params.position or #rows+1
-
-		-- set up table for new row
-		local row = {}
-
-		-- row parameters (user-set)
-		row.id = id
-		row.width = width
-		row.height = height
 		row.rowColor = rowColor
 		row.lineColor = lineColor
-		row.isCategory = isCategory
-		row.onEvent = onEvent
-		row.onRender = onRender
-
-		-- row properties (non-userset)
-		row.top = getNextRowTop( content ) or content.top - self._view.y
-		row.isRendered = false
-
-		-- insert new row at end of content.rows table
-		table.insert( rows, insertionPoint, row )
-
-		-- ensure row locations are up-to-date
-		updateRowLocations( content )
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function limitMovement( self, upperLimit, lowerLimit )
-		local updateRows = function() updateRowLocations( self ); end
-		local tweenRows = function( limit ) if self.tween then transition.cancel( self.tween ); end; self.tween = transition.to( self, { time=400, y=limit, transition=easing.outQuad } ); end
-		local moveRowsWithTween = function() if self.rowTimer then timer.cancel( self.rowTimer ); end; self.rowTimer = timer.performWithDelay( 1, updateRows, 400 ); end
-
-		if self.y > upperLimit then
-
-			-- Content has drifted above upper limit of tableView
-			-- Stop content movement and transition back down to upperLimit
-
-			self.velocity = 0
-			Runtime:removeEventListener( "enterFrame", self )
-			tweenRows( upperLimit )
-			moveRowsWithTween()
-
-		elseif self.y < lowerLimit and lowerLimit < 0 then
-
-			-- Content has drifted below lower limit of tableView (in case lower limit is above screen bounds)
-			-- Stop content movement and transition back up to lower limit.
-
-			self.velocity = 0
-			Runtime:removeEventListener( "enterFrame", self )
-			tweenRows( lowerLimit )
-			moveRowsWithTween()
-
-		elseif self.y < lowerLimit then
-
-			-- Top of content has went past lower limit of tableView (in positive-y direction)
-			-- Stop content movement and transition content back to upper limit.
-
-			self.velocity = 0
-			Runtime:removeEventListener( "enterFrame", self )
-			tweenRows( upperLimit - self.bottom )
-			moveRowsWithTween()
+		row.top, row.index = getNextRowTop( self.content )
+		row.isRendered = false	-- will ensure row gets rendered on next update
+		
+		-- increase renderThresh property of tableView if row height is larger
+		-- renderThresh is the limit above and below widget where rendering occurs
+		if row.height >= self.renderThresh then
+			self.renderThresh = row.height + 10
 		end
+		
+		-- insert as final item in tableView.content.rows table
+		table.insert( self.content.rows, row )
+		updateRowData( self )
+		if not params.skipRender then renderVisibleRows( self ); end	-- refresh locations/rendering
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function initiateRowEvent( tbContent, row, phase )
-		if tbContent and row then
-			-- setup event table
-			local event = {}
-			event.name = "tableView_onEvent"
-			event.tableView = tbContent.parentObject.parentObject	-- tableView (parent of view, which is parent of tbContent [tableView._view.content])
-			event.target = row
-			event.phase = phase or "render"		-- phases: render, selected, released, swipeLeft, swipeRight
-			event.index = row.listIndex --getRowIndex( row, tbContent.rows )
-			event.view = row._view
-
-			if event.phase == "render" then
-				if row._view then display.remove( row._view ); end; row._view = display.newGroup()
-				createRowBackgroundAndLine( row, row._view )
-
-				event.name = "tableView_onRender"
-				if row.onRender then row.onRender( event ); end
-			else
-				if row.onEvent then row.onEvent( event ); end	-- call event listener function
-			end
-		end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function deSelectAllRows( tbContent )
-		for i=1,#tbContent.rows do
-			local row = tbContent.rows[i]
-			row.isTouched = false
-			row.reRender = true	-- force re-render of row on next update
-		end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function checkSelectionStatus( tbContent, time )
-		if tbContent.trackRowSelection then
-            local timePassed = time - tbContent.startTime
-            
-            if timePassed > 100 then		-- finger has been held down for more than 100 milliseconds
-                tbContent.trackRowSelection = false
-                
-                -- initiate "press" event if a row is being touched
-                local row = tbContent.currentSelectedRow --getRowAtCoordinate( tbContent, tbContent.prevPosition, tbContent.rows )
-                if row then
-                    row.isTouched = true
-                    initiateRowEvent( tbContent, row, "press" )
-                end
-            end
-        else
-            -- if not tracking row selection, monitor how much time finger is held before releasing
-            if tbContent.prevY == tbContent.y then
-                if tbContent.eventStep > 5 then
-                    -- if finger is held down for 5 frames, ensure velocity is reset to 0
-                    tbContent.prevY = tbContent.y
-                    tbContent.velocity = 0
-                    tbContent.eventStep = 0
-                else
-                    tbContent.eventStep = tbContent.eventStep + 1
-                end
-            end
-        end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function onUpdate( self, event )	-- Reference: self = tableView._view.content
-		if not self.trackVelocity then
-			local time = event.time
-			local timePassed = time - self.lastTime
-			self.lastTime = time 
-
-			-- stop scrolling when velocity gets close to zero
-			if mAbs( self.velocity ) < .01 then
-				self.velocity = 0
-				self.y = mFloor( self.y )
-                
-                -- if pulled past upper/lower boundaries, tween content properly
-                limitMovement( self, self.upperLimit, self.lowerLimit )
+	
+	-- finds rendered row at on-screen y-coordinate and returns the row object
+	local function getRowAtCoordinate( self, yPosition )	-- self == tableView
+		local top = self.y	-- y-coordinate of tableView, from top-left reference point
+		local content = self.content
+		--local firstRenderedRow = content.firstRenderedRow or 1
+		local rows = content.rows
+		local result
+		
+		for i=1,#rows do
+			if rows[i].view then
+				local viewBounds = rows[i].view.contentBounds
+				local isWithinBounds = yPosition > viewBounds.yMin and yPosition < viewBounds.yMax
 				
-                Runtime:removeEventListener( "enterFrame", self )
-			else
-				-- update velocity and content location on every framestep
-				self.velocity = self.velocity * self.friction 	
-				self.y = self.y + (self.velocity * timePassed) --math.floor( self.y + (self.velocity * timePassed) )
-
-				limitMovement( self, self.upperLimit, self.lowerLimit )
+				-- if yPosition is within the row's view group, return this row
+				if isWithinBounds then result = rows[i]; break; end
 			end
+		end
+		
+		return result
+	end
+	
+	-- calls onEvent listener for row
+	local function dispatchRowTouch( row, phase )
+		if row.onEvent then
+			-- set up event table
+			local e = {}
+			e.name = "tableView_rowTouch"
+			e.type = "touch"
+			e.parent = self	-- tableView that this row belongs to
+			e.target = row
+			e.row = row
+			e.id = row.id
+			e.view = row.view
+			e.background = row.view.background
+			e.line = row.view.line
+			e.data = row.data
+			e.phase = phase		-- phases: render, press, tap, release, swipeLeft, swipeRight
+			e.index = row.index
 			
-			updateRowLocations( self )	-- ensure virtual rows y position matches that of content group
-		else
-			-- for timing how long user has tableView held down
-            checkSelectionStatus( self, event.time )
+			row.onEvent( e )
 		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function beginContentTouch( self, event )	-- "began" phase for onContentTouch
-		local tableView = self.parentObject.parentObject
-		if not tableView.isLocked then	-- isLocked (true/false) determines whether rows can scroll or not
-			-- set focus on tableView's content
-			display.getCurrentStage():setFocus( self )
-			self.isFocus = true
-			
-			Runtime:removeEventListener( "enterFrame", self )	-- remove listener for auto-movement based on velocity
-			
-			-- set some variables necessary movement/scrolling
-			self.delta, self.velocity = 0, 0
-			self.prevY = self.y
-			self.prevPosition = event.y
-			self.trackVelocity = true
-            self.upperLimit = self.topPadding
-			self.lowerLimit = self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
-			
-			Runtime:addEventListener( "enterFrame", self )	-- begin this to monitor row presses
-			
-			self.currentSelectedRow = getRowAtCoordinate( self, event.y, self.rows )
-			self.trackRowSelection = true
-			self.startTime = event.time
-			self.eventStep = 0
+	
+	-- listens to scrollView events for tableView
+	local function scrollListener( event )
+		local tableView = event.target
+		local content = tableView.content
+		local eType = event.type
+		
+		local moveRowsWithTween = function( self )	-- self == tableView
+			local updateRows = function() renderVisibleRows( self ); end
+			if self.rowTimer then timer.cancel( self.rowTimer ); end;
+			self.rowTimer = timer.performWithDelay( 1, updateRows, 400 )
 		end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function moveContent( self, event )	-- "moved" phase for onContentTouch
-		if self.isFocus then
-			-- This code handles finger movement, and prevents content from going
-			-- too far past its upper and lower boundaries.
-			local swipeThresh = 12
-			local moveThresh = 10
-			local xDistance = event.x - event.xStart
-			local yDistance = mAbs( event.y - event.yStart )
-			local movedPastThresh = yDistance > moveThresh
-			local row = self.currentSelectedRow
+		
+		if eType == "contentTouch" then
+			local tapThresh = 3		-- used to determine if touch was a "drag" or a quick tap
+			local moveThresh = 10	-- do not allow swipes once user drags up/down past this amount
+			local swipeThresh = 12	-- if finger moves left/right this amount, trigger swipe event
 			
-			if not movedPastThresh then
-				if row then
-					-- check to see if a "swipe" event should be dispatched
-					if xDistance > swipeThresh then
-						initiateRowEvent( self, row, "swipeRight" )
-						row.isTouched = false
-						row = nil
-						self.currentSelectedRow = nil
-						updateRowLocations( self )
-						self.velocity = 0
-						self.trackRowSelection = false
-					
-						-- remove focus from tableView's content
-						display.getCurrentStage():setFocus( nil )
-						self.isFocus = nil; self.oy = nil
-					elseif xDistance < -swipeThresh then
-						initiateRowEvent( self, row, "swipeLeft" )
-						row.isTouched = false
-						row = nil
-						self.currentSelectedRow = nil
-						updateRowLocations( self )
-						self.velocity = 0
-						self.trackRowSelection = false
-					
-						-- remove focus from tableView's content
-						display.getCurrentStage():setFocus( nil )
-						self.isFocus = nil; self.oy = nil
+			if event.phase == "press" then
+				
+				-- tableView content has been touched
+				
+				Runtime:removeEventListener( "enterFrame", tableView.rowListener )
+				
+				-- find out which row the touch began on and store a reference to it
+				tableView.currentSelectedRow = getRowAtCoordinate( tableView, event.y )
+				content.yDistance = 0
+				content.canSwipe = true
+				
+				Runtime:addEventListener( "enterFrame", tableView.rowListener )
+				content.trackRowSelection = true
+				
+				-- prevents categories from getting 'stuck' in the wrong position
+				if content.category and content.category.y ~= 0 then content.category.y = 0; end
+				
+			elseif event.phase == "moved" then
+				
+				-- tableView content is being dragged
+				local canDrag = content.canDrag
+				local canSwipe = content.canSwipe
+				local yDistance
+				
+				-- calculate distance traveled in y direction (only when needed)
+				if not canDrag or canSwipe then
+					yDistance = mAbs( event.y - event.yStart )
+				end
+				
+				-- determine if this touch event could possibly be a "row tap"
+				if not canDrag then
+					if yDistance > tapThresh then
+						content.yDistance = yDistance
+						content.canDrag, canDrag = true, true
+						content.trackRowSelection = nil
 					end
 				end
-			else
-				-- prevent row from being tracked after initial movement past threshold
-				self.trackRowSelection = false
-			end
-			
-			
-			if yDistance > 2 then
-				local lowerLimit = self.lowerLimit --self.widgetHeight - getTotalHeight( self.rows ) - self.bottom
-				local y = event.y
 				
-				self.delta = y - self.prevPosition
-				self.prevPosition = y
-
-				if self.y > self.top or self.y < lowerLimit then
-					self.y = self.y + self.delta/2
+				-- determine whether y distance traveled is low enough to allow left/right swipes
+				if canSwipe then
+					if yDistance > moveThresh then
+						canSwipe = nil
+						content.canSwipe = nil
+					end
 				else
-					self.y = self.y + self.delta
-				end
-
-				-- make sure if the row that is being touched is "press" (held down too long), to de-select and force re-render
-				if row and row.isTouched and movedPastThresh then
-					self.trackRowSelection = false	-- stop tracking amount of time user has their finger held down
-					row.isTouched = false
-					row.reRender = true
+					-- ensure rows move with drag
+					renderVisibleRows( tableView )
 				end
 				
-				-- modify velocity based on previous move phase
-                self.eventStep = 0
-                self.velocity = (self.y - self.prevY) / (event.time - self.startTime)
-                self.startTime = event.time
-                self.prevY = self.y    -- ensure self.prevY is set to currently selection (for next move phase)
+				-- left/right swipes
+				local row = tableView.currentSelectedRow
+				if row and canSwipe then
+					local xDistance = event.x - event.xStart
+					
+					-- check to see if a "swipe" event should be dispatched
+					if xDistance > swipeThresh then
+						dispatchRowTouch( row, "swipeRight" )
+						row.isTouched = false
+						row = nil
+						tableView.currentSelectedRow = nil
+						renderVisibleRows( tableView )
+						content.velocity = 0
+						content.trackRowSelection = false
+					
+						-- remove focus from tableView's content
+						display.getCurrentStage():setFocus( nil )
+						content.isFocus = nil
+						
+					elseif xDistance < -swipeThresh then
+						dispatchRowTouch( row, "swipeLeft" )
+						row.isTouched = false
+						row = nil
+						tableView.currentSelectedRow = nil
+						renderVisibleRows( tableView )
+						content.velocity = 0
+						content.trackRowSelection = false
+					
+						-- remove focus from tableView's content
+						display.getCurrentStage():setFocus( nil )
+						content.isFocus = nil
+					end
+				end
+			
+			elseif event.phase == "release" then
 				
-				updateRowLocations( self )
+				local row = tableView.currentSelectedRow
+				if content.yDistance < tapThresh and content.trackRowSelection then
+					-- user tapped tableView content (dispatch row release event)
+					dispatchRowTouch( row, "tap" )
+					row.isTouched = nil
+					row = nil
+					tableView.currentSelectedRow = nil
+				else
+					if row and row.isTouched then
+						dispatchRowTouch( row, "release" )
+						row.isTouched = nil
+						row = nil
+						tableView.currentSelectedRow = nil
+						renderVisibleRows( tableView )
+					end
+				end
+				
+				-- variables used during "moved" phase
+				content.yDistance = nil
+				content.canDrag = nil
+				content.canSwipe = nil
+				content.trackRowSelection = nil
+				
+				-- prevents categories from getting 'stuck' in the wrong position
+				if content.category and content.category.y ~= 0 then content.category.y = 0; end
+			end
+		
+		elseif eType == "movingToTopLimit" or eType == "movingToBottomLimit" then
+			-- prevents categories from getting 'stuck' in the wrong position
+			if content.category and content.category.y ~= 0 then content.category.y = 0; end
+			moveRowsWithTween( tableView )
+		end
+	end
+	
+	-- times how long finger has been held down on a specific row
+	local function checkSelectionStatus( self, time )	-- self == tableView
+		local content = self.content
+		if content.trackRowSelection then
+			local timePassed = time - content.markTime
+				
+			if timePassed > 110 then		-- finger has been held down for more than 100 milliseconds
+				content.trackRowSelection = false
+				
+				-- initiate "press" event if a row is being touched
+				local row = self.currentSelectedRow
+				if row then
+					row.isTouched = true
+					dispatchRowTouch( row, "press" )
+				end
 			end
 		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function endContentTouch( self, event )	-- "ended" phase for onContentTouch
-		if self.isFocus then
-			local time = event.time
-			self.lastTime = time	-- this is necessary for calculating scrolling movement (see onUpdate)
-			self.trackVelocity = nil	-- stop tracking velocity
-			self.trackRowSelection = nil
-			self.startTime = nil
-
-			-- check to see if a row was selected
-			local row = self.currentSelectedRow	--getRowAtCoordinate( self, event.y, self.rows )
-			if row and row.isTouched then
-				initiateRowEvent( self, row, "release" )
-				row.isTouched = false
-				row = nil
-				self.currentSelectedRow = nil
-				updateRowLocations( self )
+	
+	-- enterFrame listener for tableView widget
+	local function rowListener( self, event )	-- self == tableView
+		local isTrackingVelocity = self.content.trackVelocity
+		if not isTrackingVelocity then
+			if self.content.velocity == 0 then
+				Runtime:removeEventListener( "enterFrame", self.rowListener )
 			end
-
-			-- remove focus from tableView's content
-			display.getCurrentStage():setFocus( nil )
-			self.isFocus = nil; self.oy = nil	-- clear un-needed variables
+			-- prevents categories from getting 'stuck' in the wrong position
+			local content = self.content
+			if content.category and content.category.y ~= 0 then content.category.y = 0; end
+			
+			renderVisibleRows( self )
+		else
+			-- check to see if current row should be selected
+			checkSelectionStatus( self, event.time )
 		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function onContentTouch( self, event )	-- REFERENCE: self = tableView._view.content
-		if event.phase == "began" then
-
-			beginContentTouch( self, event )
-
-		elseif self.isFocus then
-			if event.phase == "moved" then
-
-				moveContent( self, event )
-
-			elseif event.phase == "ended" or event.phase == "cancelled" then
-
-				endContentTouch( self, event )
-			end
-		end
-
-		return true
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function onBackgroundTouch( self, event )
-
-		-- This function allows tableView/scrollView to be scrolled when only the background
-		-- of the widget is being touched (rather than having to touch the content itself)
-
-		if event.phase == "began" then
-			local view = self.parent.content
-
-			view:touch( event )	-- transfer touch event to content group's touch event
-
-			return true
-		end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function insertIntoContent( self, obj )
-		-- insert into the content group instead
-		self.content:insert( obj )
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function getScrollPosition( self )
-		return self.content.y
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	function scrollToY( self, yPosition, timeInMs )
+	
+	-- scroll content to specified y-position
+	local function scrollToY( self, yPosition, timeInMs )		-- self == tableView
 		yPosition = yPosition or 0
 		timeInMs = timeInMs or 1500
+		
+		if yPosition > 0 then
+			print( "WARNING: You must specify a value less than zero (negative) when using tableView:scrollToY()." )
+			return
+		end
 
-		local tbContent = self.content
+		local content = self.content
 
 		if timeInMs > 0 then
 			local updateTimer
 			local cancelUpdateTimer = function() timer.cancel( updateTimer ); updateTimer = nil; end
-			transition.to( tbContent, { y=yPosition, time=timeInMs, transition=easing.outQuad, onComplete=cancelUpdateTimer } )
-			local updateRows = function() updateRowLocations( tbContent ); end
+			if content.tween then transition.cancel( content.tween ); end
+			content.tween = transition.to( content, { y=yPosition, time=timeInMs, transition=easing.outQuad, onComplete=cancelUpdateTimer } )
+			local updateRows = function() renderVisibleRows( self ); end
 			updateTimer = timer.performWithDelay( 1, updateRows, timeInMs )
+		end
+	end
+	
+	-- scroll content to place specific row at top of tableView
+	local function scrollToIndex( self, rowIndex, timeInMs )	-- self == tableView
+		local content = self.content
+		local rows = content.rows
+		local padding = self.topPadding or 0
+		local yPosition = -(rows[rowIndex].topOffset) + padding
+		
+		if yPosition then
+			if timeInMs then
+				scrollToY( self, yPosition, timeInMs )
+			else
+				content.y = yPosition
+				self.topMostRendered, self.bottomMostRendered = nil, nil -- force re-render
+				renderVisibleRows( self )
+			end
+		end
+	end
+	
+	-- returns y-position of content
+	local function getContentPosition( self )	-- self == tableView
+		return self.content.y
+	end
+	
+	-- permanently remove specified row from tableView
+	local function deleteRow( self, rowOrIndex )	-- self == tableView
+		local content = self.content
+		local rows = content.rows
+		local row
+		
+		-- function accepts row table or index integer
+		if type(rowOrIndex) == "table" then
+			row = rowOrIndex
 		else
-			-- no effect; move content instantly (timeInMs set to 0)
-			tbContent.y = yPosition
-			updateRowLocations( tbContent )
-		end
-	end
-
-	-----------------------------------------------------------------------------------------
-
-	function scrollToIndex( self, rowIndex, timeInMs )
-		local tbContent = self.content
-		local rows = tbContent.rows
-		local yPosition = -(rows[rowIndex].top) + tbContent.y
-		
-		if self.isPicker then
-			-- picker wheel
-			yPosition = -(rows[rowIndex].top) + 109 + rows[rowIndex].height * 1.45
+			row = rows[rowOrIndex]
 		end
 		
-		if yPosition then scrollToY( self, yPosition, timeInMs ); end
+		if row then
+			if row.isRendered then
+				if row.view then display.remove( row.view ); row.view = nil; end
+			end
+			table.remove( content.rows, row.index )
+		end
+		
+		updateRowData( self )
+		renderVisibleRows( self )
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	local function removeSelf( self )
-		-- clean up content (to include event listeners, Runtime listeners, etc.)
-		if self._view then
-			if self._view.content.tween then transition.cancel( self._view.content.tween ); self._view.content.tween = nil; end
-			if self._view.content.rowTimer then timer.cancel( self._view.content.rowTimer ); self._view.content.rowTimer = nil; end
-			if self._view.content.cat then display.remove( self._view.content.cat ); self._view.content.cat = nil; end
-			self._view.content:removeEventListener( "touch", self._view.content ); self._view.content.touch = nil
-			Runtime:removeEventListener( "enterFrame", self._view.content ); self._view.content.enterFrame = nil
-			self._view.content.parentObject = nil	-- remove reference
-			for i=self._view.content.numChildren,1,-1 do
-				display.remove( self._view.content[i] )
-			end
-			self._view.content:removeSelf()
-
-			-- clean up all children in view object (self)
-			for i=self._view.numChildren,1,-1 do
-				display.remove( self._view[i] )
-			end
-
-
-			if self._view.parentObject._parentView then
-				-- remove mask, if it exists
-				if self._view.parentObject._parentView.mask then
-					self._view.parentObject._parentView:setMask( nil )
-					self._view.parentObject._parentView.mask = nil
-				end 
-
-				for i=self._view.parentObject._parentView.numChildren,1,-1 do
-					display.remove( self._view.parentObject._parentView[i] )
-				end
-
-				self._view.parentObject = nil
-				self.view.parentObject = nil
-			end
-
-			self._view.content = nil; self._view.parentObject = nil
-			self._view:cached_removeSelf(); self._view = nil
-			self._parentView:removeSelf(); self._parentView = nil
-			self.isLocked = nil
-			self.insertRow = nil
-			self.view = nil
-			self = nil
+	
+	-- cleanup function (automatically called prior to calling removeSelf)
+	local function cleanTableView( self )	-- self == tableView
+		-- remove tableView's enterframe listener
+		Runtime:removeEventListener( "enterFrame", self.rowListener )
+		self.rowListener = nil
+		
+		-- cancel any potentially active timers/transitions
+		if self.rowTimer then timer.cancel( self.rowTimer ); self.rowTimer = nil; end
+		if self.content and self.content.tween then
+			transition.cancel( self.content.tween ); self.content.tween = nil
+		end
+		
+		-- remove category object if it exists
+		if self.content.category then
+			self.content.category:removeSelf()
+			self.content.category = nil
 		end
 	end
-
-	-----------------------------------------------------------------------------------------
-
+	
 	local function createTableView( options )
-		local tableView = {}
-
-		-- to prevent errors if table parameters are not passed
 		local options = options or {}
-		options.bgColor = options.bgColor or {}
-
-		-- extract parameters from options, or use default values
-		local left = options.left or 0
-		local top = options.top or 0
-		local topPadding = options.topPadding or 0
-		local bottomPadding = options.bottomPadding or 0
-		local width = options.width or (display.contentWidth-left)
-		local height = options.height or (display.contentHeight-top)
-		local renderThresh = options.renderThresh or 150
-		local friction = options.friction or 0.925 --0.935
-		local r, g, b, a = options.bgColor[1] or 255, options.bgColor[2] or 255, options.bgColor[3] or 255, options.bgColor[4] or 255
-		local isPicker = options.isPicker
-
-		-- Create the "view" display object, its properties, and methods (will become tableView._view)
-		local parentView = display.newGroup()
-		parentView._isWidget = true
-		parentView.parentObject = tableView
-		local view = display.newGroup(); parentView:insert( view )
-		view.top = top
-		view.parentObject = tableView
-		view.content = display.newGroup(); view:insert( view.content )
-		view.content.parentObject = view
-		view.content.y = topPadding
-		view.content.top = top --topPadding --view.content.y
-		view.content.topPadding = topPadding
-		view.content.bottom = bottomPadding
-		view.content.widgetHeight = height
-		view.content.friction = friction
-		view.content.enterFrame = onUpdate	-- enterFrame listener function
-		view.content.touch = onContentTouch; view.content:addEventListener( "touch", view.content )
-		view.content.upperRenderBounds = topPadding - renderThresh --view.content.top - renderThresh
-		view.content.lowerRenderBounds = topPadding + height + renderThresh --view.content.top + height + renderThresh
-		view.content.trackRowSelection = false	-- used to determine whether or not a row should be selected
-
-		-- set up table to hold row items, as well as default row values
-		view.content.rows = {}
-		view.content.defaults = {
-			width = width, rowHeight = 64,
-			rowColor = { 255, 255, 255, 255 },	-- r, g, b, alpha
-			lineColor = { 128, 128, 128, 255 }	-- r, g, b, alpha
+		
+		-- tableView-specific parameters
+		local	id = options.id or "widget_tableView"
+		local	renderThresh = options.renderThresh or 100	-- px amount above and below to begin rendering rows
+		
+		-- shared scrollView parameters (if not specified will use scrollView defaults)
+		local	left = options.left or 0
+		local	top = options.top or 0
+		local	width = options.width or (display.contentWidth-left)
+		local	height = options.height or (display.contentHeight-top)
+		local	scrollWidth = width
+		local	scrollHeight = height
+		local	friction = options.friction
+		local	bgColor = options.bgColor
+		local	maskFile = options.maskFile
+		local	hideBackground = options.hideBackground
+		local	keepRowsPastTopVisible = options.keepRowsPastTopVisible
+		local	topPadding = options.topPadding
+		local	bottomPadding = options.bottomPadding
+		
+		-- tableView foundation is a scrollView widget
+		local tableView = widget.newScrollView{
+			id = id,
+			left = left,
+			top = top,
+			width = width,
+			height = height,
+			scrollWidth = scrollWidth,
+			scrollHeight = scrollHeight,
+			friction = friction,
+			bgColor = bgColor,
+			maskFile = maskFile,
+			hideBackground = hideBackground,
+			listener = scrollListener,
+			isVirtualized = true,
+			topPadding = topPadding,
+			bottomPadding = bottomPadding
 		}
-
-		-- Create background rectangle for widget
-		local bgRect = display.newRect( view, 0, 0, width, height )
-		bgRect:setFillColor( r, g, b, a )
-		bgRect.touch = onBackgroundTouch
-		bgRect:addEventListener( "touch", bgRect )
-
-		-- Give tableview a ._view property, to hold reference to the display group
-		tableView._view = view
-		tableView._view.bg = bgRect
-		tableView._view.trackVelocity = false	-- velocity is only tracked during a touch event
-		tableView.isLocked = false				-- when true, disables ability to scroll rows
-		tableView.isPicker = isPicker
-
-		-- assign methods to tableView
-		tableView.insertRow = insertRowIntoTableView
+		
+		-- properties and methods
+		tableView._isWidget = true
+		function tableView.rowListener( event ) rowListener( tableView, event ); end
+		tableView.content.rows = {}	-- holds row data
+		tableView.insertRow = insertRow
 		tableView.deleteRow = deleteRow
-
-		-- subclass the tableView._view.insert() method
-		tableView._view.cached_insert = tableView._view.insert
-		function tableView._view:insert( obj )
-			self.content:insert( obj )
-		end
-
-		-- subclass the tableView._view.removeSelf() method
-		tableView._view.cached_removeSelf = tableView._view.removeSelf
-		tableView._view.removeSelf = removeSelf
-
-		tableView._view:setReferencePoint( display.TopLeftReferencePoint )
-		tableView._view.x, tableView._view.y = left, top
-
-		-- Create group to hold categories:
-		tableView._view.content.catGroup = display.newGroup()
-		tableView._view.content.catGroup.x = left
-		tableView._view.content.catGroup.y = top
-
-		-- setup methods for view object
-		tableView._view.getScrollPosition = getScrollPosition
-		tableView._view.getRowAtY = getRowAtY
-		tableView._view.scrollToY = scrollToY
-		tableView._view.scrollToIndex = scrollToIndex
-
-		-- add the category group to the parentView
-		parentView:insert( tableView._view.content.catGroup )
-		tableView._parentView = parentView
-		tableView.view = tableView._parentView
-
-		-- apply mask (if set as parameter)
-		if options.maskFile then
-			tableView._parentView.mask = graphics.newMask( options.maskFile )
-			tableView._parentView:setMask( tableView._parentView.mask )
-
-			tableView._parentView.maskX = left + (width * 0.5)
-			tableView._parentView.maskY = top + (height * 0.5)
-		end
+		tableView.renderThresh = renderThresh
+		tableView.scrollToY = scrollToY
+		tableView.scrollToIndex = scrollToIndex
+		tableView.getRowAtCoordinate = getRowAtCoordinate
+		tableView.getContentPosition = getContentPosition
+		tableView.keepRowsPastTopVisible = keepRowsPastTopVisible
+		
+		-- clean method will be called whenever 'removeSelf' is called
+		tableView.clean = cleanTableView
+		
+		-- position the content based on 'topPadding' variable
+		tableView.content.y = topPadding
 		
 		return tableView
 	end
-
-	-----------------------------------------------------------------------------------------
-
-	function tableView.new( widgetTheme, options )
-		local tableView_widget = createTableView( options )
-		
-		return setmetatable( tableView_widget, tableView_mt )
-	end
 	
-	-----------------------------------------------------------------------------------------
-	
-	return tableView
+	return createTableView( options )
 end
 
 -----------------------------------------------------------------------------------------
-
-function widget.setTheme( themeModule )
-	widget.theme = require( themeModule )	-- themeModule should return theme table
-end
-
------------------------------------------------------------------------------------------
-
-function widget.new( widgetName, options, arg1, arg2 )
-	local widgetType = widget[string.lower(widgetName)]()	-- old: local widgetMod = require( "widget_" .. string.lower( widgetName ) )
-	local uiWidget = widgetType.new( widget.theme, options, arg1, arg2 ); widgetMod = nil
-	return uiWidget
-end
-
------------------------------------------------------------------------------------------
-
-function widget.newButton( options )
-	if options.x then
-		print( "WARNING: The 'x' parameter for widget.newButton() has been deprecated. Please set the 'left' parameter insetad.")
-		options.left = options.x
-	end
-	
-	if options.y then
-		print( "WARNING: The 'y' parameter for widget.newButton() has been deprecated. Please set the 'top' parameter insetad.")
-		options.top = options.y
-	end
-	
-	if options.labelColor and options.labelColor.default == nil then
-		print( "WARNING: The correct format for the 'labelColor' parameter is: { default={r,g,b,a}, over={r,g,b,a} }." )
-	end
-	
-	if options.size then
-		print( "WARNING: The 'size' parameter for widget.newButton() has been deprecated. Please set the 'fontSize' parameter instead." )
-		options.fontSize = options.size
-	end
-	
-	if options.buttonTheme then
-		print( "WARNING: The 'buttonTheme' parameter for widget.newButton() has been deprecated. Please include a widget theme in your resource folder and use widget.setTheme()." )
-	end
-	
-	return widget.new( "button", options )
-end
-
------------------------------------------------------------------------------------------
-
-function widget.newTableView( options )
-	if options.x then
-		print( "WARNING: The 'x' parameter for widget.newTableView() has been deprecated. Please set the 'left' parameter insetad.")
-		options.left = options.x
-	end
-	
-	if options.y then
-		print( "WARNING: The 'y' parameter for widget.newTableView() has been deprecated. Please set the 'top' parameter insetad.")
-		options.top = options.y
-	end
-	
-	if options.mask then
-		print( "WARNING: The 'mask' parameter for widget.newTableView() has been deprecated. Please set the 'maskFile' parameter instead." )
-		options.maskFile = options.mask
-	end
-	
-	if options.background then
-		print( "WARNING: The 'background' parameter for widget.newTableView() has been deprecated and is no longer functional in this version." )
-	end
-	
-	if options.backgroundColor then
-		print( "WARNING: The 'backgroundColor' parameter for widget.newTableView() has been deprecated. Please set the 'bgColor' parameter instead." )
-		options.bgColor = options.backgroundColor
-	end
-	
-	if options.isInfinite then
-		print( "WARNING: The 'isInfinite' parameter for widget.newTableView() has been deprecated and is no longer functional in this version." )
-	end
-	
-	return widget.new( "tableView", options )
-end
-
------------------------------------------------------------------------------------------
-
-function widget.newScrollView( options )
-	if options.x then
-		print( "WARNING: The 'x' parameter for widget.newScrollView() has been deprecated. Please set the 'left' parameter insetad.")
-		options.left = options.x
-	end
-	
-	if options.y then
-		print( "WARNING: The 'y' parameter for widget.newScrollView() has been deprecated. Please set the 'top' parameter insetad.")
-		options.top = options.y
-	end
-	
-	if options.mask then
-		print( "WARNING: The 'mask' parameter for widget.newScrollView() has been deprecated. Please set the 'maskFile' parameter instead." )
-		options.maskFile = options.mask
-	end
-	
-	if options.background then
-		print( "WARNING: The 'background' parameter for widget.newScrollView() has been deprecated and is no longer functional in this version." )
-	end
-	
-	if options.backgroundColor then
-		print( "WARNING: The 'backgroundColor' parameter for widget.newScrollView() has been deprecated. Please set the 'bgColor' parameter instead." )
-		options.bgColor = options.backgroundColor
-	end
-	
-	return widget.new( "scrollView", options )
-end
-
------------------------------------------------------------------------------------------
-
-function widget.newTabBar( options )
-	return widget.new( "tabBar", options )
-end
-
------------------------------------------------------------------------------------------
-
-function widget.newSlider( options )
-	return widget.new( "slider", options )
-end
-
------------------------------------------------------------------------------------------
-
-function widget.newPickerWheel( options )
-	if options.column1 then
-		print( "WARNING: The widget.newPickerWheel() API has changed. Please see the updated documentation if you are having problems." )
-	end
-	
-	return widget.new( "pickerWheel", options )
-end
-
------------------------------------------------------------------------------------------
-
-function widget.newToolbar()
-	print( "WARNING: widget.newToolbar() has been deprecated. Please use widget.newTabBar() with no buttons, in conjunction with display.newEmbossedText()." )
-end
-
------------------------------------------------------------------------------------------
-
-function widget.newSegmentedControl()
-	print( "WARNING: widget.newSegmentedControl() has been deprecated and is no longer functional in this version." )
-end
-
------------------------------------------------------------------------------------------
-
-function widget.setSkin()
-	print( "WARNING: widget.setSkin() has been deprecated and is no longer functional in this version. Please use widget.setTheme() instead (don't forget to place the specified theme module and assets directory in your project folder)." )
-end
-
 -----------------------------------------------------------------------------------------
 
 return widget
