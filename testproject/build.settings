@@ -1,18 +1,20 @@
--- Supported values for orientation:	portrait, portraitUpsideDown, landscapeLeft, landscapeRight
-
-settings = {
-	
-	orientation = {
-		default = "portrait",
- 		--supported = { "landscapeLeft", "landscapeRight" } 
-	},
-	--[[
-	iphone = {
-		plist = {
-			UIStatusBarHidden = true,
-			UIPrerenderedIcon = true, -- set to false if you want the "shine" overlay
-			UIApplicationExitsOnSuspend = true,
+settings =
+{
+        orientation =
+        {
+                default = "portrait",
+				supported = { "portrait" }
+        },
+		iphone =
+		{
+			plist =
+			{
+		        CFBundleIconFile = "Icon.png",
+		        CFBundleIconFiles = {
+		           "Icon.png", 
+		           "Icon@2x.png", 
+		           "Icon-72.png", 
+		        },
+			},
 		}
-	},
-	--]]
 }
