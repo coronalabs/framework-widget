@@ -397,7 +397,8 @@ local tabButtons = {
 -- create a tab-bar and place it at the bottom of the screen
 local demoTabs = widget.newTabBar{
 	top=display.contentHeight-50,
-	buttons=tabButtons
+	buttons=tabButtons,
+	maxTabWidth = 120
 }
 
 -- begin with tableView scene
