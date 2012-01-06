@@ -13,7 +13,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.5b"
+widget.version = "0.6b"
 
 -- cached locals
 local mAbs = math.abs
@@ -1973,7 +1973,7 @@ function widget.newTabBar( options )
 		local theme = theme or {}
 		local id = options.id or "widget_tabBar"
 		local buttons = options.buttons
-		local maxTabWidth = options.maxTabWidth or 90
+		local maxTabWidth = options.maxTabWidth or 120
 		local width = options.width or theme.width or display.contentWidth
 		local height = options.height or theme.height or 50
 		local background = options.background or theme.background
@@ -2094,6 +2094,7 @@ function widget.newTabBar( options )
 		tabBar.id = id
 		tabBar.deselectAll = deselectAllButtons
 		tabBar.makeTabActive = pressButton
+		tabBar.pressButton = pressButton	-- to remain compatible with previous version
 		
 		return tabBar
 	end
@@ -2310,7 +2311,7 @@ function widget.newTableView( options )
 		topRow.bottom = topRow.top + topRow.height
 		local topThresh = -self.renderThresh
 		
-		if topRow.top < topThresh and topIndex ~= 1 then
+		if topRow.bottom < topThresh then
 			-- un-render the row (set new topMost)
 			if topRow.view then
 				topRow.view:removeSelf()
@@ -2331,7 +2332,7 @@ function widget.newTableView( options )
 		if topIndex > 1 then
 			local nextTopHeight = rows[topIndex-1].height
 			
-			if topRow.top > topThresh and mAbs(topThresh-topRow.top) >= nextTopHeight then
+			if topRow.bottom > topThresh and mAbs(topThresh-topRow.bottom) >= nextTopHeight then
 				-- new row needs to be rendered
 				self.topMostRendered = self.topMostRendered - 1
 				rows[self.topMostRendered].isRendered = true
@@ -2346,7 +2347,7 @@ function widget.newTableView( options )
 		bottomRow.bottom = bottomRow.top + bottomRow.height
 		local bottomThresh = content.maskHeight + self.renderThresh
 		
-		if bottomRow.top > bottomThresh and bottomIndex ~= #rows then
+		if bottomRow.top > bottomThresh then
 			-- un-render the row (set new bottomMost)
 			if bottomRow.view then
 				bottomRow.view:removeSelf()
@@ -2657,6 +2658,13 @@ function widget.newTableView( options )
 						content.canSwipe = nil
 					end
 				else
+					local selectedRow = tableView.currentSelectedRow
+					
+					if selectedRow and selectedRow.isTouched then
+						selectedRow.isTouched = false
+						selectedRow.reRender = true
+					end
+					
 					-- ensure rows move with drag
 					renderVisibleRows( tableView )
 				end
@@ -2752,6 +2760,11 @@ function widget.newTableView( options )
 	
 	-- enterFrame listener for tableView widget
 	local function rowListener( self, event )	-- self == tableView
+		-- limit velocity to maximum amount (self.maxVelocity)
+		local velocity = self.content.velocity
+		if velocity < -self.maxVelocity then self.content.velocity = -self.maxVelocity; end
+		if velocity > self.maxVelocity then self.content.velocity = self.maxVelocity; end
+		
 		local isTrackingVelocity = self.content.trackVelocity
 		if not isTrackingVelocity then
 			if self.content.velocity == 0 then
@@ -2768,13 +2781,26 @@ function widget.newTableView( options )
 		end
 	end
 	
+	-- force re-render of all rows
+	local function forceReRender( self )	-- self == tableView
+		local content = self.content
+		local rows = content.rows
+		
+		self.topMostRendered, self.bottomMostRendered = nil, nil
+		for i=1,#rows do
+			local r = rows[i]
+			if r.view then r.view:removeSelf(); r.view = nil; end
+			r.isRendered = nil
+		end
+	end
+	
 	-- scroll content to specified y-position
 	local function scrollToY( self, yPosition, timeInMs )		-- self == tableView
 		yPosition = yPosition or 0
 		timeInMs = timeInMs or 1500
 		
 		if yPosition > 0 then
-			print( "WARNING: You must specify a value less than zero (negative) when using tableView:scrollToY()." )
+			print( "WARNING: You must specify a y-value less than zero (negative) when using tableView:scrollToY()." )
 			return
 		end
 
@@ -2787,6 +2813,11 @@ function widget.newTableView( options )
 			content.tween = transition.to( content, { y=yPosition, time=timeInMs, transition=easing.outQuad, onComplete=cancelUpdateTimer } )
 			local updateRows = function() renderVisibleRows( self ); end
 			updateTimer = timer.performWithDelay( 1, updateRows, timeInMs )
+		else
+			content.y = yPosition
+			forceReRender( self )
+			
+			renderVisibleRows( self )
 		end
 	end
 	
@@ -2802,7 +2833,8 @@ function widget.newTableView( options )
 				scrollToY( self, yPosition, timeInMs )
 			else
 				content.y = yPosition
-				self.topMostRendered, self.bottomMostRendered = nil, nil -- force re-render
+				forceReRender( self )
+				
 				renderVisibleRows( self )
 			end
 		end
@@ -2877,6 +2909,7 @@ function widget.newTableView( options )
 		local	keepRowsPastTopVisible = options.keepRowsPastTopVisible
 		local	topPadding = options.topPadding
 		local	bottomPadding = options.bottomPadding
+		local	maxVelocity = options.maxVelocity or 10
 		
 		-- tableView foundation is a scrollView widget
 		local tableView = widget.newScrollView{
@@ -2909,6 +2942,7 @@ function widget.newTableView( options )
 		tableView.getRowAtCoordinate = getRowAtCoordinate
 		tableView.getContentPosition = getContentPosition
 		tableView.keepRowsPastTopVisible = keepRowsPastTopVisible
+		tableView.maxVelocity = maxVelocity
 		
 		-- clean method will be called whenever 'removeSelf' is called
 		tableView.clean = cleanTableView
