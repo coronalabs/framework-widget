@@ -2030,6 +2030,8 @@ function widget.newTabBar( options )
 			-- background made from user-provided image file
 			
 			local bg = display.newImageRect( barBg, background, baseDir, width, height )
+			bg:setReferencePoint( display.TopLeftReferencePoint )
+			bg.x, bg.y = 0, 0
 		else
 			-- no background or fills specified (default)
 			

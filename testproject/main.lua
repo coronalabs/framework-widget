@@ -396,6 +396,7 @@ local tabButtons = {
 
 -- create a tab-bar and place it at the bottom of the screen
 local demoTabs = widget.newTabBar{
+	background = "toolbargradient-bg.png",
 	top=display.contentHeight-50,
 	buttons=tabButtons,
 	maxTabWidth = 120
