@@ -36,6 +36,7 @@
 --*********************************************************************************************
 
 display.setStatusBar( display.DefaultStatusBar )
+display.setDefault( "background", 255 )
 
 local widget = require "widgetnew"
 local storyboard = require "storyboard"
@@ -67,7 +68,7 @@ titleText.y = titleBar.y
 local shadow = display.newImage( "assets/shadow.png" )
 shadow:setReferencePoint( display.TopLeftReferencePoint )
 shadow.x, shadow.y = 0, top
-shadow.xScale = 320 / shadow.contentWidth
+shadow.xScale = display.contentWidth / shadow.contentWidth
 shadow.alpha = 0.45
 
 -- setup storyboard scenes (non-external module scenes)
@@ -87,8 +88,15 @@ function scene1:createScene( event )
 	local list = widget.newTableView{
 		top = top,
 		height = 366,
+		renderThresh = 100,
+		maxVelocity = 5,
 		maskFile = "assets/mask-320x366.png"
 	}
+	
+	timer.performWithDelay( 5000, function()
+		--list:scrollToIndex( 68 )	-- y = -3755
+		list:scrollToY( -3755, 0 )
+	end, 1 )
 	
 	-- handles individual row rendering
 	local function onRowRender( event )
@@ -177,7 +185,7 @@ scene1:addEventListener( "createScene", scene1 )
 function scene1a:createScene( event )
 	local group = self.view
 	
-	local bg = display.newRect( group, 0, top, 320, 366 )
+	local bg = display.newRect( group, 0, top, display.contentWidth, 366 )
 	bg:setFillColor( 172 )
 	
 	self.textObj = display.newEmbossedText( "Pressed row #" .. chosenRowIndex, 0, 0, native.systemFontBold, 18 )
@@ -248,7 +256,7 @@ function scene2:createScene( event )
 	-- scrollWidth/Height params are greater than width/height parameters
 	local scrollBox = widget.newScrollView{
 		top = top,
-		width = 320, height = 366,
+		width = display.contentWidth, height = 366,
 		scrollWidth = 768, scrollHeight = 1024,
 		maskFile = "assets/mask-320x366.png"
 	}
@@ -268,7 +276,7 @@ scene2:addEventListener( "createScene", scene2 )
 function scene3:createScene( event )
 	local group = self.view
 	
-	local bg = display.newRect( group, 0, top, 320, 366 )
+	local bg = display.newRect( group, 0, top, display.contentWidth, 366 )
 	bg:setFillColor( 172 )
 	
 	-- onRelease listener for 'Show Picker' button
@@ -296,7 +304,7 @@ function scene3:createScene( event )
 		
 		-- create pickerWheel widget
 		local picker = widget.newPickerWheel{
-			top=480,
+			top=display.contentHeight,
 			font=native.systemFontBold,
 			columns=columnData,
 		}
@@ -326,12 +334,12 @@ function scene3:createScene( event )
 				label = "Done",
 				onRelease = onDoneRelease
 			}
-			doneButton.x = 320 - 40
+			doneButton.x = display.contentWidth - 40
 			doneButton.y = titleBar.y
 		end
 		
 		-- slider pickerWheel up into view
-		transition.to( picker, { time=350, y=258, transition=easing.inOutExpo, onComplete=showDoneButton } )
+		transition.to( picker, { time=350, y=display.contentHeight-222, transition=easing.inOutExpo, onComplete=showDoneButton } )
 	end
 	
 	-- create button widget to show pickerWheel
@@ -396,7 +404,6 @@ local tabButtons = {
 
 -- create a tab-bar and place it at the bottom of the screen
 local demoTabs = widget.newTabBar{
-	background = "toolbargradient-bg.png",
 	top=display.contentHeight-50,
 	buttons=tabButtons,
 	maxTabWidth = 120

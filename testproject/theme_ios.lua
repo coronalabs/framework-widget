@@ -211,7 +211,7 @@ themeTable.slider = {
 -----------------------------------------------------------------------------------------
 
 themeTable.pickerWheel = {
-	width = 296,
+	width = 296, height = 222,
 	maskFile=assetDir .. "pickerWheel/wheelmask.png",
 	overlayImage=assetDir .. "pickerWheel/overlay.png",
 	overlayWidth=320, overlayHeight=222,
