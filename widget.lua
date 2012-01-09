@@ -2132,7 +2132,6 @@ end
 -----------------------------------------------------------------------------------------
 
 function widget.newTableView( options )
-	
 	-- creates group for row, as well as a background and bottom-line
 	local function newRowGroup( rowData )
 		local row = display.newGroup()
@@ -2181,7 +2180,7 @@ function widget.newTableView( options )
 		end
 	end
 	
-	local function renderCategory( self, row )	-- self == tableView
+	local function renderCategory( self, row )	-- self == tableView; row should be a table, not an index
 		local content = self.content
 		
 		local newCategoryRender = function()
@@ -2228,7 +2227,28 @@ function widget.newTableView( options )
 	-- renders row if it does not have a 'view' property (display group)
 	local function ensureRowIsRendered( self, row )	-- self == tableView
 		if not row.view then
-			renderRow( self, row )
+			local content = self.content
+			
+			if not row.isCategory and row.index ~= 1 then
+				if content.priorIndex and content.priorIndex == row.index then
+					if content.rowRenderDupCount then
+						content.rowRenderDupCount = content.rowRenderDupCount + 1
+						
+						if content.rowRenderDupCount >= 2 then
+							return
+						end
+					else
+						content.rowRenderDupCount = 1
+					end
+				else
+					renderRow( self, row )
+				end
+			else
+				renderRow( self, row )
+				content.rowRenderDupCount = 0
+			end
+			
+			content.priorIndex = row.index
 		else
 			row.view.y = row.top
 		end
@@ -2262,7 +2282,7 @@ function widget.newTableView( options )
 	end
 	
 	-- render rows within the render range ( -renderThresh <-- widget height --> renderThresh )
-	local function renderVisibleRows( self ) -- self == tableView
+	local function renderVisibleRows( self ) -- self == tableView			
 		local content = self.content
 		
 		-- if widget has been removed during scrolling, be sure to remove certain enterFrame listeners
@@ -2380,7 +2400,7 @@ function widget.newTableView( options )
 		
 		local currentCategoryIndex
 		
-		-- ensure all rows that are marked .isRendered are rendered
+		-- ensure all rows that are marked .isRendered are rendered	
 		for i=topIndex,bottomIndex do
 			local row = rows[i]
 			-- update top/bottom locations
@@ -2419,6 +2439,7 @@ function widget.newTableView( options )
 			if row.reRender then
 				if row.view then row.view:removeSelf(); row.view = nil; end
 				row.reRender = nil
+				row.isRendered = true
 			end
 			
 			-- render the row
@@ -2427,26 +2448,6 @@ function widget.newTableView( options )
 			else
 				-- remove row if it's not supposed to be rendered
 				if row.view then row.view:removeSelf(); row.view = nil; end
-			end
-			
-			-- hide the row's view if it happens to be outside of the viewable area
-			if not self.keepRowsPastTopVisible then
-				if row.bottom < 0 then
-					-- row is above viewable area; hide it
-					if row.view and row.view.isVisible then row.view.isVisible = false; end
-				
-				elseif row.top > content.maskHeight then
-					-- row is below viewable area; hide it
-					if row.view and row.view.isVisible then row.view.isVisible = false; end
-				else
-					-- row is within viewable area; show it
-					if row.view and not row.view.isVisible then row.view.isVisible = true; end
-				end
-			end
-			
-			-- hide category row whenever it becomes the "current" category
-			if row.isCategory and content.category and content.category.index == row.index then
-				row.view.isVisible = false
 			end
 		end
 		
@@ -2605,7 +2606,7 @@ function widget.newTableView( options )
 		local eType = event.type
 		
 		local moveRowsWithTween = function( self )	-- self == tableView
-			local updateRows = function() renderVisibleRows( self ); end
+			local updateRows = function() renderVisibleRows( self ) end
 			if self.rowTimer then timer.cancel( self.rowTimer ); end;
 			self.rowTimer = timer.performWithDelay( 1, updateRows, 400 )
 		end
@@ -2619,6 +2620,7 @@ function widget.newTableView( options )
 				
 				-- tableView content has been touched
 				
+				if tableView.rowTimer then timer.cancel( tableView.rowTimer ); tableView.rowTimer = nil; end;
 				Runtime:removeEventListener( "enterFrame", tableView.rowListener )
 				
 				-- find out which row the touch began on and store a reference to it
@@ -2708,19 +2710,21 @@ function widget.newTableView( options )
 			elseif event.phase == "release" then
 				
 				local row = tableView.currentSelectedRow
-				if content.yDistance < tapThresh and content.trackRowSelection then
-					-- user tapped tableView content (dispatch row release event)
-					dispatchRowTouch( row, "tap" )
-					row.isTouched = nil
-					row = nil
-					tableView.currentSelectedRow = nil
-				else
-					if row and row.isTouched then
-						dispatchRowTouch( row, "release" )
+				if row then
+					if content.yDistance < tapThresh and content.trackRowSelection then
+						-- user tapped tableView content (dispatch row release event)
+						dispatchRowTouch( row, "tap" )
 						row.isTouched = nil
 						row = nil
 						tableView.currentSelectedRow = nil
-						renderVisibleRows( tableView )
+					else
+						if row and row.isTouched then
+							dispatchRowTouch( row, "release" )
+							row.isTouched = nil
+							row = nil
+							tableView.currentSelectedRow = nil
+							renderVisibleRows( tableView )
+						end
 					end
 				end
 				
@@ -2796,6 +2800,29 @@ function widget.newTableView( options )
 		end
 	end
 	
+	-- find proper category in proportion to specific row being at very top of list
+	local function renderProperCategory( self, rows, rowIndex )		-- self == tableView
+		local categoryIndex
+				
+		if rows[rowIndex].isCategory then
+			categoryIndex = rowIndex
+		else
+			-- loop backwards to find the current category
+			for i=rowIndex,1,-1 do
+				if rows[i].isCategory then
+					categoryIndex = i
+					break
+				end
+			end
+		end
+		
+		-- category found; render it and return the index
+		if categoryIndex then
+			renderCategory( self, rows[categoryIndex] )
+			return categoryIndex
+		end
+	end
+	
 	-- scroll content to specified y-position
 	local function scrollToY( self, yPosition, timeInMs )		-- self == tableView
 		yPosition = yPosition or 0
@@ -2807,10 +2834,18 @@ function widget.newTableView( options )
 		end
 
 		local content = self.content
+		
+		-- called once content is in desired location
+		local function contentInPosition()
+			local row = getRowAtCoordinate( self, self.y )
+			if row then 
+				renderProperCategory( self, content.rows, row.index )
+			end
+		end
 
 		if timeInMs > 0 then
 			local updateTimer
-			local cancelUpdateTimer = function() timer.cancel( updateTimer ); updateTimer = nil; end
+			local cancelUpdateTimer = function() timer.cancel( updateTimer ); updateTimer = nil; contentInPosition(); end
 			if content.tween then transition.cancel( content.tween ); end
 			content.tween = transition.to( content, { y=yPosition, time=timeInMs, transition=easing.outQuad, onComplete=cancelUpdateTimer } )
 			local updateRows = function() renderVisibleRows( self ); end
@@ -2818,8 +2853,8 @@ function widget.newTableView( options )
 		else
 			content.y = yPosition
 			forceReRender( self )
-			
 			renderVisibleRows( self )
+			contentInPosition()
 		end
 	end
 	
@@ -2836,8 +2871,8 @@ function widget.newTableView( options )
 			else
 				content.y = yPosition
 				forceReRender( self )
-				
 				renderVisibleRows( self )
+				renderProperCategory( self, rows, rowIndex ) -- render the appropriate category
 			end
 		end
 	end
