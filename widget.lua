@@ -606,10 +606,10 @@ function widget.newSlider( options )
 		if event.phase == "began" then
 			display.getCurrentStage():setFocus( self )
 			self.isFocus = true
-			
 			self:setReferencePoint( display.CenterReferencePoint )
 			
-			local x = event.x - self.x
+			local sliderX = (self.contentBounds.xMin + (self.contentWidth*0.5))
+			local x = event.x - sliderX
 			local width = self.max - self.min
 			local percent = mFloor(((( (width*0.5) + x) * 100) / width))
 			self:setValue( percent )
@@ -621,7 +621,8 @@ function widget.newSlider( options )
 			
 			if event.phase == "moved" then
 				
-				local x = event.x - self.x
+				local sliderX = (self.contentBounds.xMin + (self.contentWidth*0.5))
+				local x = event.x - sliderX
 				local width = self.max - self.min
 				local percent = mFloor(((( (width*0.5) + x) * 100) / width))
 				self:setValue( percent )
