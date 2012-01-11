@@ -1926,12 +1926,12 @@ function widget.newTabBar( options )
 	
 	local function pressButton( self, buttonIndex, invokeListener )		-- self == tabBar
 		self:deselectAll()
-		invokeListener = invokeListener or true
+		if invokeListener == nil then invokeListener = true; end
 		
 		local button = self.buttons[buttonIndex]
 		if button then
 			invokeTabButtonSelectionState( button )
-
+			
 			-- call listener function
 			if invokeListener then
 				if button.onPress and type(button.onPress) == "function" then

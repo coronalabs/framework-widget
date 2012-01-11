@@ -411,3 +411,5 @@ local demoTabs = widget.newTabBar{
 
 -- begin with tableView scene
 storyboard.gotoScene( "tableView" )
+
+demoTabs:pressButton( 2, false )
