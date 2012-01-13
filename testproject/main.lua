@@ -89,7 +89,7 @@ function scene1:createScene( event )
 		top = top,
 		height = 366,
 		renderThresh = 100,
-		maxVelocity = 5,
+		--maxVelocity = 5,
 		maskFile = "assets/mask-320x366.png"
 	}
 	
@@ -411,5 +411,3 @@ local demoTabs = widget.newTabBar{
 
 -- begin with tableView scene
 storyboard.gotoScene( "tableView" )
-
-demoTabs:pressButton( 2, false )
