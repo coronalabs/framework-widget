@@ -2642,7 +2642,7 @@ function widget.newTableView( options )
 			if content.category and content.category.y ~= 0 then content.category.y = 0; end
 			
 			-- renderFramePace and renderFrameCount will skip rendering frames if velocity (list travel speed) is too high
-			--[[
+			-- [[
 			local velocity = mAbs( velocity )
 			if velocity >= 4 then
 				self.renderFramePace = 1
@@ -2668,7 +2668,7 @@ function widget.newTableView( options )
 			end
 			--]]
 			
-			renderVisibleRows( self )
+			--renderVisibleRows( self )
 		else
 			-- check to see if current row should be selected
 			checkSelectionStatus( self, event.time )
