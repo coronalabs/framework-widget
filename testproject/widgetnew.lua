@@ -2228,58 +2228,10 @@ function widget.newTableView( options )
 	-- renders row if it does not have a 'view' property (display group)
 	local function ensureRowIsRendered( self, row )	-- self == tableView
 		if not row.view then
-			local content = self.content
-			
-			if not row.isCategory and row.index ~= 1 then
-				if content.priorIndex and content.priorIndex == row.index then
-					if content.rowRenderDupCount then
-						content.rowRenderDupCount = content.rowRenderDupCount + 1
-						
-						if content.rowRenderDupCount >= 2 then
-							return
-						end
-					else
-						content.rowRenderDupCount = 1
-					end
-				else
-					renderRow( self, row )
-				end
-			else
-				renderRow( self, row )
-				content.rowRenderDupCount = 0
-			end
-			
-			content.priorIndex = row.index
+			renderRow( self, row )
 		else
 			row.view.y = row.top
 		end
-	end
-	
-	-- determine the current top-most and bottom-most rendered row
-	local function getTopBottomRendered( self )	-- self == tableView
-		local rows = self.content.rows
-		local topIndex, bottomIndex
-		
-		for i=1,#rows do
-		
-			if not topIndex and rows[i].isRendered then
-				topIndex = i
-			end
-			
-			if not bottomIndex then
-				if i == #rows then
-					if rows[i].isRendered then
-						bottomIndex = i
-					end
-				else
-					if rows[i].isRendered and not rows[i+1].isRendered then
-						bottomIndex = i
-					end
-				end
-			end
-		end
-		
-		return topIndex, bottomIndex
 	end
 	
 	-- render rows within the render range ( -renderThresh <-- widget height --> renderThresh )
@@ -2293,116 +2245,11 @@ function widget.newTableView( options )
 			return
 		end
 		
-		-- if top/bottom-most rendered rows have not yet been set, retrieve them before continuing
-		if not self.topMostRendered or not self.bottomMostRendered then
-			self.topMostRendered, self.bottomMostRendered = getTopBottomRendered( self )
-			
-			if self.topMostRendered == nil and self.bottomMostRendered == nil then
-				-- no rows are rendered; perform initial rendering of rows
-				local renderHeight = (content.maskHeight + self.renderThresh)
-				local currentHeight = 0
-				local rows = content.rows
-				
-				for i=1,#rows do
-					local r = rows[i]
-					
-					local top = content.y + r.topOffset
-					local bottom = top + r.height
-					
-					-- only render rows that are within the render area
-					if bottom > 0 and top < content.maskHeight then
-						-- row is within viewable area; ensure it is rendered
-						r.isRendered = true
-						ensureRowIsRendered( self, r )
-						currentHeight = currentHeight + r.height
-					end
-					
-					if currentHeight > renderHeight then break; end
-				end
-				
-				self.topMostRendered, self.bottomMostRendered = getTopBottomRendered( self )
-			end
-		end
-		
-		local topIndex = self.topMostRendered
-		local bottomIndex = self.bottomMostRendered
+		local currentCategoryIndex
 		local rows = content.rows
 		
-		-- determine if top row needs to be removed or if a new row needs to be rendered
-		local topRow = rows[topIndex]
-		topRow.top = content.y + topRow.topOffset
-		topRow.bottom = topRow.top + topRow.height
-		local topThresh = -self.renderThresh
-		
-		if topRow.bottom < topThresh then
-			-- un-render the row (set new topMost)
-			if topRow.view then
-				topRow.view:removeSelf()
-				topRow.view = nil
-				topRow.isRendered = false
-			end
-			
-			-- render new row at the bottom
-			if bottomIndex < #rows then
-				self.bottomMostRendered = self.bottomMostRendered + 1
-				rows[self.bottomMostRendered].isRendered = true
-			end
-			
-			self.topMostRendered = self.topMostRendered + 1
-			rows[self.topMostRendered].isRendered = true
-		end
-		
-		if topIndex > 1 then
-			local nextTopHeight = rows[topIndex-1].height
-			
-			if topRow.bottom > topThresh and mAbs(topThresh-topRow.bottom) >= nextTopHeight then
-				-- new row needs to be rendered
-				self.topMostRendered = self.topMostRendered - 1
-				rows[self.topMostRendered].isRendered = true
-			end
-		end
-		topIndex = self.topMostRendered
-		bottomIndex = self.bottomMostRendered
-		
-		-- determine if bottom row needs to be removed or if a new row needs to be rendered
-		local bottomRow = rows[bottomIndex]
-		bottomRow.top = content.y + bottomRow.topOffset
-		bottomRow.bottom = bottomRow.top + bottomRow.height
-		local bottomThresh = content.maskHeight + self.renderThresh
-		
-		if bottomRow.top > bottomThresh then
-			-- un-render the row (set new bottomMost)
-			if bottomRow.view then
-				bottomRow.view:removeSelf()
-				bottomRow.view = nil
-				bottomRow.isRendered = false
-			end
-			
-			-- render new row at the bottom
-			if topIndex > 1 then
-				self.topMostRendered = self.topMostRendered - 1
-				rows[self.topMostRendered].isRendered = true
-			end
-			
-			self.bottomMostRendered = self.bottomMostRendered - 1
-			rows[self.bottomMostRendered].isRendered = true
-		end
-		
-		if bottomIndex < #rows then
-			local nextBottomHeight = rows[bottomIndex+1].height
-			if bottomRow.top < bottomThresh and mAbs(bottomThresh - bottomRow.top) >= nextBottomHeight then
-				-- new row needs to be rendered
-				self.bottomMostRendered = self.bottomMostRendered + 1
-				rows[self.bottomMostRendered].isRendered = true
-			end
-		end
-		topIndex = self.topMostRendered
-		bottomIndex = self.bottomMostRendered
-		
-		local currentCategoryIndex
-		
 		-- ensure all rows that are marked .isRendered are rendered	
-		for i=topIndex,bottomIndex do
+		for i=1,#rows do
 			local row = rows[i]
 			-- update top/bottom locations
 			row.top = content.y + row.topOffset
@@ -2436,18 +2283,29 @@ function widget.newTableView( options )
 				end
 			end
 			
-			-- check to see if row needs to be re-rendered
-			if row.reRender then
-				if row.view then row.view:removeSelf(); row.view = nil; end
-				row.reRender = nil
+			-- check to see if row is within viewable area
+			local belowTopThresh = row.bottom > -self.renderThresh
+			local aboveBottomThresh = row.top < self.widgetHeight+self.renderThresh
+			if belowTopThresh and aboveBottomThresh then
 				row.isRendered = true
-			end
-			
-			-- render the row
-			if row.isRendered then
+				
+				-- ensures rows that are marked for rerendering and within render area get rendered
+				if row.reRender then
+					if row.view then row.view:removeSelf(); row.view = nil; end
+					row.reRender = nil;
+					row.isRendered = true
+				end
+				
 				ensureRowIsRendered( self, row )
+				
+				-- hide row's view if it happens to be outside of viewable area; show it if in viewable bounds
+				if row.bottom < 0 or row.top > self.widgetHeight then
+					if row.view.isVisible then row.view.isVisible = false; end
+				else
+					if not row.view.isVisible then row.view.isVisible = true; end
+				end
 			else
-				-- remove row if it's not supposed to be rendered
+				row.isRendered = false
 				if row.view then row.view:removeSelf(); row.view = nil; end
 			end
 		end
@@ -2513,8 +2371,8 @@ function widget.newTableView( options )
 		content.firstCategoryIndex = firstCategory
 		
 		-- force re-calculation of top/bottom most rendered rows
-		self.topMostRendered = nil
-		self.bottomMostRendered = nil
+		--self.topMostRendered = nil
+		--self.bottomMostRendered = nil
 		
 		-- update total height of all rows
 		self.virtualContentHeight = totalHeight
@@ -2626,6 +2484,8 @@ function widget.newTableView( options )
 				
 				-- find out which row the touch began on and store a reference to it
 				tableView.currentSelectedRow = getRowAtCoordinate( tableView, event.y )
+				tableView.renderFrameCount = 0
+				tableView.renderFramePace = 0
 				content.yDistance = 0
 				content.canSwipe = true
 				
@@ -2781,6 +2641,33 @@ function widget.newTableView( options )
 			local content = self.content
 			if content.category and content.category.y ~= 0 then content.category.y = 0; end
 			
+			-- renderFramePace and renderFrameCount will skip rendering frames if velocity (list travel speed) is too high
+			--[[
+			local velocity = mAbs( velocity )
+			if velocity >= 4 then
+				self.renderFramePace = 1
+				
+			elseif velocity >= 6 then
+				self.renderFramePace = 2
+			
+			elseif velocity >= 8 then
+				self.renderFramePace = 3
+			
+			elseif velocity >= 10 then
+				self.renderFramePace = 4
+				
+			else
+				self.renderFramePace = 0
+			end
+			
+			if self.renderFrameCount >= self.renderFramePace then
+				self.renderFrameCount = 0
+				renderVisibleRows( self )
+			else
+				self.renderFrameCount = self.renderFrameCount + 1
+			end
+			--]]
+			
 			renderVisibleRows( self )
 		else
 			-- check to see if current row should be selected
@@ -2793,7 +2680,7 @@ function widget.newTableView( options )
 		local content = self.content
 		local rows = content.rows
 		
-		self.topMostRendered, self.bottomMostRendered = nil, nil
+		--self.topMostRendered, self.bottomMostRendered = nil, nil
 		for i=1,#rows do
 			local r = rows[i]
 			if r.view then r.view:removeSelf(); r.view = nil; end
@@ -2981,6 +2868,8 @@ function widget.newTableView( options )
 		tableView.getContentPosition = getContentPosition
 		tableView.keepRowsPastTopVisible = keepRowsPastTopVisible
 		tableView.maxVelocity = maxVelocity
+		tableView.renderFramePace = 0
+		tableView.renderFrameCount = 0
 		
 		-- clean method will be called whenever 'removeSelf' is called
 		tableView.clean = cleanTableView
