@@ -252,13 +252,19 @@ scene1a:addEventListener( "destroyScene", scene1a )
 function scene2:createScene( event )
 	local group = self.view
 	
+	local scrollListener = function( event )
+		print( event.type )
+	end
+	
 	-- create scrollView widget that scrolls horizontally/vertically if
 	-- scrollWidth/Height params are greater than width/height parameters
 	local scrollBox = widget.newScrollView{
 		top = top,
 		width = display.contentWidth, height = 366,
-		scrollWidth = 768, scrollHeight = 1024,
-		maskFile = "assets/mask-320x366.png"
+		scrollWidth = 768, scrollHeight = 190,
+		maskFile = "assets/mask-320x366.png",
+		bgColor = {255,255,255,255},
+		listener = scrollListener
 	}
 	
 	-- insert image into scrollView widget

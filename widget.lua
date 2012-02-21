@@ -1197,7 +1197,7 @@ function widget.newScrollView( options )
 			if mAbs( self.velocity ) < .01 then
 				self.velocity = 0
 				
-				if self.moveDirection == "vertical" then
+				if self.moveDirection ~= "horizontal" then
 					self.y = mFloor( self.y )
 				
 					-- if pulled past upper/lower boundaries, tween content properly
@@ -1223,7 +1223,7 @@ function widget.newScrollView( options )
 				self.velocity = self.velocity * self.friction
 				self[moveProperty] = self[moveProperty] + (self.velocity * timePassed)
 				
-				if moveProperty == "y" then
+				if moveProperty ~= "x" then
 					limitScrollViewMovement( self, self.upperLimit, self.lowerLimit )
 				else
 					limitScrollViewMovement( self, self.leftLimit, self.rightLimit )
@@ -1403,11 +1403,6 @@ function widget.newScrollView( options )
 				self.trackVelocity = nil	-- stop tracking velocity
 				self.markTime = nil
 				
-				if self.listener and self.velocity ~= 0 then
-					-- dispatch a "beganScroll" event.type to user-specified listener
-					dispatchBeganScroll( self )
-				end
-				
 				-- dispatch scroll event
 				if self.listener then
 					local event = event
@@ -1416,6 +1411,11 @@ function widget.newScrollView( options )
 					event.phase = "release"
 					event.target = scrollView
 					self.listener( event )
+				end
+				
+				if self.listener and self.velocity ~= 0 then
+					-- dispatch a "beganScroll" event.type to user-specified listener
+					dispatchBeganScroll( self )
 				end
 				
 				-- remove focus from tableView's content
@@ -1468,7 +1468,7 @@ function widget.newScrollView( options )
 		local content = self.content
 		if not self then print( "WARNING: The correct way to call scrollToX is with a ':' not a '.'" ); return; end
 		if not x then return; end
-		time = timeInMs or 500
+		local time = timeInMs or 500
 		
 		if content.tween then transition.cancel( content.tween ); end
 		content.tween = transition.to( content, { x=x, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
@@ -1478,7 +1478,7 @@ function widget.newScrollView( options )
 		local content = self.content
 		if not self then print( "WARNING: The correct way to call scrollToY is with a ':' not a '.'" ); return; end
 		if not y then return; end
-		time = timeInMs or 500
+		local time = timeInMs or 500
 		
 		if content.tween then transition.cancel( content.tween ); end
 		content.tween = transition.to( content, { y=y, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
@@ -1517,9 +1517,9 @@ function widget.newScrollView( options )
 		
 		if x and y then
 			local content = self.content
-			time = timeInMs or 500
+			timeInMs = timeInMs or 500
 			if content.tween then transition.cancel( content.tween ); end
-			content.tween = transition.to( content, { x=x, y=y, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+			content.tween = transition.to( content, { x=x, y=y, time=timeInMs, transition=easing.inOutQuad, onComplete=onComplete } )
 		end
 	end
 	
@@ -1538,11 +1538,11 @@ function widget.newScrollView( options )
 		end
 		
 		local content = self.content
-		time = timeInMs or 500
+		timeInMs = timeInMs or 500
 		
 		
 		if content.tween then transition.cancel( content.tween ); end
-		content.tween = transition.to( content, { y=0, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+		content.tween = transition.to( content, { y=0, time=timeInMs, transition=easing.inOutQuad, onComplete=onComplete } )
 	end
 	
 	local function scrollToBottom( ... )
@@ -1560,11 +1560,11 @@ function widget.newScrollView( options )
 		end
 		
 		local content = self.content
-		time = timeInMs or 500
+		timeInMs = timeInMs or 500
 		local lowerLimit = content.maskHeight - content.contentHeight
 		
 		if content.tween then transition.cancel( content.tween ); end
-		content.tween = transition.to( content, { y=lowerLimit, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+		content.tween = transition.to( content, { y=lowerLimit, time=timeInMs, transition=easing.inOutQuad, onComplete=onComplete } )
 	end
 	
 	local function scrollToLeft( ... )
@@ -1582,10 +1582,10 @@ function widget.newScrollView( options )
 		end
 		
 		local content = self.content
-		time = timeInMs or 500
+		timeInMs = timeInMs or 500
 		
 		if content.tween then transition.cancel( content.tween ); end
-		content.tween = transition.to( content, { x=0, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+		content.tween = transition.to( content, { x=0, time=timeInMs, transition=easing.inOutQuad, onComplete=onComplete } )
 	end
 	
 	local function scrollToRight( ... )
@@ -1603,11 +1603,11 @@ function widget.newScrollView( options )
 		end
 		
 		local content = self.content
-		time = timeInMs or 500
+		timeInMs = timeInMs or 500
 		local rightLimit = content.maskWidth - content.contentWidth
 		
 		if content.tween then transition.cancel( content.tween ); end
-		content.tween = transition.to( content, { x=rightLimit, time=time, transition=easing.inOutQuad, onComplete=onComplete } )
+		content.tween = transition.to( content, { x=rightLimit, time=timeInMs, transition=easing.inOutQuad, onComplete=onComplete } )
 	end
 	
 	local function removeSelf( self )
