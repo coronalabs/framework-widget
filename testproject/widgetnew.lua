@@ -61,104 +61,9 @@ end
 
 -- creates very sharp text for high resolution/high density displays
 function widget.retinaText( ... )
-	local arg = { ... }
-	local text
-	local csX, csY = display.contentScaleX, display.contentScaleY
-	
-	if 1.0 ~= csX and 1.0 ~= csY then
-		-- parse arguments
-		local parentG, w, h
-		local argOffset = 0
-		
-		-- determine if a parentGroup was specified
-		if arg[1] and type(arg[1]) == "table" then
-			parentG = arg[1]; argOffset = 1
-		end
-		
-		local string = arg[1+argOffset] or ""
-		local x = arg[2+argOffset] or 0
-		local y = arg[3+argOffset] or 0
-		
-		local newOffset = 3+argOffset
-		if type(arg[4+argOffset]) == "number" then w = arg[4+argOffset]; newOffset=newOffset+1; end
-		if w and #arg >= 7+argOffset then h = arg[5+argOffset]; newOffset=newOffset+1; end
-		
-		local font = arg[1+newOffset] or native.systemFont
-		local size = arg[2+newOffset] or 12
-		
-		---------------------------------------------
-		
-		size = size / csX
-		if w then w = w / csX; end
-		if h then h = h / csY; end
-	    
-        -- retinaText returns display group, workaround for casenum: 10124
-        text = display.newGroup()
-        
-        local txtObject
-
-		if w and h then
-			txtObj = display.newText( text, string, 0, 0, w, h, font, size )
-		else
-			txtObj = display.newText( text, string, 0, 0, font, size )
-		end
-        
-        text.txtObj = txtObj	-- create reference to actual text object
-        text.text = string 		-- set the text property
-
-		-- set reference point to top-left for scaling
-		txtObj:setReferencePoint( display.TopLeftReferencePoint )
-		txtObj.xScale, txtObj.yScale = csX, csY
-		txtObj.x, txtObj.y = 0, 0
-		
-		-- position text group according to user parameters and set reference point to center
-		text.x, text.y = x, y
-        text:setReferencePoint( display.CenterReferencePoint )
-
-        -- methods
-        function text:setTextColor( ... )
-            local r, g, b, a; local arg = { ... }
-            
-            if #arg == 4 then
-                r = arg[1]; g = arg[2]; b = arg[3]; a = arg[4]
-            elseif #arg == 3 then
-                r = arg[1]; g = arg[2]; b = arg[3]; a = 255
-            elseif #arg == 2 then
-                r = arg[1]; g = r; b = r; a = arg[2]
-            elseif #arg == 1 then
-            	if type(arg[1]) == "number" then
-            		r = arg[1]; g = r; b = r; a = 255
-            	
-            	elseif type(arg[1]) == "userdata" then
-            		-- gradient object
-            		self.txtObj:setFillColor( arg[1] )
-            		return
-            	end
-            end
-
-            self.txtObj:setTextColor( r, g, b, a )
-        end
-
-        function text:setText( newText )
-            if not newText then return; end
-            local txtObj = self.txtObj
-
-            txtObj.text = newText
-            self.text = newText -- update the group's .text property
-        end
-        
-		if parentG then parentG:insert( text ) end
-	else
-        -- user is not on a retina device, display text normally:
-		text = display.newText( ... )
-        
-        -- method (to remain consistent with retina text)
-        function text:setText( newText )
-            self.text = newText
-        end
-	end
+	text = display.newText( ... );
 	return text
-end; display.newRetinaText = widget.retinaText
+end; display.newRetinaText = display.newText --widget.retinaText
 
 -- creates sharp (retina) text with an embossed/inset effect
 function widget.embossedText( ... )
@@ -190,21 +95,21 @@ function widget.embossedText( ... )
 	local r, g, b, a = color[1], color[2], color[3], color[4]
 	local textBrightness = ( r + g + b ) / 3
 	
-	local highlight = widget.retinaText( string, 0.5, 1, font, size )
+	local highlight = display.newText( string, 0.5, 1, font, size )
 	if ( textBrightness > 127) then
 		highlight:setTextColor( 255, 255, 255, 20 )
 	else
 		highlight:setTextColor( 255, 255, 255, 140 )
 	end
 	
-	local shadow = widget.retinaText( string, -0.5, -1, font, size )
+	local shadow = display.newText( string, -0.5, -1, font, size )
 	if ( textBrightness > 127) then
 		shadow:setTextColor( 0, 0, 0, 128 )
 	else
 		shadow:setTextColor( 0, 0, 0, 20 )
 	end
 	
-	local label = widget.retinaText( string, 0, 0, font, size )
+	local label = display.newText( string, 0, 0, font, size )
 	label:setTextColor( r, g, b, a )
 	
 	-- create display group, insert all embossed text elements, and position it
@@ -401,7 +306,7 @@ function widget.newButton( options )
 		local 	font = options.font or theme.font or native.systemFont
 		local 	fontSize = options.fontSize or theme.fontSize or 14
 		local	emboss = options.emboss or theme.emboss
-		local	textFunction = widget.retinaText; if emboss then textFunction = widget.embossedText; end
+		local	textFunction = display.newText; if emboss then textFunction = widget.embossedText; end
 		local 	labelColor = options.labelColor or theme.labelColor or { default={ 0 }, over={ 255 } }
 		local   onPress = options.onPress
 		local 	onRelease = options.onRelease
@@ -860,7 +765,7 @@ function widget.newPickerWheel( options )
 				local view = event.view
 				local fc = params.fontColor
 				
-				local label = widget.retinaText( columnData[i], 0, 0, params.font, params.fontSize )
+				local label = display.newText( columnData[i], 0, 0, params.font, params.fontSize )
 				label:setTextColor( fc[1], fc[2], fc[3], fc[4] )
 				label:setReferencePoint( ref )
 				label.x = labelX
@@ -1362,7 +1267,7 @@ function widget.newScrollView( options )
 						end
 						
 						-- modify velocity based on previous move phase
-						self.eventStep = 0
+						--self.eventStep = 0
 						self.velocity = (self.y - self.prevY) / (time - self.markTime)
 						self.markTime = time
 						self.prevY = self.y
@@ -1381,7 +1286,7 @@ function widget.newScrollView( options )
 						end
 						
 						-- modify velocity based on previous move phase
-						self.eventStep = 0
+						--self.eventStep = 0
 						self.velocity = (self.x - self.prevX) / (time - self.markTime)
 						self.markTime = time
 						self.prevX = self.x
@@ -1884,7 +1789,7 @@ function widget.newTabBar( options )
 			button.down.y = button.down.y - (labelFontSize-3)
 
 			-- create label
-			button.label = widget.retinaText( label, 0, 0, labelFont, labelFontSize )
+			button.label = display.newText( label, 0, 0, labelFont, labelFontSize )
 			local color = { labelColor[1] or 124, labelColor[2] or 124, labelColor[3] or 124, labelColor[4] or 255 }
 			button.label:setTextColor( color[1], color[2], color[3], color[4] )
 			button.label.color = color

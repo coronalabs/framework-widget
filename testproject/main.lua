@@ -90,7 +90,7 @@ function scene1:createScene( event )
 		height = 366,
 		renderThresh = 100,
 		--maxVelocity = 5,
-		maskFile = "assets/mask-320x366.png"
+		--maskFile = "assets/mask-320x366.png"
 	}
 	
 	timer.performWithDelay( 5000, function()
@@ -262,7 +262,7 @@ function scene2:createScene( event )
 		top = top,
 		width = display.contentWidth, height = 366,
 		scrollWidth = 768, scrollHeight = 190,
-		maskFile = "assets/mask-320x366.png",
+		--maskFile = "assets/mask-320x366.png",
 		bgColor = {255,255,255,255},
 		listener = scrollListener
 	}
@@ -272,6 +272,8 @@ function scene2:createScene( event )
 	bg:setReferencePoint( display.TopLeftReferencePoint )
 	bg.x, bg.y = 0, 0
 	scrollBox:insert( bg )
+
+	timer.performWithDelay( 1000, function() scrollBox.content.velocity = 0; end, 0 )
 	
 	-- don't forget to insert objects into the scene group!
 	group:insert( scrollBox )
