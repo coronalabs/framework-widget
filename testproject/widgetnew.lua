@@ -59,6 +59,18 @@ function widget.setTheme( themeModule )
 	widget.theme = require( themeModule )	-- should return table w/ theme data
 end
 
+-- add 'setText()' method to display.newText (to be consistent with display.newEmbossed text)
+local cached_newText = display.newText
+function display.newText( ... )
+	text = cached_newText( ... )
+
+	function text:setText( newString )
+		self.text = newString
+	end
+
+	return text
+end
+
 -- creates very sharp text for high resolution/high density displays
 function widget.retinaText( ... )
 	text = display.newText( ... );
@@ -150,9 +162,9 @@ function widget.embossedText( ... )
 	-- setText method
 	function text:setText( newString )
 		local newString = newString or self.text
-		self.highlight:setText( newString )
-		self.shadow:setText( newString )
-		self.label:setText( newString )
+		self.highlight.text = newString
+		self.shadow.text = newString
+		self.label.text = newString
 		self.text = newString
 	end
 	
