@@ -13,7 +13,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.6b"
+widget.version = "0.6.5"
 
 -- cached locals
 local mAbs = math.abs
@@ -62,7 +62,7 @@ end
 -- add 'setText()' method to display.newText (to be consistent with display.newEmbossed text)
 local cached_newText = display.newText
 function display.newText( ... )
-	text = cached_newText( ... )
+	local text = cached_newText( ... )
 
 	function text:setText( newString )
 		self.text = newString
@@ -2354,13 +2354,13 @@ function widget.newTableView( options )
 	end
 	
 	-- calls onEvent listener for row
-	local function dispatchRowTouch( row, phase )
+	local function dispatchRowTouch( row, phase, parentWidget )
 		if row.onEvent then
 			-- set up event table
 			local e = {}
 			e.name = "tableView_rowTouch"
 			e.type = "touch"
-			e.parent = self	-- tableView that this row belongs to
+			e.parent = parentWidget	-- tableView that this row belongs to
 			e.target = row
 			e.row = row
 			e.id = row.id
@@ -2458,7 +2458,7 @@ function widget.newTableView( options )
 					
 					-- check to see if a "swipe" event should be dispatched
 					if xDistance > swipeThresh then
-						dispatchRowTouch( row, "swipeRight" )
+						dispatchRowTouch( row, "swipeRight", tableView )
 						row.isTouched = false
 						row = nil
 						tableView.currentSelectedRow = nil
@@ -2471,7 +2471,7 @@ function widget.newTableView( options )
 						content.isFocus = nil
 						
 					elseif xDistance < -swipeThresh then
-						dispatchRowTouch( row, "swipeLeft" )
+						dispatchRowTouch( row, "swipeLeft", tableView )
 						row.isTouched = false
 						row = nil
 						tableView.currentSelectedRow = nil
@@ -2491,13 +2491,13 @@ function widget.newTableView( options )
 				if row then
 					if content.yDistance < tapThresh and content.trackRowSelection then
 						-- user tapped tableView content (dispatch row release event)
-						dispatchRowTouch( row, "tap" )
+						dispatchRowTouch( row, "tap", tableView )
 						row.isTouched = nil
 						row = nil
 						tableView.currentSelectedRow = nil
 					else
 						if row and row.isTouched then
-							dispatchRowTouch( row, "release" )
+							dispatchRowTouch( row, "release", tableView )
 							row.isTouched = nil
 							row = nil
 							tableView.currentSelectedRow = nil
@@ -2536,7 +2536,7 @@ function widget.newTableView( options )
 				local row = self.currentSelectedRow
 				if row then
 					row.isTouched = true
-					dispatchRowTouch( row, "press" )
+					dispatchRowTouch( row, "press", tableView )
 				end
 			end
 		end
