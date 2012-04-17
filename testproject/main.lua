@@ -38,6 +38,7 @@
 display.setStatusBar( display.DefaultStatusBar )
 display.setDefault( "background", 255 )
 
+--require "strict"	-- checks for undeclared globals, etc.
 local widget = require "widgetnew"
 local storyboard = require "storyboard"
 widget.setTheme( "theme_ios" )
@@ -152,6 +153,10 @@ function scene1:createScene( event )
 			
 		end
 	end
+
+	local function onRowEvent( event )
+		print( "touched " .. event.row.index )
+	end
 	
 	-- insert rows into list (tableView widget)
 	for i=1,100 do
@@ -172,7 +177,8 @@ function scene1:createScene( event )
 			rowColor = rowColor,
 			isCategory = isCategory,
 			onRender = onRowRender,
-			listener = listener
+			onEvent = onRowEvent,
+			--listener = listener
 		}
 	end
 	
@@ -416,6 +422,10 @@ local demoTabs = widget.newTabBar{
 	buttons=tabButtons,
 	maxTabWidth = 120
 }
+
+timer.performWithDelay( 5000, function()
+	print( self )
+end, 1 )
 
 -- begin with tableView scene
 storyboard.gotoScene( "tableView" )
