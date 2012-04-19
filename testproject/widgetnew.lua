@@ -2225,6 +2225,11 @@ function widget.newTableView( options )
 				row.isRendered = false
 				if row.view then row.view:removeSelf(); row.view = nil; end
 			end
+
+			-- hide row if it is the current category (category item will be rendered at top of widget)
+			if row.index == currentCategoryIndex then
+				if row.view then row.view.isVisible = false; end
+			end
 		end
 		
 		-- render current category
