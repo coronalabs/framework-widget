@@ -1179,7 +1179,7 @@ function widget.newScrollView( options )
 		local phase = event.phase
 		local time = event.time
 		
-		if phase == "began" and not scrollView.isLocked then
+		if phase == "began" then
 			-- set focus on scrollView content
 			display.getCurrentStage():setFocus( self )
 			self.isFocus = true
@@ -1196,10 +1196,8 @@ function widget.newScrollView( options )
 			self.trackVelocity = true
 			self.markTime = time
 			self.eventStep = 0
-			
 			self.upperLimit = scrollView.topPadding or 0
 			self.lowerLimit = self.maskHeight - self.contentHeight
-			
 			self.leftLimit = 0
 			self.rightLimit = self.maskWidth - self.contentWidth
 			
@@ -1241,7 +1239,7 @@ function widget.newScrollView( options )
 			end
 		
 		elseif self.isFocus then
-			if phase == "moved" then
+			if phase == "moved" and not scrollView.isLocked then
 			
 				-- ensure content isn't trying to move while user is dragging content
 				if self.tween then transition.cancel( self.tween ); self.tween = nil; end
