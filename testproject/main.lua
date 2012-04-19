@@ -94,7 +94,7 @@ function scene1:createScene( event )
 		--maskFile = "assets/mask-320x366.png"
 	}
 
-	list.isLocked = true
+	--list.isLocked = true
 	
 	--[[
 	timer.performWithDelay( 5000, function()

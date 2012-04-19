@@ -1016,7 +1016,7 @@ function widget.newScrollView( options )
 		e.name = "scrollEvent"
 		e.type = "beganScroll"
 		e.target = self.parent
-		self.listener( e )
+		if self.listener then self.listener( e ); end
 	end
 	
 	local function dispatchEndedScroll( self )	-- self == content
@@ -1024,7 +1024,7 @@ function widget.newScrollView( options )
 		e.name = "scrollEvent"
 		e.type = "endedScroll"
 		e.target = self.parent
-		self.listener( e )
+		if self.listener then self.listener( e ); end
 	end
 	
 	local function limitScrollViewMovement( self, upperLimit, lowerLimit )	-- self == content
