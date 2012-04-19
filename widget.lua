@@ -2414,9 +2414,6 @@ function widget.newTableView( options )
 				Runtime:addEventListener( "enterFrame", tableView.rowListener )
 				content.trackRowSelection = true
 				
-				-- prevents categories from getting 'stuck' in the wrong position
-				if content.category and content.category.y ~= 0 then content.category.y = 0; end
-				
 			elseif event.phase == "moved" then
 				
 				-- tableView content is being dragged
