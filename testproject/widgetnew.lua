@@ -1209,11 +1209,8 @@ function widget.newScrollView( options )
 			-- reset move direction
 			self.moveDirection = nil
 			
-			if not scrollView.isVirtualized then
-				if self.contentHeight <= self.maskHeight then
-					self.verticalScrollDisabled = true
-				end
-			else
+			-- for tableviews:
+			if scrollView.isVirtualized then
 				self.moveDirection = "vertical"
 			end
 			
