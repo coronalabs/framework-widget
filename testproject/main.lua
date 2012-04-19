@@ -93,11 +93,15 @@ function scene1:createScene( event )
 		--maxVelocity = 5,
 		--maskFile = "assets/mask-320x366.png"
 	}
+
+	list.isLocked = true
 	
+	--[[
 	timer.performWithDelay( 5000, function()
 		--list:scrollToIndex( 68 )	-- y = -3755
 		list:scrollToY( -3755, 0 )
 	end, 1 )
+	--]]
 	
 	-- handles individual row rendering
 	local function onRowRender( event )
