@@ -423,9 +423,5 @@ local demoTabs = widget.newTabBar{
 	maxTabWidth = 120
 }
 
-timer.performWithDelay( 5000, function()
-	print( self )
-end, 1 )
-
 -- begin with tableView scene
 storyboard.gotoScene( "tableView" )

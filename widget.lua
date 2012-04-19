@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- Copyright (C) 2012 ANSCA Inc. All Rights Reserved. 
+-- Copyright (C) 2012 ANSCA Inc. All Rights Reserved.
 --
 --****************************************************************************************
 
@@ -2224,6 +2224,11 @@ function widget.newTableView( options )
 			else
 				row.isRendered = false
 				if row.view then row.view:removeSelf(); row.view = nil; end
+			end
+
+			-- hide row if it is the current category (category item will be rendered at top of widget)
+			if row.index == currentCategoryIndex then
+				if row.view then row.view.isVisible = false; end
 			end
 		end
 		
