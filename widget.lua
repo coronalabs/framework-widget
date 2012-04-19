@@ -1330,10 +1330,8 @@ function widget.newScrollView( options )
 					self.listener( event )
 				end
 				
-				if self.listener and self.velocity ~= 0 then
-					-- dispatch a "beganScroll" event.type to user-specified listener
-					dispatchBeganScroll( self )
-				end
+				-- dispatch a "beganScroll" event.type to user-specified listener
+				dispatchBeganScroll( self )
 				
 				-- remove focus from tableView's content
 				display.getCurrentStage():setFocus( nil )
