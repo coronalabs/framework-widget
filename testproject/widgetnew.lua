@@ -93,6 +93,7 @@ function widget.embossedText( ... )
 	local string = arg[1+argOffset] or ""
 	local x = arg[2+argOffset] or 0
 	local y = arg[3+argOffset] or 0
+	local w, h = 0, 0
 	
 	local newOffset = 3+argOffset
 	if type(arg[4+argOffset]) == "number" then w = arg[4+argOffset]; newOffset=newOffset+1; end
@@ -107,21 +108,21 @@ function widget.embossedText( ... )
 	local r, g, b, a = color[1], color[2], color[3], color[4]
 	local textBrightness = ( r + g + b ) / 3
 	
-	local highlight = display.newText( string, 0.5, 1, font, size )
+	local highlight = display.newText( string, 0.5, 1, w, h, font, size )
 	if ( textBrightness > 127) then
 		highlight:setTextColor( 255, 255, 255, 20 )
 	else
 		highlight:setTextColor( 255, 255, 255, 140 )
 	end
 	
-	local shadow = display.newText( string, -0.5, -1, font, size )
+	local shadow = display.newText( string, -0.5, -1, w, h, font, size )
 	if ( textBrightness > 127) then
 		shadow:setTextColor( 0, 0, 0, 128 )
 	else
 		shadow:setTextColor( 0, 0, 0, 20 )
 	end
 	
-	local label = display.newText( string, 0, 0, font, size )
+	local label = display.newText( string, 0, 0, w, h, font, size )
 	label:setTextColor( r, g, b, a )
 	
 	-- create display group, insert all embossed text elements, and position it
