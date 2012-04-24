@@ -38,6 +38,7 @@
 display.setStatusBar( display.DefaultStatusBar )
 display.setDefault( "background", 255 )
 
+--require "strict"	-- checks for undeclared globals, etc.
 local widget = require "widgetnew"
 local storyboard = require "storyboard"
 widget.setTheme( "theme_ios" )
@@ -92,11 +93,15 @@ function scene1:createScene( event )
 		--maxVelocity = 5,
 		--maskFile = "assets/mask-320x366.png"
 	}
+
+	--list.isLocked = true
 	
+	--[[
 	timer.performWithDelay( 5000, function()
 		--list:scrollToIndex( 68 )	-- y = -3755
 		list:scrollToY( -3755, 0 )
 	end, 1 )
+	--]]
 	
 	-- handles individual row rendering
 	local function onRowRender( event )
@@ -152,6 +157,10 @@ function scene1:createScene( event )
 			
 		end
 	end
+
+	local function onRowEvent( event )
+		print( "touched " .. event.row.index )
+	end
 	
 	-- insert rows into list (tableView widget)
 	for i=1,100 do
@@ -172,7 +181,8 @@ function scene1:createScene( event )
 			rowColor = rowColor,
 			isCategory = isCategory,
 			onRender = onRowRender,
-			listener = listener
+			onEvent = onRowEvent,
+			--listener = listener
 		}
 	end
 	

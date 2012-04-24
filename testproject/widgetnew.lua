@@ -13,7 +13,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.6b"
+widget.version = "0.6.5"
 
 -- cached locals
 local mAbs = math.abs
@@ -62,7 +62,7 @@ end
 -- add 'setText()' method to display.newText (to be consistent with display.newEmbossed text)
 local cached_newText = display.newText
 function display.newText( ... )
-	text = cached_newText( ... )
+	local text = cached_newText( ... )
 
 	function text:setText( newString )
 		self.text = newString
@@ -1016,7 +1016,7 @@ function widget.newScrollView( options )
 		e.name = "scrollEvent"
 		e.type = "beganScroll"
 		e.target = self.parent
-		self.listener( e )
+		if self.listener then self.listener( e ); end
 	end
 	
 	local function dispatchEndedScroll( self )	-- self == content
@@ -1024,7 +1024,7 @@ function widget.newScrollView( options )
 		e.name = "scrollEvent"
 		e.type = "endedScroll"
 		e.target = self.parent
-		self.listener( e )
+		if self.listener then self.listener( e ); end
 	end
 	
 	local function limitScrollViewMovement( self, upperLimit, lowerLimit )	-- self == content
@@ -1179,7 +1179,7 @@ function widget.newScrollView( options )
 		local phase = event.phase
 		local time = event.time
 		
-		if phase == "began" and not scrollView.isLocked then
+		if phase == "began" then
 			-- set focus on scrollView content
 			display.getCurrentStage():setFocus( self )
 			self.isFocus = true
@@ -1196,10 +1196,8 @@ function widget.newScrollView( options )
 			self.trackVelocity = true
 			self.markTime = time
 			self.eventStep = 0
-			
 			self.upperLimit = scrollView.topPadding or 0
 			self.lowerLimit = self.maskHeight - self.contentHeight
-			
 			self.leftLimit = 0
 			self.rightLimit = self.maskWidth - self.contentWidth
 			
@@ -1211,11 +1209,8 @@ function widget.newScrollView( options )
 			-- reset move direction
 			self.moveDirection = nil
 			
-			if not scrollView.isVirtualized then
-				if self.contentHeight <= self.maskHeight then
-					self.verticalScrollDisabled = true
-				end
-			else
+			-- for tableviews:
+			if scrollView.isVirtualized then
 				self.moveDirection = "vertical"
 			end
 			
@@ -1241,7 +1236,7 @@ function widget.newScrollView( options )
 			end
 		
 		elseif self.isFocus then
-			if phase == "moved" then
+			if phase == "moved" and not scrollView.isLocked then
 			
 				-- ensure content isn't trying to move while user is dragging content
 				if self.tween then transition.cancel( self.tween ); self.tween = nil; end
@@ -1330,10 +1325,8 @@ function widget.newScrollView( options )
 					self.listener( event )
 				end
 				
-				if self.listener and self.velocity ~= 0 then
-					-- dispatch a "beganScroll" event.type to user-specified listener
-					dispatchBeganScroll( self )
-				end
+				-- dispatch a "beganScroll" event.type to user-specified listener
+				dispatchBeganScroll( self )
 				
 				-- remove focus from tableView's content
 				display.getCurrentStage():setFocus( nil )
@@ -2225,6 +2218,11 @@ function widget.newTableView( options )
 				row.isRendered = false
 				if row.view then row.view:removeSelf(); row.view = nil; end
 			end
+
+			-- hide row if it is the current category (category item will be rendered at top of widget)
+			if row.index == currentCategoryIndex then
+				if row.view then row.view.isVisible = false; end
+			end
 		end
 		
 		-- render current category
@@ -2354,13 +2352,13 @@ function widget.newTableView( options )
 	end
 	
 	-- calls onEvent listener for row
-	local function dispatchRowTouch( row, phase )
+	local function dispatchRowTouch( row, phase, parentWidget )
 		if row.onEvent then
 			-- set up event table
 			local e = {}
 			e.name = "tableView_rowTouch"
 			e.type = "touch"
-			e.parent = self	-- tableView that this row belongs to
+			e.parent = parentWidget	-- tableView that this row belongs to
 			e.target = row
 			e.row = row
 			e.id = row.id
@@ -2409,9 +2407,6 @@ function widget.newTableView( options )
 				Runtime:addEventListener( "enterFrame", tableView.rowListener )
 				content.trackRowSelection = true
 				
-				-- prevents categories from getting 'stuck' in the wrong position
-				if content.category and content.category.y ~= 0 then content.category.y = 0; end
-				
 			elseif event.phase == "moved" then
 				
 				-- tableView content is being dragged
@@ -2458,7 +2453,7 @@ function widget.newTableView( options )
 					
 					-- check to see if a "swipe" event should be dispatched
 					if xDistance > swipeThresh then
-						dispatchRowTouch( row, "swipeRight" )
+						dispatchRowTouch( row, "swipeRight", tableView )
 						row.isTouched = false
 						row = nil
 						tableView.currentSelectedRow = nil
@@ -2471,7 +2466,7 @@ function widget.newTableView( options )
 						content.isFocus = nil
 						
 					elseif xDistance < -swipeThresh then
-						dispatchRowTouch( row, "swipeLeft" )
+						dispatchRowTouch( row, "swipeLeft", tableView )
 						row.isTouched = false
 						row = nil
 						tableView.currentSelectedRow = nil
@@ -2491,13 +2486,13 @@ function widget.newTableView( options )
 				if row then
 					if content.yDistance < tapThresh and content.trackRowSelection then
 						-- user tapped tableView content (dispatch row release event)
-						dispatchRowTouch( row, "tap" )
+						dispatchRowTouch( row, "tap", tableView )
 						row.isTouched = nil
 						row = nil
 						tableView.currentSelectedRow = nil
 					else
 						if row and row.isTouched then
-							dispatchRowTouch( row, "release" )
+							dispatchRowTouch( row, "release", tableView )
 							row.isTouched = nil
 							row = nil
 							tableView.currentSelectedRow = nil
@@ -2536,7 +2531,7 @@ function widget.newTableView( options )
 				local row = self.currentSelectedRow
 				if row then
 					row.isTouched = true
-					dispatchRowTouch( row, "press" )
+					dispatchRowTouch( row, "press", tableView )
 				end
 			end
 		end
