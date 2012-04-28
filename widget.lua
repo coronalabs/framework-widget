@@ -1587,7 +1587,7 @@ function widget.newScrollView( options )
 		local	listener = options.listener
 		local	bgColor = options.bgColor or {}
 				bgColor[1] = bgColor[1] or 255
-				bgColor[2] = bgColor[1] or bgColor[1]
+				bgColor[2] = bgColor[2] or bgColor[1]
 				bgColor[3] = bgColor[3] or bgColor[1]
 				bgColor[4] = bgColor[4] or 255
 		local	maskFile = options.maskFile
