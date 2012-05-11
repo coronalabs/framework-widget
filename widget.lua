@@ -2052,9 +2052,15 @@ function widget.newTableView( options )
 		local bg = display.newRect( row, 0, 0, rowData.width, rowData.height )
 		bg:setFillColor( rowData.rowColor[1], rowData.rowColor[2], rowData.rowColor[3], rowData.rowColor[4] )
 		
+		local line
+		
 		-- create bottom-line
-		local line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
-		line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
+		if not options.noLines then
+			line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
+			line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
+		else
+			line = display.newLine( row, 0, 0, 0, 0 )
+		end
 		
 		row.background = bg
 		row.line = line
