@@ -2055,7 +2055,7 @@ function widget.newTableView( options )
 		local line
 		
 		-- create bottom-line
-		if not options.noLines then
+		if options and not options.noLines then
 			line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
 			line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
 		else
