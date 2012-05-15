@@ -2058,8 +2058,11 @@ function widget.newTableView( options )
 		if options and not options.noLines then
 			line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
 			line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
-		else
+		elseif options and options.noLines then
 			line = display.newLine( row, 0, 0, 0, 0 )
+		else
+			line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
+			line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
 		end
 		
 		row.background = bg
