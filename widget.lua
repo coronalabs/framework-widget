@@ -49,7 +49,11 @@ function display.newGroup()
 	-- subclass removeSelf method
 	function g:removeSelf()
 		removeWidgets( self )	-- remove widgets first
-		cached_removeSelf( self )	-- continue removing group as usual
+		
+		-- continue removing group as usual
+		if self.parent and self.parent.remove then
+			self.parent:remove( self )
+		end
 	end
 	return g
 end
