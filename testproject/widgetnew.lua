@@ -355,11 +355,11 @@ function widget.newButton( options )
 				button.over:setReferencePoint( display.TopLeftReferencePoint )
 				button.over.x, button.over.y = 0, 0
 			else
-				button.default = display.newImage( button, default, baseDir )
+				button.default = display.newImage( button, default, baseDir, true )
 				button.default:setReferencePoint( display.TopLeftReferencePoint )
 				button.default.x, button.default.y = 0, 0
 
-				button.over = display.newImage( button, over, baseDir )
+				button.over = display.newImage( button, over, baseDir, true )
 				button.over:setReferencePoint( display.TopLeftReferencePoint )
 				button.over.x, button.over.y = 0, 0
 				
@@ -956,7 +956,7 @@ function widget.newPickerWheel( options )
 			if overlayWidth and overlayHeight then
 				overlay = display.newImageRect( pickerWheel, overlayImage, overlayWidth, overlayHeight )
 			else
-				overlay = display.newImage( pickerWheel, overlayImage )
+				overlay = display.newImage( pickerWheel, overlayImage, true )
 			end
 			overlay:setReferencePoint( display.CenterReferencePoint )
 			overlay.x = bgWidth * 0.5
