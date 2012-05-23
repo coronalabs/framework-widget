@@ -338,6 +338,9 @@ function widget.newButton( options )
 		local 	cornerRadius = options.cornerRadius or theme.cornerRadius
 		local 	width = options.width or theme.width
 		local 	height = options.height or theme.height
+		local 	sheet = options.sheet or theme.sheet
+		local 	defaultIndex = options.defaultIndex or theme.defaultIndex
+		local 	overIndex = options.overIndex or theme.overIndex
 		local 	baseDir = options.baseDir or theme.baseDir or system.ResourceDirectory
 		
 		local button = display.newGroup()
@@ -346,19 +349,34 @@ function widget.newButton( options )
 			if not over then over = default; end
 
 			-- user-provided image for default and over state
-			if width and height then
+			if sheet and defaultIndex and width and height then
+				-- image sheet option
+				button.default = display.newImageRect( button, sheet, defaultIndex, width, height )
+				button.default:setReferencePoint( display.TopLeftReferencePoint )
+				button.default.x, button.default.y = 0, 0
+
+				local over = overIndex or defaultIndex
+				button.over = display.newImageRect( button, sheet, over, width, height )
+				button.over:setReferencePoint( display.TopLeftReferencePoint )
+				button.over.x, button.over.y = 0, 0
+
+			elseif width and height then
+				-- display.newImageRect() option (non)
 				button.default = display.newImageRect( button, default, baseDir, width, height )
 				button.default:setReferencePoint( display.TopLeftReferencePoint )
 				button.default.x, button.default.y = 0, 0
 
+				local over = over or default
 				button.over = display.newImageRect( button, over, baseDir, width, height )
 				button.over:setReferencePoint( display.TopLeftReferencePoint )
 				button.over.x, button.over.y = 0, 0
 			else
+				-- display.newImage() option
 				button.default = display.newImage( button, default, baseDir, true )
 				button.default:setReferencePoint( display.TopLeftReferencePoint )
 				button.default.x, button.default.y = 0, 0
 
+				local over = over or default
 				button.over = display.newImage( button, over, baseDir, true )
 				button.over:setReferencePoint( display.TopLeftReferencePoint )
 				button.over.x, button.over.y = 0, 0
