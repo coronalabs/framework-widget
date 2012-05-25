@@ -63,6 +63,33 @@ function widget.setTheme( themeModule )
 	widget.theme = require( themeModule )	-- should return table w/ theme data
 end
 
+-- returns a "color" object to be used with various widget options
+function widget.newColor( ... )
+	local arg = { ... }
+	local r, g, b, a
+
+	if #arg == 4 then
+		r, g, b, a = arg[1], arg[2], arg[3], arg[4]
+	elseif #arg == 3 then
+		r, g, b = arg[1], arg[2], arg[3]
+		a = 255
+	elseif #arg == 2 then
+		r, a = arg[1], arg[2]
+		g, b = r, r
+	elseif #arg == 1 then
+		r = arg[1]
+		g, b, a = r, r, 255
+	end
+
+	local color =
+	{
+		isColorObject = true,
+		red = r, green = g, blue = b, alpha = a
+	}
+
+	return color
+end
+
 -- add 'setText()' method to display.newText (to be consistent with display.newEmbossed text)
 local cached_newText = display.newText
 function display.newText( ... )
@@ -195,7 +222,7 @@ function widget.newButton( options )
 		event.target = self
 
 		if phase == "began" then
-			display.getCurrentStage():setFocus( self )
+			display.getCurrentStage():setFocus( self, event.id )
 			self.isFocus = true
 
 			event.phase = "press"
@@ -255,7 +282,7 @@ function widget.newButton( options )
 				end
 
 				-- remove focus from button
-				display.getCurrentStage():setFocus( nil )
+				display.getCurrentStage():setFocus( self, nil )
 				self.isFocus = false
 			end
 		end
