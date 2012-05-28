@@ -2731,6 +2731,26 @@ function widget.newTableView( options )
 	local function getContentPosition( self )	-- self == tableView
 		return self.content.y
 	end
+
+	-- clear all rows from tableview (method)
+	local function deleteAllRows( self ) -- self == tableView
+		local content = self.content
+		local rows = content.rows
+
+		for i=#rows,1,-1 do
+			local r = rows[i]
+			display.remove( r.view ); r.view = nil
+			table.remove( rows, r.index )
+
+			if r.isCategory and content.category then
+				if content.category.index == r.index then
+					display.remove( content.category )
+					content.category = nil
+				end
+			end
+		end
+		self.content.rows = {}
+	end
 	
 	-- permanently remove specified row from tableView
 	local function deleteRow( self, rowOrIndex )	-- self == tableView
@@ -2750,6 +2770,13 @@ function widget.newTableView( options )
 				if row.view then display.remove( row.view ); row.view = nil; end
 			end
 			table.remove( content.rows, row.index )
+
+			if row.isCategory and content.category then
+				if content.category.index == row.index then
+					display.remove( content.category )
+					content.category = nil
+				end
+			end
 		end
 		
 		updateRowData( self )
@@ -2823,6 +2850,7 @@ function widget.newTableView( options )
 		tableView.content.rows = {}	-- holds row data
 		tableView.insertRow = insertRow
 		tableView.deleteRow = deleteRow
+		tableView.deleteAllRows = deleteAllRows
 		tableView.renderThresh = renderThresh
 		tableView.scrollToY = scrollToY
 		tableView.scrollToIndex = scrollToIndex
