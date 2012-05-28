@@ -169,7 +169,7 @@ function scene1:createScene( event )
 		local rowHeight
 		local listener = rowListener
 		
-		if i == 25 or i == 50 or i == 75 then
+		if i == 1 or i == 25 or i == 50 or i == 75 then
 			isCategory = true
 			rowHeight = 24
 			rowColor = { 150, 160, 180, 200 }
@@ -188,6 +188,15 @@ function scene1:createScene( event )
 	
 	-- don't forget to insert objects into the scene group!
 	group:insert( list )
+
+	-- [[
+	timer.performWithDelay( 2000, function()
+		for i=100,1,-1 do
+			
+			list:deleteAllRows()
+		end
+	end, 1 )
+	--]]
 end
 scene1:addEventListener( "createScene", scene1 )
 
