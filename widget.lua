@@ -1061,26 +1061,26 @@ end
 -----------------------------------------------------------------------------------------
 
 function widget.newScrollView( options )
-	local function dispatchBeganScroll( self ) 	-- self == content
+	local function dispatchBeganScroll( self, parent_widget ) 	-- self == content
 		local e = {}
 		e.name = "scrollEvent"
 		e.type = "beganScroll"
-		e.target = self.parent
+		e.target = parent_widget
 		if self.listener then self.listener( e ); end
 	end
 	
-	local function dispatchEndedScroll( self )	-- self == content
+	local function dispatchEndedScroll( self, parent_widget )	-- self == content
 		local e = {}
 		e.name = "scrollEvent"
 		e.type = "endedScroll"
-		e.target = self.parent
+		e.target = parent_widget
 		if self.listener then self.listener( e ); end
 	end
 	
 	local function limitScrollViewMovement( self, upperLimit, lowerLimit )	-- self == content
 		local function endedScroll()
 			if self.listener then
-				dispatchEndedScroll( self )
+				dispatchEndedScroll( self, self.parent )
 			end
 		end
 		
@@ -1376,7 +1376,7 @@ function widget.newScrollView( options )
 				end
 				
 				-- dispatch a "beganScroll" event.type to user-specified listener
-				dispatchBeganScroll( self )
+				dispatchBeganScroll( self, scrollView )
 				
 				-- remove focus from tableView's content
 				display.getCurrentStage():setFocus( nil )
