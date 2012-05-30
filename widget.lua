@@ -356,7 +356,7 @@ function widget.newButton( options )
 		local 	onRelease = options.onRelease
 		local 	onDrag = options.onDrag
 		local 	onEvent = options.onEvent
-		local 	default = options.default or theme.default
+		local 	default = options.default or options.sheet or theme.default
 		local 	defaultColor = options.defaultColor or theme.defaultColor
 		local	over = options.over or theme.over
 		local 	overColor = options.overColor or theme.overColor
