@@ -329,7 +329,7 @@ function widget.newButton( options )
 		local 	onRelease = options.onRelease
 		local 	onDrag = options.onDrag
 		local 	onEvent = options.onEvent
-		local 	default = options.default or options.sheet or theme.default
+		local 	default = options.default or theme.default
 		local 	defaultColor = options.defaultColor or theme.defaultColor
 		local	over = options.over or theme.over
 		local 	overColor = options.overColor or theme.overColor
@@ -345,8 +345,7 @@ function widget.newButton( options )
 		
 		local button = display.newGroup()
 		
-		if default then
-			if not over then over = default; end
+		if default or sheet then
 
 			-- user-provided image for default and over state
 			if sheet and defaultIndex and width and height then
@@ -1154,7 +1153,7 @@ function widget.newScrollView( options )
 				
 				if self.listener then
 					-- dispatch an "endedScroll" event.type to user-specified listener
-					dispatchEndedScroll( self )
+					dispatchEndedScroll( self, self.parent )
 				end
 			else
 				-- update velocity and content location on every framestep
