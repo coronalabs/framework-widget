@@ -1037,22 +1037,22 @@ function widget.newScrollView( options )
 		local e = {}
 		e.name = "scrollEvent"
 		e.type = "beganScroll"
-		e.target = parent_widget
+		e.target = parent_widget or self.parent
 		if self.listener then self.listener( e ); end
 	end
 	
-	local function dispatchEndedScroll( self, parent_widget )	-- self == content
+	local function dispatchEndedScroll( self )	-- self == content
 		local e = {}
 		e.name = "scrollEvent"
 		e.type = "endedScroll"
-		e.target = parent_widget
+		e.target = self.parent
 		if self.listener then self.listener( e ); end
 	end
 	
 	local function limitScrollViewMovement( self, upperLimit, lowerLimit )	-- self == content
 		local function endedScroll()
 			if self.listener then
-				dispatchEndedScroll( self, self.parent )
+				dispatchEndedScroll( self )
 			end
 		end
 		
@@ -1153,7 +1153,7 @@ function widget.newScrollView( options )
 				
 				if self.listener then
 					-- dispatch an "endedScroll" event.type to user-specified listener
-					dispatchEndedScroll( self, self.parent )
+					dispatchEndedScroll( self )
 				end
 			else
 				-- update velocity and content location on every framestep
