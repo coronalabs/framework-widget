@@ -426,6 +426,9 @@ function widget.newButton( options )
 			if not strokeWidth then
 				button.default.strokeWidth = 1
 				button.over.strokeWidth = 1
+			else
+				button.default.strokeWidth = strokeWidth
+				button.over.strokeWidth = strokeWidth
 			end
 		end
 		button.over.isVisible = false	-- hide "down/over" state of button
