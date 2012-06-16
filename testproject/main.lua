@@ -37,6 +37,7 @@
 
 display.setStatusBar( display.DefaultStatusBar )
 display.setDefault( "background", 255 )
+system.activate( "multitouch" )
 
 --require "strict"	-- checks for undeclared globals, etc.
 local widget = require "widgetnew"
@@ -377,6 +378,14 @@ function scene3:createScene( event )
 	group:insert( button )
 	button.x = 160
 	button.y = 300
+
+	local button2 = widget.newButton{
+		label = "Other Button",
+		onRelease = function() print( "pressed!" ); end
+	}
+	group:insert( button2 )
+	button2.x = 160
+	button2.y = 400
 	
 	-- create a label, slider, and slider listener
 	local sliderResult = display.newEmbossedText( group, "Slider at 50%", 0, 0, native.systemFontBold, 22 )
