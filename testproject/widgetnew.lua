@@ -195,7 +195,7 @@ function widget.newButton( options )
 		event.target = self
 
 		if phase == "began" then
-			display.getCurrentStage():setFocus( self )
+			display.getCurrentStage():setFocus( self, event.id )
 			self.isFocus = true
 
 			event.phase = "press"
@@ -255,7 +255,7 @@ function widget.newButton( options )
 				end
 
 				-- remove focus from button
-				display.getCurrentStage():setFocus( nil )
+				display.getCurrentStage():setFocus( self, nil )
 				self.isFocus = false
 			end
 		end
