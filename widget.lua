@@ -13,7 +13,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.6.5"
+widget.version = "0.7"
 
 -- cached locals
 local mAbs = math.abs
@@ -1050,18 +1050,27 @@ function widget.newScrollView( options )
 		e.type = "endedScroll"
 		e.target = self.parent
 		if self.listener then self.listener( e ); end
+		if not self.tween then
+			self.parent:hide_scrollbar()
+		end
 	end
 	
 	local function limitScrollViewMovement( self, upperLimit, lowerLimit )	-- self == content
 		local function endedScroll()
+			self.tween = nil
 			if self.listener then
 				dispatchEndedScroll( self )
+			else
+				self.parent:hide_scrollbar()
 			end
 		end
 		
 		local tweenContent = function( limit )
 			if self.tween then transition.cancel( self.tween ); end
-			self.tween = transition.to( self, { time=400, y=limit, transition=easing.outQuad, onComplete=endedScroll } )
+			if not self.isFocus then  -- if content is not being touched by user
+				self.tween = transition.to( self, { time=400, y=limit, transition=easing.outQuad, onComplete=endedScroll } )
+			end
+			Runtime:addEventListener( "enterFrame", self.scrollbar_listener )
 		end
 		local moveProperty = "y"
 		local e = { name="scrollEvent", target=self.parent }
@@ -1075,7 +1084,7 @@ function widget.newScrollView( options )
 			end
 			moveProperty = "x"
 			eventMin = "movingToLeftLimit"
-			eventMax = "movingToRightLimit"			
+			eventMax = "movingToRightLimit"
 		end
 		
 		if self[moveProperty] > upperLimit then
@@ -1133,7 +1142,7 @@ function widget.newScrollView( options )
 		if not self.trackVelocity then
 			local time = event.time
 			local timePassed = time - self.lastTime
-			self.lastTime = time 
+			self.lastTime = time
 	
 			-- stop scrolling when velocity gets close to zero
 			if mAbs( self.velocity ) < .01 then
@@ -1158,6 +1167,10 @@ function widget.newScrollView( options )
 					-- dispatch an "endedScroll" event.type to user-specified listener
 					dispatchEndedScroll( self )
 				end
+
+				-- self.tween is a transition that occurs when content is above or below lower limits
+				-- and calls hide_scrollbar(), so the method does not need to be called here if self.tween exists
+				if not self.tween then self.parent:hide_scrollbar(); end
 			else
 				-- update velocity and content location on every framestep
 				local moveProperty = "y"
@@ -1197,6 +1210,8 @@ function widget.newScrollView( options )
 				end
 			end
 		end
+
+		self.parent:update_scrollbar()
 	end
 	
 	local function onContentTouch( self, event )	-- self == content
@@ -1211,6 +1226,13 @@ function widget.newScrollView( options )
 			
 			-- remove listener for auto-movement based on velocity
 			Runtime:removeEventListener( "enterFrame", self )
+
+			-- TODO: Restructure code into "transactions" that represent the different states
+			-- of scrolling to "bottleneck" things like the following 'removeEventListener()' call
+			-- so they are not sprinkled all over the place.
+
+			Runtime:removeEventListener( "enterFrame", scrollView.content.scrollbar_listener )
+			scrollView:cancel_scrollbar_hide()
 			
 			-- set some variables necessary movement/scrolling
 			self.velocity = 0
@@ -1553,9 +1575,12 @@ function widget.newScrollView( options )
 		if self.content then
 			-- cancel any active transitions
 			if self.content.tween then transition.cancel( self.content.tween ); self.content.tween = nil; end
+			if self.sb_tween then transition.cancel( self.sb_tween ); self.sb_tween = nil; end
+			if self.sb_timer then timer.cancel( self.sb_timer ); self.sb_timer = nil; end
 			
 			-- remove runtime listener
 			Runtime:removeEventListener( "enterFrame", self.content )
+			Runtime:removeEventListener( "enterFrame", self.content.scrollbar_listener )
 			
 			-- remove all children from content group
 			for i=self.content.numChildren,1,-1 do
@@ -1595,6 +1620,76 @@ function widget.newScrollView( options )
 		
 		-- call original removeSelf method
 		self:cached_removeSelf()
+	end
+
+	local function createScrollBar( parent, manual_height )
+		-- set initial variables
+		local fixed_group = parent.fixed
+		local scrollbar_width = 6
+		local top = 6
+		local min_height = 24
+		local max_height = parent.widgetHeight-(top*2)
+
+		-- calculate scrollbar height (based on total content height)
+		local sb_height
+		local content_height = manual_height or parent.content.contentHeight
+		local content_bleed = content_height - parent.widgetHeight
+
+		if content_bleed > parent.widgetHeight then
+			sb_height = min_height
+
+		elseif content_bleed > 0 then
+
+			local bleed_percent = content_bleed/parent.widgetHeight
+			sb_height = max_height-(max_height*bleed_percent)
+
+		else
+			display.remove( parent._scrollbar ); parent._scrollbar = nil
+			return
+		end
+
+		-- calculate proper location of scrollbar (in case a start_percent wasn't provided)
+		local amount_above_top = content_height-(content_height+parent.content.y)
+		local calculated_percent = (amount_above_top/content_bleed)
+
+		-- calculate scrollbar height and handle "squish" effect when content goes past boundaries
+		local min_y = top
+		local max_y = (top+max_height)-sb_height
+		local scroll_range = max_y-min_y
+		local scroll_percent = calculated_percent
+		local x = parent.widgetWidth-3
+		local y = top+(scroll_range*scroll_percent)
+		if y < min_y then
+			local difference = min_y - y
+			sb_height = sb_height - difference
+			if sb_height < min_height then sb_height = min_height; end
+
+			-- don't allow scrollbar to go past minimum y position (even when content goes past boundary)
+			y = min_y
+
+		elseif y > max_y then
+			
+			local difference = y - max_y
+			sb_height = sb_height - difference
+			if sb_height < min_height then sb_height = min_height; end
+
+			-- adjust y position since we adjusted scrollbar height
+			y = (top+max_height)-sb_height
+		end
+
+		-- create the actual scrollbar from a rounded rectangle
+		local sb = parent._scrollbar
+		if not sb then
+			sb = display.newRoundedRect( fixed_group, 0, 0, scrollbar_width, sb_height, 2 )			
+		else
+			sb.height = sb_height
+		end
+		sb:setReferencePoint( display.TopRightReferencePoint )
+		sb:setFillColor( 0, 128 )
+		sb.x, sb.y = x, y
+		sb.alpha = 1.0
+
+		return sb
 	end
 	
 	local function createScrollView( options )
@@ -1689,6 +1784,10 @@ function widget.newScrollView( options )
 		-- override removeSelf method for scrollView (to ensure widget is properly removed)
 		scrollView.cached_removeSelf = scrollView.removeSelf
 		scrollView.removeSelf = removeSelf
+
+		function scrollView.content.scrollbar_listener( event )
+			scrollView:update_scrollbar()
+		end
 		
 		-- override insert method for scrollView to insert into content instead
 		scrollView.cached_insert = scrollView.insert
@@ -1710,6 +1809,37 @@ function widget.newScrollView( options )
 			else
 				self.content:insert( obj )
 			end
+		end
+
+		-- cancels scrollbar fadeout effect
+		function scrollView:cancel_scrollbar_hide()
+			if self.sb_tween then transition.cancel( self.sb_tween ); self.sb_tween = nil; end
+			if self.sb_timer then timer.cancel( self.sb_timer ); self.sb_timer = nil; end
+		end
+
+		-- function to update scrollbar height and position
+		function scrollView:update_scrollbar()
+			local content_height = self.virtualContentHeight
+			self._scrollbar = createScrollBar( self, content_height )
+		end
+
+		function scrollView:hide_scrollbar()
+			Runtime:removeEventListener( "enterFrame", self.content.scrollbar_listener )
+			self:cancel_scrollbar_hide()
+
+			local function fade_out()
+				local function remove_scrollbar()
+					display.remove( self._scrollbar )
+					self._scrollbar = nil
+					self.sb_tween = nil
+				end
+				if self.sb_tween then
+					transition.cancel( self.sb_tween ); self.sb_tween = nil;
+					self._scrollbar.alpha = 1.0
+				end
+				self.sb_tween = transition.to( self._scrollbar, { time=300, alpha=0, onComplete=remove_scrollbar } )
+			end
+			self.sb_timer = timer.performWithDelay( 300, fade_out, 1 )
 		end
 		
 		return scrollView	-- returns a display group
@@ -2077,8 +2207,16 @@ function widget.newTableView( options )
 		bg:setFillColor( rowData.rowColor[1], rowData.rowColor[2], rowData.rowColor[3], rowData.rowColor[4] )
 		
 		-- create bottom-line
-		local line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
-		line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
+		local line
+		if options and not options.noLines then
+			line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
+			line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
+		elseif options and options.noLines then
+			line = display.newLine( row, 0, 0, 0, 0 )
+		else
+			line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
+			line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
+		end
 		
 		row.background = bg
 		row.line = line
