@@ -190,7 +190,7 @@ function scene1:createScene( event )
 	-- don't forget to insert objects into the scene group!
 	group:insert( list )
 
-	-- [[
+	--[[
 	timer.performWithDelay( 2000, function()
 		for i=100,1,-1 do
 			
@@ -293,7 +293,7 @@ function scene2:createScene( event )
 	bg.x, bg.y = 0, 0
 	scrollBox:insert( bg )
 
-	timer.performWithDelay( 1000, function() scrollBox.content.velocity = 0; end, 0 )
+	--timer.performWithDelay( 1000, function() scrollBox.content.velocity = 0; end, 0 )
 	
 	-- don't forget to insert objects into the scene group!
 	group:insert( scrollBox )
