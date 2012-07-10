@@ -1736,6 +1736,7 @@ function widget.newScrollView( options )
 		local	isVirtualized = options.isVirtualized
 		local	topPadding = options.topPadding
 		local	bottomPadding = options.bottomPadding
+		local 	baseDir = options.baseDir or theme.baseDir or system.ResourceDirectory
 		
 		-- create display groups
 		local scrollView = display.newGroup()	-- display group for widget; will be masked
@@ -1792,7 +1793,7 @@ function widget.newScrollView( options )
 		
 		-- apply mask (if user set option)
 		if maskFile then
-			scrollView.mask = graphics.newMask( maskFile )
+			scrollView.mask = graphics.newMask( maskFile, baseDir )
 			scrollView:setMask( scrollView.mask )
 	
 			scrollView.maskX = width * 0.5
@@ -2962,6 +2963,9 @@ function widget.newTableView( options )
 		local	topPadding = options.topPadding
 		local	bottomPadding = options.bottomPadding
 		local	maxVelocity = options.maxVelocity or 10
+		local 	baseDir = options.baseDir or system.ResourceDirectory
+		local 	hideScrollBar = options.hideScrollBar or false
+		local 	scrollBarColor = options.scrollBarColor
 		
 		-- tableView foundation is a scrollView widget
 		local tableView = widget.newScrollView{
@@ -2979,7 +2983,10 @@ function widget.newTableView( options )
 			listener = scrollListener,
 			isVirtualized = true,
 			topPadding = topPadding,
-			bottomPadding = bottomPadding
+			bottomPadding = bottomPadding,
+			baseDir = baseDir,
+			hideScrollBar = hideScrollBar,
+			scrollBarColor = scrollBarColor,
 		}
 		
 		-- properties and methods
