@@ -1622,7 +1622,7 @@ function widget.newScrollView( options )
 		self:cached_removeSelf()
 	end
 
-	local function createScrollBar( parent, manual_height )
+	local function createScrollBar( parent, manual_height, options )
 		-- set initial variables
 		local fixed_group = parent.fixed
 		local scrollbar_width = 6
@@ -1685,7 +1685,13 @@ function widget.newScrollView( options )
 			sb.height = sb_height
 		end
 		sb:setReferencePoint( display.TopRightReferencePoint )
-		sb:setFillColor( 0, 128 )
+		
+		if options and options.scrollBarColor and type( options.scrollBarColor ) == "table" then
+			sb:setFillColor( unpack( options.scrollBarColor ) )
+		else	
+			sb:setFillColor( 0, 128 )
+		end
+		
 		sb.x, sb.y = x, y
 		sb.alpha = 1.0
 
@@ -1820,7 +1826,7 @@ function widget.newScrollView( options )
 		-- function to update scrollbar height and position
 		function scrollView:update_scrollbar()
 			local content_height = self.virtualContentHeight
-			self._scrollbar = createScrollBar( self, content_height )
+			self._scrollbar = createScrollBar( self, content_height, options )
 		end
 
 		function scrollView:hide_scrollbar()
