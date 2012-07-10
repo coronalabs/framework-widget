@@ -92,7 +92,6 @@ function scene1:createScene( event )
 		height = 366,
 		renderThresh = 100,
 		noLines = false,
-		
 		--maxVelocity = 5,
 		--maskFile = "assets/mask-320x366.png"
 	}
@@ -286,6 +285,7 @@ function scene2:createScene( event )
 		scrollWidth = 768, scrollHeight = 190,
 		--maskFile = "assets/mask-320x366.png",
 		bgColor = {255,255,255,255},
+		scrollBarColor = {255, 0, 128}, --Sets the scrollbar color. If this is ommited or not a table, the scrollbar falls back to it's default color
 		listener = scrollListener
 	}
 	
