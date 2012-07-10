@@ -2208,18 +2208,20 @@ function widget.newTableView( options )
 		
 		-- create bottom-line
 		local line
-		if options and not options.noLines then
+		
+		--Only create the line if the user hasn't specified noLines == true in options table.
+		if options and not options.noLines == true or options and not options.noLines or options and options.noLines == false then
 			line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
 			line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
-		elseif options and options.noLines then
-			line = display.newLine( row, 0, 0, 0, 0 )
-		else
-			line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
-			line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
+			row.line = line
 		end
 		
 		row.background = bg
-		row.line = line
+		
+		--If the user has specified noLines == true then set row.line to nil
+		if type( row.line ) ~= "table" then
+			row.line = nil
+		end
 		
 		return row
 	end

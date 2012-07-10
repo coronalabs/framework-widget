@@ -91,6 +91,8 @@ function scene1:createScene( event )
 		top = top,
 		height = 366,
 		renderThresh = 100,
+		noLines = false,
+		
 		--maxVelocity = 5,
 		--maskFile = "assets/mask-320x366.png"
 	}
