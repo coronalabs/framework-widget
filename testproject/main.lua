@@ -42,7 +42,7 @@ system.activate( "multitouch" )
 --require "strict"	-- checks for undeclared globals, etc.
 local widget = require "widgetnew"
 local storyboard = require "storyboard"
-widget.setTheme( "theme_ios" )
+widget.setTheme( "theme_ios", system.DocumentsDirectory )
 
 local sbHeight = display.statusBarHeight
 local tbHeight = 44
@@ -93,7 +93,8 @@ function scene1:createScene( event )
 		renderThresh = 100,
 		noLines = false,
 		--maxVelocity = 5,
-		--maskFile = "assets/mask-320x366.png"
+		maskFile = "mask-320x366.png",
+		baseDir = system.DocumentsDirectory
 	}
 
 	--list.isLocked = true
@@ -284,6 +285,8 @@ function scene2:createScene( event )
 		width = display.contentWidth, height = 366,
 		scrollWidth = 768, scrollHeight = 190,
 		--maskFile = "assets/mask-320x366.png",
+		maskFile = "mask-320x366.png",
+		baseDir = system.DocumentsDirectory,
 		bgColor = {255,255,255,255},
 		scrollBarColor = {255, 0, 128}, --Sets the scrollbar color. If this is ommited or not a table, the scrollbar falls back to it's default color
 		hideScrollBar = true, --Hides the scrollbar when set to true, scrollbar is shown when set to false or omitted.
