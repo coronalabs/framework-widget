@@ -286,6 +286,7 @@ function scene2:createScene( event )
 		--maskFile = "assets/mask-320x366.png",
 		bgColor = {255,255,255,255},
 		scrollBarColor = {255, 0, 128}, --Sets the scrollbar color. If this is ommited or not a table, the scrollbar falls back to it's default color
+		hideScrollBar = true, --Hides the scrollbar when set to true, scrollbar is shown when set to false or omitted.
 		listener = scrollListener
 	}
 	

@@ -1050,7 +1050,8 @@ function widget.newScrollView( options )
 		e.type = "endedScroll"
 		e.target = self.parent
 		if self.listener then self.listener( e ); end
-		if not self.tween then
+		--If the scrollbar isn't hidden
+		if self.hideScrollBar == false then
 			self.parent:hide_scrollbar()
 		end
 	end
@@ -1061,7 +1062,10 @@ function widget.newScrollView( options )
 			if self.listener then
 				dispatchEndedScroll( self )
 			else
-				self.parent:hide_scrollbar()
+				--If the scrollbar isn't hidden
+				if self.hideScrollBar == false then
+					self.parent:hide_scrollbar()
+				end
 			end
 		end
 		
@@ -1070,7 +1074,11 @@ function widget.newScrollView( options )
 			if not self.isFocus then  -- if content is not being touched by user
 				self.tween = transition.to( self, { time=400, y=limit, transition=easing.outQuad, onComplete=endedScroll } )
 			end
-			Runtime:addEventListener( "enterFrame", self.scrollbar_listener )
+			
+			--If the scrollbar isn't hidden			
+			if self.hideScrollBar == false then
+				Runtime:addEventListener( "enterFrame", self.scrollbar_listener )
+			end
 		end
 		local moveProperty = "y"
 		local e = { name="scrollEvent", target=self.parent }
@@ -1170,7 +1178,12 @@ function widget.newScrollView( options )
 
 				-- self.tween is a transition that occurs when content is above or below lower limits
 				-- and calls hide_scrollbar(), so the method does not need to be called here if self.tween exists
-				if not self.tween then self.parent:hide_scrollbar(); end
+				if not self.tween then 
+					--If the scrollbar isn't hidden
+					if self.hideScrollBar == false then
+						self.parent:hide_scrollbar(); 
+					end
+				end
 			else
 				-- update velocity and content location on every framestep
 				local moveProperty = "y"
@@ -1211,7 +1224,10 @@ function widget.newScrollView( options )
 			end
 		end
 
-		self.parent:update_scrollbar()
+		--If the scrollbar isn't hidden
+		if self.hideScrollBar == false then
+			self.parent:update_scrollbar()
+		end
 	end
 	
 	local function onContentTouch( self, event )	-- self == content
@@ -1743,6 +1759,7 @@ function widget.newScrollView( options )
 		scrollView.isVirtualized = isVirtualized
 		scrollView.topPadding = topPadding
 		scrollView.bottomPadding = bottomPadding
+		content.hideScrollBar = options.hideScrollBar or false
 		content.maskWidth = width
 		content.maskHeight = height
 		content.friction = friction
