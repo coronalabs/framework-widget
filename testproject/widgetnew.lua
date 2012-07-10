@@ -926,6 +926,7 @@ function widget.newPickerWheel( options )
 			params.bgColor = columnColor
 			params.friction = pickerFriction
 			params.keepRowsPastTopVisible = true
+			params.hideScrollBar = true
 			
 			-- if last column, ensure width fills remaining space
 			if i == #columns then params.width = width - currentX; end
