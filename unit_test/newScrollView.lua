@@ -62,6 +62,7 @@ function scene:createScene( event )
 		hideScrollBar = true, 							--Test hiding the scrollbar. When set to true, scrollbar is shown when set to false or omitted.
 		listener = scrollListener						--Test setting a listener for the scrollView.
 	}
+	scrollBox.isHitTestMasked = true
 	
 	-- insert image into scrollView widget
 	local bg = display.newImageRect( "assets/scrollimage.jpg", 768, 1024 )

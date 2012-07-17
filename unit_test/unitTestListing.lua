@@ -63,6 +63,19 @@ function scene:createScene( event )
 	    onRelease = gotoSelection
 	}
 	group:insert( newTableViewButton )
+	
+	
+	--NewSlider unit test
+	local newSliderButton = widget.newButton{
+	    id = "newSlider",
+	    left = 60,
+	    top = newTableViewButton.y + 50,
+	    label = "newSlider",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	group:insert( newSliderButton )
 end
 
 function scene:exitScene( event )
