@@ -25,6 +25,10 @@ function scene:createScene( event )
 	--										START OF UNIT TEST													  --
 	----------------------------------------------------------------------------------------------------------------	
 	
+	--Toggle these defines to execute tests
+	local TEST_SET_VALUE = true
+	
+	--Create some text to show the sliders output
 	local sliderResult = display.newEmbossedText( "Slider at 50%", 0, 0, native.systemFontBold, 22 )
 	sliderResult:setTextColor( 0 )
 	sliderResult:setReferencePoint( display.CenterReferencePoint )
@@ -32,15 +36,12 @@ function scene:createScene( event )
 	sliderResult.y = 250
 	group:insert( sliderResult )
 	
-	-- slider listener function
+	--Slider listener function
 	local function sliderListener( event )
-		local string = "Slider at " .. event.value .. "%"
-		sliderResult:setText( string )
-		sliderResult:setReferencePoint( display.CenterReferencePoint )
-		sliderResult.x = 160
-		sliderResult.y = 250
+		sliderResult:setText( "Slider at " .. event.value .. "%" )
 	end
 	
+	--Create the slider
 	local slider = widget.newSlider{
 		top = 300,
 		left = 50,
@@ -48,6 +49,18 @@ function scene:createScene( event )
 	}
 	group:insert( slider )
 	
+	
+	----------------------------------------------------------------------------------------------------------------------------------------
+	--														TESTS																		  --
+	----------------------------------------------------------------------------------------------------------------------------------------
+	
+	--Test setValue()
+	if TEST_SET_VALUE then
+		timer.performWithDelay( 1000, function()
+			slider:setValue( 100 ) -- 100%
+			sliderResult:setText( "Slider at " .. slider.value .. "%" )
+		end, 1 )
+	end
 end
 
 function scene:exitScene( event )
