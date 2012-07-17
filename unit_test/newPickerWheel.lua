@@ -59,9 +59,9 @@ function scene:createScene( event )
 		
 	--Create a Picker Wheel
 	local picker = widget.newPickerWheel{
-		top = display.contentHeight - 222,
-		font = native.systemFontBold,
-		columns = columnData,
+		top = display.contentHeight - 222, 		--Test setting top position.
+		font = native.systemFontBold,			--Test setting a font.
+		columns = columnData,					--Add column data to picker.
 	}
 	group:insert( picker )
 	
