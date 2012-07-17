@@ -25,6 +25,17 @@ function scene:createScene( event )
 	--										START OF UNIT TEST													  --
 	----------------------------------------------------------------------------------------------------------------
 	
+	--[[
+	
+	RECENT CHANGES/THINGS TO REVIEW:
+	
+	1) Picker wheel now soft lands. 
+	
+	How: Scroll the PickerWheel.
+	Expected behavior: When you release your finger/mouse, it should soft land onto the nearest target row.
+
+	--]]
+	
 	--Set up the Picker Wheel's columns
 	local columnData = {}
 	columnData[1] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" }
