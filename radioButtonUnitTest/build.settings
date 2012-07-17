@@ -1,9 +1,0 @@
--- cpmgen build.settingssettings ={	orientation =	{		default ="portrait",		supported =		{			"portrait", "portraitUpsideDown"		},	},	iphone =	{		plist =		{
-			CFBundleIconFile = "Icon.png",
-                        CFBundleIconFiles = {
-                                "Icon.png" , 
-                                "Icon-72.png" 
-                        },
-			UIStatusBarHidden = true,
-			UIPrerenderedIcon="YES",
-		},	},}

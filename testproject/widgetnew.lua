@@ -753,20 +753,39 @@ end
 -----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
+--Function to handle the soft-landing of the picker wheel
+local function pickerSoftLand( self )
+	local target = self.parent
+	
+	local pickerHeight = self.height
+	local pickerSelectionHeight = self.selectionHeight
+								
+	local index = nil
+	if target:getRowAtCoordinate( self.y % pickerSelectionHeight + pickerHeight + (pickerSelectionHeight * 0.5) + pickerSelectionHeight * 2 ) ~= nil then
+		index = target:getRowAtCoordinate( self.y % pickerSelectionHeight + pickerHeight + (pickerSelectionHeight * 0.5) + pickerSelectionHeight * 2 ).index
+	end
+			
+	if index ~= nil then
+		target:scrollToIndex( index, 400 )
+	end
+end
+
 function widget.newPickerWheel( options )
 	-- get selection values of pickerWheel columns (returns table)
 	local function getValues( self )	-- self == pickerWheel
 		local columnValues = {}
 		local columns = self.columns
 		local top = self.y
-		local selectionTop = self.selectionTop
-		local selectionHeight = self.selectionHeight
+		local selectionTop = self.selectionTop or 255
+		local selectionHeight = self.selectionHeight or 46
+		
+		local hasValue = true
 		
 		for i=1,columns.numChildren do
 			local col = columns[i]
 			local realSelectionY = top + selectionTop + (selectionHeight*0.5)
 			local row = col:getRowAtCoordinate( realSelectionY )
-			
+						
 			if row and row.value and row.index then
 				columnValues[i] = {}
 				columnValues[i].value = row.value
@@ -812,13 +831,14 @@ function widget.newPickerWheel( options )
 				view:insert( label )
 			end
 			
+			
 			column:insertRow{
 				onRender = renderRow,
 				width = params.width,
 				height = params.rowHeight or 32,
 				rowColor = params.bgColor or { 255, 255, 255, 255 },
 				lineColor = params.bgColor or { 255, 255, 255, 255 },
-				skipRender = true
+				skipRender = true,
 			}
 		end
 		
@@ -927,6 +947,8 @@ function widget.newPickerWheel( options )
 			params.friction = pickerFriction
 			params.keepRowsPastTopVisible = true
 			params.hideScrollBar = true
+			params.selectionHeight = selectionHeight
+			params.isPicker = true
 			
 			-- if last column, ensure width fills remaining space
 			if i == #columns then params.width = width - currentX; end
@@ -986,11 +1008,11 @@ function widget.newPickerWheel( options )
 		
 		-- properties and methods
 		pickerWheel._isWidget = true
+		pickerWheel._isPicker = true
 		pickerWheel.id = id
 		pickerWheel.columns = columnGroup
 		pickerWheel.getValues = getValues
 		pickerWheel.selectionTop = selectionTop
-		pickerWheel.selectionHeight = selectionHeight
 		pickerWheel.cached_removeSelf = pickerWheel.removeSelf
 		pickerWheel.removeSelf = removeSelf
 		
@@ -1054,6 +1076,11 @@ function widget.newScrollView( options )
 		--If the scrollbar isn't hidden
 		if self.hideScrollBar == false then
 			self.parent:hide_scrollbar()
+		end
+		
+		--Make picker wheel softland
+		if e.target._isPicker then
+			pickerSoftLand( self )
 		end
 	end
 	
@@ -1739,6 +1766,9 @@ function widget.newScrollView( options )
 		local	bottomPadding = options.bottomPadding
 		local 	baseDir = options.baseDir or theme.baseDir or system.ResourceDirectory
 		
+		--Picker
+		local 	isPicker = options.isPicker or nil
+		
 		-- create display groups
 		local scrollView = display.newGroup()	-- display group for widget; will be masked
 		local content = display.newGroup()		-- will contain scrolling content
@@ -1755,6 +1785,7 @@ function widget.newScrollView( options )
 		
 		-- set some scrollView properties (private properties attached to content group)
 		scrollView._isWidget = true
+		scrollView._isPicker = isPicker
 		scrollView.id = id
 		scrollView.widgetWidth = width
 		scrollView.widgetHeight = height
@@ -1762,6 +1793,7 @@ function widget.newScrollView( options )
 		scrollView.topPadding = topPadding
 		scrollView.bottomPadding = bottomPadding
 		content.hideScrollBar = options.hideScrollBar or false
+		content.selectionHeight = options.selectionHeight or nil
 		content.maskWidth = width
 		content.maskHeight = height
 		content.friction = friction
@@ -2817,8 +2849,8 @@ function widget.newTableView( options )
 	local function scrollToY( self, yPosition, timeInMs )		-- self == tableView
 		yPosition = yPosition or 0
 		timeInMs = timeInMs or 1500
-		
-		if yPosition > 0 then
+				
+		if yPosition > 0 and not self._isPicker then
 			print( "WARNING: You must specify a y-value less than zero (negative) when using tableView:scrollToY()." )
 			return
 		end
@@ -2968,6 +3000,10 @@ function widget.newTableView( options )
 		local 	hideScrollBar = options.hideScrollBar or false
 		local 	scrollBarColor = options.scrollBarColor
 		
+		--Picker
+		local 	selectionHeight = options.selectionHeight or nil
+		local 	isPicker = options.isPicker or false
+				
 		-- tableView foundation is a scrollView widget
 		local tableView = widget.newScrollView{
 			id = id,
@@ -2988,10 +3024,12 @@ function widget.newTableView( options )
 			baseDir = baseDir,
 			hideScrollBar = hideScrollBar,
 			scrollBarColor = scrollBarColor,
+			selectionHeight = selectionHeight,
 		}
 		
 		-- properties and methods
 		tableView._isWidget = true
+		tableView._isPicker = isPicker
 		function tableView.rowListener( event ) rowListener( tableView, event ); end
 		tableView.content.rows = {}	-- holds row data
 		tableView.insertRow = insertRow
@@ -3018,136 +3056,6 @@ function widget.newTableView( options )
 	
 	return createTableView( options )
 end
-
-
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- Radio Button widget
---
--- Notes: From iOS apps that apple offer, the radio buttons seem to only respond to tap
--- Events, so that is what I have gone for here.
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
-function widget.newRadioButton( options )
-	local radioButton;
-	local left, top = options.left or 0, options.top or 0;
-	local width, height = options.width or nil, options.height or nil;
-	local radius = options.radius or 20;
-	local isUsingGraphics = true;
-	
-	local function defaultEvents( self, isUsingGraphics )
-		--Toggle the button
-		self.toggle = 1 - self.toggle
-					
-		--If the toggle is 0 (on)
-		if self.toggle == 0 then
-			--Change button state to "On"
-			self.state = "On"
-			
-			--If we are not using graphics then fill the inner button to blue to simulate it being "On"
-			if isUsingGraphics == false then
-				self.defaultOff:setFillColor(0, 0, 255)
-			--If we are using graphics, switch the z order in which they are displayed.
-			else
-				self.on:toFront()
-			end
-		--If the toggle is 1 (Off)
-		else
-			--Change the button state to "Off"
-			self.state = "Off"
-			
-			--If we are not using graphics then fill the inner button back to gray to simulate it being "Off"
-			if isUsingGraphics == false then
-				self.defaultOff:setFillColor(220, 220, 220)
-			--If we are using graphics, switch the z order in which they are displayed.
-			else
-				self:toFront()
-			end
-		end
-	end
-	
-	local function handleRadioButtonTouch( event )
-		local self = event.target
-		
-		--Execute the radio buttons default events
-		defaultEvents( self, isUsingGraphics )
-				
-		--Execute the users onPress function (if any)
-		if self.onTap then
-			self.onTap(self)
-		end
-		
-		return true
-	end
-	
-	--Create the button's "off" image
-	if options.default then
-		--If a width and height is specified use newImageRect
-		if width and height then
-			radioButton = display.newImageRect(options.default, width, height)
-			radioButton.x = left;
-			radioButton.y = top;
-		--If not just use newImage
-		else 
-			radioButton = display.newImage(options.default, left, top)
-		end
-	--If no image is specified create a image using a new circle vector
-	else
-		--Were not using graphics
-		isUsingGraphics = false;
-		
-		radioButton = display.newCircle(radius, radius, radius)
-		radioButton.x = left;
-		radioButton.y = top;
-		
-		--Create the "off" state
-		radioButton.defaultOff = display.newCircle(radius * 0.5, radius * 0.5, radius * 0.5)
-		radioButton.defaultOff:setFillColor(220, 220, 220)
-		radioButton.defaultOff.x = radioButton.x;
-		radioButton.defaultOff.y = radioButton.y;
-	end
-	
-	--Create the buttons "On" image
-	if options.selected then
-		--If a width and height is specified use newImageRect
-		if width and height then
-			radioButton.on = display.newImageRect(options.selected, width, height)
-			radioButton.on.x = left;
-			radioButton.on.y = top;
-		--If not just use newImage
-		else
-			radioButton.on = display.newImage(options.selected, left, top)
-		end	
-		--Push the "off" checkbox image to the front
-		radioButton:toFront()	
-	end
-	
-	radioButton:addEventListener("tap", handleRadioButtonTouch)
-	radioButton.toggle = 1
-	radioButton.state = "Off"
-	radioButton.name = options.name or ""
-	
-	if options.onTap then
-		if type(options.onTap) == "function" then
-			radioButton.onTap = options.onTap
-		else
-			print("ERROR: widget.newCheckBox 'onTap' parameter must be a function")
-		end
-	end
-	
-	--Checkbox get state function (returns the state of a checkBox button)
-	function radioButton:getState()
-		return self.state
-	end
-	
-	function radioButton:getName()
-		return self.name
-	end
-	
-	return radioButton
-end
-
 
 -----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
