@@ -15,6 +15,7 @@ function scene:createScene( event )
 	--Create a title to make the menu visibly clear
 	local title = display.newEmbossedText( "Select a unit test to view", 0, 0, native.systemFont, 20)
 	title.x, title.y = display.contentCenterX, 20
+	group:insert( title )
 	
 	--Go to selected unit test
 	local function gotoSelection( event )
@@ -36,6 +37,19 @@ function scene:createScene( event )
 	    onRelease = gotoSelection
 	}
 	group:insert( newPickerWheelButton )
+	
+	
+	--ScrollView unit test
+	local newScrollViewButton = widget.newButton{
+	    id = "newScrollView",
+	    left = 60,
+	    top = newPickerWheelButton.y + 50,
+	    label = "newScrollView",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	group:insert( newScrollViewButton )
 	
 end
 
