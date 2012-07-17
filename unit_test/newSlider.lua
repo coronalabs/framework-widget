@@ -43,9 +43,9 @@ function scene:createScene( event )
 	
 	--Create the slider
 	local slider = widget.newSlider{
-		top = 300,
-		left = 50,
-		listener = sliderListener
+		top = 300,						--Test setting top position.
+		left = 50,						--Test setting left position.
+		listener = sliderListener		--Test setting event handler.
 	}
 	group:insert( slider )
 	
