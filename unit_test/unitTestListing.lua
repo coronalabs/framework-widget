@@ -76,6 +76,18 @@ function scene:createScene( event )
 	    onRelease = gotoSelection
 	}
 	group:insert( newSliderButton )
+	
+	--NewSlider unit test
+	local newButtonButton = widget.newButton{
+	    id = "newButton",
+	    left = 60,
+	    top = newSliderButton.y + 50,
+	    label = "newButton",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	group:insert( newButtonButton )
 end
 
 function scene:exitScene( event )
