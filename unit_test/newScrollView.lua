@@ -41,6 +41,13 @@ function scene:createScene( event )
 	
 	--]]
 	
+	--Toggle these defines to execute tests
+	local TEST_GET_CONTENT_POSITION = false
+	local TEST_SCROLL_TO_POSITION = false
+	local TEST_SCROLL_TO_TOP = false
+	local TEST_SCROLL_TO_BOTTOM = true
+	local TEST_SCROLL_TO_LEFT = false
+	local TEST_SCROLL_TO_RIGHT = false
 	
 	--Forward reference to scrollView listener
 	local function scrollListener( event )
@@ -49,7 +56,7 @@ function scene:createScene( event )
 	end
 	
 	--Create scrollView
-	local scrollBox = widget.newScrollView{
+	local scrollView = widget.newScrollView{
 		top = 100,										--Test setting top position.
 		left = 10,										--Test setting left position.
 		width = 300, height = 350,						--Test setting width/height.
@@ -62,18 +69,80 @@ function scene:createScene( event )
 		hideScrollBar = true, 							--Test hiding the scrollbar. When set to true, scrollbar is shown when set to false or omitted.
 		listener = scrollListener						--Test setting a listener for the scrollView.
 	}
-	scrollBox.isHitTestMasked = true
+	scrollView.isHitTestMasked = true
 	
 	-- insert image into scrollView widget
 	local bg = display.newImageRect( "assets/scrollimage.jpg", 768, 1024 )
 	bg:setReferencePoint( display.TopLeftReferencePoint )
 	bg.x, bg.y = 0, 0
-	scrollBox:insert( bg )
-
-	--timer.performWithDelay( 1000, function() scrollBox.content.velocity = 0; end, 0 )
+	scrollView:insert( bg )
 	
 	-- don't forget to insert objects into the scene group!
-	group:insert( scrollBox )
+	group:insert( scrollView )
+	
+	----------------------------------------------------------------------------------------------------------------
+	--											TESTS											 	  			  --
+	----------------------------------------------------------------------------------------------------------------
+	
+	--[[
+	local TEST_GET_CONTENT_POSITION = false
+	local TEST_SCROLL_TO_POSITION = false
+	local TEST_SCROLL_TO_TOP = false
+	local TEST_SCROLL_TO_BOTTOM = false
+	local TEST_SCROLL_TO_LEFT = false
+	local TEST_SCROLL_TO_RIGHT = false
+	--]]
+	
+	--Test getContentPosition()
+	if TEST_GET_CONTENT_POSITION then
+		timer.performWithDelay( 2000, function()
+			local x, y = scrollView:getContentPosition()
+			print( "ScrollView content position. ( x = ", x, " y = ", y, ")" ) 
+			x, y = nil
+		end, 1 )
+	end
+	
+	--Test takeFocus
+	
+	--Test scrollToPosition()
+	if TEST_SCROLL_TO_POSITION then
+		timer.performWithDelay( 2000, function()
+			scrollView:scrollToPosition( -100, -600, 800, function() print( "scrollToPosition test completed" ) end )
+		end, 1 )
+	end	
+	
+	--Test scrollToTop()
+	if TEST_SCROLL_TO_TOP then
+		scrollView:scrollToBottom( 0 )
+		
+		timer.performWithDelay( 2000, function()
+			scrollView:scrollToTop( 800, function() print( "scrollToTop test completed" ) end  )
+		end, 1 )
+	end
+	
+	--Test scrollToBottom()
+	if TEST_SCROLL_TO_BOTTOM then
+		timer.performWithDelay( 2000, function()
+			scrollView:scrollToBottom( 800, function() print( "scrollToBottom test completed" ) end  )
+		end, 1 )
+	end
+	
+	--Test scrollToLeft()
+	if TEST_SCROLL_TO_LEFT then
+		scrollView:scrollToRight( 0 )
+		
+		timer.performWithDelay( 2000, function()
+			scrollView:scrollToLeft( 800, function() print( "scrollToLeft test completed" ) end  )
+		end, 1 )
+	end
+	
+	--Test scrollToRight()
+	if TEST_SCROLL_TO_RIGHT then
+		timer.performWithDelay( 2000, function()
+			scrollView:scrollToRight( 800, function() print( "scrollToRight test completed" ) end  )
+		end, 1 )
+	end
+	
 end
 
 function scene:exitScene( event )
