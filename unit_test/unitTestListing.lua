@@ -51,6 +51,18 @@ function scene:createScene( event )
 	}
 	group:insert( newScrollViewButton )
 	
+	
+	--TableView unit test
+	local newTableViewButton = widget.newButton{
+	    id = "newTableView",
+	    left = 60,
+	    top = newScrollViewButton.y + 50,
+	    label = "newTableView",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	group:insert( newTableViewButton )
 end
 
 function scene:exitScene( event )

@@ -50,18 +50,17 @@ function scene:createScene( event )
 	
 	--Create scrollView
 	local scrollBox = widget.newScrollView{
-		top = 100,										--Test setting top position
-		left = 10,										--Test setting left position
-		width = 300, height = 350,						--Test setting width/height
-		scrollWidth = 768, scrollHeight = 1024,			--Test setting scroll width/height
-		maskFile = "assets/scrollViewMask-350.png",		--Test setting a mask file
-		--maskFile = "scrollViewMask-350.png", 			--Test loading mask file from baseDir (Ensure maskFile specified exists in the baseDir specified)
-		--baseDir = system.DocumentsDirectory,			--Test base directory (Ensure maskFile specified above exists in the baseDir specified)
-		bgColor = { 255, 255, 255, 255 }, 				--Test setting a background color
-		hideBackground = true, 			 			 	--Test hiding the background color
+		top = 100,										--Test setting top position.
+		left = 10,										--Test setting left position.
+		width = 300, height = 350,						--Test setting width/height.
+		scrollWidth = 768, scrollHeight = 1024,			--Test setting scroll width/height.
+		maskFile = "assets/scrollViewMask-350.png",		--Test setting a mask.
+		--baseDir = system.DocumentsDirectory,			--Test base directory (Ensure maskFile specified above exists in the baseDir specified).
+		bgColor = { 255, 255, 255, 255 }, 				--Test setting a background color.
+		hideBackground = true, 			 			 	--Test hiding the background color.
 		scrollBarColor = { 255, 0, 128 }, 				--Test setting the scrollbar color. If this is ommited or not a table, the scrollbar falls back to it's default color.
 		hideScrollBar = true, 							--Test hiding the scrollbar. When set to true, scrollbar is shown when set to false or omitted.
-		listener = scrollListener						--Test setting a listener for the scrollView
+		listener = scrollListener						--Test setting a listener for the scrollView.
 	}
 	
 	-- insert image into scrollView widget
