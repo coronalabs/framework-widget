@@ -173,6 +173,15 @@ function widget.embossedText( ... )
 		self.text = newString
 	end
 	
+	-- setSize method
+	function text:setSize ( newSize )
+		local newSize = newSize or size
+		self.highlight.size = newSize
+		self.shadow.size = newSize
+		self.label.size = newSize
+		self.size = newSize
+	end
+	
 	if parentG then parentG:insert( text ) end
 	text.text = string
 	return text

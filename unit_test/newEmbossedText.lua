@@ -32,10 +32,10 @@ function scene:createScene( event )
 	
 	RECENT CHANGES/THINGS TO REVIEW:
 	
-	1) CHANGE/FEATURE NAME. 
+	1) text:setSize( size ). 
 	
-	How: HOW TO TEST CHANGE.
-	Expected behavior: EXPECTED BEHAVIOR OF CHANGE.
+	How: With a new embossed text object ie : myText = widget.newEmbossedText, set myText:setSize( size ) to change the text's size.
+	Expected behavior: Text should change to the new text size.
 
 	--]]
 	
@@ -43,7 +43,7 @@ function scene:createScene( event )
 	local TEST_SET_TEXT = false
 	local TEST_SET_SIZE = true
 	
-	local myText = display.newEmbossedText( "Embossed Text", 0, 0, native.systemFont, 28 )
+	local myText = widget.embossedText( "Embossed Text", 0, 0, native.systemFont, 28 )
 	myText.x, myText.y = display.contentCenterX, display.contentCenterY
 	myText:setTextColor( 0 )
 	
@@ -61,8 +61,8 @@ function scene:createScene( event )
 	--Test set size
 	if TEST_SET_SIZE then
 		testTimer = timer.performWithDelay( 2000, function()
-			myText.size = 40 -- 40px
-			print( "changing size" )
+			myText:setSize( 40 ) -- 40px
+			print( "changing size")
 		end, 1 )
 	end
 	
