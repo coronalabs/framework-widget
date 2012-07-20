@@ -2,6 +2,9 @@ local widget = require( "widgetnew" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
+--Forward reference for test function timer
+local testTimer = nil
+
 function scene:createScene( event )
 	local group = self.view
 	
@@ -25,7 +28,7 @@ function scene:createScene( event )
 	--										START OF UNIT TEST													  --
 	----------------------------------------------------------------------------------------------------------------
 	
-	--Toggle these defines to execute tests
+	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SET_LABEL = true
 	
 	--Handle widget button events
@@ -100,7 +103,7 @@ function scene:createScene( event )
 	
 	--Test setting label
 	if TEST_SET_LABEL then
-		timer.performWithDelay( 2000, function()
+		testTimer = timer.performWithDelay( 2000, function()
 			defaultButton:setLabel( "New Label" ) -- "New Label"
 		end, 1 )		
 	end
@@ -108,6 +111,12 @@ function scene:createScene( event )
 end
 
 function scene:exitScene( event )
+	--Cancel test timer if active
+	if testTimer ~= nil then
+		timer.cancel( testTimer )
+		testTimer = nil
+	end
+	
 	storyboard.purgeAll()
 end
 

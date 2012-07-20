@@ -2,6 +2,9 @@ local widget = require( "widgetnew" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
+--Forward reference for test function timer
+local testTimer = nil
+
 function scene:createScene( event )
 	local group = self.view
 	
@@ -159,34 +162,40 @@ function scene:createScene( event )
 	
 	--Test to scroll list to Y position
 	if TEST_SCROLL_TO_Y then
-		timer.performWithDelay( 1000, function()
+		testTimer = timer.performWithDelay( 1000, function()
 			list:scrollToY( -3755, 6000 ) -- y = -3755
 		end, 1 )
 	end
 	
 	--Test to scroll list to index
 	if TEST_SCROLL_TO_INDEX then
-		timer.performWithDelay( 1000, function()
+		testTimer = timer.performWithDelay( 1000, function()
 			list:scrollToIndex( 68, 6000 )	-- y = -3755
 		end, 1 )
 	end
 	
 	--Test deleting single row
 	if TEST_DELETE_SINGLE_ROW then
-		timer.performWithDelay( 1000, function()			
+		testTimer = timer.performWithDelay( 1000, function()			
 			list:deleteRow( 5 ) --Delete Row 5
 		end, 1 )
 	end
 	
 	--Test delete all rows
 	if TEST_DELETE_ALL_ROWS then
-		timer.performWithDelay( 1000, function()			
+		testTimer = timer.performWithDelay( 1000, function()			
 			list:deleteAllRows() --No rows after execution
 		end, 1 )
 	end
 end
 
 function scene:exitScene( event )
+	--Cancel test timer if active
+	if testTimer ~= nil then
+		timer.cancel( testTimer )
+		testTimer = nil
+	end
+	
 	storyboard.purgeAll()
 end
 

@@ -2,6 +2,9 @@ local widget = require( "widgetnew" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
+--Forward reference for test function timer
+local testTimer = nil
+
 function scene:createScene( event )
 	local group = self.view
 	
@@ -25,7 +28,7 @@ function scene:createScene( event )
 	--										START OF UNIT TEST													  --
 	----------------------------------------------------------------------------------------------------------------	
 	
-	--Toggle these defines to execute tests
+	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SET_VALUE = true
 	
 	--Create some text to show the sliders output
@@ -56,7 +59,7 @@ function scene:createScene( event )
 	
 	--Test setValue()
 	if TEST_SET_VALUE then
-		timer.performWithDelay( 1000, function()
+		testTimer = timer.performWithDelay( 1000, function()
 			slider:setValue( 100 ) -- 100%
 			sliderResult:setText( "Slider at " .. slider.value .. "%" )
 		end, 1 )
@@ -64,6 +67,12 @@ function scene:createScene( event )
 end
 
 function scene:exitScene( event )
+	--Cancel test timer if active
+	if testTimer ~= nil then
+		timer.cancel( testTimer )
+		testTimer = nil
+	end
+	
 	storyboard.purgeAll()
 end
 
