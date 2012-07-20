@@ -100,6 +100,18 @@ function scene:createScene( event )
 	    onRelease = gotoSelection
 	}
 	group:insert( newTabBarButton )
+	
+	--NewEmbossedText unit test
+	local newEmbossedTextButton = widget.newButton{
+	    id = "newEmbossedText",
+	    left = 60,
+	    top = newTabBarButton.y + 35,
+	    label = "newEmbossedText",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	group:insert( newEmbossedTextButton )
 end
 
 function scene:exitScene( event )
