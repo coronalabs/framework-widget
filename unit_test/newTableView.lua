@@ -49,7 +49,7 @@ function scene:createScene( event )
 
 	--]]
 	
-	--Toggle these defines to execute tests
+	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SCROLL_TO_Y = false
 	local TEST_SCROLL_TO_INDEX = false
 	local TEST_DELETE_ALL_ROWS = false
