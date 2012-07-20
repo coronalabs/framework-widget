@@ -1764,7 +1764,7 @@ function widget.newScrollView( options )
 		local	isVirtualized = options.isVirtualized
 		local	topPadding = options.topPadding
 		local	bottomPadding = options.bottomPadding
-		local 	baseDir = options.baseDir or theme.baseDir or system.ResourceDirectory
+		local 	baseDir = options.baseDir or system.ResourceDirectory
 		
 		--Picker
 		local 	isPicker = options.isPicker or nil
