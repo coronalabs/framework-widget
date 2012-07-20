@@ -2,6 +2,9 @@ local widget = require( "widgetnew" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
+--Forward reference for test function timer
+local testTimer = nil
+
 function scene:createScene( event )
 	local group = self.view
 	
@@ -41,11 +44,11 @@ function scene:createScene( event )
 	
 	--]]
 	
-	--Toggle these defines to execute tests
+	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_GET_CONTENT_POSITION = false
 	local TEST_SCROLL_TO_POSITION = false
 	local TEST_SCROLL_TO_TOP = false
-	local TEST_SCROLL_TO_BOTTOM = true
+	local TEST_SCROLL_TO_BOTTOM = false
 	local TEST_SCROLL_TO_LEFT = false
 	local TEST_SCROLL_TO_RIGHT = false
 	
@@ -95,7 +98,7 @@ function scene:createScene( event )
 	
 	--Test getContentPosition()
 	if TEST_GET_CONTENT_POSITION then
-		timer.performWithDelay( 2000, function()
+		testTimer = timer.performWithDelay( 2000, function()
 			local x, y = scrollView:getContentPosition()
 			print( "ScrollView content position. ( x = ", x, " y = ", y, ")" ) 
 			x, y = nil
@@ -106,7 +109,7 @@ function scene:createScene( event )
 	
 	--Test scrollToPosition()
 	if TEST_SCROLL_TO_POSITION then
-		timer.performWithDelay( 2000, function()
+		testTimer = timer.performWithDelay( 2000, function()
 			scrollView:scrollToPosition( -100, -600, 800, function() print( "scrollToPosition test completed" ) end )
 		end, 1 )
 	end	
@@ -115,14 +118,14 @@ function scene:createScene( event )
 	if TEST_SCROLL_TO_TOP then
 		scrollView:scrollToBottom( 0 )
 		
-		timer.performWithDelay( 2000, function()
+		testTimer = timer.performWithDelay( 2000, function()
 			scrollView:scrollToTop( 800, function() print( "scrollToTop test completed" ) end  )
 		end, 1 )
 	end
 	
 	--Test scrollToBottom()
 	if TEST_SCROLL_TO_BOTTOM then
-		timer.performWithDelay( 2000, function()
+		testTimer = timer.performWithDelay( 2000, function()
 			scrollView:scrollToBottom( 800, function() print( "scrollToBottom test completed" ) end  )
 		end, 1 )
 	end
@@ -131,14 +134,14 @@ function scene:createScene( event )
 	if TEST_SCROLL_TO_LEFT then
 		scrollView:scrollToRight( 0 )
 		
-		timer.performWithDelay( 2000, function()
+		testTimer = timer.performWithDelay( 2000, function()
 			scrollView:scrollToLeft( 800, function() print( "scrollToLeft test completed" ) end  )
 		end, 1 )
 	end
 	
 	--Test scrollToRight()
 	if TEST_SCROLL_TO_RIGHT then
-		timer.performWithDelay( 2000, function()
+		testTimer = timer.performWithDelay( 2000, function()
 			scrollView:scrollToRight( 800, function() print( "scrollToRight test completed" ) end  )
 		end, 1 )
 	end
@@ -146,6 +149,12 @@ function scene:createScene( event )
 end
 
 function scene:exitScene( event )
+	--Cancel test timer if active
+	if testTimer ~= nil then
+		timer.cancel( testTimer )
+		testTimer = nil
+	end
+	
 	storyboard.purgeAll()
 end
 

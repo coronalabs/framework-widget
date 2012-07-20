@@ -43,7 +43,7 @@ function scene:createScene( event )
 	local newScrollViewButton = widget.newButton{
 	    id = "newScrollView",
 	    left = 60,
-	    top = newPickerWheelButton.y + 50,
+	    top = newPickerWheelButton.y + 35,
 	    label = "newScrollView",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -56,7 +56,7 @@ function scene:createScene( event )
 	local newTableViewButton = widget.newButton{
 	    id = "newTableView",
 	    left = 60,
-	    top = newScrollViewButton.y + 50,
+	    top = newScrollViewButton.y + 35,
 	    label = "newTableView",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -69,7 +69,7 @@ function scene:createScene( event )
 	local newSliderButton = widget.newButton{
 	    id = "newSlider",
 	    left = 60,
-	    top = newTableViewButton.y + 50,
+	    top = newTableViewButton.y + 35,
 	    label = "newSlider",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -77,17 +77,29 @@ function scene:createScene( event )
 	}
 	group:insert( newSliderButton )
 	
-	--NewSlider unit test
+	--NewButton unit test
 	local newButtonButton = widget.newButton{
 	    id = "newButton",
 	    left = 60,
-	    top = newSliderButton.y + 50,
+	    top = newSliderButton.y + 35,
 	    label = "newButton",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
 	group:insert( newButtonButton )
+	
+	--NewTabBar unit test
+	local newTabBarButton = widget.newButton{
+	    id = "newTabBar",
+	    left = 60,
+	    top = newButtonButton.y + 35,
+	    label = "newTabBar",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	group:insert( newTabBarButton )
 end
 
 function scene:exitScene( event )
