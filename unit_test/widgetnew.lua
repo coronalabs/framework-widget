@@ -1073,6 +1073,7 @@ function widget.newScrollView( options )
 		e.name = "scrollEvent"
 		e.type = "beganScroll"
 		e.target = parent_widget or self.parent
+		self.hasScrolled = false --Used to set whether the scrollview has actually being scrolled or just pressed
 		if self.listener then self.listener( e ); end
 	end
 	
@@ -1087,6 +1088,13 @@ function widget.newScrollView( options )
 			self.parent:hide_scrollbar()
 		end
 		
+		
+	end
+	
+	local function dispatchPickerSoftland( self )
+		local e = {}
+		e.target = self.parent
+		
 		--Make picker wheel softland
 		if e.target._isPicker then
 			pickerSoftLand( self )
@@ -1097,7 +1105,14 @@ function widget.newScrollView( options )
 		local function endedScroll()
 			self.tween = nil
 			if self.listener then
-				dispatchEndedScroll( self )
+				--Dispatch the picker soft land
+				dispatchPickerSoftland( self )
+				
+				--If the scrollview has scrolled then dispatch the ended scroll event ( this will trigger when the content has stopped moving )
+				if self.hasScrolled == true then
+					dispatchEndedScroll( self )
+					self.hasScrolled = false
+				end
 			else
 				--If the scrollbar isn't hidden
 				if self.hideScrollBar == false then
@@ -1209,8 +1224,15 @@ function widget.newScrollView( options )
 				Runtime:removeEventListener( "enterFrame", self )
 				
 				if self.listener then
+					--Dispatch the pickers soft land
+					dispatchPickerSoftland( self )
+					
 					-- dispatch an "endedScroll" event.type to user-specified listener
-					dispatchEndedScroll( self )
+					--If the scrollview has scrolled then dispatch the ended scroll event ( this will trigger when the content has stopped moving )
+					if self.hasScrolled == true then
+						dispatchEndedScroll( self )
+						self.hasScrolled = false
+					end
 				end
 
 				-- self.tween is a transition that occurs when content is above or below lower limits
@@ -1271,8 +1293,10 @@ function widget.newScrollView( options )
 		local scrollView = self.parent
 		local phase = event.phase
 		local time = event.time
+		local hasScrolled = nil
 		
 		if phase == "began" then
+			
 			-- set focus on scrollView content
 			display.getCurrentStage():setFocus( self )
 			self.isFocus = true
@@ -1318,6 +1342,7 @@ function widget.newScrollView( options )
 			Runtime:addEventListener( "enterFrame", self )
 			
 			-- dispatch scroll event
+			
 			if self.listener then
 				local event = event
 				event.name = "scrollEvent"
@@ -1326,6 +1351,7 @@ function widget.newScrollView( options )
 				event.target = scrollView
 				self.listener( event )
 			end
+			
 			
 			-- change lowerLimit if scrollView is "virtualized" (used for tableViews)
 			if scrollView.isVirtualized and scrollView.virtualContentHeight then
@@ -1354,6 +1380,10 @@ function widget.newScrollView( options )
 							else
 								self.moveDirection = "vertical"
 							end
+							
+							--The content has actually started to scroll so dispatch the beganScroll event
+							dispatchBeganScroll( self, scrollView )
+							self.hasScrolled = true
 						end
 					end
 				else
@@ -1400,7 +1430,12 @@ function widget.newScrollView( options )
 					end
 				end
 				
-				-- dispatch scroll event
+				-- dispatch scroll event 
+				
+				--PLEASE REVIEW JON ( I commented out the below block of code )
+				
+				-- # NOTE # - Why is content touch being fired on every move event? It should only be fired on a touch event right? When scolling it shouldn't keep being fired..?
+				--[[
 				if self.listener then
 					local event = event
 					event.name = "scrollEvent"
@@ -1408,6 +1443,7 @@ function widget.newScrollView( options )
 					event.target = scrollView
 					self.listener( event )
 				end
+				--]]
 			
 			elseif phase == "ended" or phase == "cancelled" then
 				
@@ -1424,10 +1460,7 @@ function widget.newScrollView( options )
 					event.target = scrollView
 					self.listener( event )
 				end
-				
-				-- dispatch a "beganScroll" event.type to user-specified listener
-				dispatchBeganScroll( self, scrollView )
-				
+								
 				-- remove focus from tableView's content
 				display.getCurrentStage():setFocus( nil )
 				self.isFocus = nil
