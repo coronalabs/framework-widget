@@ -32,15 +32,25 @@ function scene:createScene( event )
 	
 	RECENT CHANGES/THINGS TO REVIEW:
 	
-	1) Scrollbar can be hidden. 
+	1) Scrollview events sent incorrectly
 	
-	How: Pass < hideScrollBar = true > to widget.newScrollView.
-	Expected behavior: The Scrollbar should be hiden if this flag is set to true, otherwise it should be visible if this flag is set to false or omitted.
+	Fixes case number(s): 15550, 15871
 	
-	2) Scrollbar can be set a custom color.
+	How: Scrollview events were being sent incorrectly, simply tapping the scrollview and releasing would result in: contentTouch, beganScroll and endedScroll to be fired.
+	Expected behavior: Now just tapping the scrollview and releasing should result in only "contentTouch" being fired, "beganScroll" should fired when the content begins to scroll
+	and "endedScroll" should fire when the content has completed stopped scrolling.
 	
-	How: Pass < scrollBarColor = { r, g, b, a } > to widget.newScrollView. 
-	Expected behavior: The Scrollbar's color should represent the passed color, if this flag is omitted or a table isn't passed to it the Scrollbar will fall back to it's default color.
+	
+	
+	2) ContentTouch being fired on every move event.
+	
+	How: Prior to this revison content touch was being fired on every "moved" phase internally. I don't know why it was or if it was just a bug but I have removed this behavior
+	please review widgetnew.lua 1441 > 1448. 
+	Expected behavior: Content touch should only fire on a press or release event.
+	
+	
+	NOTES: Please review all other samples (tableView, scrollView, pickerWheel) to ensure my changes didn't break anything. I found my changes broke the call to my pickerWheel softlanding function
+	so i changed the way it was called and it is working again fine. I just want to be sure these changes didn't break anything. 
 	
 	--]]
 	
@@ -54,7 +64,7 @@ function scene:createScene( event )
 	
 	--Forward reference to scrollView listener
 	local function scrollListener( event )
-		print( event.type )
+		print( "Event type:", event.type )
 		return true
 	end
 	
