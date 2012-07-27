@@ -766,14 +766,21 @@ end
 local function pickerSoftLand( self )
 	local target = self.parent
 	
-	local pickerHeight = self.height
-	local pickerSelectionHeight = self.selectionHeight
-								
+	--Variables that equal the ones used in picker.getValues
+	local height = self.height
+	local selectionHeight = self.selectionHeight
+	local top = target.pickerTop
+	local selectionTop = target.topPadding
+	
+	--Index to scroll to							
 	local index = nil
-	if target:getRowAtCoordinate( self.y % pickerSelectionHeight + pickerHeight + (pickerSelectionHeight * 0.5) + pickerSelectionHeight * 2 ) ~= nil then
-		index = target:getRowAtCoordinate( self.y % pickerSelectionHeight + pickerHeight + (pickerSelectionHeight * 0.5) + pickerSelectionHeight * 2 ).index
+	
+	--Get row using same system at picker.getValues uses
+	if target:getRowAtCoordinate( top + selectionTop + ( selectionHeight * 0.5 ) ) ~= nil then
+		index = target:getRowAtCoordinate( top + selectionTop + ( selectionHeight * 0.5 ) ).index
 	end
-			
+	
+	--If there is an index, scroll to it to give the impression of soft landing
 	if index ~= nil then
 		target:scrollToIndex( index, 400 )
 	end
@@ -788,8 +795,8 @@ function widget.newPickerWheel( options )
 		local selectionTop = self.selectionTop or 255
 		local selectionHeight = self.selectionHeight or 46
 		
-		local hasValue = true
-		
+		--print( selectionTop)
+						
 		for i=1,columns.numChildren do
 			local col = columns[i]
 			local realSelectionY = top + selectionTop + (selectionHeight*0.5)
@@ -956,8 +963,11 @@ function widget.newPickerWheel( options )
 			params.friction = pickerFriction
 			params.keepRowsPastTopVisible = true
 			params.hideScrollBar = true
+			
+			--Used for controlling the pickers softlanding
 			params.selectionHeight = selectionHeight
 			params.isPicker = true
+			params.pickerTop = top
 			
 			-- if last column, ensure width fills remaining space
 			if i == #columns then params.width = width - currentX; end
@@ -1432,10 +1442,11 @@ function widget.newScrollView( options )
 				
 				-- dispatch scroll event 
 				
-				--PLEASE REVIEW JON ( I commented out the below block of code )
+				-- # NOTE # - 
 				
-				-- # NOTE # - Why is content touch being fired on every move event? It should only be fired on a touch event right? When scolling it shouldn't keep being fired..?
 				--[[
+					If we can throttle this a bit the tableviews wouldn't appear to "jerk" when coming to a halt
+				--]]
 				if self.listener then
 					local event = event
 					event.name = "scrollEvent"
@@ -1443,7 +1454,7 @@ function widget.newScrollView( options )
 					event.target = scrollView
 					self.listener( event )
 				end
-				--]]
+				
 			
 			elseif phase == "ended" or phase == "cancelled" then
 				
@@ -1808,8 +1819,9 @@ function widget.newScrollView( options )
 		local	bottomPadding = options.bottomPadding
 		local 	baseDir = options.baseDir or system.ResourceDirectory
 		
-		--Picker
+		--Picker (used in the pickers soft landing function)
 		local 	isPicker = options.isPicker or nil
+		local 	pickerTop = options.pickerTop or nil
 		
 		-- create display groups
 		local scrollView = display.newGroup()	-- display group for widget; will be masked
@@ -1827,7 +1839,10 @@ function widget.newScrollView( options )
 		
 		-- set some scrollView properties (private properties attached to content group)
 		scrollView._isWidget = true
+		--Exposed variables for use with picker softlanding function
 		scrollView._isPicker = isPicker
+		scrollView.pickerTop = pickerTop
+		----------------------------------
 		scrollView.id = id
 		scrollView.widgetWidth = width
 		scrollView.widgetHeight = height
@@ -1835,6 +1850,7 @@ function widget.newScrollView( options )
 		scrollView.topPadding = topPadding
 		scrollView.bottomPadding = bottomPadding
 		content.hideScrollBar = options.hideScrollBar or false
+		--Exposed for use with picker softlanding function
 		content.selectionHeight = options.selectionHeight or nil
 		content.maskWidth = width
 		content.maskHeight = height
@@ -3042,9 +3058,10 @@ function widget.newTableView( options )
 		local 	hideScrollBar = options.hideScrollBar or false
 		local 	scrollBarColor = options.scrollBarColor
 		
-		--Picker
+		--Picker - Variables used by the picker soft landing function
 		local 	selectionHeight = options.selectionHeight or nil
 		local 	isPicker = options.isPicker or false
+		local 	pickerTop = options.pickerTop or nil
 				
 		-- tableView foundation is a scrollView widget
 		local tableView = widget.newScrollView{
@@ -3071,7 +3088,10 @@ function widget.newTableView( options )
 		
 		-- properties and methods
 		tableView._isWidget = true
+		--Variables exposed for picker soft landing function
 		tableView._isPicker = isPicker
+		tableView.pickerTop = pickerTop
+		-------------------------------------
 		function tableView.rowListener( event ) rowListener( tableView, event ); end
 		tableView.content.rows = {}	-- holds row data
 		tableView.insertRow = insertRow
