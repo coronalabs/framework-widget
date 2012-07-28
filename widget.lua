@@ -766,14 +766,21 @@ end
 local function pickerSoftLand( self )
 	local target = self.parent
 	
-	local pickerHeight = self.height
-	local pickerSelectionHeight = self.selectionHeight
-								
+	--Variables that equal the ones used in picker.getValues
+	local height = self.height
+	local selectionHeight = self.selectionHeight
+	local top = target.pickerTop
+	local selectionTop = target.topPadding
+	
+	--Index to scroll to							
 	local index = nil
-	if target:getRowAtCoordinate( self.y % pickerSelectionHeight + pickerHeight + (pickerSelectionHeight * 0.5) + pickerSelectionHeight * 2 ) ~= nil then
-		index = target:getRowAtCoordinate( self.y % pickerSelectionHeight + pickerHeight + (pickerSelectionHeight * 0.5) + pickerSelectionHeight * 2 ).index
+	
+	--Get row using same system at picker.getValues uses
+	if target:getRowAtCoordinate( top + selectionTop + ( selectionHeight * 0.5 ) ) ~= nil then
+		index = target:getRowAtCoordinate( top + selectionTop + ( selectionHeight * 0.5 ) ).index
 	end
-			
+	
+	--If there is an index, scroll to it to give the impression of soft landing
 	if index ~= nil then
 		target:scrollToIndex( index, 400 )
 	end
@@ -788,8 +795,8 @@ function widget.newPickerWheel( options )
 		local selectionTop = self.selectionTop or 255
 		local selectionHeight = self.selectionHeight or 46
 		
-		local hasValue = true
-		
+		--print( selectionTop)
+						
 		for i=1,columns.numChildren do
 			local col = columns[i]
 			local realSelectionY = top + selectionTop + (selectionHeight*0.5)
@@ -956,8 +963,11 @@ function widget.newPickerWheel( options )
 			params.friction = pickerFriction
 			params.keepRowsPastTopVisible = true
 			params.hideScrollBar = true
+			
+			--Used for controlling the pickers softlanding
 			params.selectionHeight = selectionHeight
 			params.isPicker = true
+			params.pickerTop = top
 			
 			-- if last column, ensure width fills remaining space
 			if i == #columns then params.width = width - currentX; end
@@ -1073,6 +1083,7 @@ function widget.newScrollView( options )
 		e.name = "scrollEvent"
 		e.type = "beganScroll"
 		e.target = parent_widget or self.parent
+		self.hasScrolled = false --Used to set whether the scrollview has actually being scrolled or just pressed
 		if self.listener then self.listener( e ); end
 	end
 	
@@ -1087,6 +1098,13 @@ function widget.newScrollView( options )
 			self.parent:hide_scrollbar()
 		end
 		
+		
+	end
+	
+	local function dispatchPickerSoftland( self )
+		local e = {}
+		e.target = self.parent
+		
 		--Make picker wheel softland
 		if e.target._isPicker then
 			pickerSoftLand( self )
@@ -1097,7 +1115,14 @@ function widget.newScrollView( options )
 		local function endedScroll()
 			self.tween = nil
 			if self.listener then
-				dispatchEndedScroll( self )
+				--Dispatch the picker soft land
+				dispatchPickerSoftland( self )
+				
+				--If the scrollview has scrolled then dispatch the ended scroll event ( this will trigger when the content has stopped moving )
+				if self.hasScrolled == true then
+					dispatchEndedScroll( self )
+					self.hasScrolled = false
+				end
 			else
 				--If the scrollbar isn't hidden
 				if self.hideScrollBar == false then
@@ -1209,8 +1234,15 @@ function widget.newScrollView( options )
 				Runtime:removeEventListener( "enterFrame", self )
 				
 				if self.listener then
+					--Dispatch the pickers soft land
+					dispatchPickerSoftland( self )
+					
 					-- dispatch an "endedScroll" event.type to user-specified listener
-					dispatchEndedScroll( self )
+					--If the scrollview has scrolled then dispatch the ended scroll event ( this will trigger when the content has stopped moving )
+					if self.hasScrolled == true then
+						dispatchEndedScroll( self )
+						self.hasScrolled = false
+					end
 				end
 
 				-- self.tween is a transition that occurs when content is above or below lower limits
@@ -1271,8 +1303,10 @@ function widget.newScrollView( options )
 		local scrollView = self.parent
 		local phase = event.phase
 		local time = event.time
+		local hasScrolled = nil
 		
 		if phase == "began" then
+			
 			-- set focus on scrollView content
 			display.getCurrentStage():setFocus( self )
 			self.isFocus = true
@@ -1318,6 +1352,7 @@ function widget.newScrollView( options )
 			Runtime:addEventListener( "enterFrame", self )
 			
 			-- dispatch scroll event
+			
 			if self.listener then
 				local event = event
 				event.name = "scrollEvent"
@@ -1326,6 +1361,7 @@ function widget.newScrollView( options )
 				event.target = scrollView
 				self.listener( event )
 			end
+			
 			
 			-- change lowerLimit if scrollView is "virtualized" (used for tableViews)
 			if scrollView.isVirtualized and scrollView.virtualContentHeight then
@@ -1354,6 +1390,10 @@ function widget.newScrollView( options )
 							else
 								self.moveDirection = "vertical"
 							end
+							
+							--The content has actually started to scroll so dispatch the beganScroll event
+							dispatchBeganScroll( self, scrollView )
+							self.hasScrolled = true
 						end
 					end
 				else
@@ -1400,7 +1440,13 @@ function widget.newScrollView( options )
 					end
 				end
 				
-				-- dispatch scroll event
+				-- dispatch scroll event 
+				
+				-- # NOTE # - 
+				
+				--[[
+					If we can throttle this a bit the tableviews wouldn't appear to "jerk" when coming to a halt
+				--]]
 				if self.listener then
 					local event = event
 					event.name = "scrollEvent"
@@ -1408,6 +1454,7 @@ function widget.newScrollView( options )
 					event.target = scrollView
 					self.listener( event )
 				end
+				
 			
 			elseif phase == "ended" or phase == "cancelled" then
 				
@@ -1424,10 +1471,7 @@ function widget.newScrollView( options )
 					event.target = scrollView
 					self.listener( event )
 				end
-				
-				-- dispatch a "beganScroll" event.type to user-specified listener
-				dispatchBeganScroll( self, scrollView )
-				
+								
 				-- remove focus from tableView's content
 				display.getCurrentStage():setFocus( nil )
 				self.isFocus = nil
@@ -1775,8 +1819,9 @@ function widget.newScrollView( options )
 		local	bottomPadding = options.bottomPadding
 		local 	baseDir = options.baseDir or system.ResourceDirectory
 		
-		--Picker
+		--Picker (used in the pickers soft landing function)
 		local 	isPicker = options.isPicker or nil
+		local 	pickerTop = options.pickerTop or nil
 		
 		-- create display groups
 		local scrollView = display.newGroup()	-- display group for widget; will be masked
@@ -1794,7 +1839,10 @@ function widget.newScrollView( options )
 		
 		-- set some scrollView properties (private properties attached to content group)
 		scrollView._isWidget = true
+		--Exposed variables for use with picker softlanding function
 		scrollView._isPicker = isPicker
+		scrollView.pickerTop = pickerTop
+		----------------------------------
 		scrollView.id = id
 		scrollView.widgetWidth = width
 		scrollView.widgetHeight = height
@@ -1802,6 +1850,7 @@ function widget.newScrollView( options )
 		scrollView.topPadding = topPadding
 		scrollView.bottomPadding = bottomPadding
 		content.hideScrollBar = options.hideScrollBar or false
+		--Exposed for use with picker softlanding function
 		content.selectionHeight = options.selectionHeight or nil
 		content.maskWidth = width
 		content.maskHeight = height
@@ -3009,9 +3058,10 @@ function widget.newTableView( options )
 		local 	hideScrollBar = options.hideScrollBar or false
 		local 	scrollBarColor = options.scrollBarColor
 		
-		--Picker
+		--Picker - Variables used by the picker soft landing function
 		local 	selectionHeight = options.selectionHeight or nil
 		local 	isPicker = options.isPicker or false
+		local 	pickerTop = options.pickerTop or nil
 				
 		-- tableView foundation is a scrollView widget
 		local tableView = widget.newScrollView{
@@ -3038,7 +3088,10 @@ function widget.newTableView( options )
 		
 		-- properties and methods
 		tableView._isWidget = true
+		--Variables exposed for picker soft landing function
 		tableView._isPicker = isPicker
+		tableView.pickerTop = pickerTop
+		-------------------------------------
 		function tableView.rowListener( event ) rowListener( tableView, event ); end
 		tableView.content.rows = {}	-- holds row data
 		tableView.insertRow = insertRow
