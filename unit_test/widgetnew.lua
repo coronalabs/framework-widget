@@ -769,7 +769,7 @@ local function pickerSoftLand( self )
 	--Variables that equal the ones used in picker.getValues
 	local height = self.height
 	local selectionHeight = self.selectionHeight
-	local top = target.pickerTop
+	local top = self.parent.parent.parent.y --Get the actual pickers groups y position to use as the top position
 	local selectionTop = target.topPadding
 	
 	--Index to scroll to							
