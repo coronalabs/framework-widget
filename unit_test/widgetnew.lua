@@ -2653,6 +2653,27 @@ function widget.newTableView( options )
 		end
 	end
 	
+	--Function to invoke the users tableView listener if specified
+	local function invokeUserListener( self, event ) --Self == tableView
+		if self.userListener and type( self.userListener ) == "function" then
+			if event.type == "beganScroll" then
+				if self.hasScrolled == false then
+					self.userListener( event )
+					self.hasScrolled = true
+				end
+			elseif event.type == "endedScroll" then
+				if self.hasScrolled == true then
+					self.userListener( event )
+					
+					self.hasScrolled = false
+				end
+			else
+				self.userListener( event )
+			end
+		end
+	end
+	
+	
 	-- listens to scrollView events for tableView
 	local function scrollListener( event )
 		local tableView = event.target
@@ -2688,6 +2709,10 @@ function widget.newTableView( options )
 				content.trackRowSelection = true
 				
 			elseif event.phase == "moved" then
+			
+				--Dispatch contentTouch event
+				event.type = "contentTouch"
+				invokeUserListener( tableView, event )
 				
 				-- tableView content is being dragged
 				local canDrag = content.canDrag
@@ -2792,6 +2817,9 @@ function widget.newTableView( options )
 			end
 		
 		elseif eType == "movingToTopLimit" or eType == "movingToBottomLimit" then
+			--Dispatch moving to top/bottom limit event
+			invokeUserListener( tableView, event )
+				
 			-- prevents categories from getting 'stuck' in the wrong position
 			if content.category and content.category.y ~= 0 then content.category.y = 0; end
 			moveRowsWithTween( tableView )
@@ -2824,9 +2852,17 @@ function widget.newTableView( options )
 		if velocity < -self.maxVelocity then self.content.velocity = -self.maxVelocity; end
 		if velocity > self.maxVelocity then self.content.velocity = self.maxVelocity; end
 		
+		--Dispatch began scroll event
+		event.type = "beganScroll"
+		invokeUserListener( self, event )
+		
 		local isTrackingVelocity = self.content.trackVelocity
 		if not isTrackingVelocity then
 			if self.content.velocity == 0 then
+				--Dispatch endedScroll event
+				event.type = "endedScroll"
+				invokeUserListener( self, event )
+				
 				Runtime:removeEventListener( "enterFrame", self.rowListener )
 			end
 			-- prevents categories from getting 'stuck' in the wrong position
@@ -3057,6 +3093,7 @@ function widget.newTableView( options )
 		local 	baseDir = options.baseDir or system.ResourceDirectory
 		local 	hideScrollBar = options.hideScrollBar or false
 		local 	scrollBarColor = options.scrollBarColor
+		local 	userListener = options.listener or nil
 		
 		--Picker - Variables used by the picker soft landing function
 		local 	selectionHeight = options.selectionHeight or nil
@@ -3085,6 +3122,8 @@ function widget.newTableView( options )
 			scrollBarColor = scrollBarColor,
 			selectionHeight = selectionHeight,
 		}
+		tableView.userListener = userListener;
+		tableView.hasScrolled = false
 		
 		-- properties and methods
 		tableView._isWidget = true
@@ -3124,3 +3163,4 @@ end
 
 return widget
 
+	
