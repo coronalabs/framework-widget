@@ -56,6 +56,11 @@ function scene:createScene( event )
 	local TEST_DELETE_SINGLE_ROW = false
 	local TEST_LOCKING_LIST = false
 	
+	local function tableViewListener( event ) 
+		--print( event.phase )
+		print( event.type )
+	end
+	
 	--Create Table view
 	local list = widget.newTableView{
 		top = 100,									--Test setting top position.
@@ -68,6 +73,7 @@ function scene:createScene( event )
 		hideBackground = true, 			 			--Test hiding the background color.
 		scrollBarColor = { 255, 0, 128 }, 			--Test setting the scrollbar color. If this is ommited or not a table, the scrollbar falls back to it's default color.
 		hideScrollBar = true, 						--Test hiding the scrollbar. When set to true, scrollbar is shown when set to false or omitted.
+		listener = tableViewListener,
 	}
 
 	--Handle row rendering
