@@ -65,7 +65,7 @@ function scene:createScene( event )
 	local list = widget.newTableView{
 		top = 100,									--Test setting top position.
 		width = 320, height = 366,					--Test setting width/height.
-		renderThresh = 100,							--Test setting render thresh hold.
+		--renderThresh = 100,							--Test setting render thresh hold.
 		noLines = true,								--Test setting noLines between rows.
 		--maxVelocity = 5,							--Test setting maxVelocity.
 		maskFile = "assets/mask-320x366.png",		--Test setting a mask.

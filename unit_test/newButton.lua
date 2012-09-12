@@ -9,7 +9,7 @@ function scene:createScene( event )
 	local group = self.view
 	
 	--Display an iOS style background
-	local background = display.newImage( "assets/background.png" )
+	local background = display.newImageRect( "assets/background.png", 640, 960 )
 	group:insert( background )
 	
 	--Button to return to unit test listing
