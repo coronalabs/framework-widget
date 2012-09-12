@@ -1083,7 +1083,7 @@ function widget.newScrollView( options )
 		e.name = "scrollEvent"
 		e.type = "beganScroll"
 		e.target = parent_widget or self.parent
-		self.hasScrolled = false --Used to set whether the scrollview has actually being scrolled or just pressed
+		self.hasScrolled = true --Used to set whether the scrollview has actually being scrolled or just pressed
 		if self.listener then self.listener( e ); end
 	end
 	
@@ -1303,13 +1303,21 @@ function widget.newScrollView( options )
 		local scrollView = self.parent
 		local phase = event.phase
 		local time = event.time
-		local hasScrolled = nil
+		
+		--Allow the user to stop the scrolling via touch/tap without firing touch events to the content
+		if phase == "began" and self.hasScrolled == true then
+			event.phase = "cancelled"
+			self.velocity = 0
+			return
+		end
 		
 		if phase == "began" then
 			
 			-- set focus on scrollView content
 			display.getCurrentStage():setFocus( self )
 			self.isFocus = true
+			
+			print( self.hasScrolled) 
 			
 			-- remove listener for auto-movement based on velocity
 			Runtime:removeEventListener( "enterFrame", self )
@@ -1376,6 +1384,7 @@ function widget.newScrollView( options )
 			
 				-- ensure content isn't trying to move while user is dragging content
 				if self.tween then transition.cancel( self.tween ); self.tween = nil; end
+				print( "moved", self.hasScrolled) 
 				
 				-- determine if user is attempting to move content left/right or up/down
 				if not self.moveDirection then
@@ -1453,6 +1462,7 @@ function widget.newScrollView( options )
 					event.type = "contentTouch"
 					event.target = scrollView
 					self.listener( event )
+					print( "yup" )
 				end
 				
 			
@@ -1858,6 +1868,7 @@ function widget.newScrollView( options )
 		content.enterFrame = onScrollViewUpdate	-- enterFrame listener function
 		content.touch = onContentTouch; content:addEventListener( "touch", content )
 		content.listener = listener
+		content.hasScrolled = false
 		
 		-- scrollView methods
 		scrollView.getContentPosition = getContentPosition
@@ -2656,20 +2667,7 @@ function widget.newTableView( options )
 	--Function to invoke the users tableView listener if specified
 	local function invokeUserListener( self, event ) --Self == tableView
 		if self.userListener and type( self.userListener ) == "function" then
-			if event.type == "beganScroll" then
-				if self.hasScrolled == false then
-					self.userListener( event )
-					self.hasScrolled = true
-				end
-			elseif event.type == "endedScroll" then
-				if self.hasScrolled == true then
-					self.userListener( event )
-					
-					self.hasScrolled = false
-				end
-			else
-				self.userListener( event )
-			end
+			self.userListener( event )
 		end
 	end
 	
@@ -2686,14 +2684,38 @@ function widget.newTableView( options )
 			self.rowTimer = timer.performWithDelay( 1, updateRows, 400 )
 		end
 		
+		
 		if eType == "contentTouch" then
+					
 			local tapThresh = 3		-- used to determine if touch was a "drag" or a quick tap
 			local moveThresh = 10	-- do not allow swipes once user drags up/down past this amount
 			local swipeThresh = 12	-- if finger moves left/right this amount, trigger swipe event
 			
 			if event.phase == "press" then
 				
-				-- tableView content has been touched
+				-- tableView content has been touched	
+				
+				--Allow the user to stop the tableView scrolling by touching/tapping the tableView whilst it's scrolling, without dispatching a tap/touch event for a row
+				if tableView.hasScrolled == true and tableView.eventType ~= "contentTouch" then
+					event.phase = "cancelled"
+					event.type = "endedScroll"
+					
+					invokeUserListener( tableView, event )		
+					local row = tableView.currentSelectedRow
+						
+					if row then
+						row.isTouched = false
+						row = nil
+						tableView.currentSelectedRow = nil
+						renderVisibleRows( tableView )
+						content.velocity = 0
+						content.trackRowSelection = false
+					end
+					
+					tableView.hasScrolled = false
+					return
+				end
+				
 				
 				if tableView.rowTimer then timer.cancel( tableView.rowTimer ); tableView.rowTimer = nil; end;
 				Runtime:removeEventListener( "enterFrame", tableView.rowListener )
@@ -2712,7 +2734,6 @@ function widget.newTableView( options )
 			
 				--Dispatch contentTouch event
 				event.type = "contentTouch"
-				invokeUserListener( tableView, event )
 				
 				-- tableView content is being dragged
 				local canDrag = content.canDrag
@@ -2851,17 +2872,25 @@ function widget.newTableView( options )
 		local velocity = self.content.velocity
 		if velocity < -self.maxVelocity then self.content.velocity = -self.maxVelocity; end
 		if velocity > self.maxVelocity then self.content.velocity = self.maxVelocity; end
-		
+				
 		--Dispatch began scroll event
-		event.type = "beganScroll"
-		invokeUserListener( self, event )
-		
+		if velocity > 0 or velocity < 0 then
+			if self.hasScrolled == false then
+				event.type = "beganScroll"
+				invokeUserListener( self, event )
+				self.hasScrolled = true
+			end
+		end
+
 		local isTrackingVelocity = self.content.trackVelocity
 		if not isTrackingVelocity then
 			if self.content.velocity == 0 then
 				--Dispatch endedScroll event
-				event.type = "endedScroll"
-				invokeUserListener( self, event )
+				if self.hasScrolled == true then
+					event.type = "endedScroll"
+					invokeUserListener( self, event )
+					self.hasScrolled = false
+				end
 				
 				Runtime:removeEventListener( "enterFrame", self.rowListener )
 			end
@@ -3124,6 +3153,7 @@ function widget.newTableView( options )
 		}
 		tableView.userListener = userListener;
 		tableView.hasScrolled = false
+		tableView.eventType = nil
 		
 		-- properties and methods
 		tableView._isWidget = true
@@ -3163,4 +3193,3 @@ end
 
 return widget
 
-	
