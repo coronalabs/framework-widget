@@ -794,9 +794,7 @@ function widget.newPickerWheel( options )
 		local top = self.y
 		local selectionTop = self.selectionTop or 255
 		local selectionHeight = self.selectionHeight or 46
-		
-		--print( selectionTop)
-						
+								
 		for i=1,columns.numChildren do
 			local col = columns[i]
 			local realSelectionY = top + selectionTop + (selectionHeight*0.5)
@@ -1316,9 +1314,7 @@ function widget.newScrollView( options )
 			-- set focus on scrollView content
 			display.getCurrentStage():setFocus( self )
 			self.isFocus = true
-			
-			print( self.hasScrolled) 
-			
+						
 			-- remove listener for auto-movement based on velocity
 			Runtime:removeEventListener( "enterFrame", self )
 
@@ -1384,7 +1380,6 @@ function widget.newScrollView( options )
 			
 				-- ensure content isn't trying to move while user is dragging content
 				if self.tween then transition.cancel( self.tween ); self.tween = nil; end
-				print( "moved", self.hasScrolled) 
 				
 				-- determine if user is attempting to move content left/right or up/down
 				if not self.moveDirection then
@@ -1462,7 +1457,6 @@ function widget.newScrollView( options )
 					event.type = "contentTouch"
 					event.target = scrollView
 					self.listener( event )
-					print( "yup" )
 				end
 				
 			
