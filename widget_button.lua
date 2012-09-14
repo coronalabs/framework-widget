@@ -90,6 +90,12 @@ local function setLabel( self, newLabel )   -- self == button
     self.label.y = (self.contentHeight*0.5) + self.label.yOffset
 end
 
+local function setLabelSize( self, newSize )
+	if not newSize then return; end
+	
+	self.label.size = newSize / display.contentScaleX
+end
+
 local function getLabel( self )
     return self.label.text
 end
@@ -272,6 +278,7 @@ function m.createButton( options, theme )
     button.removeSelf = removeSelf
     button.setLabel = setLabel
     button.getLabel = getLabel
+    button.setLabelSize = setLabelSize
     
     -- position the button
     button:setReferencePoint( display.TopLeftReferencePoint )

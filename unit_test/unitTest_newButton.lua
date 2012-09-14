@@ -29,7 +29,7 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_SET_LABEL = true
+	local TEST_SET_LABEL = false
 	
 	--Handle widget button events
 	local onButtonEvent = function (event )
@@ -37,6 +37,8 @@ function scene:createScene( event )
 		local target = event.target
 		
 		if phase == "press" then
+			--event.target.label.size = 18 
+			event.target:setLabelSize( 18 )
 			print( target.id .. " pressed" )
     	elseif phase == "release" then
         	print( target.id .. " released" )
