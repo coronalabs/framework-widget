@@ -46,6 +46,7 @@ function scene:createScene( event )
 	local myText = widget.embossedText( "Embossed Text", 0, 0, native.systemFont, 28 )
 	myText.x, myText.y = display.contentCenterX, display.contentCenterY
 	myText:setTextColor( 0 )
+	group:insert( myText )
 	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --
