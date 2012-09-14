@@ -241,9 +241,7 @@ local function onContentTouch( self, event )    -- self == content
         -- set focus on scrollView content
         display.getCurrentStage():setFocus( self )
         self.isFocus = true
-        
-        print( self.hasScrolled) 
-        
+                
         -- remove listener for auto-movement based on velocity
         Runtime:removeEventListener( "enterFrame", self )
 
@@ -309,7 +307,6 @@ local function onContentTouch( self, event )    -- self == content
         
             -- ensure content isn't trying to move while user is dragging content
             if self.tween then transition.cancel( self.tween ); self.tween = nil; end
-            print( "moved", self.hasScrolled) 
             
             -- determine if user is attempting to move content left/right or up/down
             if not self.moveDirection then
@@ -387,7 +384,6 @@ local function onContentTouch( self, event )    -- self == content
                 event.type = "contentTouch"
                 event.target = scrollView
                 self.listener( event )
-                print( "yup" )
             end
             
         

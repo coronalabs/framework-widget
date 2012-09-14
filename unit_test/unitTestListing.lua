@@ -28,7 +28,7 @@ function scene:createScene( event )
 
 	--Picker Wheel unit test
 	local newPickerWheelButton = widget.newButton{
-	    id = "newPickerWheel",
+	    id = "unitTest_newPickerWheel",
 	    left = 60,
 	    top = 50,
 	    label = "newPickerWheel",
@@ -41,7 +41,7 @@ function scene:createScene( event )
 	
 	--ScrollView unit test
 	local newScrollViewButton = widget.newButton{
-	    id = "newScrollView",
+	    id = "unitTest_newScrollView",
 	    left = 60,
 	    top = newPickerWheelButton.y + 35,
 	    label = "newScrollView",
@@ -54,7 +54,7 @@ function scene:createScene( event )
 	
 	--TableView unit test
 	local newTableViewButton = widget.newButton{
-	    id = "newTableView",
+	    id = "unitTest_newTableView",
 	    left = 60,
 	    top = newScrollViewButton.y + 35,
 	    label = "newTableView",
@@ -67,7 +67,7 @@ function scene:createScene( event )
 	
 	--NewSlider unit test
 	local newSliderButton = widget.newButton{
-	    id = "newSlider",
+	    id = "unitTest_newSlider",
 	    left = 60,
 	    top = newTableViewButton.y + 35,
 	    label = "newSlider",
@@ -79,7 +79,7 @@ function scene:createScene( event )
 	
 	--NewButton unit test
 	local newButtonButton = widget.newButton{
-	    id = "newButton",
+	    id = "unitTest_newButton",
 	    left = 60,
 	    top = newSliderButton.y + 35,
 	    label = "newButton",
@@ -91,7 +91,7 @@ function scene:createScene( event )
 	
 	--NewTabBar unit test
 	local newTabBarButton = widget.newButton{
-	    id = "newTabBar",
+	    id = "unitTest_newTabBar",
 	    left = 60,
 	    top = newButtonButton.y + 35,
 	    label = "newTabBar",
@@ -103,7 +103,7 @@ function scene:createScene( event )
 	
 	--NewEmbossedText unit test
 	local newEmbossedTextButton = widget.newButton{
-	    id = "newEmbossedText",
+	    id = "unitTest_newEmbossedText",
 	    left = 60,
 	    top = newTabBarButton.y + 35,
 	    label = "newEmbossedText",
