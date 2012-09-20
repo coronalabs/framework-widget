@@ -656,6 +656,9 @@ local function scrollToY( self, yPosition, timeInMs )       -- self == tableView
         return
     end
 
+    -- take into account the tableview's topPadding setting
+    yPosition = yPosition + self.topPadding
+
     local content = self.content
     
     -- called once content is in desired location
@@ -685,8 +688,7 @@ end
 local function scrollToIndex( self, rowIndex, timeInMs )    -- self == tableView
     local content = self.content
     local rows = content.rows
-    local padding = self.topPadding or 0
-    local yPosition = -(rows[rowIndex].topOffset) + padding
+    local yPosition = -(rows[rowIndex].topOffset)
     
     if yPosition then
         if timeInMs then
