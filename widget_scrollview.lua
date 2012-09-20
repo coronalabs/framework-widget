@@ -231,7 +231,7 @@ local function onContentTouch( self, event )    -- self == content
     
     --Allow the user to stop the scrolling via touch/tap without firing touch events to the content
     if phase == "began" and self.hasScrolled == true then
-        event.phase = "cancelled"
+        self.hasScrolled = false
         self.velocity = 0
         return
     end
