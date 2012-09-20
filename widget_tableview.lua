@@ -1,3 +1,9 @@
+--[[
+
+TableView momentum scrolling logic handled by scrollview widget.
+
+--]]
+
 local m = {}
 local mAbs = math.abs
 local mFloor = math.floor
