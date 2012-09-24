@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- Copyright (C) 2012 ANSCA Inc. All Rights Reserved.
+-- Copyright (C) 2012 Corona Inc. All Rights Reserved.
 --
 --****************************************************************************************
 
