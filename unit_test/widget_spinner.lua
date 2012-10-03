@@ -80,7 +80,13 @@ function M.new( options, themeOptions )
 	local height = options.height or nil
 	
 	-- The spinner object is a group
-	local spinner = require( "widget_constructor" ).new( options )
+	local spinner = require( "widget_constructor" ).new
+	{
+		left = left,
+		top = top,
+		id = options.id or "widget_spinner",
+		baseDirectory = options.baseDir,
+	}
 	
 	-- The actual spinner object
 	local spinnerObject 
