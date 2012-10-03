@@ -1,3 +1,23 @@
+--[[
+
+ScrollView momentum scrolling logic:
+
+User touches the scrollview content:
+    onContentTouch() is invoked
+    began phase: enterFrame listener that handle tracking velocity are removed,
+                 and then added immediately after.
+    moved phase: determine which direction user is scrolling
+    ended phase: determine the distance and the time it took for user's finger
+                 to travel (used for calculating velocity)
+    
+    enterFrame listener (onScrollViewUpdate):
+        velocity is subtracted on every frame, until it reaches 0.
+        content position is updated based on velocity.
+        Upon reaching 0, the enterFrame listener is removed and content stops.
+
+--]]
+
+
 local m = {}
 local mAbs = math.abs
 local mFloor = math.floor
@@ -228,13 +248,6 @@ local function onContentTouch( self, event )    -- self == content
     local scrollView = self.parent
     local phase = event.phase
     local time = event.time
-    
-    --Allow the user to stop the scrolling via touch/tap without firing touch events to the content
-    if phase == "began" and self.hasScrolled == true then
-        event.phase = "cancelled"
-        self.velocity = 0
-        return
-    end
     
     if phase == "began" then
         
