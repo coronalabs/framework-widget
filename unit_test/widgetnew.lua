@@ -6,7 +6,7 @@
 --
 -- File: widget.lua
 --
--- Copyright (C) 2012 Corona Inc. All Rights Reserved.
+-- Copyright (C) 2012 Corona Labs Inc. All Rights Reserved.
 --
 --****************************************************************************************
 
@@ -14,10 +14,6 @@ local modname = ...
 local widget = {}
 package.loaded[modname] = widget
 widget.version = "0.8"
-
--- cached locals
-local mAbs = math.abs
-local mFloor = math.floor
 
 -- modify factory function to ensure widgets are properly cleaned on group removal
 local cached_displayNewGroup = display.newGroup
@@ -344,6 +340,47 @@ end
 
 function widget.newTableView( options )
 	return require( "widget_tableview" ).createTableView( options )
+end
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+--
+-- Spinner widget
+--
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
+function widget.newSpinner( options )
+	-- this widget requires visual customization via themes to work properly
+	local themeOptions
+	if widget.theme then
+		local spinnerTheme = widget.theme.spinner
+				
+		if spinnerTheme then
+			if options and options.style then	-- style parameter optionally set by user
+				
+				-- for themes that support various "styles" per widget
+				local style = pickerTheme[options.style]
+				
+				if style then themeOptions = style; end
+			else
+				-- if no style parameter set, use default style specified by theme
+				themeOptions = spinnerTheme
+			end
+			
+			return require( "widget_spinner" ).new( options, themeOptions )
+		else
+			print( "WARNING: The widget theme you are using does not support the spinner widget." )
+			return
+		end
+	else
+		print( "WARNING: The newSpinner widget requires a visual theme. Use widget.setTheme()." )
+		return
+	end
 end
 
 -----------------------------------------------------------------------------------------
