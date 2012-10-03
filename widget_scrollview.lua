@@ -249,13 +249,6 @@ local function onContentTouch( self, event )    -- self == content
     local phase = event.phase
     local time = event.time
     
-    --Allow the user to stop the scrolling via touch/tap without firing touch events to the content
-    if phase == "began" and self.hasScrolled == true then
-        self.hasScrolled = false
-        self.velocity = 0
-        return
-    end
-    
     if phase == "began" then
         
         -- set focus on scrollView content
