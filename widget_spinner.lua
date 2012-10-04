@@ -108,7 +108,7 @@ function M.new( options, themeOptions )
 	local spinnerImageSheet, spinnerImageSheetOptions = nil, nil
 	
 	-- Only create an imagesheet if needed
-	if not image and sheet then
+	if sheet then
 		-- Create the image sheet
 		spinnerImageSheet = graphics.newImageSheet( sheet, require( sheetData ).sheet )
 		-- Create the sequenceData table
@@ -122,7 +122,7 @@ function M.new( options, themeOptions )
 	end
 	
 	-- Create the spinner
-	if not image and sheet then
+	if sheet then
 		-- Create spinner as sprite
 		if spinnerIsAnimated then
 			spinnerObject = display.newSprite( spinnerImageSheet, spinnerImageSheetOptions )
