@@ -378,8 +378,7 @@ function widget.newSpinner( options )
 			return
 		end
 	else
-		print( "WARNING: The newSpinner widget requires a visual theme. Use widget.setTheme()." )
-		return
+		return require( "widget_spinner" ).new( options )
 	end
 end
 

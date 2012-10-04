@@ -231,10 +231,11 @@ themeTable.pickerWheel = {
 
 themeTable.spinner = 
 {
-	sheet = assetDir .. "/spinner/spinner.png",
-	data = assetDir .. ".spinner.spinner",
-	start = 1,
-	count = 6,
+	image = assetDir .. "/spinner/spinner.png",
+	width = 40,
+	height = 40,
+	incrementEvery = 50,
+	deltaAngle = 30,
 }
 
 -----------------------------------------------------------------------------------------
