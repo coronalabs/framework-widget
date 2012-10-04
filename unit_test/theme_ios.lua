@@ -238,6 +238,37 @@ themeTable.spinner =
 	deltaAngle = 30,
 }
 
+
+-----------------------------------------------------------------------------------------
+--
+-- switch
+--
+-----------------------------------------------------------------------------------------
+
+themeTable.switch = 
+{
+	-- Default (on/off switch)
+	-- TODO
+	
+	radio = 
+	{
+		width = 33,
+		height = 34,
+		default = assetDir .. "/switch/radioButtonDefault.png",
+		selected = assetDir .. "/switch/radioButtonSelected.png",
+		switchType = "radio",
+	},
+	checkbox = 
+	{
+		width = 33,
+		height = 33,
+		default = assetDir .. "/switch/checkboxDefault.png",
+		selected = assetDir .. "/switch/checkboxSelected.png",
+		switchType = "checkbox",
+	}
+}
+
+
 -----------------------------------------------------------------------------------------
 
 return themeTable

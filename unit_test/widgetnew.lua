@@ -364,7 +364,7 @@ function widget.newSpinner( options )
 			if options and options.style then	-- style parameter optionally set by user
 				
 				-- for themes that support various "styles" per widget
-				local style = pickerTheme[options.style]
+				local style = spinnerTheme[options.style]
 				
 				if style then themeOptions = style; end
 			else
@@ -379,6 +379,46 @@ function widget.newSpinner( options )
 		end
 	else
 		return require( "widget_spinner" ).new( options )
+	end
+end
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+--
+-- Switch widget
+--
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
+function widget.newSwitch( options )
+	-- this widget requires visual customization via themes to work properly
+	local themeOptions
+	if widget.theme then
+		local switchTheme = widget.theme.switch
+				
+		if switchTheme then
+			if options and options.style then	-- style parameter optionally set by user
+				
+				-- for themes that support various "styles" per widget
+				local style = switchTheme[options.style]
+				
+				if style then themeOptions = style; end
+			else
+				-- if no style parameter set, use default style specified by theme
+				themeOptions = switchTheme
+			end
+			
+			return require( "widget_switch" ).new( options, themeOptions )
+		else
+			print( "WARNING: The widget theme you are using does not support the switch widget." )
+			return
+		end
+	else
+		return require( "widget_switch" ).new( options )
 	end
 end
 

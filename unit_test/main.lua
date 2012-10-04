@@ -37,4 +37,4 @@
 display.setStatusBar(display.HiddenStatusBar)
 
 local storyboard = require( "storyboard" )
-storyboard.gotoScene( "test_spinner" )
+storyboard.gotoScene( "test_switch" )
