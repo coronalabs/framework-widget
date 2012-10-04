@@ -42,7 +42,8 @@
 			width = 80,
 			height = 80,
 			image = "assets/loadingCog.png",
-			rotateSpeed = 1,
+			deltaAngle = 1,
+			incrementEvery = 30 -- Runs the rotation function every 30ms
 		}	
 		
 		-- Create a custom spinner that isn't animated from an image sheet (SINGLE IMAGE)
@@ -56,7 +57,7 @@
 			data = "assets.customSpinner",
 			start = 1,
 			count = 1,
-			rotateSpeed = -1,
+			deltaAngle = -1,
 		}
 	
 --]]
@@ -67,17 +68,26 @@ function M.new( options, themeOptions )
 	local options = options or {}
 	local theme = themeOptions or {}
 	
-	local image = options.image or nil
+	local image = options.image or theme.image
 	local sheet = options.sheet or theme.sheet
 	local sheetData = options.data or theme.data
 	local startFrame = options.start or theme.start or 0
 	local frameCount = options.count or theme.count or 0
 	local animTime = options.time or 1000
-	local rotateSpeed = options.rotateSpeed or 1
+	local deltaAngle = options.deltaAngle or theme.deltaAngle or 1
+	local increments = options.incrementEvery or theme.incrementEvery or 1
 	local left = options.left or 0
 	local top = options.top or 0
 	local width = options.width or nil
 	local height = options.height or nil
+	
+	-- If were using an imagesheet don't use a single image
+	if sheet then image = nil end
+	
+	-- If there isn't a sheet or image defined (either by params or theme, throw error)
+	if not sheet and not image then
+		error( "widget.newSpinner requires either an image or imageSheet, or a visual theme set by widget.setTheme" )
+	end
 	
 	-- The spinner object is a group
 	local spinner = require( "widget_constructor" ).new
@@ -165,12 +175,12 @@ function M.new( options, themeOptions )
 		else
 			-- The spinner isn't a sprite so start or resume it's timer
 			local function rotateSpinner()
-				content:rotate( rotateSpeed )
+				content:rotate( deltaAngle )
 			end
 			
 			-- If the content doesn't currently have a timer
 			if not content.timer then
-				content.timer = timer.performWithDelay( 1, rotateSpinner, 0 )
+				content.timer = timer.performWithDelay( increments, rotateSpinner, 0 )
 			else
 			-- The content has a timer, so just resume it
 				timer.resume( content.timer )
