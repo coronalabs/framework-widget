@@ -15,6 +15,19 @@ local widget = {}
 package.loaded[modname] = widget
 widget.version = "0.8"
 
+function widget._new( options )
+	local options = options or {}
+	
+	local newWidget = display.newGroup() -- All Widget* objects are display groups
+	newWidget.x = options.left or 0
+	newWidget.y = options.top or 0
+	newWidget.id = options.id or "widget*"
+	newWidget.baseDirectory = options.baseDirectory or system.ResourceDirectory
+	
+	return newWidget
+end
+
+
 -- modify factory function to ensure widgets are properly cleaned on group removal
 local cached_displayNewGroup = display.newGroup
 function display.newGroup()

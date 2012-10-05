@@ -90,7 +90,7 @@ function M.new( options, themeOptions )
 	end
 	
 	-- The spinner object is a group
-	local spinner = require( "widget_constructor" ).new
+	local spinner = require( "widget" )._new
 	{
 		left = left,
 		top = top,

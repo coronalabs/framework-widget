@@ -1,4 +1,4 @@
-local widget = require( "widgetnew" )
+local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
