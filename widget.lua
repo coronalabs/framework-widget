@@ -17,8 +17,8 @@ widget.version = "0.8"
 
 -- Override removeSelf() method
 -- All widget objects can add a finalize method for cleanup
-local function removeSelf( self )
-	local finalize = self.finalize
+local function _removeSelf( self )
+	local finalize = self._finalize
 	if type( finalize ) == "function" then
 		finalize( self )
 	end
@@ -33,9 +33,9 @@ function widget._new( options )
 	newWidget.x = options.left or 0
 	newWidget.y = options.top or 0
 	newWidget.id = options.id or "widget*"
-	newWidget.baseDirectory = options.baseDirectory or system.ResourceDirectory
+	newWidget.baseDir = options.baseDir or system.ResourceDirectory
 	newWidget._removeSelf = newWidget.removeSelf
-	newWidget.removeSelf = removeSelf
+	newWidget.removeSelf = _removeSelf
 	
 	return newWidget
 end
