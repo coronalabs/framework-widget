@@ -47,10 +47,11 @@ function M.new( options, themeOptions )
 	local function newWithImage( self ) -- Self == spinnerObject (group)
 		-- The object
 		local newObject = nil 
+		local imageSheet = nil
 		
 		if sheet then
 			image = nil
-			local imageSheet = graphics.newImageSheet( sheet, require( sheetData ).sheet )
+		 	imageSheet = graphics.newImageSheet( sheet, require( sheetData ).sheet )
 			newObject = display.newImageRect( imageSheet, startFrame, width, height )
 		else
 			newObject = display.newImageRect( image, width, height )
@@ -79,6 +80,9 @@ function M.new( options, themeOptions )
 				timer.pause( newObject._timer )
 			end
 		end
+		
+		-- Create a reference to the imagesheet so we can remove it later
+		newObject._imageSheet = imageSheet
 				
 		return newObject
 	end
@@ -112,7 +116,7 @@ function M.new( options, themeOptions )
 		end
 		
 		-- Create a reference to the imagesheet so we can remove it later
-		newObject.imageSheet = imageSheet
+		newObject._imageSheet = imageSheet
 		
 		return newObject
 	end
@@ -149,7 +153,7 @@ function M.new( options, themeOptions )
 		end
 		
 		-- Set spinners ImageSheet to nil
-		self.content.imageSheet = nil
+		self.content._imageSheet = nil
 	end
 	
 	return spinner
