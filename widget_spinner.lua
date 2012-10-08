@@ -44,7 +44,7 @@ function M.new( options, themeOptions )
 	-------------------------------------------------------
 	
 	-- Creates a new spinner from an image
-	local function newWithImage( self, options, theme ) -- Self == spinnerObject (group)
+	local function newWithImage( self ) -- Self == spinnerObject (group)
 		-- The object
 		local newObject = nil 
 		
@@ -85,7 +85,7 @@ function M.new( options, themeOptions )
 
 
 	-- Creates a new spinner from a sprite
-	local function newWithSprite( self, options, theme ) -- Self == spinnerObject (group)
+	local function newWithSprite( self ) -- Self == spinnerObject (group)
 		-- Animation options
 		local sheetOptions = 
 		{ 
