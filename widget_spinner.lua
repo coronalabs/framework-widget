@@ -132,9 +132,9 @@ function M.new( options, themeOptions )
 
 	-- Create the spinner
 	if spinnerIsAnimated then
-		spinner.content = newWithSprite( spinner, options, theme )
+		spinner.content = newWithSprite( spinner )
 	else
-		spinner.content = newWithImage( spinner, options, theme )
+		spinner.content = newWithImage( spinner )
 	end
 	
 	-- Insert the spinners content into the spinner object
