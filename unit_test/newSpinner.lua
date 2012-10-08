@@ -52,26 +52,28 @@ function scene:createScene( event )
 	--Toggle these defines to execute automated tests.
 	local TEST_START_SPINNER = true
 	local TEST_PAUSE_SPINNER = false
+	local TEST_MOVE_SPINNER = false
+	local TEST_TRANSLATE_SPINNER = false
 	local TEST_REMOVE_SPINNER = false
 	local TEST_DELAY = 1000
 	
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
-	-- Create a default spinner (created using theme file)
-	local spinner = widget.newSpinner
+	-- Create a default spinner (created using theme file) - (Single Rotating Image)
+	local spinnerDefault = widget.newSpinner
 	{
-		left = 130,
-		top = 120,
+		left = 150,
+		top = 130,
 	}
-	group:insert( spinner )
+	group:insert( spinnerDefault )
 	
 	local spinnerText = display.newText( "Default spinner (From theme)\nSingle Rotating Image", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
 	spinnerText.x = display.contentCenterX
-	spinnerText.y = spinner.y - 32
+	spinnerText.y = spinnerDefault.y - 42
 	group:insert( spinnerText )
 	
-	-- Create a custom spinner
+	-- Create a custom spinner (Animating sprite from imagesheet)
 	local spinnerCustom = widget.newSpinner
 	{
 		left = 150,
@@ -89,7 +91,7 @@ function scene:createScene( event )
 	spinnerCustomText.y = spinnerCustom.y - 42
 	group:insert( spinnerCustomText )
 	
-	-- Create a custom spinner that isn't animated and just rotates
+	-- Create a custom spinner that isn't animated and just rotates - (Single Rotating Image)
 	local spinnerCustomJustRotates = widget.newSpinner
 	{
 		left = 150,
@@ -106,7 +108,7 @@ function scene:createScene( event )
 	spinnerCustomJustRotatesText.y = spinnerCustomJustRotates.y - 62
 	group:insert( spinnerCustomJustRotatesText )
 	
-	-- Create a custom spinner
+	-- Create a custom spinner that isn't animated and just rotates - (Single Rotating Image from imagesheet)
 	local spinnerCustomJustRotatesFromImageSheet = widget.newSpinner
 	{
 		left = 150,
@@ -134,7 +136,7 @@ function scene:createScene( event )
 	-- Test starting the spinners animation
 	if TEST_START_SPINNER then
 		timer.performWithDelay( 100, function()
-			spinner:start()
+			spinnerDefault:start()
 			spinnerCustom:start()
 			spinnerCustomJustRotates:start()
 			spinnerCustomJustRotatesFromImageSheet:start()
@@ -144,19 +146,47 @@ function scene:createScene( event )
 	-- Test pausing the spinners animation
 	if TEST_PAUSE_SPINNER then
 		timer.performWithDelay( TEST_DELAY, function()
-			spinner:pause()
-			spinnerCustomJustRotates:pause()
+			spinnerDefault:stop()
+			spinnerCustom:stop()
+			spinnerCustomJustRotates:stop()
+			spinnerCustomJustRotatesFromImageSheet:stop()
 		end )
 		TEST_DELAY = TEST_DELAY + TEST_DELAY
 	end
 	
+	-- Test moving the spinners animation
+	if TEST_MOVE_SPINNER then
+		timer.performWithDelay( TEST_DELAY, function()
+			spinnerDefault:translate( 20, 20 )
+			spinnerCustom:translate( 20, 20 )
+			spinnerCustomJustRotates:translate( 20, 20 )
+			spinnerCustomJustRotatesFromImageSheet:translate( 20, 20 )
+		end )
+		TEST_DELAY = TEST_DELAY + TEST_DELAY
+	end
+	
+	-- Test moving the spinners animation
+	if TEST_TRANSLATE_SPINNER then
+		timer.performWithDelay( TEST_DELAY, function()
+			transition.to( spinnerDefault, { x = 100, y = 100 } )
+			transition.to( spinnerCustom, { x = 100, y = 100 } )
+			transition.to( spinnerCustomJustRotates, { x = 100, y = 100 } )
+			transition.to( spinnerCustomJustRotatesFromImageSheet, { x = 100, y = 100 } )
+		end )
+		TEST_DELAY = TEST_DELAY + TEST_DELAY
+	end
 	
 	-- Test removing the spinner
 	if TEST_REMOVE_SPINNER then
 		timer.performWithDelay( TEST_DELAY, function()
-			spinner:removeSelf()
-			spinner = nil
-			spinnerCustomJustRotates:start()
+			spinnerDefault:removeSelf()
+			spinnerDefault = nil
+			spinnerCustom:removeSelf()
+			spinnerCustom = nil
+			spinnerCustomJustRotates:removeSelf()
+			spinnerCustomJustRotates = nil
+			spinnerCustomJustRotatesFromImageSheet:removeSelf()
+			spinnerCustomJustRotatesFromImageSheet = nil
 		end )
 		TEST_DELAY = TEST_DELAY + TEST_DELAY
 	end

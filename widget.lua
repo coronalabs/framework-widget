@@ -15,14 +15,27 @@ local widget = {}
 package.loaded[modname] = widget
 widget.version = "0.8"
 
+-- Override removeSelf() method
+-- All widget objects can add a finalize method for cleanup
+local function removeSelf( self )
+	local finalize = self.finalize
+	if type( finalize ) == "function" then
+		finalize( self )
+	end
+
+	self:_removeSelf()
+	self = nil
+end
+
+-- Widget constructor. Every widget object is created from this method
 function widget._new( options )
-	local options = options or {}
-	
 	local newWidget = display.newGroup() -- All Widget* objects are display groups
 	newWidget.x = options.left or 0
 	newWidget.y = options.top or 0
 	newWidget.id = options.id or "widget*"
 	newWidget.baseDirectory = options.baseDirectory or system.ResourceDirectory
+	newWidget._removeSelf = newWidget.removeSelf
+	newWidget.removeSelf = removeSelf
 	
 	return newWidget
 end
