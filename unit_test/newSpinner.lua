@@ -135,7 +135,7 @@ function scene:createScene( event )
 	
 	-- Test starting the spinners animation
 	if TEST_START_SPINNER then
-		timer.performWithDelay( 100, function()
+		testTimer = timer.performWithDelay( 100, function()
 			spinnerDefault:start()
 			spinnerCustom:start()
 			spinnerCustomJustRotates:start()
@@ -145,7 +145,7 @@ function scene:createScene( event )
 	
 	-- Test pausing the spinners animation
 	if TEST_PAUSE_SPINNER then
-		timer.performWithDelay( TEST_DELAY, function()
+		testTimer = timer.performWithDelay( TEST_DELAY, function()
 			spinnerDefault:stop()
 			spinnerCustom:stop()
 			spinnerCustomJustRotates:stop()
@@ -156,7 +156,7 @@ function scene:createScene( event )
 	
 	-- Test moving the spinners animation
 	if TEST_MOVE_SPINNER then
-		timer.performWithDelay( TEST_DELAY, function()
+		testTimer = timer.performWithDelay( TEST_DELAY, function()
 			spinnerDefault:translate( 20, 20 )
 			spinnerCustom:translate( 20, 20 )
 			spinnerCustomJustRotates:translate( 20, 20 )
@@ -167,7 +167,7 @@ function scene:createScene( event )
 	
 	-- Test moving the spinners animation
 	if TEST_TRANSLATE_SPINNER then
-		timer.performWithDelay( TEST_DELAY, function()
+		testTimer = timer.performWithDelay( TEST_DELAY, function()
 			transition.to( spinnerDefault, { x = 100, y = 100 } )
 			transition.to( spinnerCustom, { x = 100, y = 100 } )
 			transition.to( spinnerCustomJustRotates, { x = 100, y = 100 } )
@@ -178,7 +178,7 @@ function scene:createScene( event )
 	
 	-- Test removing the spinner
 	if TEST_REMOVE_SPINNER then
-		timer.performWithDelay( TEST_DELAY, function()
+		testTimer = timer.performWithDelay( TEST_DELAY, function()
 			spinnerDefault:removeSelf()
 			spinnerDefault = nil
 			spinnerCustom:removeSelf()
