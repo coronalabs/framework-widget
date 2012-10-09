@@ -51,8 +51,6 @@ function display.newGroup()
 	return g
 end
 
--- Private table used by widgets for default options
-widget._options = {}
 
 -- Override removeSelf() method
 -- All widget objects can add a finalize method for cleanup
