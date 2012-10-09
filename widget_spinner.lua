@@ -72,6 +72,9 @@ local function newWithImage( self, options ) -- Self == spinnerObject (group)
 			timer.cancel( self._timer )
 			self._timer = nil
 		end
+		
+		-- Set spinners ImageSheet to nil
+		self._imageSheet = nil
 	end
 			
 	return newObject
