@@ -15,6 +15,8 @@
 		*) A spinner can be started/paused at any time.
 --]]
 
+local widget = require( "widget" )
+
 local M = {}
 
 -- Creates a new spinner from an image
@@ -38,17 +40,21 @@ local function newWithImage( self, options ) -- Self == spinnerObject (group)
 			newObject = display.newImage( options.image, true )
 		end
 	end
+	
+	-- We need to assign these properties to the object
+	newObject.deltaAngle = options.deltaAngle
+	newObject.increments = options.increments
 			
 	-- Function to start the spinner's rotation
 	function self:start()			
 		-- The spinner isn't a sprite > Start or resume it's timer
 		local function rotateSpinner()
-			newObject:rotate( options.deltaAngle )
+			newObject:rotate( newObject.deltaAngle )
 		end
 			
 		-- If the timer doesn't exist > Create it
 		if not newObject._timer then
-			newObject._timer = timer.performWithDelay( options.increments, rotateSpinner, 0 )
+			newObject._timer = timer.performWithDelay( newObject.increments, rotateSpinner, 0 )
 		else
 			-- The timer exists > Resume it
 			timer.resume( newObject._timer )
@@ -124,54 +130,72 @@ end
 
 
 -- Function to create a new Spinner object ( widget.newSpinner)
-function M.new( options, themeOptions )
-	local options = options or {}
-	local theme = themeOptions or {}
+function M.new( options, theme )	
+	--local options = options or {}
+	--local theme = themeOptions or {}
 	
 	-------------------------------------------------------
 	-- Properties
 	-------------------------------------------------------
 	
-	-- Lets use a table to store common properties, neater and prevents loads of local variables
-	local widgetOptions = 
-	{
-		width = options.width or theme.width,
-		height = options.height or theme.height,
-		left = options.left or 0,
-		top = options.top or 0,
-		id = options.id,
-		image = options.image or theme.image,
-		sheet = options.sheet or theme.sheet,
-		sheetData = options.data or theme.data,
-		startFrame = options.start or theme.start,
-		frameCount = options.count or theme.count,
-		animTime = options.time or 1000,
-		deltaAngle = options.deltaAngle or theme.deltaAngle or 1,
-		increments = options.incrementEvery or theme.incrementEvery or 1,
-	}
-	
+	-- Populate the widget_options table
+	if options then
+		widget._options.width = options.width or theme.width
+		widget._options.height = options.height or theme.height
+		widget._options.left = options.left or 100
+		widget._options.top = options.top or 100
+		widget._options.id = options.id
+		widget._options.baseDir = options.baseDir
+		widget._options.image = options.image or theme.image
+		widget._options.sheet = options.sheet or theme.sheet
+		widget._options.sheetData = options.data or theme.data
+		widget._options.startFrame = options.start or theme.start
+		widget._options.frameCount = options.count or theme.count
+		widget._options.animTime = options.time or 1000
+		widget._options.deltaAngle = options.deltaAngle or theme.deltaAngle or 1
+		widget._options.increments = options.incrementEvery or theme.incrementEvery or 1
+	else
+		widget._options.left = 0
+		widget._options.top = 0
+		
+		if theme then
+			widget._options.width = theme.width
+			widget._options.height = theme.height
+			widget._options.image = theme.image
+			widget._options.sheet = theme.sheet
+			widget._options.sheetData = theme.data
+			widget._options.startFrame = theme.start
+			widget._options.frameCount = theme.count
+			widget._options.animTime = 1000
+			widget._options.deltaAngle = theme.deltaAngle or 1
+			widget._options.increments = theme.incrementEvery or 1
+		else
+			error( "widget.newSpinner requires a theme to be set or to be provided with an image or sprite" )
+		end
+	end
+		
 	
 	-------------------------------------------------------
 	-- Methods
 	-------------------------------------------------------
 		
 	-- Create the spinner object
-	local spinner = require( "widget" )._new
+	local spinner = widget._new
 	{
-		left = widgetOptions.left,
-		top = widgetOptions.top,
-		id = widgetOptions.id or "widget_spinner",
-		baseDir = options.baseDir,
+		left = widget._options.left,
+		top = widget._options.top,
+		id = widget._options.id or "widget_spinner",
+		baseDir = widget._options.baseDir,
 	}
 	
 	-- Is the spinner animated?
-	local spinnerIsAnimated = widgetOptions.frameCount and widgetOptions.frameCount > 1
+	local spinnerIsAnimated = widget._options.frameCount and widget._options.frameCount > 1
 
 	-- Create the spinner
 	if spinnerIsAnimated then
-		spinner.content = newWithSprite( spinner, widgetOptions )
+		spinner.content = newWithSprite( spinner, widget._options )
 	else
-		spinner.content = newWithImage( spinner, widgetOptions )
+		spinner.content = newWithImage( spinner, widget._options )
 	end
 	
 	-- Insert the spinners content into the spinner object
@@ -180,6 +204,11 @@ function M.new( options, themeOptions )
 	-- Finalize method for spinner 
 	function spinner:_finalize()
 		self.content:_finalize()
+	end
+	
+	-- Clear the widget options table but don't remove it
+	for k, v in pairs( widget._options ) do
+		widget._options[k] = nil
 	end
 	
 	return spinner

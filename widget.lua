@@ -15,31 +15,6 @@ local widget = {}
 package.loaded[modname] = widget
 widget.version = "0.8"
 
--- Override removeSelf() method
--- All widget objects can add a finalize method for cleanup
-local function _removeSelf( self )
-	local finalize = self._finalize
-	if type( finalize ) == "function" then
-		finalize( self )
-	end
-
-	self:_removeSelf()
-	self = nil
-end
-
--- Widget constructor. Every widget object is created from this method
-function widget._new( options )
-	local newWidget = display.newGroup() -- All Widget* objects are display groups
-	newWidget.x = options.left or 0
-	newWidget.y = options.top or 0
-	newWidget.id = options.id or "widget*"
-	newWidget.baseDir = options.baseDir or system.ResourceDirectory
-	newWidget._removeSelf = newWidget.removeSelf
-	newWidget.removeSelf = _removeSelf
-	
-	return newWidget
-end
-
 
 -- modify factory function to ensure widgets are properly cleaned on group removal
 local cached_displayNewGroup = display.newGroup
@@ -74,6 +49,35 @@ function display.newGroup()
 		end
 	end
 	return g
+end
+
+-- Private table used by widgets for default options
+widget._options = {}
+
+-- Override removeSelf() method
+-- All widget objects can add a finalize method for cleanup
+local function _removeSelf( self )
+	local finalize = self._finalize
+	if type( finalize ) == "function" then
+		finalize( self )
+	end
+
+	self:_removeSelf()
+	self = nil
+end
+
+-- Widget constructor. Every widget object is created from this method
+function widget._new( options )
+	local newWidget = display.newGroup() -- All Widget* objects are display groups
+	newWidget.x = options.left or 0
+	newWidget.y = options.top or 0
+	newWidget.id = options.id or "widget*"
+	newWidget.baseDir = options.baseDir or system.ResourceDirectory
+	newWidget._isWidget = true
+	newWidget._removeSelf = newWidget.removeSelf
+	newWidget.removeSelf = _removeSelf
+	
+	return newWidget
 end
 
 -- set current theme from external .lua module
