@@ -64,7 +64,7 @@ function scene:createScene( event )
 	local spinnerDefault = widget.newSpinner
 	{
 		left = 150,
-		top = 130,
+		top = 140,
 	}
 	group:insert( spinnerDefault )
 	
@@ -200,10 +200,16 @@ function scene:exitScene( event )
 		testTimer = nil
 	end
 	
-	storyboard.purgeAll()
+	--storyboard.purgeAll()
 end
 
 scene:addEventListener( "createScene", scene )
 scene:addEventListener( "exitScene", scene )
+
+function scene:didExitScene( event )
+	storyboard.removeScene( "newSpinner" )
+end
+
+scene:addEventListener( "didExitScene", scene )
 
 return scene
