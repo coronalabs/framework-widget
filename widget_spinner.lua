@@ -15,64 +15,64 @@
 		*) A spinner can be started/paused at any time.
 --]]
 
-local M = {}
-M._options = {}
+local M = 
+{
+	_options = {},
+}
 
 -- Creates a new spinner from an image
-local function newWithImage( self, options ) -- Self == spinnerObject (group)
+local function initWithImage( self, options ) -- Self == spinnerObject (group)
 	local opt = options
 	
-	-- The object
-	local newObject = nil 
-	local imageSheet = nil
+	-- If there is an image, don't attempt to use a sheet
+	if opt.image then
+		opt.sheet = nil
+	end
 	
-	-- There is a sheet defined > Use display.newImageRect with an imageSheet
+	-- Create the view
 	if opt.sheet then
-		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
-		newObject = display.newImageRect( imageSheet, opt.startFrame, opt.width, opt.height )
+		self._imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+		self._view = display.newImageRect( self._imageSheet, opt.startFrame, opt.width, opt.height )
 	else
 		-- There isn't a sheet defined > Use display.newImageRect
 		if opt.width and opt.height then
-			newObject = display.newImageRect( opt.image, opt.width, opt.height )
+			self._view = display.newImageRect( opt.image, opt.width, opt.height )
 		else
 			-- There is no width/height specified > Use display.newImage
-			newObject = display.newImage( opt.image, true )
+			self._view = display.newImage( opt.image, true )
 		end
 	end
 	
 	-- We need to assign these properties to the object
-	newObject._deltaAngle = opt.deltaAngle
-	newObject._increments = opt.increments
+	self._deltaAngle = opt.deltaAngle
+	self._increments = opt.increments
 			
 	-- Function to start the spinner's rotation
 	function self:start() -- Self == Spinner	
 		-- The spinner isn't a sprite > Start or resume it's timer
 		local function rotateSpinner()
-			newObject:rotate( newObject._deltaAngle )
+			self._view:rotate( self._deltaAngle )
 		end
 			
 		-- If the timer doesn't exist > Create it
-		if not newObject._timer then
-			newObject._timer = timer.performWithDelay( newObject._increments, rotateSpinner, 0 )
+		if not self._timer then
+			self._timer = timer.performWithDelay( self._increments, rotateSpinner, 0 )
 		else
 			-- The timer exists > Resume it
-			timer.resume( newObject._timer )
+			timer.resume( self._timer )
 		end
 	end
 	
 	-- Function to pause the spinner's rotation
 	function self:stop() -- Self == Spinner	
 		-- Pause the spinner's timer
-		if newObject._timer then
-			timer.pause( newObject._timer )
+		if self._timer then
+			timer.pause( self._timer )
 		end
 	end
 	
-	-- Create a reference to the imagesheet so we can remove it later
-	newObject._imageSheet = imageSheet
-	
 	-- Finalize function
-	function newObject:_finalize()
+	function self:_finalize()
 		if self._timer then
 			timer.cancel( self._timer )
 			self._timer = nil
@@ -81,13 +81,16 @@ local function newWithImage( self, options ) -- Self == spinnerObject (group)
 		-- Set spinners ImageSheet to nil
 		self._imageSheet = nil
 	end
+	
+	-- Insert the view into the parent group
+	self:insert( self._view )
 			
-	return newObject
+	return self
 end
 
 
 -- Creates a new spinner from a sprite
-local function newWithSprite( self, options ) -- Self == spinnerObject (group)
+local function initWithSprite( self, options ) -- Self == spinnerObject (group)
 	local opt = options
 	
 	-- Animation options
@@ -95,36 +98,35 @@ local function newWithSprite( self, options ) -- Self == spinnerObject (group)
 	{ 
 		name = "default", 
 		start = opt.startFrame, 
-		count = opt.frameCount, 
-		time = opt.animTime, 
+		count = opt.frameCount,
+		time = opt.animTime,
 	}
 	
-	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
-	
-	-- The object
-	local newObject = display.newSprite( imageSheet, sheetOptions )
-	newObject:setSequence( "default" )
+	-- Create the view
+	self._imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+	self._view = display.newSprite( self._imageSheet, sheetOptions )
+	self._view:setSequence( "default" )
 	
 	-- Function to start the spinner's animation
 	function self:start() -- Self == Spinner	
-		newObject:play()
+		self._view:play()
 	end
 	
 	-- Function to pause the spinner's animation
 	function self:stop() -- Self == Spinner	
-		newObject:pause()
+		self._view:pause()
 	end
 	
-	-- Create a reference to the imagesheet so we can remove it later
-	newObject._imageSheet = imageSheet
-	
 	-- Finalize function
-	function newObject:_finalize()
+	function self:_finalize()
 		-- Set spinners ImageSheet to nil
 		self._imageSheet = nil
 	end
 	
-	return newObject
+	-- Insert the view into the parent group
+	self:insert( self._view )
+	
+	return self
 end
 
 
@@ -148,10 +150,10 @@ function M.new( options, theme )
 	opt.height = customOptions.height or theme.height
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir
-	opt.image = customOptions.image or theme.image
+	opt.image = customOptions.image
 	opt.sheet = customOptions.sheet or theme.sheet
 	opt.sheetData = customOptions.data or theme.data
-	opt.startFrame = customOptions.start or theme.start or 0
+	opt.startFrame = customOptions.start or require( theme.data ):getFrameIndex( theme.start ) or 0
 	opt.frameCount = customOptions.count or theme.count or 0
 	opt.animTime = customOptions.time or theme.time or 1000
 	opt.deltaAngle = customOptions.deltaAngle or theme.deltaAngle or 1
@@ -171,21 +173,13 @@ function M.new( options, theme )
 	}
 		
 	-- Is the spinner animated?
-	local spinnerIsAnimated = opt.frameCount and opt.frameCount > 1
+	local spinnerIsAnimated = opt.frameCount > 1
 
 	-- Create the spinner
 	if spinnerIsAnimated then
-		spinner.content = newWithSprite( spinner, opt )
+		initWithSprite( spinner, opt )
 	else
-		spinner.content = newWithImage( spinner, opt )
-	end
-	
-	-- Insert the spinners content into the spinner object
-	spinner:insert( spinner.content )
-	
-	-- Finalize method for spinner 
-	function spinner:_finalize()
-		self.content:_finalize()
+		initWithImage( spinner, opt )
 	end
 	
 	return spinner

@@ -9,11 +9,6 @@
 		A widget object that can...
 	
 	Features:
-
-		
-	Example Usage:
-		
-	
 --]]
 
 local M = {}
