@@ -7,6 +7,7 @@ local modname = ...
 local themeTable = {}
 package.loaded[modname] = themeTable
 local assetDir = "widget_ios"
+local imageSuffix = display.imageSuffix or "@1x"
 
 -----------------------------------------------------------------------------------------
 --
@@ -231,7 +232,9 @@ themeTable.pickerWheel = {
 
 themeTable.spinner = 
 {
-	image = assetDir .. "/spinner/spinner.png",
+	sheet = assetDir .. "/iOS/" .. imageSuffix .. ".png",
+	data = assetDir .. ".iOS." .. imageSuffix,
+	start = "spinner",
 	width = 40,
 	height = 40,
 	incrementEvery = 50,
