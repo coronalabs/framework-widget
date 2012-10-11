@@ -7,7 +7,7 @@ local modname = ...
 local themeTable = {}
 package.loaded[modname] = themeTable
 local assetDir = "widget_ios"
-local imageSuffix = display.imageSuffix or "@1x"
+local imageSuffix = display.imageSuffix or ""
 
 -----------------------------------------------------------------------------------------
 --
