@@ -44,10 +44,6 @@ local function initWithImage( self, options )
 	self:insert( self._view )
 	self:insert( self._view.subView )
 	
-	if display.imageSuffix == "@2x" then
-		self:scale( 0.5, 0.5 )
-	end
-	
 	return self
 end
 
@@ -89,10 +85,7 @@ local function initWithSprite( self, options )
 	
 	-- Insert the view into the parent group
 	self:insert( self._view )
-	
-	if display.imageSuffix == "@2x" then
-		self:scale( 0.5, 0.5 )
-	end
+
 end
 
 

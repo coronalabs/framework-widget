@@ -232,8 +232,8 @@ themeTable.pickerWheel = {
 
 themeTable.spinner = 
 {
-	sheet = assetDir .. "/" .. imageSuffix .. ".png",
-	data = assetDir .. "." .. imageSuffix,
+	sheet = assetDir .. "/assets.png",
+	data = assetDir .. ".assets" .. imageSuffix,
 	start = "spinner_spinner",
 	width = 40,
 	height = 40,
@@ -251,8 +251,8 @@ themeTable.spinner =
 themeTable.switch = 
 {
 	-- Default (on/off switch)
-	sheet = assetDir .. "/" .. imageSuffix .. ".png",
-	data = assetDir .. "." .. imageSuffix,
+	sheet = assetDir .. "/assets.png",
+	data = assetDir .. ".assets" .. imageSuffix,
 	background = "switch_background",
 	overlay = "switch_overlay",
 	handle = "switch_handle",
@@ -260,18 +260,18 @@ themeTable.switch =
 	switchType = "onOff",
 	mask = assetDir .. "/switch_onOffMask.png",
 	
-	radio = 
+	radio =
 	{
-		sheet = assetDir .. "/" .. imageSuffix .. ".png",
-		data = assetDir .. "." .. imageSuffix,
+		sheet = assetDir .. "/assets.png",
+		data = assetDir .. ".assets" .. imageSuffix,
 		defaultFrame = "switch_radioButtonDefault",
 		selectedFrame = "switch_radioButtonSelected",
 		switchType = "radio",
 	},
 	checkbox = 
 	{
-		sheet = assetDir .. "/" .. imageSuffix .. ".png",
-		data = assetDir .. "." .. imageSuffix,
+		sheet = assetDir .. "/assets.png",
+		data = assetDir .. ".assets" .. imageSuffix,
 		defaultFrame = "switch_checkboxDefault",
 		selectedFrame = "switch_checkboxSelected",
 		switchType = "checkbox",
