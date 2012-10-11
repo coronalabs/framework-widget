@@ -22,27 +22,34 @@ local function initWithImage( self, options )
 	
 	-- If were using an imagesheet don't use a single image
 	if opt.sheet then opt.default = nil; opt.selected = nil end
+	local imageSheet, view
 	
 	-- Create the view
 	if opt.sheet and opt.width and opt.height then
-		self._imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
-		self._view = display.newImageRect( switchImageSheet, defaultFrame, width, height )
-		self._view.subView = display.newImageRect( switchImageSheet, selectedFrame, width, height )
+		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+		view = display.newImageRect( imageSheet, opt.defaultFrame, opt.width, opt.height )
+		view.subView = display.newImageRect( imageSheet, opt.selectedFrame, opt.width, opt.height )
 	else
-		self._view = display.newImage( opt.default, true )
-		self._view.subView = display.newImage( opt.selected, true )
+		view = display.newImage( opt.default, true )
+		view.subView = display.newImage( opt.selected, true )
 	end
 	
 	-- Set the views initial visibility based on the default state
-	self._view.isVisible = not opt.defaultState
-	self._view.subView.isVisible = opt.defaultState
+	view.isVisible = not opt.defaultState
+	view.subView.isVisible = opt.defaultState
+	-- Assign properties to the view
+	view._imageSheet = imageSheet
+	view.isOn = opt.defaultState
 	
 	-- Assign properties to self
-	self.isOn = opt.defaultState
+	self._imageSheet = view._imageSheet
+	self._view = view
+	self._view.subView = view.subView
+	self.isOn = view.isOn
 	
 	-- Insert the view into the parent group
-	self:insert( self._view )
-	self:insert( self._view.subView )
+	self:insert( view )
+	self:insert( view.subView )
 	
 	return self
 end
@@ -54,7 +61,7 @@ local function initWithSprite( self, options )
 	if opt.sheet then opt.default = nil; opt.selected = nil end
 	
 	-- Create the image sheet
-	self._imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
 	-- Create the sequenceData table
 	switchImageSheetOptions = 
@@ -75,20 +82,28 @@ local function initWithSprite( self, options )
 	}
 	
 	-- Create the view
-	self._view = display.newSprite( self._imageSheet, switchImageSheetOptions )
-	self._view:setSequence( tostring( opt.defaultState ) )
-	self._view._defaultFrame = opt.defaultFrame
-	self._view._selectedFrame = opt.selectedFrame
+	local view = display.newSprite( imageSheet, switchImageSheetOptions )
+	view:setSequence( tostring( opt.defaultState ) )
+	view._defaultFrame = opt.defaultFrame
+	view._selectedFrame = opt.selectedFrame
+	view.isOn = opt.defaultState
 	
 	-- Assign properties to self
-	self.isOn = opt.defaultState
+	self._view = view
+	self.isOn = view.isOn
 	
 	-- Insert the view into the parent group
-	self:insert( self._view )
-
+	self:insert( view )
+	
+	return self
 end
 
 
+
+
+
+
+-- Initialize with a on/off toggle switch
 local function initWithOnOffSwitch( self, options )
 	local opt = options
 	
@@ -96,119 +111,160 @@ local function initWithOnOffSwitch( self, options )
 	local startRange = - math.round( require( opt.sheetData ):getSheet().frames[require( opt.sheetData ):getFrameIndex( opt.overlay )].width / 3.06 )
 	local endRange = math.abs( startRange )
 	
-	self._imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+	-- The imageSheet
+	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
 	
-	self._view = display.newImageRect( self._imageSheet, require( opt.sheetData ):getFrameIndex( opt.background ), require( opt.sheetData ):getSheet().frames[require( opt.sheetData ):getFrameIndex( opt.background )].width, require( opt.sheetData ):getSheet().frames[require( opt.sheetData ):getFrameIndex( opt.background )].height )
-	self._view.x = startRange
-	self:insert( self._view )
+	-- The view is the switches background image
+	local view = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.background ), opt.backgroundWidth, opt.backgroundHeight )
+	self:insert( view )
 	
-	self._view.overlay = display.newImageRect( self._imageSheet, require( opt.sheetData ):getFrameIndex( opt.overlay ), require( opt.sheetData ):getSheet().frames[require( opt.sheetData ):getFrameIndex( opt.overlay )].width, require( opt.sheetData ):getSheet().frames[require( opt.sheetData ):getFrameIndex( opt.overlay )].height )
-	self:insert( self._view.overlay )
+	-- The view's overlay is the "shine" effect
+	view.overlay = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.overlay ), opt.overlayWidth, opt.overlayHeight )
+	self:insert( view.overlay )
 	
 	local handleOptions = 
 	{
-		{ name = "false", start = require( opt.sheetData ):getFrameIndex( opt.handle ), count = 1, time = 1 },
-		{ name = "true", start = require( opt.sheetData ):getFrameIndex( opt.handleOver ), count = 1, time = 1 },
+		{ 
+			name = "false", 
+			start = require( opt.sheetData ):getFrameIndex( opt.handle ), 
+			count = 1, 
+			time = 1,
+		},
+		
+		{ 
+			name = "true", 
+			start = require( opt.sheetData ):getFrameIndex( opt.handleOver ), 
+			count = 1, 
+			time = 1, 
+		},
 	}
 	
-	self._view.handle = display.newSprite( self._imageSheet, handleOptions )
-	self._view.handle:setSequence( opt.handle )
-	self._view.handle.x = startRange
-	self.isOn = opt.defaultState
-	self:insert( self._view.handle )
+	-- The view's handle
+	view.handle = display.newSprite( imageSheet, handleOptions )
+	view.handle:setSequence( opt.handle )
+	self:insert( view.handle )
 	
-	
-	self._view.mask = graphics.newMask( opt.mask, self.baseDir )
-	self._view:setMask( self._view.mask )
-	self._view.maskX = self._view.handle.x + math.abs( startRange ) + endRange
-	
-	if display.imageSuffix == "@2x" then
-		self:scale( 0.5, 0.5 )
-		self._view.maskScaleX = 2
-		self._view.maskScaleY = 2
-	end
-	
-	self.x = self.x - startRange
+	-- The view's mask
+	view.mask = graphics.newMask( opt.mask, opt.baseDir )
+	view:setMask( view.mask )
 
 	--------------------------------------------------------------------------------------------------------------------
 	--												METHODS															  --
 	--------------------------------------------------------------------------------------------------------------------
 	
-	local function _handleTap( event )
+	-- Handle taps on the switch
+	function view:tap( event )
 		-- Toggle the switch
 		self.isOn = not self.isOn
 		
-				
+		-- If self has a _onPress method execute it
+		if self._onPress and not self._onEvent then
+			self._onPress( event )
+		end
+		
 		if self.isOn then
-			transition.to( self._view, { x = endRange, maskX = startRange, time = 300 } )
-			transition.to( self._view.handle, { x = endRange, time = 300 } )
+			transition.to( self, { x = self._endRange, maskX = self._startRange, time = 300 } )
+			transition.to( self.handle, { x = self._endRange, time = 300 } )
 		else
-			transition.to( self._view, { x = startRange, maskX = endRange, time = 300 } )
-			transition.to( self._view.handle, { x = startRange, time = 300 } )
+			transition.to( self, { x = self._startRange, maskX = self._endRange, time = 300 } )
+			transition.to( self.handle, { x = self._startRange, time = 300 } )
 		end
 		
 		return true
 	end
 	
-	self._view:addEventListener( "tap", _handleTap )
+	view:addEventListener( "tap" )
 	
-	
-	local function _handleDrag( event )
+	-- Handle touch/drag events on the switch
+	function view:touch( event )
 		local phase = event.phase
 	
 		if "began" == phase then
-			display.getCurrentStage():setFocus( self._view ) 
-			self._view.isFocus = true
+			-- Set focus
+			display.getCurrentStage():setFocus( self ) 
+			self.isFocus = true
 			
-			self._view.handle.x0 = event.x - self._view.handle.x -- Store initial position
-
-			self._view.handle:setSequence( "true" )
+			-- Store initial position of the handle
+			self.handle.x0 = event.x - self.handle.x 
+			-- Set the handle to it's 'over' frame
+			self.handle:setSequence( "true" )
 	
-		elseif self._view.isFocus then
+		elseif self.isFocus then
 			if "moved" == phase then
-				self._view.handle.x = event.x - self._view.handle.x0 
-				self._view.x = event.x - self._view.handle.x0
-				self._view.maskX = - ( event.x - self._view.handle.x0 )
+				self.handle.x = event.x - self.handle.x0 
+				self.x = event.x - self.handle.x0
+				self.maskX = - ( event.x - self.handle.x0 )
 		
 				-- limit movement to switch, left side
-				if self._view.handle.x <= startRange then
-					self._view.handle.x = startRange
-					self._view.x = startRange
-					self._view.maskX = endRange
+				if self.handle.x <= self._startRange then
+					self.handle.x = self._startRange
+					self.x = self._startRange
+					self.maskX = self._endRange
 				end
 					
 				--limit movement to switch, right side
-				if self._view.handle.x >= endRange then
-					self._view.handle.x = endRange
-					self._view.x = endRange 
-					self._view.maskX = startRange
+				if self.handle.x >= self._endRange then
+					self.handle.x = self._endRange
+					self.x = self._endRange 
+					self.maskX = self._startRange
 				end
 	
-		elseif "ended" == phase or "cancelled" == phase then
-			if self._view.handle.x < 0 then
-				transition.to( self._view, { x = startRange, maskX = endRange, time = 300 } )
-				transition.to( self._view.handle, { x = startRange, time = 300 } )
-			else
-				transition.to( self._view, { x = endRange, maskX = startRange, time = 300 } )
-				transition.to( self._view.handle, { x = endRange, time = 300 } )
-			end
-			
-			self._view.handle:setSequence( "false" )
-			
+			elseif "ended" == phase or "cancelled" == phase then
+				-- If self has a _onRelease method execute it
+				if self._onRelease and not self._onEvent then
+					self._onRelease( event )
+				end
+				
+				if self.handle.x < 0 then
+					transition.to( self, { x = self._startRange, maskX = self._endRange, time = 300 } )
+					transition.to( self.handle, { x = self._startRange, time = 300 } )
+				else
+					transition.to( self, { x = self._endRange, maskX = self._startRange, time = 300 } )
+					transition.to( self.handle, { x = self._endRange, time = 300 } )
+				end
+				
+				-- Set the handle back to it's default frame
+				self.handle:setSequence( "false" )
+				
+				-- Remove focus
 				display.getCurrentStage():setFocus( nil )
-				self._view.isFocus = false
+				self.isFocus = false
 			end
 		end
 		
 		return true
 	end
 	
-	self._view:addEventListener( "touch", _handleDrag )
+	view:addEventListener( "touch" )
 	
+	-- Properties
+	view._imageSheet = imageSheet
+	view.isOn = opt.defaultState
+	view._startRange = startRange
+	view._endRange = endRange
+	view._onPress = opt.onPress
+	view._onRelease = opt.onRelease
+	
+	-- Set the buttons positions based on the chosen default value (ie on/off)
+	if view.isOn then
+		view.x = view._endRange
+		view.handle.x = view._endRange
+		view.maskX = view.handle.x - math.abs( view._startRange ) - view._endRange
+	else
+		view.x = view._startRange
+		view.handle.x = view._startRange
+		view.maskX = view.handle.x + math.abs( view._startRange ) + view._endRange
+	end
+	
+	-- Assign properties to self	
+	self._view = view
+	self.isOn = view.isOn
 
 	return self
 end
 
+
+-- Initialize with a standard switch (ie radio/checkbox buttons)
 local function initWithStandardSwitch( self, options )
 	local opt = options
 	local usingSprite = false
@@ -222,17 +278,20 @@ local function initWithStandardSwitch( self, options )
 		initWithImage( self, opt )
 	end
 	
-	-- Assign properties/methods to self.
-	self._onPress = opt.onPress
-	self._onRelease = opt.onRelease
-	self._onEvent = opt.onEvent
-		
+	-- 
+	local view = self._view
+	
+	-- Assign properties/methods to the view.
+	view._onPress = opt.onPress
+	view._onRelease = opt.onRelease
+	view._onEvent = opt.onEvent
+
 	--------------------------------------------------------------------------------------------------------------------
 	--												METHODS															  --
 	--------------------------------------------------------------------------------------------------------------------
 
 	-- Handle touches on the switch
-	function self._touch( event )
+	function view:touch( event )
 		local phase = event.phase
 		
 		if "began" == phase then
@@ -241,11 +300,11 @@ local function initWithStandardSwitch( self, options )
 					
 			-- Toggle the displayed sprite sequence
 			if usingSprite then
-				self._view:setSequence( tostring( self.isOn ) )
+				self:setSequence( tostring( self.isOn ) )
 			else
 				-- Toggle the view's visibility
-				self._view.isVisible = not self.isOn
-				self._view.subView.isVisible = self.isOn
+				self.isVisible = not self.isOn
+				self.subView.isVisible = self.isOn
 			end
 			
 			-- If self has a _onPress method execute it
@@ -266,8 +325,10 @@ local function initWithStandardSwitch( self, options )
 		
 		return true
 	end
+		
+	view:addEventListener( "touch" )
 	
-	self:addEventListener( "touch", self._touch )
+	return self
 end
 
 
@@ -280,12 +341,16 @@ function M.new( options, theme )
 		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not support the switch widget." )
 	end
 	
+	-------------------------------------------------------
+	-- Properties
+	-------------------------------------------------------	
+	
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width
-	opt.height = customOptions.height
+	opt.width = customOptions.width or theme.width
+	opt.height = customOptions.height or theme.height
 	opt.id = customOptions.id
-	opt.baseDir = customOptions.baseDir
+	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.switchType = customOptions.switchType or theme.switchType or "onOff"
 	opt.sheet = customOptions.sheet or theme.sheet
 	opt.sheetData = customOptions.data or theme.data
@@ -293,13 +358,16 @@ function M.new( options, theme )
 	opt.selected = customOptions.selected or theme.selected
 	opt.defaultFrame = customOptions.defaultFrame
 	opt.selectedFrame = customOptions.selectedFrame
-	
+		
 	opt.background = customOptions.background or theme.background
+	opt.backgroundWidth = customOptions.backgroundWidth or theme.backgroundWidth
+	opt.backgroundHeight = customOptions.backgroundHeight or theme.backgroundHeight
 	opt.overlay = customOptions.overlay or theme.overlay
+	opt.overlayWidth = customOptions.overlayWidth or theme.overlayWidth
+	opt.overlayHeight = customOptions.overlayHeight or theme.overlayHeight
 	opt.handle = customOptions.handle or theme.handle
 	opt.handleOver = customOptions.handleOver or theme.handleOver
 	opt.mask = customOptions.mask or theme.mask
-
 	
 	-- If there isn't a default frame but a theme has been set and it includes a data property then grab the required start/end frames
 	if not opt.defaultFrame and theme and theme.data then
@@ -312,6 +380,10 @@ function M.new( options, theme )
 	opt.onRelease = customOptions.onRelease
 	opt.onEvent = customOptions.onEvent
 	
+	-------------------------------------------------------
+	-- Create the switch
+	-------------------------------------------------------
+	
 	-- The switch object is a group
 	local switch = require( "widget" )._new
 	{
@@ -321,6 +393,7 @@ function M.new( options, theme )
 		baseDirectory = opt.baseDir,
 	}
 	
+	-- Create the switch based on the given type
  	if "onOff" == opt.switchType then
  		initWithOnOffSwitch( switch, opt )
  	else

@@ -55,13 +55,19 @@ function scene:createScene( event )
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
-	local function onSwitchPress( event )
+	local function onRadioPress( event )
+		local self = event.target
+
+		print( self.id, "is on?:", self.isOn )
+	end
+		
+	local function onCheckBoxPress( event )
 		local self = event.target
 		
 		print( self.id, "is on?:", self.isOn )
 	end
-		
-	local function onSwitchPress2( event )
+	
+	local function onOnOffPress( event )
 		local self = event.target
 		
 		print( self.id, "is on?:", self.isOn )
@@ -76,7 +82,7 @@ function scene:createScene( event )
 		switchType = "radio",
 		id = "Radio button",
 		defaultState = true,
-		onPress = onSwitchPress,
+		onPress = onRadioPress,
 	}
 	group:insert( radioSwitch )
 	
@@ -89,7 +95,7 @@ function scene:createScene( event )
 		style = "checkbox",
 		switchType = "checkbox",
 		id = "Checkbox button",
-		onPress = onSwitchPress2,
+		onPress = onCheckBoxPress,
 	}
 	group:insert( checkboxSwitch )
 	
@@ -97,6 +103,8 @@ function scene:createScene( event )
 	{
 		left = 130,
 		top = 300,
+		defaultState = true,
+		onPress = onOnOffPress
 	}
 
 
