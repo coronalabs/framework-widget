@@ -92,6 +92,12 @@ function scene:createScene( event )
 		onPress = onSwitchPress2,
 	}
 	group:insert( checkboxSwitch )
+	
+	local onOffSwitch = widget.newSwitch
+	{
+		left = 130,
+		top = 300,
+	}
 
 
 	----------------------------------------------------------------------------------------------------------------
