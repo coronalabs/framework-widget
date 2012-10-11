@@ -29,61 +29,68 @@ local function initWithImage( self, options ) -- Self == spinnerObject (group)
 		opt.sheet = nil
 	end
 	
+	-- Forward references
+	local imageSheet, view
+	
 	-- Create the view
 	if opt.sheet then
-		self._imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
-		self._view = display.newImageRect( self._imageSheet, opt.startFrame, opt.width, opt.height )
+		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+		view = display.newImageRect( imageSheet, opt.startFrame, opt.width, opt.height )
 	else
 		-- There isn't a sheet defined > Use display.newImageRect
 		if opt.width and opt.height then
-			self._view = display.newImageRect( opt.image, opt.width, opt.height )
+			view = display.newImageRect( opt.image, opt.width, opt.height )
 		else
 			-- There is no width/height specified > Use display.newImage
-			self._view = display.newImage( opt.image, true )
+			view = display.newImage( opt.image, true )
 		end
 	end
-	
-	-- We need to assign these properties to the object
-	self._deltaAngle = opt.deltaAngle
-	self._increments = opt.increments
 			
 	-- Function to start the spinner's rotation
 	function self:start() -- Self == Spinner	
 		-- The spinner isn't a sprite > Start or resume it's timer
 		local function rotateSpinner()
-			self._view:rotate( self._deltaAngle )
+			self._view:rotate( self._view._deltaAngle )
 		end
 			
 		-- If the timer doesn't exist > Create it
-		if not self._timer then
-			self._timer = timer.performWithDelay( self._increments, rotateSpinner, 0 )
+		if not self._view._timer then
+			self._view._timer = timer.performWithDelay( self._view._increments, rotateSpinner, 0 )
 		else
 			-- The timer exists > Resume it
-			timer.resume( self._timer )
+			timer.resume( self._view._timer )
 		end
 	end
 	
 	-- Function to pause the spinner's rotation
 	function self:stop() -- Self == Spinner	
 		-- Pause the spinner's timer
-		if self._timer then
-			timer.pause( self._timer )
+		if self._view._timer then
+			timer.pause( self._view._timer )
 		end
 	end
 	
 	-- Finalize function
 	function self:_finalize()
-		if self._timer then
-			timer.cancel( self._timer )
-			self._timer = nil
+		if self._view._timer then
+			timer.cancel( self._view._timer )
+			self._view._timer = nil
 		end
 		
 		-- Set spinners ImageSheet to nil
-		self._imageSheet = nil
+		self._view._imageSheet = nil
 	end
-	
+
+	-- We need to assign these properties to the object
+	view._deltaAngle = opt.deltaAngle
+	view._increments = opt.increments
+	view._imageSheet = imageSheet
+
+	-- Assign the view to self's view
+	self._view = view
+
 	-- Insert the view into the parent group
-	self:insert( self._view )
+	self:insert( view )
 			
 	return self
 end
@@ -103,9 +110,9 @@ local function initWithSprite( self, options ) -- Self == spinnerObject (group)
 	}
 	
 	-- Create the view
-	self._imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
-	self._view = display.newSprite( self._imageSheet, sheetOptions )
-	self._view:setSequence( "default" )
+	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+	local view = display.newSprite( imageSheet, sheetOptions )
+	view:setSequence( "default" )
 	
 	-- Function to start the spinner's animation
 	function self:start() -- Self == Spinner	
@@ -123,8 +130,11 @@ local function initWithSprite( self, options ) -- Self == spinnerObject (group)
 		self._imageSheet = nil
 	end
 	
+	-- Assign the view to self's view
+	self._view = view
+	
 	-- Insert the view into the parent group
-	self:insert( self._view )
+	self:insert( view )
 	
 	return self
 end
@@ -149,7 +159,7 @@ function M.new( options, theme )
 	opt.width = customOptions.width or theme.width
 	opt.height = customOptions.height or theme.height
 	opt.id = customOptions.id
-	opt.baseDir = customOptions.baseDir
+	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.image = customOptions.image
 	opt.sheet = customOptions.sheet or theme.sheet
 	opt.sheetData = customOptions.data or theme.data
@@ -160,7 +170,7 @@ function M.new( options, theme )
 	opt.increments = customOptions.incrementEvery or theme.incrementEvery or 1
 	
 	-------------------------------------------------------
-	-- Methods
+	-- Create the spinner
 	-------------------------------------------------------
 		
 	-- Create the spinner object
