@@ -164,7 +164,7 @@ local function initWithOnOffSwitch( self, options )
 		local phase = event.phase
 	
 		if "began" == phase then
-			display.getCurrentStage():setFocus( self._view ) -- let it be on focus even though the tap is now outside 
+			display.getCurrentStage():setFocus( self._view ) 
 			self._view.isFocus = true
 			
 			self._view.handle.x0 = event.x - self._view.handle.x -- Store initial position
@@ -173,7 +173,7 @@ local function initWithOnOffSwitch( self, options )
 	
 		elseif self._view.isFocus then
 			if "moved" == phase then
-				self._view.handle.x = event.x - self._view.handle.x0 -- set the new postions of the handle
+				self._view.handle.x = event.x - self._view.handle.x0 
 				self._view.x = event.x - self._view.handle.x0
 				self._view.maskX = - ( event.x - self._view.handle.x0 )
 		
@@ -184,7 +184,7 @@ local function initWithOnOffSwitch( self, options )
 					self._view.maskX = endRange
 				end
 					
-					--limit movement to switch, right side
+				--limit movement to switch, right side
 				if self._view.handle.x >= endRange then
 					self._view.handle.x = endRange
 					self._view.x = endRange 
