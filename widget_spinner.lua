@@ -137,7 +137,7 @@ function M.new( options, theme )
 	
 	-- If there isn't an options table and there isn't a theme set throw an error
 	if not options and not theme then
-		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not support the switch widget." )
+		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not support the spinner widget." )
 	end
 	
 	-------------------------------------------------------
