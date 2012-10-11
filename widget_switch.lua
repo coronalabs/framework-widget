@@ -45,7 +45,6 @@ local function initWithImage( self, options )
 	self._imageSheet = view._imageSheet
 	self._view = view
 	self._view.subView = view.subView
-	self.isOn = view.isOn
 	
 	-- Insert the view into the parent group
 	self:insert( view )
@@ -90,7 +89,6 @@ local function initWithSprite( self, options )
 	
 	-- Assign properties to self
 	self._view = view
-	self.isOn = view.isOn
 	
 	-- Insert the view into the parent group
 	self:insert( view )
@@ -258,7 +256,6 @@ local function initWithOnOffSwitch( self, options )
 	
 	-- Assign properties to self	
 	self._view = view
-	self.isOn = view.isOn
 
 	return self
 end
