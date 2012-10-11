@@ -255,18 +255,18 @@ themeTable.switch =
 	
 	radio = 
 	{
-		width = 33,
-		height = 34,
-		default = assetDir .. "/switch/radioButtonDefault.png",
-		selected = assetDir .. "/switch/radioButtonSelected.png",
+		sheet = assetDir .. "/iOS/" .. imageSuffix .. ".png",
+		data = assetDir .. ".iOS." .. imageSuffix,
+		defaultFrame = "radioButtonDefault",
+		selectedFrame = "radioButtonSelected",
 		switchType = "radio",
 	},
 	checkbox = 
 	{
-		width = 33,
-		height = 33,
-		default = assetDir .. "/switch/checkboxDefault.png",
-		selected = assetDir .. "/switch/checkboxSelected.png",
+		sheet = assetDir .. "/iOS/" .. imageSuffix .. ".png",
+		data = assetDir .. ".iOS." .. imageSuffix,
+		defaultFrame = "checkboxDefault",
+		selectedFrame = "checkboxSelected",
 		switchType = "checkbox",
 	}
 }

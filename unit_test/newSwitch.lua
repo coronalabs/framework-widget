@@ -58,38 +58,40 @@ function scene:createScene( event )
 	local function onSwitchPress( event )
 		local self = event.target
 		
-		print( self.id, " state is: ", self:getState() )
+		print( self.id, "is on?:", self.isOn )
 	end
 		
+	local function onSwitchPress2( event )
+		local self = event.target
+		
+		print( self.id, "is on?:", self.isOn )
+	end
 	
 	-- Create a radio switch
 	local radioSwitch = widget.newSwitch
 	{
 		left = 130,
 		top = 120,
-		--default = "assets/radioButtonDefault.png",
-		--selected = "assets/radioButtonSelected.png",
 		style = "radio",
 		switchType = "radio",
 		id = "Radio button",
+		defaultState = true,
 		onPress = onSwitchPress,
 	}
 	group:insert( radioSwitch )
 	
 	
 	-- Create a checkbox switch
-	local checboxSwitch = widget.newSwitch
+	local checkboxSwitch = widget.newSwitch
 	{
 		left = 130,
 		top = 200,
-		--default = "assets/checkboxDefault.png",
-		--selected = "assets/checkboxSelected.png",
 		style = "checkbox",
 		switchType = "checkbox",
 		id = "Checkbox button",
-		onPress = onSwitchPress,
+		onPress = onSwitchPress2,
 	}
-	group:insert( radioSwitch )
+	group:insert( checkboxSwitch )
 
 
 	----------------------------------------------------------------------------------------------------------------
