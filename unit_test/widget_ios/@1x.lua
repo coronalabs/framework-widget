@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.texturepacker.com)
 --
--- $TexturePacker:SmartUpdate:2486ed3c589d3dc0ea9ac80bf853bc8e$
+-- $TexturePacker:SmartUpdate:7a8e9e1cbaa5bb9ab35f49ff7435c4cd$
 --
 -- local sheetInfo = require("myExportedImageSheet") -- lua file that Texture packer published
 --
@@ -18,7 +18,15 @@ SheetInfo.sheet =
     frames = {
     
         {
-            -- background
+            -- spinner_spinner
+            x=2,
+            y=2,
+            width=40,
+            height=40,
+
+        },
+        {
+            -- switch_background
             x=130,
             y=2,
             width=165,
@@ -26,7 +34,7 @@ SheetInfo.sheet =
 
         },
         {
-            -- checkboxDefault
+            -- switch_checkboxDefault
             x=442,
             y=2,
             width=29,
@@ -38,7 +46,7 @@ SheetInfo.sheet =
             sourceHeight = 33
         },
         {
-            -- checkboxSelected
+            -- switch_checkboxSelected
             x=421,
             y=33,
             width=29,
@@ -50,7 +58,7 @@ SheetInfo.sheet =
             sourceHeight = 33
         },
         {
-            -- handle
+            -- switch_handle
             x=390,
             y=33,
             width=29,
@@ -62,7 +70,7 @@ SheetInfo.sheet =
             sourceHeight = 31
         },
         {
-            -- handleOver
+            -- switch_handleOver
             x=359,
             y=33,
             width=29,
@@ -74,7 +82,7 @@ SheetInfo.sheet =
             sourceHeight = 31
         },
         {
-            -- onOffMask
+            -- switch_onOffMask
             x=44,
             y=2,
             width=84,
@@ -82,7 +90,7 @@ SheetInfo.sheet =
 
         },
         {
-            -- overlay
+            -- switch_overlay
             x=359,
             y=2,
             width=81,
@@ -94,7 +102,7 @@ SheetInfo.sheet =
             sourceHeight = 31
         },
         {
-            -- radioButtonDefault
+            -- switch_radioButtonDefault
             x=328,
             y=2,
             width=29,
@@ -106,7 +114,7 @@ SheetInfo.sheet =
             sourceHeight = 34
         },
         {
-            -- radioButtonSelected
+            -- switch_radioButtonSelected
             x=297,
             y=2,
             width=29,
@@ -117,14 +125,6 @@ SheetInfo.sheet =
             sourceWidth = 33,
             sourceHeight = 34
         },
-        {
-            -- spinner
-            x=2,
-            y=2,
-            width=40,
-            height=40,
-
-        },
     },
     
     sheetContentWidth = 473,
@@ -134,16 +134,16 @@ SheetInfo.sheet =
 SheetInfo.frameIndex =
 {
 
-    ["background"] = 1,
-    ["checkboxDefault"] = 2,
-    ["checkboxSelected"] = 3,
-    ["handle"] = 4,
-    ["handleOver"] = 5,
-    ["onOffMask"] = 6,
-    ["overlay"] = 7,
-    ["radioButtonDefault"] = 8,
-    ["radioButtonSelected"] = 9,
-    ["spinner"] = 10,
+    ["spinner_spinner"] = 1,
+    ["switch_background"] = 2,
+    ["switch_checkboxDefault"] = 3,
+    ["switch_checkboxSelected"] = 4,
+    ["switch_handle"] = 5,
+    ["switch_handleOver"] = 6,
+    ["switch_onOffMask"] = 7,
+    ["switch_overlay"] = 8,
+    ["switch_radioButtonDefault"] = 9,
+    ["switch_radioButtonSelected"] = 10,
 }
 
 function SheetInfo:getSheet()

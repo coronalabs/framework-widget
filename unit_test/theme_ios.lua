@@ -232,9 +232,9 @@ themeTable.pickerWheel = {
 
 themeTable.spinner = 
 {
-	sheet = assetDir .. "/iOS/" .. imageSuffix .. ".png",
-	data = assetDir .. ".iOS." .. imageSuffix,
-	start = "spinner",
+	sheet = assetDir .. "/" .. imageSuffix .. ".png",
+	data = assetDir .. "." .. imageSuffix,
+	start = "spinner_spinner",
 	width = 40,
 	height = 40,
 	incrementEvery = 50,
@@ -251,22 +251,29 @@ themeTable.spinner =
 themeTable.switch = 
 {
 	-- Default (on/off switch)
-	-- TODO
+	sheet = assetDir .. "/" .. imageSuffix .. ".png",
+	data = assetDir .. "." .. imageSuffix,
+	background = "switch_background",
+	overlay = "switch_overlay",
+	handle = "switch_handle",
+	handleOver = "switch_handleOver",
+	switchType = "onOff",
+	mask = assetDir .. "/switch_onOffMask.png",
 	
 	radio = 
 	{
-		sheet = assetDir .. "/iOS/" .. imageSuffix .. ".png",
-		data = assetDir .. ".iOS." .. imageSuffix,
-		defaultFrame = "radioButtonDefault",
-		selectedFrame = "radioButtonSelected",
+		sheet = assetDir .. "/" .. imageSuffix .. ".png",
+		data = assetDir .. "." .. imageSuffix,
+		defaultFrame = "switch_radioButtonDefault",
+		selectedFrame = "switch_radioButtonSelected",
 		switchType = "radio",
 	},
 	checkbox = 
 	{
-		sheet = assetDir .. "/iOS/" .. imageSuffix .. ".png",
-		data = assetDir .. ".iOS." .. imageSuffix,
-		defaultFrame = "checkboxDefault",
-		selectedFrame = "checkboxSelected",
+		sheet = assetDir .. "/" .. imageSuffix .. ".png",
+		data = assetDir .. "." .. imageSuffix,
+		defaultFrame = "switch_checkboxDefault",
+		selectedFrame = "switch_checkboxSelected",
 		switchType = "checkbox",
 	}
 }

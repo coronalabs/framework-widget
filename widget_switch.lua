@@ -44,6 +44,10 @@ local function initWithImage( self, options )
 	self:insert( self._view )
 	self:insert( self._view.subView )
 	
+	if display.imageSuffix == "@2x" then
+		self:scale( 0.5, 0.5 )
+	end
+	
 	return self
 end
 
@@ -85,10 +89,131 @@ local function initWithSprite( self, options )
 	
 	-- Insert the view into the parent group
 	self:insert( self._view )
+	
+	if display.imageSuffix == "@2x" then
+		self:scale( 0.5, 0.5 )
+	end
 end
 
 
 local function initWithOnOffSwitch( self, options )
+	local opt = options
+	
+	-- This is measured from the pixels in the switch overlay image.
+	local startRange = - math.round( require( opt.sheetData ):getSheet().frames[require( opt.sheetData ):getFrameIndex( opt.overlay )].width / 3.06 )
+	local endRange = math.abs( startRange )
+	
+	self._imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+	
+	self._view = display.newImageRect( self._imageSheet, require( opt.sheetData ):getFrameIndex( opt.background ), require( opt.sheetData ):getSheet().frames[require( opt.sheetData ):getFrameIndex( opt.background )].width, require( opt.sheetData ):getSheet().frames[require( opt.sheetData ):getFrameIndex( opt.background )].height )
+	self._view.x = startRange
+	self:insert( self._view )
+	
+	self._view.overlay = display.newImageRect( self._imageSheet, require( opt.sheetData ):getFrameIndex( opt.overlay ), require( opt.sheetData ):getSheet().frames[require( opt.sheetData ):getFrameIndex( opt.overlay )].width, require( opt.sheetData ):getSheet().frames[require( opt.sheetData ):getFrameIndex( opt.overlay )].height )
+	self:insert( self._view.overlay )
+	
+	local handleOptions = 
+	{
+		{ name = "false", start = require( opt.sheetData ):getFrameIndex( opt.handle ), count = 1, time = 1 },
+		{ name = "true", start = require( opt.sheetData ):getFrameIndex( opt.handleOver ), count = 1, time = 1 },
+	}
+	
+	self._view.handle = display.newSprite( self._imageSheet, handleOptions )
+	self._view.handle:setSequence( opt.handle )
+	self._view.handle.x = startRange
+	self.isOn = opt.defaultState
+	self:insert( self._view.handle )
+	
+	
+	self._view.mask = graphics.newMask( opt.mask, self.baseDir )
+	self._view:setMask( self._view.mask )
+	self._view.maskX = self._view.handle.x + math.abs( startRange ) + endRange
+	
+	if display.imageSuffix == "@2x" then
+		self:scale( 0.5, 0.5 )
+		self._view.maskScaleX = 2
+		self._view.maskScaleY = 2
+	end
+	
+	self.x = self.x - startRange
+
+	--------------------------------------------------------------------------------------------------------------------
+	--												METHODS															  --
+	--------------------------------------------------------------------------------------------------------------------
+	
+	local function _handleTap( event )
+		-- Toggle the switch
+		self.isOn = not self.isOn
+		
+				
+		if self.isOn then
+			transition.to( self._view, { x = endRange, maskX = startRange, time = 300 } )
+			transition.to( self._view.handle, { x = endRange, time = 300 } )
+		else
+			transition.to( self._view, { x = startRange, maskX = endRange, time = 300 } )
+			transition.to( self._view.handle, { x = startRange, time = 300 } )
+		end
+		
+		return true
+	end
+	
+	self._view:addEventListener( "tap", _handleTap )
+	
+	
+	local function _handleDrag( event )
+		local phase = event.phase
+	
+		if "began" == phase then
+			display.getCurrentStage():setFocus( self._view ) -- let it be on focus even though the tap is now outside 
+			self._view.isFocus = true
+			
+			self._view.handle.x0 = event.x - self._view.handle.x -- Store initial position
+
+			self._view.handle:setSequence( "true" )
+	
+		elseif self._view.isFocus then
+			if "moved" == phase then
+				self._view.handle.x = event.x - self._view.handle.x0 -- set the new postions of the handle
+				self._view.x = event.x - self._view.handle.x0
+				self._view.maskX = - ( event.x - self._view.handle.x0 )
+		
+				-- limit movement to switch, left side
+				if self._view.handle.x <= startRange then
+					self._view.handle.x = startRange
+					self._view.x = startRange
+					self._view.maskX = endRange
+				end
+					
+					--limit movement to switch, right side
+				if self._view.handle.x >= endRange then
+					self._view.handle.x = endRange
+					self._view.x = endRange 
+					self._view.maskX = startRange
+				end
+	
+		elseif "ended" == phase or "cancelled" == phase then
+			if self._view.handle.x < 0 then
+				transition.to( self._view, { x = startRange, maskX = endRange, time = 300 } )
+				transition.to( self._view.handle, { x = startRange, time = 300 } )
+			else
+				transition.to( self._view, { x = endRange, maskX = startRange, time = 300 } )
+				transition.to( self._view.handle, { x = endRange, time = 300 } )
+			end
+			
+			self._view.handle:setSequence( "false" )
+			
+				display.getCurrentStage():setFocus( nil )
+				self._view.isFocus = false
+			end
+		end
+		
+		return true
+	end
+	
+	self._view:addEventListener( "touch", _handleDrag )
+	
+
+	return self
 end
 
 local function initWithStandardSwitch( self, options )
@@ -176,6 +301,13 @@ function M.new( options, theme )
 	opt.defaultFrame = customOptions.defaultFrame
 	opt.selectedFrame = customOptions.selectedFrame
 	
+	opt.background = customOptions.background or theme.background
+	opt.overlay = customOptions.overlay or theme.overlay
+	opt.handle = customOptions.handle or theme.handle
+	opt.handleOver = customOptions.handleOver or theme.handleOver
+	opt.mask = customOptions.mask or theme.mask
+
+	
 	-- If there isn't a default frame but a theme has been set and it includes a data property then grab the required start/end frames
 	if not opt.defaultFrame and theme and theme.data then
 		opt.defaultFrame = require( theme.data ):getFrameIndex( theme.defaultFrame ) or 0
@@ -197,7 +329,7 @@ function M.new( options, theme )
 	}
 	
  	if "onOff" == opt.switchType then
- 		
+ 		initWithOnOffSwitch( switch, opt )
  	else
  		initWithStandardSwitch( switch, opt )
 	end
