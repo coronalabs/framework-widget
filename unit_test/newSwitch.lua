@@ -50,7 +50,8 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------	
 	
 	--Toggle these defines to execute automated tests.
-	--local TEST_SOMETHING = true
+	local TEST_REMOVE_SWITCH = false
+	local TEST_DELAY = 1000
 
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
@@ -74,7 +75,7 @@ function scene:createScene( event )
 	end
 	
 	-- Create a radio switch
-	local radioSwitch = widget.newSwitch
+	local radioButton = widget.newSwitch
 	{
 		left = 130,
 		top = 120,
@@ -84,11 +85,11 @@ function scene:createScene( event )
 		defaultState = true,
 		onPress = onRadioPress,
 	}
-	group:insert( radioSwitch )
+	group:insert( radioButton )
 	
 	
 	-- Create a checkbox switch
-	local checkboxSwitch = widget.newSwitch
+	local checkboxButton = widget.newSwitch
 	{
 		left = 130,
 		top = 200,
@@ -97,7 +98,7 @@ function scene:createScene( event )
 		id = "Checkbox button",
 		onPress = onCheckBoxPress,
 	}
-	group:insert( checkboxSwitch )
+	group:insert( checkboxButton )
 	
 	local onOffSwitch = widget.newSwitch
 	{
@@ -112,15 +113,17 @@ function scene:createScene( event )
 	--											TESTS											 	  			  --
 	----------------------------------------------------------------------------------------------------------------
 	
-	-- Test starting the spinners animation
-	--[[
-	if TEST_SOMETHING then
+	-- Test removing switch
+	if TEST_REMOVE_SWITCH then
 		timer.performWithDelay( 100, function()
-
+			display.remove( radioButton )
+			display.remove( checkboxButton )
+			display.remove( onOffSwitch )
+			
 			TEST_DELAY = TEST_DELAY + TEST_DELAY
 		end )
 	end
-	--]]
+
 	
 end
 

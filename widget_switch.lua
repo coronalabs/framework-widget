@@ -161,11 +161,11 @@ local function initWithOnOffSwitch( self, options )
 		end
 		
 		if self.isOn then
-			transition.to( self, { x = self._endRange, maskX = self._startRange, time = 300 } )
-			transition.to( self.handle, { x = self._endRange, time = 300 } )
+			self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = 300 } )
+			self._transition = transition.to( self.handle, { x = self._endRange, time = 300 } )
 		else
-			transition.to( self, { x = self._startRange, maskX = self._endRange, time = 300 } )
-			transition.to( self.handle, { x = self._startRange, time = 300 } )
+			self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = 300 } )
+			self._transition = transition.to( self.handle, { x = self._startRange, time = 300 } )
 		end
 		
 		return true
@@ -214,11 +214,11 @@ local function initWithOnOffSwitch( self, options )
 				end
 				
 				if self.handle.x < 0 then
-					transition.to( self, { x = self._startRange, maskX = self._endRange, time = 300 } )
-					transition.to( self.handle, { x = self._startRange, time = 300 } )
+					self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = 300 } )
+					self._transition = transition.to( self.handle, { x = self._startRange, time = 300 } )
 				else
-					transition.to( self, { x = self._endRange, maskX = self._startRange, time = 300 } )
-					transition.to( self.handle, { x = self._endRange, time = 300 } )
+					self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = 300 } )
+					self._transition = transition.to( self.handle, { x = self._endRange, time = 300 } )
 				end
 				
 				-- Set the handle back to it's default frame
@@ -236,8 +236,8 @@ local function initWithOnOffSwitch( self, options )
 	view:addEventListener( "touch" )
 	
 	-- Properties
-	view._imageSheet = imageSheet
 	view.isOn = opt.defaultState
+	view._imageSheet = imageSheet
 	view._startRange = startRange
 	view._endRange = endRange
 	view._onPress = opt.onPress
@@ -256,6 +256,22 @@ local function initWithOnOffSwitch( self, options )
 	
 	-- Assign properties to self	
 	self._view = view
+	
+	-- Finalize method for standard switch
+	function self:_finalize()
+		-- Cancel current transition if there is one
+		if self._view_transition then
+			transition.cancel( self._view._transition )
+			self._view._transition = nil
+		end
+		
+		self._view:removeSelf()
+		self._view.overlay:removeSelf()
+		self._view.handle:removeSelf()
+		self._view.overlay = nil
+		self._view.handle = nil
+		self._view = nil
+	end
 
 	return self
 end
@@ -275,7 +291,7 @@ local function initWithStandardSwitch( self, options )
 		initWithImage( self, opt )
 	end
 	
-	-- 
+	-- Create local reference to the view
 	local view = self._view
 	
 	-- Assign properties/methods to the view.
@@ -324,6 +340,13 @@ local function initWithStandardSwitch( self, options )
 	end
 		
 	view:addEventListener( "touch" )
+	
+	
+	-- Finalize method for standard switch
+	function self:_finalize()
+		self._view:removeSelf()
+		self._view = nil
+	end
 	
 	return self
 end
