@@ -233,7 +233,7 @@ themeTable.pickerWheel = {
 themeTable.spinner = 
 {
 	sheet = assetDir .. "/assets.png",
-	data = assetDir .. ".assets" .. imageSuffix,
+	data = assetDir .. ".assets",
 	start = "spinner_spinner",
 	width = 40,
 	height = 40,
@@ -252,7 +252,7 @@ themeTable.switch =
 {
 	-- Default (on/off switch)
 	sheet = assetDir .. "/assets.png",
-	data = assetDir .. ".assets" .. imageSuffix,
+	data = assetDir .. ".assets",
 	background = "switch_background",
 	backgroundWidth = 165,
 	backgroundHeight = 31,
@@ -267,7 +267,7 @@ themeTable.switch =
 	radio =
 	{
 		sheet = assetDir .. "/assets.png",
-		data = assetDir .. ".assets" .. imageSuffix,
+		data = assetDir .. ".assets",
 		width = 33,
 		height = 34,
 		defaultFrame = "switch_radioButtonDefault",
@@ -277,7 +277,7 @@ themeTable.switch =
 	checkbox = 
 	{
 		sheet = assetDir .. "/assets.png",
-		data = assetDir .. ".assets" .. imageSuffix,
+		data = assetDir .. ".assets",
 		width = 33,
 		height = 33,
 		defaultFrame = "switch_checkboxDefault",
