@@ -6,9 +6,10 @@
 		widget_newSwitch.lua
 		
 	What is it?:
-		A widget object that can...
+		A widget object that can create a checkbox, radioButton or a on/off style switch.
 	
 	Features:
+		*) A switch can be a sprite, newRect or newImage.
 --]]
 
 local M = 
@@ -16,8 +17,8 @@ local M =
 	_options = {},
 }
 
-
-local function initWithImage( self, options )
+-- Creates a new switch from an image
+local function initWithImage( self, options ) -- Self == switch (group)
 	local opt = options
 	
 	-- If were using an imagesheet don't use a single image
@@ -42,7 +43,6 @@ local function initWithImage( self, options )
 	view.isOn = opt.defaultState
 	
 	-- Assign properties to self
-	self._imageSheet = view._imageSheet
 	self._view = view
 	self._view.subView = view.subView
 	
@@ -53,7 +53,8 @@ local function initWithImage( self, options )
 	return self
 end
 
-local function initWithSprite( self, options )
+-- Creates a new switch from a sprite
+local function initWithSprite( self, options ) -- Self == switch (group)
 	local opt = options
 	
 	-- If were using an imagesheet don't use a single image
@@ -98,11 +99,8 @@ end
 
 
 
-
-
-
 -- Initialize with a on/off toggle switch
-local function initWithOnOffSwitch( self, options )
+local function initWithOnOffSwitch( self, options ) -- Self == switch (group)
 	local opt = options
 	
 	-- This is measured from the pixels in the switch overlay image.
@@ -160,6 +158,7 @@ local function initWithOnOffSwitch( self, options )
 			self._onPress( event )
 		end
 		
+		-- Transition the switch from on>off and vice versa
 		if self.isOn then
 			self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = 300 } )
 			self._transition = transition.to( self.handle, { x = self._endRange, time = 300 } )
@@ -213,6 +212,7 @@ local function initWithOnOffSwitch( self, options )
 					self._onRelease( event )
 				end
 				
+				-- Transition the switch from on>off and vice versa
 				if self.handle.x < 0 then
 					self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = 300 } )
 					self._transition = transition.to( self.handle, { x = self._startRange, time = 300 } )
@@ -270,6 +270,8 @@ local function initWithOnOffSwitch( self, options )
 		self._view.handle:removeSelf()
 		self._view.overlay = nil
 		self._view.handle = nil
+		self._view._imageSheet = nil
+		
 		self._view = nil
 	end
 
@@ -346,6 +348,8 @@ local function initWithStandardSwitch( self, options )
 	function self:_finalize()
 		self._view:removeSelf()
 		self._view = nil
+		
+		self._view._imageSheet = nil
 	end
 	
 	return self

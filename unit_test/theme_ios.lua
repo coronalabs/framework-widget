@@ -262,7 +262,7 @@ themeTable.switch =
 	handle = "switch_handle",
 	handleOver = "switch_handleOver",
 	switchType = "onOff",
-	mask = assetDir .. "/switch_onOffMask.png",
+	mask = assetDir .. "/masks/switch/onOffMask.png",
 	
 	radio =
 	{
@@ -283,9 +283,27 @@ themeTable.switch =
 		defaultFrame = "switch_checkboxDefault",
 		selectedFrame = "switch_checkboxSelected",
 		switchType = "checkbox",
-	}
+	},
 }
 
+-----------------------------------------------------------------------------------------
+--
+-- stepper
+--
+-----------------------------------------------------------------------------------------
+
+themeTable.stepper = 
+{
+	sheet = assetDir .. "/assets.png",
+	data = assetDir .. ".assets",
+	default = "stepper_nonActive",
+	noMinus = "stepper_noMinus",
+	noPlus = "stepper_noPlus",
+	minusActive = "stepper_minusActive",
+	plusActive = "stepper_plusActive",
+	width = 102,
+	height = 38,
+}
 
 -----------------------------------------------------------------------------------------
 

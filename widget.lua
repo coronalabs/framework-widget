@@ -453,4 +453,44 @@ end
 -----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+--
+-- Stepper widget
+--
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
+function widget.newStepper( options )
+	-- this widget requires visual customization via themes to work properly
+	local themeOptions
+	if widget.theme then
+		local stepperTheme = widget.theme.stepper
+				
+		if stepperTheme then
+			if options and options.style then	-- style parameter optionally set by user
+				
+				-- for themes that support various "styles" per widget
+				local style = stepperTheme[options.style]
+				
+				if style then themeOptions = style; end
+			else
+				-- if no style parameter set, use default style specified by theme
+				themeOptions = stepperTheme
+			end
+						
+			return require( "widget_stepper" ).new( options, themeOptions )
+		else
+			print( "WARNING: The widget theme you are using does not support the stepper widget." )
+			return
+		end
+	else
+		return require( "widget_stepper" ).new( options )
+	end
+end
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
 return widget
