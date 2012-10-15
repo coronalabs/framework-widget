@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.texturepacker.com)
 --
--- $TexturePacker:SmartUpdate:1db18a4df512aa2609f1be993d86b668$
+-- $TexturePacker:SmartUpdate:355cfddf105b8aea79fb45f943fe3d04$
 --
 -- local sheetInfo = require("myExportedImageSheet") -- lua file that Texture packer published
 --
@@ -18,95 +18,140 @@ SheetInfo.sheet =
     frames = {
     
         {
-            -- spinner_spinner
+            -- stepper_plusActive
             x=2,
             y=2,
-            width=40,
-            height=40,
+            width=94,
+            height=27,
+
+        },
+        {
+            -- stepper_nonActive
+            x=98,
+            y=2,
+            width=94,
+            height=27,
+
+        },
+        {
+            -- stepper_noMinus
+            x=194,
+            y=2,
+            width=94,
+            height=27,
+
+        },
+        {
+            -- stepper_noPlus
+            x=290,
+            y=2,
+            width=94,
+            height=27,
+
+        },
+        {
+            -- stepper_minusActive
+            x=386,
+            y=2,
+            width=94,
+            height=27,
+
+        },
+        {
+            -- switch_handleOver
+            x=2,
+            y=31,
+            width=31,
+            height=31,
+
+        },
+        {
+            -- switch_handle
+            x=35,
+            y=31,
+            width=31,
+            height=31,
 
         },
         {
             -- switch_background
-            x=184,
-            y=2,
+            x=68,
+            y=31,
             width=165,
             height=31,
 
         },
         {
-            -- switch_checkboxDefault
-            x=149,
-            y=2,
-            width=33,
-            height=33,
-
-        },
-        {
-            -- switch_checkboxSelected
-            x=114,
-            y=2,
-            width=33,
-            height=33,
-
-        },
-        {
-            -- switch_handle
-            x=469,
-            y=2,
-            width=31,
-            height=31,
-
-        },
-        {
-            -- switch_handleOver
-            x=436,
-            y=2,
-            width=31,
-            height=31,
-
-        },
-        {
             -- switch_overlay
-            x=351,
-            y=2,
+            x=235,
+            y=31,
             width=83,
             height=31,
 
         },
         {
+            -- switch_checkboxSelected
+            x=320,
+            y=31,
+            width=33,
+            height=33,
+
+        },
+        {
+            -- switch_checkboxDefault
+            x=355,
+            y=31,
+            width=33,
+            height=33,
+
+        },
+        {
             -- switch_radioButtonDefault
-            x=79,
-            y=2,
+            x=390,
+            y=31,
             width=33,
             height=34,
 
         },
         {
             -- switch_radioButtonSelected
-            x=44,
-            y=2,
+            x=425,
+            y=31,
             width=33,
             height=34,
+
+        },
+        {
+            -- spinner_spinner
+            x=460,
+            y=31,
+            width=40,
+            height=40,
 
         },
     },
     
     sheetContentWidth = 502,
-    sheetContentHeight = 44
+    sheetContentHeight = 73
 }
 
 SheetInfo.frameIndex =
 {
 
-    ["spinner_spinner"] = 1,
-    ["switch_background"] = 2,
-    ["switch_checkboxDefault"] = 3,
-    ["switch_checkboxSelected"] = 4,
-    ["switch_handle"] = 5,
+    ["stepper_plusActive"] = 1,
+    ["stepper_nonActive"] = 2,
+    ["stepper_noMinus"] = 3,
+    ["stepper_noPlus"] = 4,
+    ["stepper_minusActive"] = 5,
     ["switch_handleOver"] = 6,
-    ["switch_overlay"] = 7,
-    ["switch_radioButtonDefault"] = 8,
-    ["switch_radioButtonSelected"] = 9,
+    ["switch_handle"] = 7,
+    ["switch_background"] = 8,
+    ["switch_overlay"] = 9,
+    ["switch_checkboxSelected"] = 10,
+    ["switch_checkboxDefault"] = 11,
+    ["switch_radioButtonDefault"] = 12,
+    ["switch_radioButtonSelected"] = 13,
+    ["spinner_spinner"] = 14,
 }
 
 function SheetInfo:getSheet()

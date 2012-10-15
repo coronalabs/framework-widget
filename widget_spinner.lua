@@ -127,8 +127,11 @@ local function initWithSprite( self, options ) -- Self == spinnerObject (group)
 	-- Finalize function
 	function self:_finalize()
 		-- Set spinners ImageSheet to nil
-		self._imageSheet = nil
+		self._view_imageSheet = nil
 	end
+	
+	-- Assign to view
+	self._view_imageSheet = imageSheet
 	
 	-- Assign the view to self's view
 	self._view = view
