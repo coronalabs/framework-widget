@@ -21,7 +21,7 @@ local M =
 }
 
 -- Creates a new spinner from an image
-local function initWithImage( self, options ) -- Self == spinnerObject (group)
+local function initWithImage( spinner, options )
 	local opt = options
 	
 	-- If there is an image, don't attempt to use a sheet
@@ -34,7 +34,7 @@ local function initWithImage( self, options ) -- Self == spinnerObject (group)
 	
 	-- Create the view
 	if opt.sheet then
-		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 		view = display.newImageRect( imageSheet, opt.startFrame, opt.width, opt.height )
 	else
 		-- There isn't a sheet defined > Use display.newImageRect
@@ -110,7 +110,7 @@ local function initWithSprite( self, options ) -- Self == spinnerObject (group)
 	}
 	
 	-- Create the view
-	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	local view = display.newSprite( imageSheet, sheetOptions )
 	view:setSequence( "default" )
 	

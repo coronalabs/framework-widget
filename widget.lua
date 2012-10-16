@@ -493,4 +493,44 @@ end
 -----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+--
+-- SearchField widget
+--
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
+function widget.newSearchField( options )
+	-- this widget requires visual customization via themes to work properly
+	local themeOptions
+	if widget.theme then
+		local searchFieldTheme = widget.theme.searchField
+				
+		if searchFieldTheme then
+			if options and options.style then	-- style parameter optionally set by user
+				
+				-- for themes that support various "styles" per widget
+				local style = searchFieldTheme[options.style]
+				
+				if style then themeOptions = style; end
+			else
+				-- if no style parameter set, use default style specified by theme
+				themeOptions = searchFieldTheme
+			end
+						
+			return require( "widget_searchField" ).new( options, themeOptions )
+		else
+			print( "WARNING: The widget theme you are using does not support the searchField widget." )
+			return
+		end
+	else
+		return require( "widget_searchField" ).new( options )
+	end
+end
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
 return widget

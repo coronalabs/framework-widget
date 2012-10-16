@@ -1,5 +1,5 @@
 -- Copyright (C) 2012 Corona Inc. All Rights Reserved.
--- File: newStepper unit test.
+-- File: newSearchField unit test.
 
 -- Change the package.path and make it so we can require the "widget.lua" file from the root directory
 -------------------------------------------------------------------------------------------------
@@ -56,46 +56,37 @@ function scene:createScene( event )
 	widget.setTheme( "theme_ios" )
 	
 	
-	local numberText = display.newText( "0", 0, 0, native.systemFontBold, 24 )
-	numberText.x = display.contentCenterX
-	numberText.y = 140
-	numberText.no = 0
-	group:insert( numberText )
 	
+	local searchFor =
+	{
+		"hello",
+		"corona",
+		"sdk",
+		"soft",
+		"software",
+		"serious",
+	}
 	
 	local function onPress( event )
 		local phase = event.phase
-		
-		--print( phase )
-		
-		if "increment" == phase then
-			numberText.no = numberText.no + 1
-		elseif "decrement" == phase then
-			numberText.no = numberText.no - 1
-		end
 
-		numberText.text = numberText.no
-	
-		--print( self.id, "is on?:", self.isOn )
 	end
 		
 	
-	local newStepper = widget.newStepper
+	local newSearchField = widget.newSearchField
 	{
 		left = 150,
 		top = 200,
-		startNo = 0,
-		min = 0,
-		--max = 5,
-		onPress = onPress,
+		searchInTable = searchFor,
+		--onPress = onPress,
 	}
-	group:insert( newStepper )
+	group:insert( newSearchField )
 
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --
 	----------------------------------------------------------------------------------------------------------------
 	
-	-- Test removing switch
+	-- Test something
 	--[[
 	if TEST_REMOVE_SWITCH then
 		timer.performWithDelay( 100, function()
