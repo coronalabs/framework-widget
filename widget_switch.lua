@@ -27,7 +27,7 @@ local function initWithImage( self, options ) -- Self == switch (group)
 	
 	-- Create the view
 	if opt.sheet and opt.width and opt.height then
-		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 		view = display.newImageRect( imageSheet, opt.defaultFrame, opt.width, opt.height )
 		view.subView = display.newImageRect( imageSheet, opt.selectedFrame, opt.width, opt.height )
 	else
@@ -108,7 +108,7 @@ local function initWithOnOffSwitch( self, options ) -- Self == switch (group)
 	local endRange = math.abs( startRange )
 	
 	-- The imageSheet
-	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
 	-- The view is the switches background image
 	local view = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.background ), opt.backgroundWidth, opt.backgroundHeight )

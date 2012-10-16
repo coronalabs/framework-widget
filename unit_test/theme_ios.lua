@@ -306,5 +306,23 @@ themeTable.stepper =
 }
 
 -----------------------------------------------------------------------------------------
+--
+-- searchField
+--
+-----------------------------------------------------------------------------------------
+
+themeTable.searchField = 
+{
+	sheet = assetDir .. "/assets.png",
+	data = assetDir .. ".assets",
+	defaultFrame = "searchField_bar",
+	cancelFrame = "searchField_remove",
+	defaultFrameWidth = 207,
+	defaultFrameHeight = 33,
+	cancelFrameWidth = 19,
+	cancelFrameHeight = 19,
+}
+
+-----------------------------------------------------------------------------------------
 
 return themeTable
