@@ -274,7 +274,7 @@ function widget.newPickerWheel( options )
 				-- if no style parameter set, use default style specified by theme
 				themeOptions = pickerTheme
 			end
-			
+			package.preload.widget_picker = nil
 			return require( "widget_picker" ).createPickerWheel( options, themeOptions )
 		else
 			print( "WARNING: The widget theme you are using does not support the pickerWheel widget." )
@@ -343,6 +343,7 @@ end
 -----------------------------------------------------------------------------------------
 
 function widget.newTableView( options )
+	package.preload.widget_tableview = nil
 	return require( "widget_tableview" ).createTableView( options )
 end
 

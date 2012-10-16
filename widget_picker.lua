@@ -17,8 +17,13 @@ function m.pickerSoftLand( self )
     local index = nil
     
     --Get row using same system at picker.getValues uses
-    if target:getRowAtCoordinate( top + selectionTop + ( selectionHeight * 0.5 ) ) ~= nil then
-        index = target:getRowAtCoordinate( top + selectionTop + ( selectionHeight * 0.5 ) ).index
+    local realSelectionY = top + selectionTop + (selectionHeight*0.5)
+    local nextSelectionY = top + selectionTop + (selectionHeight*0.6)
+    if target:getRowAtCoordinate( realSelectionY ) ~= nil then
+        index = target:getRowAtCoordinate( realSelectionY ).index
+    else
+    	-- If the picker stops exactly between two selections then land on the one below
+    	index = target:getRowAtCoordinate( nextSelectionY ).index
     end
     
     --If there is an index, scroll to it to give the impression of soft landing
