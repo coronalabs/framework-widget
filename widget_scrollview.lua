@@ -359,7 +359,13 @@ local function onContentTouch( self, event )    -- self == content
                     
                     -- modify velocity based on previous move phase
                     --self.eventStep = 0
-                    self.velocity = (self.y - self.prevY) / (time - self.markTime)
+                    --self.velocity = (self.y - self.prevY) / (time - self.markTime)
+                   
+                   	local deltaTime = ( time - self.markTime )
+                    if deltaTime >= 1 then
+                    	self.velocity = (self.y - self.prevY) / deltaTime
+                    end
+                   
                     self.markTime = time
                     self.prevY = self.y
                 
@@ -378,7 +384,13 @@ local function onContentTouch( self, event )    -- self == content
                     
                     -- modify velocity based on previous move phase
                     --self.eventStep = 0
-                    self.velocity = (self.x - self.prevX) / (time - self.markTime)
+                    --self.velocity = (self.x - self.prevX) / (time - self.markTime)
+                    
+                    local deltaTime = ( time - self.markTime )
+                    if deltaTime >= 1 then
+                    	self.velocity = (self.x - self.prevX) / deltaTime
+                    end
+                    
                     self.markTime = time
                     self.prevX = self.x
                 end
