@@ -804,7 +804,7 @@ function m.createTableView( options, scrollFriction )
     local   maskFile = options.maskFile
     local   hideBackground = options.hideBackground
     local   keepRowsPastTopVisible = options.keepRowsPastTopVisible
-    local   topPadding = options.topPadding
+    local   topPadding = options.topPadding or 0
     local   bottomPadding = options.bottomPadding
     local   maxVelocity = options.maxVelocity or 10
     local   baseDir = options.baseDir or system.ResourceDirectory
