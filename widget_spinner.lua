@@ -22,6 +22,7 @@ local M =
 
 -- Creates a new spinner from an image
 local function initWithImage( spinner, options )
+	-- Create a local reference to our options table
 	local opt = options
 	
 	-- If there is an image, don't attempt to use a sheet
@@ -47,7 +48,7 @@ local function initWithImage( spinner, options )
 	end
 			
 	-- Function to start the spinner's rotation
-	function self:start() -- Self == Spinner	
+	function spinner:start()
 		-- The spinner isn't a sprite > Start or resume it's timer
 		local function rotateSpinner()
 			self._view:rotate( self._view._deltaAngle )
@@ -63,7 +64,7 @@ local function initWithImage( spinner, options )
 	end
 	
 	-- Function to pause the spinner's rotation
-	function self:stop() -- Self == Spinner	
+	function spinner:stop()
 		-- Pause the spinner's timer
 		if self._view._timer then
 			timer.pause( self._view._timer )
@@ -71,33 +72,38 @@ local function initWithImage( spinner, options )
 	end
 	
 	-- Finalize function
-	function self:_finalize()
+	function spinner:_finalize()
 		if self._view._timer then
 			timer.cancel( self._view._timer )
 			self._view._timer = nil
 		end
 		
 		-- Set spinners ImageSheet to nil
-		self._view._imageSheet = nil
+		self._imageSheet = nil
 	end
 
 	-- We need to assign these properties to the object
 	view._deltaAngle = opt.deltaAngle
 	view._increments = opt.increments
-	view._imageSheet = imageSheet
-
-	-- Assign the view to self's view
-	self._view = view
+	
+	-------------------------------------------------------
+	-- Assign properties to the view
+	-------------------------------------------------------
+	
+	-- Assign objects to the switch
+	spinner._imageSheet = imageSheet
+	spinner._view = view
 
 	-- Insert the view into the parent group
-	self:insert( view )
+	spinner:insert( view )
 			
-	return self
+	return spinner
 end
 
 
 -- Creates a new spinner from a sprite
-local function initWithSprite( self, options ) -- Self == spinnerObject (group)
+local function initWithSprite( spinner, options )
+	-- Create a local reference to our options table
 	local opt = options
 	
 	-- Animation options
@@ -115,37 +121,41 @@ local function initWithSprite( self, options ) -- Self == spinnerObject (group)
 	view:setSequence( "default" )
 	
 	-- Function to start the spinner's animation
-	function self:start() -- Self == Spinner	
+	function spinner:start()
 		self._view:play()
 	end
 	
 	-- Function to pause the spinner's animation
-	function self:stop() -- Self == Spinner	
+	function spinner:stop()
 		self._view:pause()
 	end
 	
 	-- Finalize function
-	function self:_finalize()
+	function spinner:_finalize()
 		-- Set spinners ImageSheet to nil
 		self._view_imageSheet = nil
 	end
 	
-	-- Assign to view
-	self._view_imageSheet = imageSheet
+	-------------------------------------------------------
+	-- Assign properties/objects to the switch
+	-------------------------------------------------------
 	
-	-- Assign the view to self's view
-	self._view = view
+	-- Assign objects to the switch
+	spinner._imageSheet = imageSheet
+	spinner._view = view
 	
 	-- Insert the view into the parent group
-	self:insert( view )
+	spinner:insert( view )
 	
-	return self
+	return spinner
 end
 
 
 -- Function to create a new Spinner object ( widget.newSpinner)
 function M.new( options, theme )	
 	local customOptions = options or {}
+	
+	-- Create a local reference to our options table
 	local opt = M._options
 	
 	-- If there isn't an options table and there isn't a theme set throw an error

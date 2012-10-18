@@ -74,15 +74,15 @@ function scene:createScene( event )
 		print( self.id, "is on?:", self.isOn )
 	end
 	
+	
 	-- Create a radio switch
 	local radioButton = widget.newSwitch
 	{
 		left = 130,
 		top = 120,
 		style = "radio",
-		switchType = "radio",
 		id = "Radio button",
-		defaultState = true,
+		initialSwitchState = true,
 		onPress = onRadioPress,
 	}
 	group:insert( radioButton )
@@ -94,7 +94,6 @@ function scene:createScene( event )
 		left = 130,
 		top = 200,
 		style = "checkbox",
-		switchType = "checkbox",
 		id = "Checkbox button",
 		onPress = onCheckBoxPress,
 	}
@@ -104,7 +103,7 @@ function scene:createScene( event )
 	{
 		left = 130,
 		top = 300,
-		defaultState = true,
+		initialSwitchState = true,
 		onPress = onOnOffPress
 	}
 
