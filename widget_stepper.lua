@@ -20,6 +20,7 @@ local M =
 
 -- Creates a new stepper from a sprite
 local function initWithSprite( self, options ) -- Self == stepper (group)
+	-- Create a local reference to our options table	
 	local opt = options
 	
 	-- Animation options
@@ -62,12 +63,15 @@ local function initWithSprite( self, options ) -- Self == stepper (group)
 		
 	}
 	
+	-- Forward references
+	local imageSheet, view
+	
 	-- Create the view
-	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
-	local view = display.newSprite( imageSheet, sheetOptions )
+	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+	view = display.newSprite( imageSheet, sheetOptions )
 	view:setSequence( "default" )
 	
-	
+
 	-- Function to dispatch a increment event for the stepper
 	function view:_dispatchIncrement()
 		local phase = nil

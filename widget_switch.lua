@@ -79,12 +79,12 @@ local function initWithSprite( switch, options )
 		opt.imageOff = nil
 		opt.imageOn = nil 
 	end
+		
+	-- Forward references
+	local imageSheet, view
 	
 	-- Create the image sheet
-	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
-	
-	-- Forward references
-	local view
+	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
 	-- Create the sequenceData table
 	local switchSheetOptions = 
@@ -139,12 +139,12 @@ local function createOnOffSwitch( switch, options )
 	-- This is measured from the pixels in the switch overlay image.
 	local startRange = - math.round( opt.onOffOverlayWidth / 3.06 )
 	local endRange = math.abs( startRange )
-	
-	-- The imageSheet
-	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
-	
+		
 	-- Forward references
-	local view, viewOverlay, viewHandle, viewMask
+	local imageSheet, view, viewOverlay, viewHandle, viewMask
+	
+	-- Create the imageSheet
+	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
 	-- The view is the switches background image
 	view = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffBackground ), opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
@@ -178,9 +178,54 @@ local function createOnOffSwitch( switch, options )
 	viewMask = graphics.newMask( opt.onOffMask, opt.baseDir )
 	view:setMask( viewMask )
 
-	--------------------------------------------------------------------------------------------------------------------
-	--												METHODS															  --
-	--------------------------------------------------------------------------------------------------------------------
+	-------------------------------------------------------
+	-- Assign properties to the view
+	-------------------------------------------------------
+		
+	-- Properties
+	view._startRange = startRange
+	view._endRange = endRange
+	view._onPress = opt.onPress
+	view._onRelease = opt.onRelease
+	
+	-- Objects
+	view._overlay = viewOverlay
+	view._handle = viewHandle
+	view._mask = viewMask
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the switch
+	-------------------------------------------------------
+	
+	-- Assign properties to the switch	
+	switch.isOn = opt.initialSwitchState
+	
+	-- Set the switch position based on the chosen default value (ie on/off)
+	if switch.isOn then
+		view.x = view._endRange
+		view._handle.x = view._endRange
+		view.maskX = view._handle.x - math.abs( view._startRange ) - view._endRange
+	else
+		view.x = view._startRange
+		view._handle.x = view._startRange
+		view.maskX = view._handle.x + math.abs( view._startRange ) + view._endRange
+	end
+	
+	-- Assign objects to the switch
+	switch._imageSheet = imageSheet
+	switch._view = view
+	switch._view._overlay = view._overlay
+	switch._view._handle = view._handle
+	switch._view._mask = view._mask
+		
+	-- Insert the view's into the switch (group)
+	switch:insert( view )
+	switch:insert( view._overlay )
+	switch:insert( view._handle )
+	
+	----------------------------------------------------------
+	--	PUBLIC METHODS	
+	----------------------------------------------------------
 	
 	-- Handle taps on the switch
 	function view:tap( event )
@@ -288,45 +333,9 @@ local function createOnOffSwitch( switch, options )
 	
 	view:addEventListener( "touch" )
 	
-	-------------------------------------------------------
-	-- Assign properties to the view
-	-------------------------------------------------------
-		
-	-- Properties
-	view._startRange = startRange
-	view._endRange = endRange
-	view._onPress = opt.onPress
-	view._onRelease = opt.onRelease
-	
-	-- Objects
-	view._overlay = viewOverlay
-	view._handle = viewHandle
-	view._mask = viewMask
-	
-	-------------------------------------------------------
-	-- Assign properties/objects to the switch
-	-------------------------------------------------------
-	
-	-- Assign properties to the switch	
-	switch.isOn = opt.initialSwitchState
-	
-	-- Set the switch position based on the chosen default value (ie on/off)
-	if switch.isOn then
-		view.x = view._endRange
-		view._handle.x = view._endRange
-		view.maskX = view._handle.x - math.abs( view._startRange ) - view._endRange
-	else
-		view.x = view._startRange
-		view._handle.x = view._startRange
-		view.maskX = view._handle.x + math.abs( view._startRange ) + view._endRange
-	end
-	
-	-- Assign objects to the switch
-	switch._imageSheet = imageSheet
-	switch._view = view
-	switch._view._overlay = view._overlay
-	switch._view._handle = view._handle
-	switch._view._mask = view._mask
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
 	
 	-- Finalize method for standard switch
 	function switch:_finalize()
@@ -351,11 +360,6 @@ local function createOnOffSwitch( switch, options )
 		self._view = nil
 		self._imageSheet = nil
 	end
-	
-	-- Insert the view's into the switch (group)
-	switch:insert( view )
-	switch:insert( view._overlay )
-	switch:insert( view._handle )
 
 	return switch
 end
@@ -385,14 +389,18 @@ local function createStandardSwitch( switch, options )
 	local view = switch._view or switch._viewOn
 	view.isHitTestable = true
 	
+	-------------------------------------------------------
+	-- Assign properties to the view
+	-------------------------------------------------------
+	
 	-- Assign properties/methods to the view.
 	view._onPress = opt.onPress
 	view._onRelease = opt.onRelease
 	view._onEvent = opt.onEvent
 
-	--------------------------------------------------------------------------------------------------------------------
-	--												METHODS															  --
-	--------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------
+	--	PUBLIC METHODS	
+	----------------------------------------------------------
 
 	-- Handle touches on the switch
 	function view:touch( event )
@@ -440,6 +448,9 @@ local function createStandardSwitch( switch, options )
 		
 	view:addEventListener( "touch" )
 	
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
 	
 	-- Finalize method for standard switch
 	function switch:_finalize()
