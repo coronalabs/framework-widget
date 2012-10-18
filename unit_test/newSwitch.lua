@@ -50,7 +50,7 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------	
 	
 	--Toggle these defines to execute automated tests.
-	local TEST_REMOVE_SWITCH = false
+	local TEST_REMOVE_SWITCH = true
 	local TEST_DELAY = 1000
 
 	-- Set a theme

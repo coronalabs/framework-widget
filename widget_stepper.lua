@@ -19,7 +19,7 @@ local M =
 
 
 -- Creates a new stepper from a sprite
-local function initWithSprite( self, options ) -- Self == stepper (group)
+local function initWithSprite( stepper, options )
 	-- Create a local reference to our options table	
 	local opt = options
 	
@@ -66,11 +66,112 @@ local function initWithSprite( self, options ) -- Self == stepper (group)
 	-- Forward references
 	local imageSheet, view
 	
-	-- Create the view
+	-- Create the imageSheet
 	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+	
+	-- Create the view
 	view = display.newSprite( imageSheet, sheetOptions )
 	view:setSequence( "default" )
 	
+	-------------------------------------------------------
+	-- Assign properties to the view
+	-------------------------------------------------------
+	
+	-- Assign to the view
+	view._timerIncrements = 1000
+	view._changeAtTime = view._timerIncrements
+	view._increments = 0
+	view._changeSpeedAt = 5
+	view._timer = nil
+	view._min = opt.min
+	view._max = opt.max
+	view._currentNo = opt.startNo
+	view._event = {} -- Our event table for the view
+	view._previousX = 0
+	view._onPress = opt.onPress
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the switch
+	-------------------------------------------------------
+	
+	-- Assign objects to the stepper
+	stepper._imageSheet = imageSheet
+	
+	-- Assign the view to self's view
+	stepper._view = view
+	
+	-- Insert the view into the stepper (group)
+	stepper:insert( view )
+	
+	----------------------------------------------------------
+	--	PUBLIC METHODS	
+	----------------------------------------------------------
+		
+	-- Handle touch events on the stepper
+	function view:touch( event )
+		local phase = event.phase
+		local _stepper = self.parent
+		event.target = stepper
+		
+		if "began" == phase then
+			-- Set focus on the stepper (if focus isn't already on it)
+			if not self._isFocus then
+				display.getCurrentStage():setFocus( self, event.id )
+       			self._isFocus = true
+       		end
+        
+			-- If we have pressed the right side of the stepper (the plus)
+			if event.x > _stepper.x then
+				self:_dispatchIncrement()
+			else
+				-- We have pressed the left side of the stepper (the minus)
+				self:_dispatchDecrement()
+			end
+			
+			-- Set the previous x position of the event
+			self._previousX = event.x
+			
+			-- Manage the steppers pressed state ( & animation )
+			self:_manageStepperPressState()
+			
+			-- Exectute the onPress method if there is one
+			if self._onPress then
+				self._onPress( self._event )
+			end
+		
+		elseif self._isFocus then
+		
+			if "moved" == phase then
+				-- Handle switching from one side of the switch whilst still holding your finger on the screen
+				if event.x >= _stepper.x then
+					if self._event.phase ~= "increment" then
+						self:dispatchEvent( { name = "touch", phase = "began", x = 160 } )
+					end
+				else
+            		-- Dispatch a touch event to self
+            		if self._event.phase ~= "decrement" then
+						self:dispatchEvent( { name = "touch", phase = "began", x = 60 } )
+					end
+				end
+		
+			elseif "ended" == phase or "cancelled" == phase then
+				-- Manage the steppers released state
+				view:_manageStepperReleaseState()
+				
+				-- Remove focus from stepper
+            	display.getCurrentStage():setFocus( self, nil )
+            	self._isFocus = false
+			end
+		end
+		
+		return true
+	end
+	
+	view:addEventListener( "touch" )
+	
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
 
 	-- Function to dispatch a increment event for the stepper
 	function view:_dispatchIncrement()
@@ -175,97 +276,15 @@ local function initWithSprite( self, options ) -- Self == stepper (group)
 			self._timer = nil
 		end
 	end
-		
-	-- Handle touch events on the stepper
-	function view:touch( event )
-		local phase = event.phase
-		local parent = self.parent
-		
-		if "began" == phase then
-			-- Set focus on the stepper (if focus isn't already on it)
-			if not self._isFocus then
-				display.getCurrentStage():setFocus( self, event.id )
-       			self._isFocus = true
-       		end
-        
-			-- If we have pressed the right side of the stepper (the plus)
-			if event.x > parent.x then
-				self:_dispatchIncrement()
-			else
-				-- We have pressed the left side of the stepper (the minus)
-				self:_dispatchDecrement()
-			end
-			
-			-- Set the previous x position of the event
-			self._previousX = event.x
-			
-			-- Manage the steppers pressed state ( & animation )
-			self:_manageStepperPressState()
-			
-			-- Exectute the onPress method if there is one
-			if self._onPress then
-				self._onPress( self._event )
-			end
-		
-		elseif self._isFocus then
-		
-			if "moved" == phase then
-				-- Handle switching from one side of the switch whilst still holding your finger on the screen
-				if event.x >= parent.x then
-					if self._event.phase ~= "increment" then
-						self:dispatchEvent( { name = "touch", phase = "began", x = 160 } )
-					end
-				else
-            		-- Dispatch a touch event to self
-            		if self._event.phase ~= "decrement" then
-						self:dispatchEvent( { name = "touch", phase = "began", x = 60 } )
-					end
-				end
-		
-			elseif "ended" == phase or "cancelled" == phase then
-				-- Manage the steppers released state
-				view:_manageStepperReleaseState()
-				
-				-- Remove focus from stepper
-            	display.getCurrentStage():setFocus( self, nil )
-            	self._isFocus = false
-			end
-		end
-		
-		return true
-	end
-	
-	view:addEventListener( "touch" )
-
 	
 	-- Finalize function
-	function self:_finalize()
+	function stepper:_finalize()
 		-- Set steppers ImageSheet to nil
-		self._view._imageSheet = nil
+		self._imageSheet = nil
 		
 		-- Cancel the timer
-		self:_cancelTimer()
+		self._view:_cancelTimer()
 	end
-	
-	-- Assign to the view
-	view._imageSheet = imageSheet
-	view._timerIncrements = 1000
-	view._changeAtTime = view._timerIncrements
-	view._increments = 0
-	view._changeSpeedAt = 5
-	view._timer = nil
-	view._min = opt.min
-	view._max = opt.max
-	view._currentNo = opt.startNo
-	view._event = {} -- Our event table for the view
-	view._previousX = 0
-	view._onPress = opt.onPress
-	
-	-- Assign the view to self's view
-	self._view = view
-	
-	-- Insert the view into the parent group
-	self:insert( view )
 	
 	return self
 end

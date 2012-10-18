@@ -345,11 +345,6 @@ local function createOnOffSwitch( switch, options )
 			self._view._transition = nil
 		end
 		
-		-- Remove all objects from the switch group
-		display.remove( self._view )
-		display.remove( self._view._overlay )
-		display.remove( self._view._handle )
-		
 		-- Remove the switch's mask
 		self._view:setMask( nil )
 		
@@ -453,12 +448,7 @@ local function createStandardSwitch( switch, options )
 	----------------------------------------------------------
 	
 	-- Finalize method for standard switch
-	function switch:_finalize()
-		-- Remove all objects from the switch group
-		display.remove( self._view )
-		display.remove( self._viewOff )
-		display.remove( self._viewOn )
-		
+	function switch:_finalize()		
 		-- Set objects to nil
 		self._viewOff = nil
 		self._viewOn = nil
