@@ -80,7 +80,7 @@ function scene:createScene( event )
 		top = 230,
 		sheet = "assets/customSpinner.png",
 		data = "assets.customSpinner",
-		start = 1,
+		startFrame = 1,
 		count = 30,
 		time = 1000,
 	}
@@ -117,7 +117,7 @@ function scene:createScene( event )
 		height = 35,
 		sheet = "assets/customSpinner.png",
 		data = "assets.customSpinner",
-		start = 1,
+		startFrame = 1,
 		count = 1,
 		deltaAngle = -1,
 	}

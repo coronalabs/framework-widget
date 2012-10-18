@@ -50,17 +50,18 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------	
 	
 	--Toggle these defines to execute automated tests.
-	local TEST_REMOVE_STEPPER = true
+	local TEST_REMOVE_STEPPER = false
 	local TEST_DELAY = 1000
 
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
+	local startAtNumber = 0
 	
-	local numberText = display.newText( "0", 0, 0, native.systemFontBold, 24 )
+	local numberText = display.newText( "0000", 0, 0, native.systemFontBold, 24 )
 	numberText.x = display.contentCenterX
 	numberText.y = 140
-	numberText.no = 0
+	numberText.no = startAtNumber
 	group:insert( numberText )
 	
 	
@@ -75,9 +76,7 @@ function scene:createScene( event )
 			numberText.no = numberText.no - 1
 		end
 
-		numberText.text = numberText.no
-	
-		--print( self.id, "is on?:", self.isOn )
+		numberText.text = string.format( "%04d", numberText.no )
 	end
 		
 	
@@ -85,13 +84,16 @@ function scene:createScene( event )
 	{
 		left = 150,
 		top = 200,
-		startNo = 0,
-		min = 0,
-		--max = 5,
+		startNumber = startAtNumber,
+		minimumValue = 0,
+		maximumValue = 25,
 		onPress = onPress,
 	}
 	group:insert( newStepper )
-
+	
+	-- Update the intial text
+	numberText.text = string.format( "%04d", startAtNumber )
+	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --
 	----------------------------------------------------------------------------------------------------------------
