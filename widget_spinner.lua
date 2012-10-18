@@ -46,6 +46,29 @@ local function initWithImage( spinner, options )
 			view = display.newImage( opt.image, true )
 		end
 	end
+	
+	-------------------------------------------------------
+	-- Assign properties to the view
+	-------------------------------------------------------
+	
+	-- We need to assign these properties to the object
+	view._deltaAngle = opt.deltaAngle
+	view._increments = opt.increments
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the spinner
+	-------------------------------------------------------
+	
+	-- Assign objects to the spinner
+	spinner._imageSheet = imageSheet
+	spinner._view = view
+
+	-- Insert the view into the parent group
+	spinner:insert( view )
+	
+	----------------------------------------------------------
+	--	PUBLIC METHODS	
+	----------------------------------------------------------
 			
 	-- Function to start the spinner's rotation
 	function spinner:start()
@@ -71,7 +94,11 @@ local function initWithImage( spinner, options )
 		end
 	end
 	
-	-- Finalize function
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
+	
+	-- Finalize function for the spinner
 	function spinner:_finalize()
 		if self._view._timer then
 			timer.cancel( self._view._timer )
@@ -81,21 +108,6 @@ local function initWithImage( spinner, options )
 		-- Set spinners ImageSheet to nil
 		self._imageSheet = nil
 	end
-
-	-- We need to assign these properties to the object
-	view._deltaAngle = opt.deltaAngle
-	view._increments = opt.increments
-	
-	-------------------------------------------------------
-	-- Assign properties to the view
-	-------------------------------------------------------
-	
-	-- Assign objects to the switch
-	spinner._imageSheet = imageSheet
-	spinner._view = view
-
-	-- Insert the view into the parent group
-	spinner:insert( view )
 			
 	return spinner
 end
@@ -115,10 +127,30 @@ local function initWithSprite( spinner, options )
 		time = opt.animTime,
 	}
 	
-	-- Create the view
-	local imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
-	local view = display.newSprite( imageSheet, sheetOptions )
+	-- Forward references
+	local imageSheet, view
+	
+	-- Create the imageSheet
+	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	
+	-- Creat the view
+	view = display.newSprite( imageSheet, sheetOptions )
 	view:setSequence( "default" )
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the spinner
+	-------------------------------------------------------
+	
+	-- Assign objects to the spinner
+	spinner._imageSheet = imageSheet
+	spinner._view = view
+	
+	-- Insert the view into the parent group
+	spinner:insert( view )
+	
+	----------------------------------------------------------
+	--	PUBLIC METHODS	
+	----------------------------------------------------------
 	
 	-- Function to start the spinner's animation
 	function spinner:start()
@@ -130,23 +162,16 @@ local function initWithSprite( spinner, options )
 		self._view:pause()
 	end
 	
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
+	
 	-- Finalize function
 	function spinner:_finalize()
 		-- Set spinners ImageSheet to nil
 		self._view_imageSheet = nil
 	end
-	
-	-------------------------------------------------------
-	-- Assign properties/objects to the switch
-	-------------------------------------------------------
-	
-	-- Assign objects to the switch
-	spinner._imageSheet = imageSheet
-	spinner._view = view
-	
-	-- Insert the view into the parent group
-	spinner:insert( view )
-	
+		
 	return spinner
 end
 
