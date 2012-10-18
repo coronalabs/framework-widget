@@ -28,35 +28,35 @@ local function initWithSprite( stepper, options )
 	{ 
 		{
 			name = "default", 
-			start = opt.default,
+			start = opt.defaultFrame,
 			count = 1,
 			time = 1,
 		},
 		
 		{
 			name = "noMinus",
-			start = opt.noMinus,
+			start = opt.noMinusFrame,
 			count = 1,
 			time = 1,
 		},
 		
 		{
 			name = "noPlus",
-			start = opt.noPlus,
+			start = opt.noPlusFrame,
 			count = 1,
 			time = 1,
 		},
 		
 		{
 			name = "minusActive",
-			start = opt.minusActive,
+			start = opt.minusActiveFrame,
 			count = 1,
 			time = 1,
 		},
 		
 		{
 			name = "plusActive",
-			start = opt.plusActive,
+			start = opt.plusActiveFrame,
 			count = 1,
 			time = 1,
 		},
@@ -78,17 +78,25 @@ local function initWithSprite( stepper, options )
 	-------------------------------------------------------
 	
 	-- Assign to the view
-	view._timerIncrements = 1000
-	view._changeAtTime = view._timerIncrements
+	view._timerIncrementSpeed = 1000
+	view._changeIncrementSpeedAtTime = view._timerIncrementSpeed
 	view._increments = 0
-	view._changeSpeedAt = 5
+	view._changeSpeedAtIncrement = 5
 	view._timer = nil
-	view._min = opt.min
-	view._max = opt.max
-	view._currentNo = opt.startNo
+	view._minimumValue = opt.minimumValue
+	view._maximumValue = opt.maximumValue
+	view._currentNumber = opt.startNumber
 	view._event = {} -- Our event table for the view
 	view._previousX = 0
 	view._onPress = opt.onPress
+	
+	-- If the startNumber is equal to/greater than the minimum or maxium values, set the steppers image sequence to reflect it
+	if view._currentNumber <= 0 then
+		view:setSequence( "noMinus" )
+	elseif view._currentNumber >= view._maximumValue then
+		view._currentNumber = view._maximumValue
+		view:setSequence( "noPlus" )
+	end
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the switch
@@ -96,8 +104,6 @@ local function initWithSprite( stepper, options )
 	
 	-- Assign objects to the stepper
 	stepper._imageSheet = imageSheet
-	
-	-- Assign the view to self's view
 	stepper._view = view
 	
 	-- Insert the view into the stepper (group)
@@ -140,7 +146,6 @@ local function initWithSprite( stepper, options )
 			end
 		
 		elseif self._isFocus then
-		
 			if "moved" == phase then
 				-- Handle switching from one side of the switch whilst still holding your finger on the screen
 				if event.x >= _stepper.x then
@@ -177,13 +182,16 @@ local function initWithSprite( stepper, options )
 	function view:_dispatchIncrement()
 		local phase = nil
 		
-		if self._currentNo < self._max then
+		-- If the currentNumber is less then the maxiumum value then set the phase to "increment"
+		if self._currentNumber < self._maximumValue then
 			phase = "increment"
-			self._currentNo = self._currentNo + 1
+			self._currentNumber = self._currentNumber + 1
 		else
+			-- The currentNumber is more then the maxiumum value, set the phase to "maxLimit"
 			phase = "maxLimit"
 		end
 		
+		-- Set the new event phase
 		self._event.phase = phase
 	end
 	
@@ -191,13 +199,16 @@ local function initWithSprite( stepper, options )
 	function view:_dispatchDecrement()
 		local phase = nil
 		
-		if self._currentNo > self._min then
+		-- If the currentNumber is more then the minimum value then set the phase to "decrement"
+		if self._currentNumber > self._minimumValue then
 			phase = "decrement"
-			self._currentNo = self._currentNo - 1
+			self._currentNumber = self._currentNumber - 1
 		else
+			-- The currentNumber is less then the minimum value, set the phase to "minLimit"
 			phase = "minLimit"
 		end
 		
+		-- Set the new event phase
 		self._event.phase = phase
 	end
 		
@@ -207,7 +218,7 @@ local function initWithSprite( stepper, options )
 		
 		-- Start the steppers timer		
 		if not self._timer then
-			self._timer = timer.performWithDelay( self._changeAtTime, self, 0 )
+			self._timer = timer.performWithDelay( self._changeIncrementSpeedAtTime, self, 0 )
 		end
 		
 		-- Set the steppers sequence according to the phase
@@ -218,28 +229,28 @@ local function initWithSprite( stepper, options )
 		elseif "maxLimit" == phase then
 			self:setSequence( "noPlus" )
 		elseif "minLimit" == phase then
-			self:setSequence( "noMins" )
+			self:setSequence( "noMinus" )
 		end
 	end
 	
 	-- Function to manage the stepper's released touch state (released ie not being touched)
 	function view:_manageStepperReleaseState()
 		-- Set the steppers default sequence
-		if self._currentNo > self._min and self._currentNo < self._max then
+		if self._currentNumber > self._minimumValue and self._currentNumber < self._maximumValue then
 			self:setSequence( "default" )
 		end
 		
 		-- Change the steppers sequence according to if it reaches it's max or min range
-		if self._currentNo >= self._max then
+		if self._currentNumber >= self._maximumValue then
 			self:setSequence( "noPlus" )
-		elseif self._currentNo <= self._min then
+		elseif self._currentNumber <= self._minimumValue then
 			self:setSequence( "noMinus" )
 		end
 		
 		-- Cancel the timer and reset the changeTime
 		if self._timer then
 			self:_cancelTimer()
-			self._changeAtTime = self._timerIncrements
+			self._changeIncrementSpeedAtTime = self._timerIncrementSpeed
 		end
 	end
 	
@@ -249,16 +260,16 @@ local function initWithSprite( stepper, options )
 		self._increments = self._increments + 1
 		
 		-- If the current increment is more or equal to the requested change value
-		if self._increments >= self._changeSpeedAt then
+		if self._increments >= self._changeSpeedAtIncrement then
 			-- Cancel any active timer
 			self:_cancelTimer()
 			
-			-- Half the change at time
-			self._changeAtTime = self._changeAtTime * 0.5
+			-- Half the Increment speed
+			self._changeIncrementSpeedAtTime = self._changeIncrementSpeedAtTime * 0.5
 			
 			-- Re-start the timer at the new incremental value
 			if not self._timer then
-				self._timer = timer.performWithDelay( self._changeAtTime, self, 0 )
+				self._timer = timer.performWithDelay( self._changeIncrementSpeedAtTime, self, 0 )
 			end
 			
 			-- Reset the increments back to 0
@@ -281,6 +292,9 @@ local function initWithSprite( stepper, options )
 	function stepper:_finalize()
 		-- Set steppers ImageSheet to nil
 		self._imageSheet = nil
+		
+		-- Nil out the stepper's event table
+		self._view._event = nil
 		
 		-- Cancel the timer
 		self._view:_cancelTimer()
@@ -313,15 +327,15 @@ function M.new( options, theme )
 	
 	opt.sheet = customOptions.sheet or theme.sheet
 	opt.sheetData = customOptions.data or theme.data
-	opt.default = customOptions.default or require( theme.data ):getFrameIndex( theme.default )
-	opt.noMinus = customOptions.noMinus or require( theme.data ):getFrameIndex( theme.noMinus )
-	opt.noPlus = customOptions.noPlus or require( theme.data ):getFrameIndex( theme.noPlus )
-	opt.minusActive = customOptions.minusActive or require( theme.data ):getFrameIndex( theme.minusActive )
-	opt.plusActive = customOptions.plusActive or require( theme.data ):getFrameIndex( theme.plusActive )
+	opt.defaultFrame = customOptions.defaultFrame or require( theme.data ):getFrameIndex( theme.defaultFrame )
+	opt.noMinusFrame = customOptions.noMinusFrame or require( theme.data ):getFrameIndex( theme.noMinusFrame )
+	opt.noPlusFrame = customOptions.noPlusFrame or require( theme.data ):getFrameIndex( theme.noPlusFrame )
+	opt.minusActiveFrame = customOptions.minusActiveFrame or require( theme.data ):getFrameIndex( theme.minusActiveFrame )
+	opt.plusActiveFrame = customOptions.plusActiveFrame or require( theme.data ):getFrameIndex( theme.plusActiveFrame )
 
-	opt.startNo = customOptions.startNo or 0
-	opt.min = customOptions.min or 0
-	opt.max = customOptions.max or math.huge
+	opt.startNumber = customOptions.startNumber or 0
+	opt.minimumValue = customOptions.minimumValue or 0
+	opt.maximumValue = customOptions.maximumValue or math.huge
 	opt.onPress = customOptions.onPress
 	opt.onHold = customOptions.onHold
 

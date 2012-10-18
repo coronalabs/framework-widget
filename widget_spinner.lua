@@ -201,7 +201,7 @@ function M.new( options, theme )
 	opt.image = customOptions.image
 	opt.sheet = customOptions.sheet or theme.sheet
 	opt.sheetData = customOptions.data or theme.data
-	opt.startFrame = customOptions.start or require( theme.data ):getFrameIndex( theme.start ) or 0
+	opt.startFrame = customOptions.startFrame or require( theme.data ):getFrameIndex( theme.startFrame ) or 0
 	opt.frameCount = customOptions.count or theme.count or 0
 	opt.animTime = customOptions.time or theme.time or 1000
 	opt.deltaAngle = customOptions.deltaAngle or theme.deltaAngle or 1

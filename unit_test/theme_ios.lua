@@ -234,7 +234,7 @@ themeTable.spinner =
 {
 	sheet = assetDir .. "/assets.png",
 	data = assetDir .. ".assets",
-	start = "spinner_spinner",
+	startFrame = "spinner_spinner",
 	width = 40,
 	height = 40,
 	incrementEvery = 50,
@@ -253,15 +253,14 @@ themeTable.switch =
 	-- Default (on/off switch)
 	sheet = assetDir .. "/assets.png",
 	data = assetDir .. ".assets",
-	background = "switch_background",
+	backgroundFrame = "switch_background",
 	backgroundWidth = 165,
 	backgroundHeight = 31,
-	overlay = "switch_overlay",
+	overlayFrame = "switch_overlay",
 	overlayWidth = 83,
 	overlayHeight = 31,
-	handle = "switch_handle",
-	handleOver = "switch_handleOver",
-	switchType = "onOff",
+	handleDefaultFrame = "switch_handle",
+	handleOverFrame = "switch_handleOver",
 	mask = assetDir .. "/masks/switch/onOffMask.png",
 	
 	radio =
@@ -294,11 +293,11 @@ themeTable.stepper =
 {
 	sheet = assetDir .. "/assets.png",
 	data = assetDir .. ".assets",
-	default = "stepper_nonActive",
-	noMinus = "stepper_noMinus",
-	noPlus = "stepper_noPlus",
-	minusActive = "stepper_minusActive",
-	plusActive = "stepper_plusActive",
+	defaultFrame = "stepper_nonActive",
+	noMinusFrame = "stepper_noMinus",
+	noPlusFrame = "stepper_noPlus",
+	minusActiveFrame = "stepper_minusActive",
+	plusActiveFrame = "stepper_plusActive",
 	width = 102,
 	height = 38,
 }

@@ -147,24 +147,24 @@ local function createOnOffSwitch( switch, options )
 	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
 	-- The view is the switches background image
-	view = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffBackground ), opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
+	view = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffBackgroundFrame ), opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
 	
 	-- The view's overlay is the "shine" effect
-	viewOverlay = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffOverlay ), opt.onOffOverlayWidth, opt.onOffOverlayHeight )
+	viewOverlay = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffOverlayFrame ), opt.onOffOverlayWidth, opt.onOffOverlayHeight )
 	
 	-- Image sheet options for the on/off switch's handle sprite
 	local handleSheetOptions = 
 	{
 		{ 
 			name = "off", 
-			start = require( opt.sheetData ):getFrameIndex( opt.onOffHandle ), 
+			start = require( opt.sheetData ):getFrameIndex( opt.onOffHandleDefaultFrame ), 
 			count = 1, 
 			time = 1,
 		},
 		
 		{ 
 			name = "on", 
-			start = require( opt.sheetData ):getFrameIndex( opt.onOffHandleOver ), 
+			start = require( opt.sheetData ):getFrameIndex( opt.onOffHandleOverFrame ), 
 			count = 1, 
 			time = 1, 
 		},
@@ -172,7 +172,7 @@ local function createOnOffSwitch( switch, options )
 	
 	-- The view's handle
 	viewHandle = display.newSprite( imageSheet, handleSheetOptions )
-	viewHandle:setSequence( opt.onOffHandle )
+	viewHandle:setSequence( "off" )
 	
 	-- The view's mask
 	viewMask = graphics.newMask( opt.onOffMask, opt.baseDir )
@@ -501,14 +501,14 @@ function M.new( options, theme )
 	end	
 			
 	-- Options for the on/off switch only
-	opt.onOffBackground = customOptions.background or theme.background
+	opt.onOffBackgroundFrame = customOptions.backgroundFrame or theme.backgroundFrame
 	opt.onOffBackgroundWidth = customOptions.backgroundWidth or theme.backgroundWidth
 	opt.onOffBackgroundHeight = customOptions.backgroundHeight or theme.backgroundHeight
-	opt.onOffOverlay = customOptions.overlay or theme.overlay
+	opt.onOffOverlayFrame = customOptions.overlayFrame or theme.overlayFrame
 	opt.onOffOverlayWidth = customOptions.overlayWidth or theme.overlayWidth
 	opt.onOffOverlayHeight = customOptions.overlayHeight or theme.overlayHeight
-	opt.onOffHandle = customOptions.handle or theme.handle
-	opt.onOffHandleOver = customOptions.handleOver or theme.handleOver
+	opt.onOffHandleDefaultFrame = customOptions.handleDefualtFrame or theme.handleDefaultFrame
+	opt.onOffHandleOverFrame = customOptions.handleOverFrame or theme.handleOverFrame
 	opt.onOffMask = customOptions.mask or theme.mask
 	
 	-------------------------------------------------------
