@@ -50,6 +50,7 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------	
 	
 	--Toggle these defines to execute automated tests.
+	local TEST_REMOVE_STEPPER = true
 	local TEST_DELAY = 1000
 
 	-- Set a theme
@@ -95,17 +96,14 @@ function scene:createScene( event )
 	--											TESTS											 	  			  --
 	----------------------------------------------------------------------------------------------------------------
 	
-	-- Test removing switch
-	--[[
-	if TEST_REMOVE_SWITCH then
+	-- Test removing stepper
+	if TEST_REMOVE_STEPPER then
 		timer.performWithDelay( 100, function()
-			display.remove( radioButton )
-			display.remove( checkboxButton )
-			display.remove( onOffSwitch )
+			display.remove( newStepper )
 			
 			TEST_DELAY = TEST_DELAY + TEST_DELAY
 		end )
-	end--]]
+	end
 
 	
 end

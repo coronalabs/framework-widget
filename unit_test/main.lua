@@ -7,4 +7,4 @@ io.output():setvbuf( "no" )
 display.setStatusBar(display.HiddenStatusBar)
 
 local storyboard = require( "storyboard" )
-storyboard.gotoScene( "newSpinner" )
+storyboard.gotoScene( "newSwitch" )
