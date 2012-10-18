@@ -99,7 +99,7 @@ local function initWithSprite( stepper, options )
 	end
 	
 	-------------------------------------------------------
-	-- Assign properties/objects to the switch
+	-- Assign properties/objects to the stepper
 	-------------------------------------------------------
 	
 	-- Assign objects to the stepper
@@ -147,7 +147,7 @@ local function initWithSprite( stepper, options )
 		
 		elseif self._isFocus then
 			if "moved" == phase then
-				-- Handle switching from one side of the switch whilst still holding your finger on the screen
+				-- Handle switching from one side of the stepper to the other whilst still holding your finger on the screen
 				if event.x >= _stepper.x then
 					if self._event.phase ~= "increment" then
 						self:dispatchEvent( { name = "touch", phase = "began", x = 160 } )

@@ -55,8 +55,6 @@ function scene:createScene( event )
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
-	
-	
 	local searchFor =
 	{
 		"hello",
@@ -65,6 +63,14 @@ function scene:createScene( event )
 		"soft",
 		"software",
 		"serious",
+		"danny",
+		"walter",
+		"coronaLabs",
+		"newWidget",
+		"searchField",
+		"iOS",
+		"android",
+		"nook",
 	}
 	
 	local function onPress( event )
