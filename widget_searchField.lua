@@ -18,7 +18,7 @@ local M =
 }
 
 -- Creates a new search field from an image
-local function initWithImage( self, options ) -- Self == searchField (group)
+local function initWithImage( searchField, options )
 	local opt = options
 	
 	-- If there is an image, don't attempt to use a sheet
@@ -27,39 +27,65 @@ local function initWithImage( self, options ) -- Self == searchField (group)
 	end
 	
 	-- Forward references
-	local imageSheet, view
+	local imageSheet, view, cancelButton, viewTextbox
 	
 	-- Create the view
 	if opt.sheet then
 		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 		view = display.newImageRect( imageSheet, opt.defaultFrame, opt.defaultFrameWidth, opt.defaultFrameHeight )
-		view.cancel = display.newImageRect( imageSheet, opt.cancelFrame, opt.cancelFrameWidth, opt.cancelFrameHeight )
+		cancelButton = display.newImageRect( imageSheet, opt.cancelFrame, opt.cancelFrameWidth, opt.cancelFrameHeight )
 	else
 		-- There isn't a sheet defined > Use display.newImageRect
 		if opt.width and opt.height then
 			view = display.newImageRect( opt.imageDefault, opt.defaultFrameWidth, opt.defaultFrameHeight )
-			view.cancel = display.newImagRect( opt.imageCancel, opt.defaultFrameWidth, opt.defaultFrameHeight )
+			cancelButton = display.newImagRect( opt.imageCancel, opt.defaultFrameWidth, opt.defaultFrameHeight )
 		else
 			-- There is no width/height specified > Use display.newImage
 			view = display.newImage( opt.imageDefault, true )
-			view = display.newImage( opt.imageCancel, true )
+			cancelButton = display.newImage( opt.imageCancel, true )
 		end
 	end
 	
-	-- Set the cancel buttons position
-	local parent = self
-	view.cancel.x = parent.x + view.contentWidth * 0.4
-	view.cancel.y = parent.y
-	view.cancel.isVisible = false
+	viewTextbox = native.newTextField( 0, 0, view.contentWidth - 36, view.contentHeight - 14 )
+	viewTextbox.x = view.x + 12
+	viewTextbox.y = view.y - 2
+	viewTextbox.isEditable = true
+	viewTextbox.hasBackground = false
+	viewTextbox.align = "left"
+	viewTextbox.placeholder = "Search iPhone"
 	
-	-- Test
+	-- Set the cancel buttons position
+	cancelButton.x = searchField.x + view.contentWidth * 0.4
+	cancelButton.y = searchField.y
+	cancelButton.isVisible = false
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the searchField
+	-------------------------------------------------------
+	
+	searchField._imageSheet = imageSheet
+	searchField._view = view
+	searchField._cancelButton = cancelButton
+
+	-- Insert the view into the searchField (group)
+	searchField:insert( view )
+	searchField:insert( cancelButton )
+	searchField:insert( viewTextbox )
+	
+	-- TEST CODE
 	local resultsText = {}
 	resultsText[1] = display.newText( "Results:", 0, 0, display.contentWidth - 20, display.contentHeight, native.systemFontBold, 18 )
 	resultsText[1]:setTextColor( 0 )
 	resultsText[1].x = display.contentCenterX
 	resultsText[1].y = 500
+	--END TEST CODE
 	
-	function view:inputListener( event )
+	----------------------------------------------------------
+	--	PUBLIC METHODS	
+	----------------------------------------------------------
+	
+	-- Function to listen for textbox events
+	function viewTextbox:_inputListener( event )
 		if event.phase == "began" then
 			-- user begins editing textBox
 			
@@ -68,56 +94,47 @@ local function initWithImage( self, options ) -- Self == searchField (group)
 			-- do something with textBox's text
 	
 		elseif event.phase == "editing" then
+			-- TEST CODE
 			-- Remove old results
 			for i = 2, #resultsText do
 				display.remove( resultsText[i] )
 				resultsText[i] = nil
 			end
+			--END TEST CODE
 			
+			-- Loop through the passed in table and see if we find any results
 			for i = 1, #opt.searchInTable do
 				if string.find( string.lower( opt.searchInTable[i] ), string.lower( event.text  ) ) then
 					if string.len( event.text ) > 0 then
 						--print( "found:", opt.searchInTable[i], "in searchInTable" )
 						
+						-- TEST CODE
 						-- Add new result
 						resultsText[#resultsText +1] = display.newText( opt.searchInTable[i], 0, 0, display.contentWidth - 20, display.contentHeight, native.systemFontBold, 18 )
 						resultsText[#resultsText]:setTextColor( 0 )
 						resultsText[#resultsText].x = display.contentCenterX
 						resultsText[#resultsText].y = resultsText[#resultsText -1].y + 20
+						--END TEST CODE
 					end
 				end
 			end
 		end
 	end
 	
-	view.textBox = native.newTextBox( 0, 0, view.contentWidth - 36, view.contentHeight - 18 )
-	view.textBox.x = view.x + 12
-	view.textBox.y = view.y + 1
-	view.textBox.isEditable = true
-	view.textBox.hasBackground = false
-	view.textBox.align = "left"
-	view.textBox.text = "Search iPhone"
-	view.textBox:addEventListener( "userInput", view )
+	viewTextbox.userInput = viewTextbox._inputListener
+	viewTextbox:addEventListener( "userInput" )
+	
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
 	
 	-- Finalize function
-	function self:_finalize()
+	function searchField:_finalize()
 		-- Set searchField imageSheet to nil
-		self._view._imageSheet = nil
+		self._imageSheet = nil
 	end
-
-	-- We need to assign these properties to the object
-	view._imageSheet = imageSheet
-
-	-- Assign the view to self's view
-	self._view = view
-	self._view.cancel = view.cancel
-
-	-- Insert the view into the parent group
-	self:insert( view )
-	-- Insert the textbox into the parent group
-	self:insert( view.textBox )
 			
-	return self
+	return searchField
 end
 
 
