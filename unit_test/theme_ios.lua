@@ -270,9 +270,8 @@ themeTable.switch =
 		data = assetDir .. ".assets",
 		width = 33,
 		height = 34,
-		defaultFrame = "switch_radioButtonDefault",
-		selectedFrame = "switch_radioButtonSelected",
-		switchType = "radio",
+		frameOff = "switch_radioButtonDefault",
+		frameOn = "switch_radioButtonSelected",
 	},
 	checkbox = 
 	{
@@ -280,9 +279,8 @@ themeTable.switch =
 		data = assetDir .. ".assets",
 		width = 33,
 		height = 33,
-		defaultFrame = "switch_checkboxDefault",
-		selectedFrame = "switch_checkboxSelected",
-		switchType = "checkbox",
+		frameOff = "switch_checkboxDefault",
+		frameOn = "switch_checkboxSelected",
 	},
 }
 
