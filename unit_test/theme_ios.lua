@@ -321,5 +321,23 @@ themeTable.searchField =
 }
 
 -----------------------------------------------------------------------------------------
+--
+-- progressView
+--
+-----------------------------------------------------------------------------------------
+
+themeTable.progressView = 
+{
+	sheet = assetDir .. "/assets.png",
+	data = assetDir .. ".assets",
+	fillOuterFrame = "progressView_outerFrame",
+	fillInnerFrame = "progressView_innerFrame",
+	fillOuterWidth = 185,
+	fillOuterHeight = 14,
+	fillInnerWidth = 48,
+	fillInnerHeight = 14,
+}
+
+-----------------------------------------------------------------------------------------
 
 return themeTable

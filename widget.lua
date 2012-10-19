@@ -533,4 +533,44 @@ end
 -----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+--
+-- ProgressView widget
+--
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
+function widget.newProgressView( options )
+	-- this widget requires visual customization via themes to work properly
+	local themeOptions
+	if widget.theme then
+		local progressViewTheme = widget.theme.progressView
+				
+		if progressViewTheme then
+			if options and options.style then	-- style parameter optionally set by user
+				
+				-- for themes that support various "styles" per widget
+				local style = progressViewTheme[options.style]
+				
+				if style then themeOptions = style; end
+			else
+				-- if no style parameter set, use default style specified by theme
+				themeOptions = progressViewTheme
+			end
+						
+			return require( "widget_progressView" ).new( options, themeOptions )
+		else
+			print( "WARNING: The widget theme you are using does not support the progressView widget." )
+			return
+		end
+	else
+		return require( "widget_progressView" ).new( options )
+	end
+end
+
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
 return widget
