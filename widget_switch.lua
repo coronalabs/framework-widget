@@ -15,32 +15,23 @@
 local M = 
 {
 	_options = {},
+	_widgetName = "widget.newSwitch",
 }
 
 -- Initialize a switch with images
 local function initWithImage( switch, options )
 	-- Create a local reference to our options table
 	local opt = options
-	
-	-- If were using an imagesheet don't use single images
-	if opt.sheet then 
-		opt.imageOff = nil 
-		opt.imageOn = nil 
-	end
-	
+
 	-- Forward references
 	local imageSheet, viewOff, viewOn
 	
-	-- Create the view from an imageSheet
-	if opt.sheet then
-		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
-		viewOff = display.newImageRect( imageSheet, opt.frameOff, opt.width, opt.height )
-		viewOn = display.newImageRect( imageSheet, opt.frameOn, opt.width, opt.height )
-	else
-		-- No imageSheet, create the view from two single images
-		viewOff = display.newImage( opt.imageOff, true )
-		viewOn = display.newImage( opt.imageOn, true )
-	end
+	-- Create the imageSheet
+	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	
+	-- Create the view
+	viewOff = display.newImageRect( imageSheet, opt.frameOff, opt.width, opt.height )
+	viewOn = display.newImageRect( imageSheet, opt.frameOn, opt.width, opt.height )
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -74,17 +65,8 @@ local function initWithSprite( switch, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
-	-- If were using an imagesheet don't use a single images
-	if opt.sheet then 
-		opt.imageOff = nil
-		opt.imageOn = nil 
-	end
-		
 	-- Forward references
 	local imageSheet, view
-	
-	-- Create the image sheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
 	-- Create the sequenceData table
 	local switchSheetOptions = 
@@ -103,6 +85,9 @@ local function initWithSprite( switch, options )
 			time = 1,
 		},
 	}
+	
+	-- Create the image sheet
+	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
 	-- Create the view
 	view = display.newSprite( imageSheet, switchSheetOptions )
@@ -143,15 +128,6 @@ local function createOnOffSwitch( switch, options )
 	-- Forward references
 	local imageSheet, view, viewOverlay, viewHandle, viewMask
 	
-	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
-	
-	-- The view is the switches background image
-	view = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffBackgroundFrame ), opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
-	
-	-- The view's overlay is the "shine" effect
-	viewOverlay = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffOverlayFrame ), opt.onOffOverlayWidth, opt.onOffOverlayHeight )
-	
 	-- Image sheet options for the on/off switch's handle sprite
 	local handleSheetOptions = 
 	{
@@ -169,6 +145,15 @@ local function createOnOffSwitch( switch, options )
 			time = 1, 
 		},
 	}
+	
+	-- Create the imageSheet
+	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	
+	-- The view is the switches background image
+	view = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffBackgroundFrame ), opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
+	
+	-- The view's overlay is the "shine" effect
+	viewOverlay = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffOverlayFrame ), opt.onOffOverlayWidth, opt.onOffOverlayHeight )
 	
 	-- The view's handle
 	viewHandle = display.newSprite( imageSheet, handleSheetOptions )
@@ -214,9 +199,6 @@ local function createOnOffSwitch( switch, options )
 	-- Assign objects to the switch
 	switch._imageSheet = imageSheet
 	switch._view = view
-	switch._view._overlay = view._overlay
-	switch._view._handle = view._handle
-	switch._view._mask = view._mask
 		
 	-- Insert the view's into the switch (group)
 	switch:insert( view )
@@ -237,19 +219,22 @@ local function createOnOffSwitch( switch, options )
 		_switch.isOn = not _switch.isOn
 				
 		-- If self has a _onPress method execute it
-		local function executeOnPress()		
+		local function executeOnPress()
 			if self._onPress and not self._onEvent then
 				self._onPress( event )
 			end
 		end
 		
+		-- Set the switches transition time
+		local switchTransitionTime = 300
+		
 		-- Transition the switch from on>off and vice versa
 		if _switch.isOn then
-			self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = 300, onComplete = executeOnPress } )
-			self._transition = transition.to( self._handle, { x = self._endRange, time = 300 } )
+			self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnPress } )
+			self._transition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
 		else
-			self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = 300, onComplete = executeOnPress } )
-			self._transition = transition.to( self._handle, { x = self._startRange, time = 300 } )
+			self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnPress } )
+			self._transition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
 		end
 		
 		return true
@@ -302,16 +287,19 @@ local function createOnOffSwitch( switch, options )
 						self._onRelease( event )
 					end
 				end
+				
+				-- Set the switches transition time
+				local switchTransitionTime = 300
 									
 				-- Transition the switch from on>off and vice versa
 				if self._handle.x < 0 then
 					_switch.isOn = false
-					self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = 300, onComplete = executeOnRelease } )
-					self._transition = transition.to( self._handle, { x = self._startRange, time = 300 } )
+					self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnRelease } )
+					self._transition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
 				else
 					_switch.isOn = true
-					self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = 300, onComplete = executeOnRelease } )
-					self._transition = transition.to( self._handle, { x = self._endRange, time = 300 } )
+					self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnRelease } )
+					self._transition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
 				end
 				
 				-- Set the handle back to it's default frame
@@ -347,7 +335,7 @@ local function createOnOffSwitch( switch, options )
 		
 		-- Remove the switch's mask
 		self._view:setMask( nil )
-		
+				
 		-- Set objects to nil
 		self._view._overlay = nil
 		self._view._handle = nil
@@ -452,7 +440,7 @@ local function createStandardSwitch( switch, options )
 		-- Set objects to nil
 		self._viewOff = nil
 		self._viewOn = nil
-		self._view = nil
+
 		self._imageSheet = nil
 	end
 	
@@ -468,13 +456,13 @@ function M.new( options, theme )
 	
 	-- If there isn't an options table and there isn't a theme set throw an error
 	if not options and not theme then
-		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not support the switch widget." )
+		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not have a theme defined for the switch widget." )
 	end
 	
 	-------------------------------------------------------
 	-- Properties
 	-------------------------------------------------------	
-	
+	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
 	opt.width = customOptions.width or theme.width
@@ -486,16 +474,15 @@ function M.new( options, theme )
 	opt.onPress = customOptions.onPress
 	opt.onRelease = customOptions.onRelease
 	opt.onEvent = customOptions.onEvent
-		
+	
+	-- Frames & Images	
 	opt.sheet = customOptions.sheet or theme.sheet
 	opt.sheetData = customOptions.data or theme.data
-	opt.imageOff = customOptions.imageOff or theme.imageOff
-	opt.imageOn = customOptions.imageOn or theme.imageOn
 	opt.frameOff = customOptions.frameOff
 	opt.frameOn = customOptions.frameOn
 		
-	-- If there isn't a default frame but a theme has been set and it includes a data property then grab the required start/end frames
-	if not opt.imageOff and theme and theme.data then
+	-- If the user hasn't set a on/off frame but a theme has been set and it includes a data property then grab the required start/end frames
+	if not opt.frameOff and not opt.frameOn and theme and theme.data then
 		opt.frameOff = require( theme.data ):getFrameIndex( theme.frameOff )
 		opt.frameOn = require( theme.data ):getFrameIndex( theme.frameOn )
 	end	
@@ -515,10 +502,17 @@ function M.new( options, theme )
 	-- Constructor error handling
 	-------------------------------------------------------
 	
+	-- Throw error if the user hasn't defined a sheet and has defined data or vice versa.
+	if not customOptions.sheet and customOptions.data then
+		error( M._widgetName .. ": Sheet expected, got nil" )
+	elseif customOptions.sheet and not customOptions.data then
+		error( M._widgetName .. ": Sheet data file expected, got nil" )
+	end
+	
 	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
-	if opt.sheet and not opt.width or opt.sheet and not opt.height then
+	if not opt.width and not opt.height then
 		if opt.switchType ~= "onOff" then
-			error( "widget.newSwitch: You must pass width & height parameters when using newSwitch with an imageSheet" )
+			error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
 		end
 	end
 

@@ -15,12 +15,12 @@
 local M = 
 {
 	_options = {},
+	_widgetName = "widget.newStepper",
 }
-
 
 -- Creates a new stepper from a sprite
 local function initWithSprite( stepper, options )
-	-- Create a local reference to our options table	
+	-- Create a local reference to our options table
 	local opt = options
 	
 	-- Animation options
@@ -85,16 +85,16 @@ local function initWithSprite( stepper, options )
 	view._timer = nil
 	view._minimumValue = opt.minimumValue
 	view._maximumValue = opt.maximumValue
-	view._currentNumber = opt.startNumber
+	view._currentValue = opt.initialValue
 	view._event = {} -- Our event table for the view
 	view._previousX = 0
 	view._onPress = opt.onPress
 	
 	-- If the startNumber is equal to/greater than the minimum or maxium values, set the steppers image sequence to reflect it
-	if view._currentNumber <= 0 then
+	if view._currentValue <= 0 then
 		view:setSequence( "noMinus" )
-	elseif view._currentNumber >= view._maximumValue then
-		view._currentNumber = view._maximumValue
+	elseif view._currentValue >= view._maximumValue then
+		view._currentValue = view._maximumValue
 		view:setSequence( "noPlus" )
 	end
 	
@@ -183,9 +183,9 @@ local function initWithSprite( stepper, options )
 		local phase = nil
 		
 		-- If the currentNumber is less then the maxiumum value then set the phase to "increment"
-		if self._currentNumber < self._maximumValue then
+		if self._currentValue < self._maximumValue then
 			phase = "increment"
-			self._currentNumber = self._currentNumber + 1
+			self._currentValue = self._currentValue + 1
 		else
 			-- The currentNumber is more then the maxiumum value, set the phase to "maxLimit"
 			phase = "maxLimit"
@@ -200,9 +200,9 @@ local function initWithSprite( stepper, options )
 		local phase = nil
 		
 		-- If the currentNumber is more then the minimum value then set the phase to "decrement"
-		if self._currentNumber > self._minimumValue then
+		if self._currentValue > self._minimumValue then
 			phase = "decrement"
-			self._currentNumber = self._currentNumber - 1
+			self._currentValue = self._currentValue - 1
 		else
 			-- The currentNumber is less then the minimum value, set the phase to "minLimit"
 			phase = "minLimit"
@@ -236,14 +236,14 @@ local function initWithSprite( stepper, options )
 	-- Function to manage the stepper's released touch state (released ie not being touched)
 	function view:_manageStepperReleaseState()
 		-- Set the steppers default sequence
-		if self._currentNumber > self._minimumValue and self._currentNumber < self._maximumValue then
+		if self._currentValue > self._minimumValue and self._currentValue < self._maximumValue then
 			self:setSequence( "default" )
 		end
 		
 		-- Change the steppers sequence according to if it reaches it's max or min range
-		if self._currentNumber >= self._maximumValue then
+		if self._currentValue >= self._maximumValue then
 			self:setSequence( "noPlus" )
-		elseif self._currentNumber <= self._minimumValue then
+		elseif self._currentValue <= self._minimumValue then
 			self:setSequence( "noMinus" )
 		end
 		
@@ -317,14 +317,20 @@ function M.new( options, theme )
 	-------------------------------------------------------
 	-- Properties
 	-------------------------------------------------------	
-
+	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
 	opt.width = customOptions.width or theme.width
 	opt.height = customOptions.height or theme.height
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
+	opt.initialValue = customOptions.initialValue or 0
+	opt.minimumValue = customOptions.minimumValue or 0
+	opt.maximumValue = customOptions.maximumValue or math.huge
+	opt.onPress = customOptions.onPress
+	opt.onHold = customOptions.onHold
 	
+	-- Frames & Images
 	opt.sheet = customOptions.sheet or theme.sheet
 	opt.sheetData = customOptions.data or theme.data
 	opt.defaultFrame = customOptions.defaultFrame or require( theme.data ):getFrameIndex( theme.defaultFrame )
@@ -333,12 +339,22 @@ function M.new( options, theme )
 	opt.minusActiveFrame = customOptions.minusActiveFrame or require( theme.data ):getFrameIndex( theme.minusActiveFrame )
 	opt.plusActiveFrame = customOptions.plusActiveFrame or require( theme.data ):getFrameIndex( theme.plusActiveFrame )
 
-	opt.startNumber = customOptions.startNumber or 0
-	opt.minimumValue = customOptions.minimumValue or 0
-	opt.maximumValue = customOptions.maximumValue or math.huge
-	opt.onPress = customOptions.onPress
-	opt.onHold = customOptions.onHold
-
+	-------------------------------------------------------
+	-- Constructor error handling
+	-------------------------------------------------------
+		
+	-- Throw error if the user hasn't defined a sheet and has defined data or vice versa.
+	if not customOptions.sheet and customOptions.data then
+		error( M._widgetName .. ": Sheet expected, got nil" )
+	elseif customOptions.sheet and not customOptions.data then
+		error( M._widgetName .. ": Sheet data file expected, got nil" )
+	end
+	
+	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
+	if not opt.width and not opt.height then
+		error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
+	end
+	
 	-------------------------------------------------------
 	-- Create the Stepper
 	-------------------------------------------------------
