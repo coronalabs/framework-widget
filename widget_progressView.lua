@@ -15,6 +15,7 @@
 local M = 
 {
 	_options = {},
+	_widgetName = "widget.newProgressView",
 }
 
 -- Creates a new progress bar from an image
@@ -22,27 +23,14 @@ local function initWithImage( progressView, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
-	-- If there is an image, don't attempt to use a sheet
-	if opt.image then
-		opt.sheet = nil
-	end
-	
 	-- Forward references
 	local imageSheet, view
 	
+	-- Create the imageSheet
+	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	
 	-- Create the view
-	if opt.sheet then
-		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
-		view = display.newImageRect( imageSheet, opt.startFrame, opt.width, opt.height )
-	else
-		-- There isn't a sheet defined > Use display.newImageRect
-		if opt.width and opt.height then
-			view = display.newImageRect( opt.image, opt.width, opt.height )
-		else
-			-- There is no width/height specified > Use display.newImage
-			view = display.newImage( opt.image, true )
-		end
-	end
+	
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -57,10 +45,10 @@ local function initWithImage( progressView, options )
 	
 	-- Assign objects to the progressView
 	progressView._imageSheet = imageSheet
-	progressView._view = view
+	--progressView._view = view
 
 	-- Insert the view into the parent group
-	progressView:insert( view )
+	--progressView:insert( view )
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -82,61 +70,7 @@ local function initWithImage( progressView, options )
 end
 
 
--- Creates a new progressView from a sprite
-local function initWithSprite( progressView, options )
-	-- Create a local reference to our options table
-	local opt = options
-	
-	-- Animation options
-	local sheetOptions = 
-	{ 
-		name = "default", 
-		start = opt.startFrame, 
-		count = opt.frameCount,
-		time = opt.animTime,
-	}
-	
-	-- Forward references
-	local imageSheet, view
-	
-	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
-	
-	-- Create the view
-	view = display.newSprite( imageSheet, sheetOptions )
-	view:setSequence( "default" )
-	
-	-------------------------------------------------------
-	-- Assign properties/objects to the progressView
-	-------------------------------------------------------
-	
-	-- Assign objects to the progressView
-	progressView._imageSheet = imageSheet
-	progressView._view = view
-	
-	-- Insert the view into the parent group
-	progressView:insert( view )
-	
-	----------------------------------------------------------
-	--	PUBLIC METHODS	
-	----------------------------------------------------------
-
-	
-	----------------------------------------------------------
-	--	PRIVATE METHODS	
-	----------------------------------------------------------
-	
-	-- Finalize function
-	function progressView:_finalize()
-		-- Set progressViews ImageSheet to nil
-		self._view_imageSheet = nil
-	end
-		
-	return progressView
-end
-
-
--- Function to create a new progressView object ( widget.newProgressView)
+-- Function to create a new progressView object ( widget.newProgressView )
 function M.new( options, theme )	
 	local customOptions = options or {}
 	
@@ -151,19 +85,32 @@ function M.new( options, theme )
 	-------------------------------------------------------
 	-- Properties
 	-------------------------------------------------------	
-
+	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or theme.width
-	opt.height = customOptions.height or theme.height
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
-	opt.fillOuter = customOptions.fillOuter
-	opt.fillInner = customOptions.fillInner
+	
+	-- Frames & Images
 	opt.sheet = customOptions.sheet or theme.sheet
 	opt.sheetData = customOptions.data or theme.data
-	opt.fillOuterFrame = customOptions.fillOuterFrame or require( theme.data ):getFrameIndex( theme.fillOuterFrame )
-	opt.fillInnerFrame = customOptions.fillInnerFrame or theme.fillInnerFrame
+	--opt.fillOuterFrame = customOptions.fillOuterFrame or require( theme.data ):getFrameIndex( theme.fillOuterFrame )
+	
+	-------------------------------------------------------
+	-- Constructor error handling
+	-------------------------------------------------------
+		
+	-- Throw error if the user hasn't defined a sheet and has defined data or vice versa.
+	if not customOptions.sheet and customOptions.data then
+		error( M._widgetName .. ": Sheet expected, got nil" )
+	elseif customOptions.sheet and not customOptions.data then
+		error( M._widgetName .. ": Sheet data file expected, got nil" )
+	end
+	
+	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
+	if not opt.width and not opt.height then
+		error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
+	end
 	
 	-------------------------------------------------------
 	-- Create the progressView
@@ -179,6 +126,7 @@ function M.new( options, theme )
 	}
 		
 	-- Create the progressView
+	initWithImage( progressView, opt )
 	
 	return progressView
 end

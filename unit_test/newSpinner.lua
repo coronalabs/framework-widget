@@ -68,7 +68,7 @@ function scene:createScene( event )
 	}
 	group:insert( spinnerDefault )
 	
-	local spinnerText = display.newText( "Default spinner (From theme)\nSingle Rotating Image", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
+	local spinnerText = display.newText( "Default spinner (From theme)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
 	spinnerText.x = display.contentCenterX
 	spinnerText.y = spinnerDefault.y - 42
 	group:insert( spinnerText )
@@ -91,28 +91,12 @@ function scene:createScene( event )
 	spinnerCustomText.y = spinnerCustom.y - 42
 	group:insert( spinnerCustomText )
 	
-	-- Create a custom spinner that isn't animated and just rotates - (Single Rotating Image)
+	
+	-- Create a custom spinner that isn't animated and just rotates - (Single Rotating Image from imagesheet)
 	local spinnerCustomJustRotates = widget.newSpinner
 	{
 		left = 150,
-		top = 330,
-		width = 80,
-		height = 80,
-		image = "assets/loadingCog.png",
-		deltaAngle = 1,
-	}	
-	group:insert( spinnerCustomJustRotates )
-	
-	local spinnerCustomJustRotatesText = display.newText( "Custom spinner (Custom graphics)\nSingle Rotating Image", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
-	spinnerCustomJustRotatesText.x = display.contentCenterX
-	spinnerCustomJustRotatesText.y = spinnerCustomJustRotates.y - 62
-	group:insert( spinnerCustomJustRotatesText )
-	
-	-- Create a custom spinner that isn't animated and just rotates - (Single Rotating Image from imagesheet)
-	local spinnerCustomJustRotatesFromImageSheet = widget.newSpinner
-	{
-		left = 150,
-		top = 440,
+		top = 310,
 		width = 35,
 		height = 35,
 		sheet = "assets/customSpinner.png",
@@ -121,12 +105,12 @@ function scene:createScene( event )
 		count = 1,
 		deltaAngle = -1,
 	}
-	group:insert( spinnerCustomJustRotatesFromImageSheet )
+	group:insert( spinnerCustomJustRotates )
 	
-	local spinnerCustomJustRotatesFromImageSheetText = display.newText( "Custom spinner (Custom graphics)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
-	spinnerCustomJustRotatesFromImageSheetText.x = display.contentCenterX
-	spinnerCustomJustRotatesFromImageSheetText.y = spinnerCustomJustRotatesFromImageSheet.y - 42
-	group:insert( spinnerCustomJustRotatesFromImageSheetText )
+	local spinnerCustomJustRotatesText = display.newText( "Custom spinner (Custom graphics)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
+	spinnerCustomJustRotatesText.x = display.contentCenterX
+	spinnerCustomJustRotatesText.y = spinnerCustomJustRotates.y - 42
+	group:insert( spinnerCustomJustRotatesText )
 
 
 	----------------------------------------------------------------------------------------------------------------
@@ -139,7 +123,6 @@ function scene:createScene( event )
 			spinnerDefault:start()
 			spinnerCustom:start()
 			spinnerCustomJustRotates:start()
-			spinnerCustomJustRotatesFromImageSheet:start()
 		end )
 	end
 	
@@ -149,7 +132,6 @@ function scene:createScene( event )
 			spinnerDefault:stop()
 			spinnerCustom:stop()
 			spinnerCustomJustRotates:stop()
-			spinnerCustomJustRotatesFromImageSheet:stop()
 		end )
 		TEST_DELAY = TEST_DELAY + TEST_DELAY
 	end
@@ -160,7 +142,6 @@ function scene:createScene( event )
 			spinnerDefault:translate( 20, 20 )
 			spinnerCustom:translate( 20, 20 )
 			spinnerCustomJustRotates:translate( 20, 20 )
-			spinnerCustomJustRotatesFromImageSheet:translate( 20, 20 )
 		end )
 		TEST_DELAY = TEST_DELAY + TEST_DELAY
 	end

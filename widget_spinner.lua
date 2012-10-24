@@ -18,34 +18,20 @@
 local M = 
 {
 	_options = {},
+	_widgetName = "widget.newSpinner",
 }
 
 -- Creates a new spinner from an image
 local function initWithImage( spinner, options )
 	-- Create a local reference to our options table
 	local opt = options
-	
-	-- If there is an image, don't attempt to use a sheet
-	if opt.image then
-		opt.sheet = nil
-	end
-	
+		
 	-- Forward references
 	local imageSheet, view
 	
 	-- Create the view
-	if opt.sheet then
-		imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
-		view = display.newImageRect( imageSheet, opt.startFrame, opt.width, opt.height )
-	else
-		-- There isn't a sheet defined > Use display.newImageRect
-		if opt.width and opt.height then
-			view = display.newImageRect( opt.image, opt.width, opt.height )
-		else
-			-- There is no width/height specified > Use display.newImage
-			view = display.newImage( opt.image, true )
-		end
-	end
+	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	view = display.newImageRect( imageSheet, opt.startFrame, opt.width, opt.height )
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -133,7 +119,7 @@ local function initWithSprite( spinner, options )
 	-- Create the imageSheet
 	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
-	-- Creat the view
+	-- Create the view
 	view = display.newSprite( imageSheet, sheetOptions )
 	view:setSequence( "default" )
 	
@@ -185,27 +171,45 @@ function M.new( options, theme )
 	
 	-- If there isn't an options table and there isn't a theme set throw an error
 	if not options and not theme then
-		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not support the spinner widget." )
+		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not have a theme defined for the spinner widget." )
 	end
 	
 	-------------------------------------------------------
 	-- Properties
-	-------------------------------------------------------	
-
+	-------------------------------------------------------
+	
+	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
 	opt.width = customOptions.width or theme.width
 	opt.height = customOptions.height or theme.height
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
-	opt.image = customOptions.image
-	opt.sheet = customOptions.sheet or theme.sheet
-	opt.sheetData = customOptions.data or theme.data
-	opt.startFrame = customOptions.startFrame or require( theme.data ):getFrameIndex( theme.startFrame ) or 0
-	opt.frameCount = customOptions.count or theme.count or 0
 	opt.animTime = customOptions.time or theme.time or 1000
 	opt.deltaAngle = customOptions.deltaAngle or theme.deltaAngle or 1
 	opt.increments = customOptions.incrementEvery or theme.incrementEvery or 1
+	
+	-- Frames & Images
+	opt.sheet = customOptions.sheet or theme.sheet
+	opt.sheetData = customOptions.data or theme.data
+	opt.startFrame = customOptions.startFrame or require( theme.data ):getFrameIndex( theme.startFrame )
+	opt.frameCount = customOptions.count or theme.count or 0
+	
+	-------------------------------------------------------
+	-- Constructor error handling
+	-------------------------------------------------------
+		
+	-- Throw error if the user hasn't defined a sheet and has defined data or vice versa.
+	if not customOptions.sheet and customOptions.data then
+		error( M._widgetName .. ": Sheet expected, got nil" )
+	elseif customOptions.sheet and not customOptions.data then
+		error( M._widgetName .. ": Sheet data file expected, got nil" )
+	end
+	
+	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
+	if not opt.width and not opt.height then
+		error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
+	end
 	
 	-------------------------------------------------------
 	-- Create the spinner
