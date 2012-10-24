@@ -46,29 +46,8 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
-	
-	--[[
-	
-	RECENT CHANGES/THINGS TO REVIEW:
-	
-	1) Scrollbar can be hidden. 
-	
-	How: Pass < hideScrollBar = true > to widget.newTableView.
-	Expected behavior: The Scrollbar should be hiden if this flag is set to true, otherwise it should be visible if this flag is set to false or omitted.
-	
-	2) Scrollbar can be set a custom color.
-	
-	How: Pass < scrollBarColor = { r, g, b, a } > to widget.newTableView. 
-	Expected behavior: The Scrollbar's color should represent the passed color, if this flag is omitted or a table isn't passed to it the Scrollbar will fall back to it's default color.
-	
-	3) Lines between table rows can be hidden.
-	
-	How: Pass < noLines = true > to widget.newTableView.
-	Expected behavior: The lines between rows should not be drawn if this flag is set to true, if this flag is ommited or set to false then the lines should be rendered.
-
-	--]]
 	
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SCROLL_TO_Y = false
@@ -179,7 +158,7 @@ function scene:createScene( event )
 	group:insert( list )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--											TESTS											 	  			  --
+	--											TESTS
 	----------------------------------------------------------------------------------------------------------------			
 	
 	--Test locking list

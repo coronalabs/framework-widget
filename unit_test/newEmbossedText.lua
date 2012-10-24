@@ -46,19 +46,8 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
-	
-	--[[
-	
-	RECENT CHANGES/THINGS TO REVIEW:
-	
-	1) text:setSize( size ). 
-	
-	How: With a new embossed text object ie : myText = widget.newEmbossedText, set myText:setSize( size ) to change the text's size.
-	Expected behavior: Text should change to the new text size.
-
-	--]]
 	
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SET_TEXT = false
@@ -70,7 +59,7 @@ function scene:createScene( event )
 	group:insert( myText )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--											TESTS											 	  			  --
+	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
 	
 	--Test setText()

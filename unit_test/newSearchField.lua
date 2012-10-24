@@ -46,36 +46,19 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------	
-	
 	--Toggle these defines to execute automated tests.
+	local TEST_REMOVE_SEARCH_FIELD = false
 	local TEST_DELAY = 1000
 
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
-	local searchFor =
-	{
-		"hello",
-		"corona",
-		"sdk",
-		"soft",
-		"software",
-		"serious",
-		"danny",
-		"walter",
-		"coronaLabs",
-		"newWidget",
-		"searchField",
-		"iOS",
-		"android",
-		"nook",
-	}
-	
-	local function onPress( event )
+	local function onEvent( event )
 		local phase = event.phase
-
+		
+		--print( event.phase ) 
 	end
 		
 	
@@ -83,26 +66,23 @@ function scene:createScene( event )
 	{
 		left = 150,
 		top = 200,
-		searchInTable = searchFor,
-		--onPress = onPress,
+		placeholder = "Search For ...",
+		listener = onEvent,
 	}
 	group:insert( newSearchField )
 
 	----------------------------------------------------------------------------------------------------------------
-	--											TESTS											 	  			  --
+	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
 	
-	-- Test something
-	--[[
-	if TEST_REMOVE_SWITCH then
+	-- Test removing the search field
+	if TEST_REMOVE_SEARCH_FIELD then
 		timer.performWithDelay( 100, function()
-			display.remove( radioButton )
-			display.remove( checkboxButton )
-			display.remove( onOffSwitch )
+			display.remove( newSearchField )
 			
 			TEST_DELAY = TEST_DELAY + TEST_DELAY
 		end )
-	end--]]
+	end
 
 	
 end
