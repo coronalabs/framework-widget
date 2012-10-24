@@ -6,7 +6,7 @@
 		widget_searchField.lua
 		
 	What is it?: 
-		A widget object that can.....
+		A widget object that can be used to present a searchField widget.
 	
 	Features:
 		
@@ -38,17 +38,17 @@ local function initWithImage( searchField, options )
 	cancelButton = display.newImageRect( imageSheet, opt.cancelFrame, opt.cancelFrameWidth, opt.cancelFrameHeight )
 	
 	-- Create the textbox (that is contained within the searchField)
-	viewTextbox = native.newTextField( 0, 0, view.contentWidth - 36, view.contentHeight - 14 )
-	viewTextbox.x = view.x + 12
+	viewTextbox = native.newTextField( 0, 0, view.contentWidth - 65, view.contentHeight - 14 )
+	viewTextbox.x = view.x
 	viewTextbox.y = view.y - 2
 	viewTextbox.isEditable = true
 	viewTextbox.hasBackground = false
 	viewTextbox.align = "left"
-	viewTextbox.placeholder = "Search iPhone"
+	viewTextbox.placeholder = opt.placeholder
+	viewTextbox._listener = opt.listener
 	
 	-- Set the cancel buttons position
-	cancelButton.x = searchField.x + view.contentWidth * 0.4
-	cancelButton.y = searchField.y
+	cancelButton.x = view.contentWidth * 0.4
 	cancelButton.isVisible = false
 	
 	-------------------------------------------------------
@@ -58,6 +58,7 @@ local function initWithImage( searchField, options )
 	searchField._imageSheet = imageSheet
 	searchField._view = view
 	searchField._cancelButton = cancelButton
+	searchField._textBox = viewTextBox
 
 	-- Insert the view into the searchField (group)
 	searchField:insert( view )
@@ -68,9 +69,46 @@ local function initWithImage( searchField, options )
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
 	
+	-- Handle touch events on the Cancel button
+	function cancelButton:touch( event )
+		local phase = event.phase
+		
+		if "ended" == phase then
+			-- Clear any text in the textField
+			viewTextbox.text = ""
+		end
+		
+		return true
+	end
+	
+	cancelButton:addEventListener( "touch" )
+	
+	-- Handle tap events on the Cancel button
+	function cancelButton:tap( event )
+		-- Clear any text in the textField
+		viewTextbox.text = ""
+		
+		return true
+	end
+	
+	cancelButton:addEventListener( "tap" )
+	
 	-- Function to listen for textbox events
 	function viewTextbox:_inputListener( event )
+		local phase = event.phase
 		
+		if "editing" == phase then
+			-- If there is one or more characters in the textField show the cancel button, if not hide it
+			if string.len( event.text ) >= 1 then
+				cancelButton.isVisible = true
+			else
+				cancelButton.isVisible = false
+			end
+		end
+		
+		if self._listener then
+			self._listener( event )
+		end
 	end
 	
 	viewTextbox.userInput = viewTextbox._inputListener
@@ -82,6 +120,10 @@ local function initWithImage( searchField, options )
 	
 	-- Finalize function
 	function searchField:_finalize()
+		self._view = nil
+		self._cancelButton = nil
+		self._textBox = nil
+		
 		-- Set searchField imageSheet to nil
 		self._imageSheet = nil
 	end
@@ -108,6 +150,8 @@ function M.new( options, theme )
 	opt.top = customOptions.top or 0
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
+	opt.placeholder = customOptions.placeholder or ""
+	opt.listener = customOptions.listener
 	
 	-- Frames & Images
 	opt.sheet = customOptions.sheet or theme.sheet
@@ -131,7 +175,9 @@ function M.new( options, theme )
 	end
 	
 	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
-	if not opt.width and not opt.height then
+	local hasProvidedSize = opt.defaultFrameWidth and opt.defaultFrameHeight and opt.cancelFrameWidth and opt.cancelFrameHeight
+	
+	if not hasProvidedSize then
 		error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
 	end
 	

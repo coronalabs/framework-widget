@@ -46,9 +46,8 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------	
-	
 	--Toggle these defines to execute automated tests.
 	local TEST_START_SPINNER = true
 	local TEST_PAUSE_SPINNER = false
@@ -114,7 +113,7 @@ function scene:createScene( event )
 
 
 	----------------------------------------------------------------------------------------------------------------
-	--											TESTS											 	  			  --
+	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
 	
 	-- Test starting the spinners animation

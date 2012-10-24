@@ -43,23 +43,8 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
-	
-	--[[
-	
-	RECENT CHANGES/THINGS TO REVIEW:
-	
-	1) PickerWheel soft lands correctly no matter what y position the pickerwheel widget is placed at 
-	
-	How: Change the pickerWheels "top" position in it's constructor then scroll the PickerWheel.
-	Expected behavior: When you release your finger/mouse, it should soft land onto the nearest target row.
-	
-	2) Pickerwheel now soft lands more accurately than previously.
-	How: Scroll the PickerWheel.
-	Expected behavior: When you release your finger/mouse, it should soft land onto the nearest target row.
-
-	--]]
 	
 	--Set up the Picker Wheel's columns
 	local columnData = {}

@@ -510,12 +510,21 @@ function M.new( options, theme )
 	end
 	
 	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
-	if not opt.width and not opt.height then
-		if opt.switchType ~= "onOff" then
+	local hasProvidedSize = opt.width and opt.height
+	local hasProvidedOnOffSize = opt.onOffBackgroundWidth and opt.onOffBackgroundHeight and opt.onOffOverlayWidth and opt.onOffOverlayHeight
+	
+	if not hasProvidedSize then
+		if "onOff" ~= opt.switchType then
 			error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
 		end
 	end
 
+	if not hasProvidedOnOffSize then
+		if "onOff" == opt.switchType then
+			error( M._widgetName .. ": You must pass width & height parameters for the background and overlay images when using " .. M._widgetName .. " with an imageSheet" )
+		end
+	end
+	
 	-------------------------------------------------------
 	-- Create the switch
 	-------------------------------------------------------

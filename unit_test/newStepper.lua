@@ -46,9 +46,8 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------	
-	
 	--Toggle these defines to execute automated tests.
 	local TEST_REMOVE_STEPPER = false
 	local TEST_DELAY = 1000
