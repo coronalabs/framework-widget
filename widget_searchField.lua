@@ -78,6 +78,9 @@ local function initWithImage( searchField, options )
 		if "ended" == phase then
 			-- Clear any text in the textField
 			view._textBox.text = ""
+			
+			-- Hide the cancel button
+			view._cancelButton.isVisible = false
 		end
 		
 		return true
@@ -89,6 +92,9 @@ local function initWithImage( searchField, options )
 	function cancelButton:tap( event )
 		-- Clear any text in the textField
 		view._textBox.text = ""
+		
+		-- Hide the cancel button
+		view._cancelButton.isVisible = false
 		
 		return true
 	end

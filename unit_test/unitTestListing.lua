@@ -6,7 +6,7 @@ local scene = storyboard.newScene()
 widget.setTheme( "theme_ios" )
 
 function scene:createScene( event )
-	storyboard.purgeAll()
+	storyboard.purgeAll() -- Purge
 	
 	local group = self.view
 	
