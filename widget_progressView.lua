@@ -24,20 +24,51 @@ local function initWithImage( progressView, options )
 	local opt = options
 	
 	-- Forward references
-	local imageSheet, view
+	local imageSheet, view, viewFillLeft, viewFillMiddle, viewFillRight
 	
 	-- Create the imageSheet
 	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
 	-- Create the view
+	view = display.newImageRect( imageSheet, opt.fillOuterFrame, opt.fillOuterWidth, opt.fillOuterHeight )
 	
+	-- The middle progress fill image
+	viewFillMiddle = display.newImageRect( imageSheet, opt.fillInnerMiddleFrame, opt.fillInnerMiddleWidth, opt.fillInnerMiddleHeight )
+	
+	-- The left rounded edge of the progress fill
+	viewFillLeft = display.newImageRect( imageSheet, opt.fillInnerLeftFrame, opt.fillInnerLeftWidth, opt.fillInnerLeftHeight )
+	
+	-- The right rounded edge of the progress fill
+	viewFillRight = display.newImageRect( imageSheet, opt.fillInnerRightFrame, opt.fillInnerRightWidth, opt.fillInnerRightHeight )
+	
+	-- Properties
+	local rangeFactor = 100
+	local availableMoveSpace = view.width - viewFillLeft.width - viewFillRight.width
+	local moveFactor = availableMoveSpace / rangeFactor
+	local currentPercent = ( availableMoveSpace / rangeFactor ) * ( 0.0 * rangeFactor )
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
 	-------------------------------------------------------
 	
-	-- We need to assign these properties to the object
+	-- Properties
+	view._isAnimated = opt.isAnimated
+	view._currentProgress = 0.00
+	
+	-- Set the left fills position
+	viewFillLeft.x = - view.contentWidth * 0.5 + viewFillLeft.contentWidth * 0.5 + 3
 
+	-- Set the fill's initial width
+	viewFillMiddle.width = 1
+	viewFillMiddle.x = viewFillLeft.x + viewFillMiddle.width * 0.5
+	
+	-- Set the right fills position
+	viewFillRight.x = viewFillLeft.x + viewFillMiddle.width + viewFillRight.contentWidth * 0.5 - 1
+	
+	-- Objects
+	view._fillMiddle = viewFillMiddle
+	view._fillLeft = viewFillLeft
+	view._fillRight = viewFillRight
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the progressView
@@ -45,15 +76,48 @@ local function initWithImage( progressView, options )
 	
 	-- Assign objects to the progressView
 	progressView._imageSheet = imageSheet
-	--progressView._view = view
+	progressView._view = view
 
 	-- Insert the view into the parent group
-	--progressView:insert( view )
+	progressView:insert( view )
+	progressView:insert( view._fillMiddle )
+	progressView:insert( view._fillLeft )
+	progressView:insert( view._fillRight )
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
 	
+	-- Function to set the progressView's current progress (ie fill)
+	function progressView:setProgress( progress )
+		-- Only execute this if the progressView's view hasn't been removed
+		if self._view then
+			-- While the progress is less than the user specified progress, increase by 0.01
+			while self._view._currentProgress < progress do
+				local hasReachedLimit = self._view._currentProgress >= 1.0
+				
+				-- Increment the current progress
+				self._view._currentProgress = self._view._currentProgress + 0.01
+				
+				-- If we haven't reached the limit yet (1.0) increase the fill
+				if not hasReachedLimit then
+					-- Set the current fill %
+					currentPercent = ( availableMoveSpace / rangeFactor ) * ( self._view._currentProgress * rangeFactor )
+					
+					-- If the fill is animated
+					if self._view._isAnimated then
+						transition.to( viewFillMiddle, { width = currentPercent, x = viewFillLeft.x + currentPercent * 0.5 } )
+						transition.to( viewFillRight, { x = math.floor( viewFillLeft.x + currentPercent + viewFillRight.contentWidth * 0.5  ) } )
+					else
+					-- The fill isn't animated
+						viewFillMiddle.width = currentPercent
+						viewFillMiddle.x = viewFillLeft.x + currentPercent * 0.5
+						viewFillRight.x = math.floor( viewFillLeft.x + currentPercent + viewFillRight.contentWidth * 0.5  )
+					end
+				end	
+			end
+		end
+ 	end
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
@@ -61,6 +125,10 @@ local function initWithImage( progressView, options )
 	
 	-- Finalize function for the progressView
 	function progressView:_finalize()
+		self._view._fillMiddle = nil
+		self._view._fillLeft = nil
+		self._view._fillRight = nil
+		self._view = nil
 		
 		-- Set progressViews ImageSheet to nil
 		self._imageSheet = nil
@@ -90,11 +158,26 @@ function M.new( options, theme )
 	opt.top = customOptions.top or 0
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
+	opt.isAnimated = customOptions.isAnimated or false
 	
 	-- Frames & Images
 	opt.sheet = customOptions.sheet or theme.sheet
 	opt.sheetData = customOptions.data or theme.data
-	--opt.fillOuterFrame = customOptions.fillOuterFrame or require( theme.data ):getFrameIndex( theme.fillOuterFrame )
+	opt.fillOuterFrame = customOptions.fillOuterFrame or require( theme.data ):getFrameIndex( theme.fillOuterFrame )
+	opt.fillOuterWidth = customOptions.fillOuterWidth or theme.fillOuterWidth
+	opt.fillOuterHeight = customOptions.fillOuterHeight or theme.fillOuterHeight
+	
+	opt.fillInnerLeftFrame = customOptions.fillInnerLeftFrame or require( theme.data ):getFrameIndex( theme.fillInnerLeftFrame )
+	opt.fillInnerLeftWidth = customOptions.fillInnerLeftWidth or theme.fillInnerLeftWidth
+	opt.fillInnerLeftHeight = customOptions.fillInnerLeftHeight or theme.fillInnerLeftHeight
+	
+	opt.fillInnerMiddleFrame = customOptions.fillInnerMiddleFrame or require( theme.data ):getFrameIndex( theme.fillInnerMiddleFrame )
+	opt.fillInnerMiddleWidth = customOptions.fillInnerMiddleWidth or theme.fillInnerMiddleWidth
+	opt.fillInnerMiddleHeight = customOptions.fillInnerMiddleHeight or theme.fillInnerMiddleHeight
+	
+	opt.fillInnerRightFrame = customOptions.fillInnerRightFrame or require( theme.data ):getFrameIndex( theme.fillInnerRightFrame )
+	opt.fillInnerRightWidth = customOptions.fillInnerRightWidth or theme.fillInnerRightWidth
+	opt.fillInnerRightHeight = customOptions.fillInnerRightHeight or theme.fillInnerRightHeight
 	
 	-------------------------------------------------------
 	-- Constructor error handling
@@ -108,7 +191,10 @@ function M.new( options, theme )
 	end
 	
 	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
-	if not opt.width and not opt.height then
+	local hasProvidedOuterSize = opt.fillOuterWidth and opt.fillOuterHeight
+	local hasProvidedInnerSize = opt.fillInnerLeftWidth and opt.fillInnerLeftHeight and opt.fillInnerMiddleWidth and opt.fillInnerMiddleHeight and opt.fillInnerRightWidth and opt.fillInnerRightHeight
+	
+	if not hasProvidedOuterSize and not hasProvidedInnerSize then
 		error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
 	end
 	

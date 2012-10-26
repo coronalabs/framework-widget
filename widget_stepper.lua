@@ -351,7 +351,9 @@ function M.new( options, theme )
 	end
 	
 	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
-	if not opt.width and not opt.height then
+	local hasProvidedSize = opt.width and opt.height
+	
+	if not hasProvidedSize then
 		error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
 	end
 	

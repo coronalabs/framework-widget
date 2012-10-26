@@ -1,5 +1,5 @@
 -- Copyright (C) 2012 Corona Inc. All Rights Reserved.
--- File: newStepper unit test.
+-- File: newProgressView unit test.
 
 -- Change the package.path and make it so we can require the "widget.lua" file from the root directory
 -------------------------------------------------------------------------------------------------
@@ -47,60 +47,45 @@ function scene:createScene( event )
 	
 	----------------------------------------------------------------------------------------------------------------
 	--										START OF UNIT TEST
-	----------------------------------------------------------------------------------------------------------------	
+	----------------------------------------------------------------------------------------------------------------
+	
 	--Toggle these defines to execute automated tests.
-	local TEST_REMOVE_STEPPER = false
+	local TEST_REMOVE_SEGMENTED_CONTROL = false
 	local TEST_DELAY = 1000
 
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
-	local startAtNumber = 0
-	
-	local numberText = display.newText( "0000", 0, 0, native.systemFontBold, 24 )
-	numberText.x = display.contentCenterX
-	numberText.y = 140
-	numberText.no = startAtNumber
-	group:insert( numberText )
-	
-	
 	local function onPress( event )
-		local phase = event.phase
-		
-		--print( phase )
-		
-		if "increment" == phase then
-			numberText.no = numberText.no + 1
-		elseif "decrement" == phase then
-			numberText.no = numberText.no - 1
-		end
-
-		numberText.text = string.format( "%04d", numberText.no )
+		print( "Segment no:", event.target.segment )
+		print( "Segment name:", event.target.segmentName )
 	end
-		
 	
-	local newStepper = widget.newStepper
+	-- Create a new progress view object
+	local newSegmentedControl = widget.newSegmentedControl
 	{
-		left = 150,
+		left = -5,
 		top = 200,
-		startNumber = startAtNumber,
-		minimumValue = 0,
-		maximumValue = 25,
+		segments = { "Item 1", "Item 2", "Item 3", "Item 4" },
+		defaultSegment = 1,
+		--[[
+		labelSize = 14,
+		labelFont = native.systemFontBold,
+		labelXOffset = 0,
+		labelYOffset = - 2,
+		--]]
 		onPress = onPress,
 	}
-	group:insert( newStepper )
-	
-	-- Update the intial text
-	numberText.text = string.format( "%04d", startAtNumber )
-	
+	group:insert( newSegmentedControl )
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
-	
-	-- Test removing stepper
-	if TEST_REMOVE_STEPPER then
+
+	-- Test removing the segmentedControl
+	if TEST_REMOVE_SEGMENTED_CONTROL then
 		timer.performWithDelay( 100, function()
-			display.remove( newStepper )
+			display.remove( newSegmentedControl )
 			
 			TEST_DELAY = TEST_DELAY + TEST_DELAY
 		end )

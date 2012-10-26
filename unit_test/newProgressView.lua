@@ -61,21 +61,33 @@ function scene:createScene( event )
 	{
 		left = 150,
 		top = 200,
+		isAnimated = true,
 	}
 	group:insert( newProgressView )
+	
+	local currentProgress = 0.5
+	
+
+	timer.performWithDelay( 2000, function( event )
+		currentProgress = currentProgress + 0.25
+		
+		newProgressView:setProgress( currentProgress )
+	end, 2 )
+	
+	
+	newProgressView:setProgress( 0.5 )
 
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
-	--[[
-	-- Test removing stepper
+	-- Test removing the progress view
 	if TEST_REMOVE_PROGRESS_VIEW then
 		timer.performWithDelay( 100, function()
 			display.remove( newProgressView )
 			
 			TEST_DELAY = TEST_DELAY + TEST_DELAY
 		end )
-	end--]]
+	end
 
 	
 end

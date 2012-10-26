@@ -331,8 +331,37 @@ themeTable.progressView =
 	sheet = assetDir .. "/assets.png",
 	data = assetDir .. ".assets",
 	fillOuterFrame = "progressView_outerFrame",
-	fillOuterWidth = 185,
+	fillOuterWidth = 182,
 	fillOuterHeight = 14,
+	fillInnerLeftFrame = "progressView_leftFill",
+	fillInnerLeftWidth = 12,
+	fillInnerLeftHeight = 10,
+	fillInnerMiddleFrame = "progressView_middleFill",
+	fillInnerMiddleWidth = 35,
+	fillInnerMiddleHeight = 10,
+	fillInnerRightFrame = "progressView_rightFill",
+	fillInnerRightWidth = 12,
+	fillInnerRightHeight = 10,
+}
+
+-----------------------------------------------------------------------------------------
+--
+-- segmentedControl
+--
+-----------------------------------------------------------------------------------------
+
+themeTable.segmentedControl = 
+{
+	sheet = assetDir .. "/assets.png",
+	data = assetDir .. ".assets",
+	width = 66,
+	height = 33,
+	leftSegmentFrame = "segmentedControl_left",
+	leftSegmentSelectedFrame = "segmentedControl_leftOn",
+	rightSegmentFrame = "segmentedControl_right",
+	rightSegmentSelectedFrame = "segmentedControl_rightOn",
+	middleSegmentFrame = "segmentedControl_middle",
+	middleSegmentSelectedFrame = "segmentedControl_middleOn",
 }
 
 -----------------------------------------------------------------------------------------
