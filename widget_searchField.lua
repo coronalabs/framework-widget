@@ -51,19 +51,21 @@ local function initWithImage( searchField, options )
 	cancelButton.x = view.contentWidth * 0.4
 	cancelButton.isVisible = false
 	
+	-- Objects
+	view._textBox = viewTextbox
+	view._cancelButton = cancelButton
+	
 	-------------------------------------------------------
 	-- Assign properties/objects to the searchField
 	-------------------------------------------------------
 	
 	searchField._imageSheet = imageSheet
 	searchField._view = view
-	searchField._cancelButton = cancelButton
-	searchField._textBox = viewTextBox
 
 	-- Insert the view into the searchField (group)
 	searchField:insert( view )
-	searchField:insert( cancelButton )
-	searchField:insert( viewTextbox )
+	searchField:insert( view._cancelButton )
+	searchField:insert( view._textBox )
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -75,7 +77,7 @@ local function initWithImage( searchField, options )
 		
 		if "ended" == phase then
 			-- Clear any text in the textField
-			viewTextbox.text = ""
+			view._textBox.text = ""
 		end
 		
 		return true
@@ -86,7 +88,7 @@ local function initWithImage( searchField, options )
 	-- Handle tap events on the Cancel button
 	function cancelButton:tap( event )
 		-- Clear any text in the textField
-		viewTextbox.text = ""
+		view._textBox.text = ""
 		
 		return true
 	end
@@ -100,12 +102,13 @@ local function initWithImage( searchField, options )
 		if "editing" == phase then
 			-- If there is one or more characters in the textField show the cancel button, if not hide it
 			if string.len( event.text ) >= 1 then
-				cancelButton.isVisible = true
+				view._cancelButton.isVisible = true
 			else
-				cancelButton.isVisible = false
+				view._cancelButton.isVisible = false
 			end
 		end
 		
+		-- If there is a listener defined, execute it
 		if self._listener then
 			self._listener( event )
 		end
