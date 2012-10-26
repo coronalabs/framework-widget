@@ -1,27 +1,12 @@
 -- Copyright (C) 2012 Corona Inc. All Rights Reserved.
--- File: ... unit test.
-
--- Change the package.path and make it so we can require the "widget.lua" file from the root directory
--------------------------------------------------------------------------------------------------
-local path = package.path
-
--- get index of first semicolon
-local i = string.find( path, ';', 1, true )
-if ( i > 0 ) then
-	-- first path (before semicolon) is project dir
-	local projDir = string.sub( path, 1, i )
-
-	-- assume widget dir is parent to projDir
-	local widgetDir = string.gsub( projDir, '(.*)/([^/]?/\?\.lua)', '%1/../%2' )
-	package.path = widgetDir .. path
-end
-
-package.preload.widget = nil
--------------------------------------------------------------------------------------------------
+-- File: newProgressView unit test.
 
 local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
+
+--Forward reference for test function timer
+local testTimer = nil
 
 function scene:createScene( event )
 	local group = self.view
@@ -34,7 +19,7 @@ function scene:createScene( event )
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
 	    left = 60,
-	    top = 50,
+	    top = 10,
 	    label = "Return To Menu",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -43,35 +28,59 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
 	
-	--[[
-	
-	RECENT CHANGES/THINGS TO REVIEW:
-	
-	1) CHANGE/FEATURE NAME. 
-	
-	How: HOW TO TEST CHANGE.
-	Expected behavior: EXPECTED BEHAVIOR OF CHANGE.
+	--Toggle these defines to execute automated tests.
+	local TEST_REMOVE_PROGRESS_VIEW = false
+	local TEST_DELAY = 1000
 
-	--]]
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
+	
+	-- Create a new progress view object
+	local newProgressView = widget.newProgressView
+	{
+		left = 150,
+		top = 200,
+		isAnimated = true,
+	}
+	group:insert( newProgressView )
+	
+	local currentProgress = 0.5
+	
+
+	timer.performWithDelay( 2000, function( event )
+		currentProgress = currentProgress + 0.25
+		
+		newProgressView:setProgress( currentProgress )
+	end, 2 )
 	
 	
-	
-	
+	newProgressView:setProgress( 0.5 )
+
 	----------------------------------------------------------------------------------------------------------------
-	--											TESTS											 	  			  --
+	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
-	
-	--[[
-	timer.performWithDelay( 2000, function()
-		end, 1 )
-	--]]
+	-- Test removing the progress view
+	if TEST_REMOVE_PROGRESS_VIEW then
+		timer.performWithDelay( 100, function()
+			display.remove( newProgressView )
+			
+			TEST_DELAY = TEST_DELAY + TEST_DELAY
+		end )
+	end
+
 	
 end
 
 function scene:exitScene( event )
+	--Cancel test timer if active
+	if testTimer ~= nil then
+		timer.cancel( testTimer )
+		testTimer = nil
+	end
+	
 	storyboard.purgeAll()
 end
 

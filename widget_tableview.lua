@@ -9,7 +9,7 @@ local mAbs = math.abs
 local mFloor = math.floor
 
 -- creates group for row, as well as a background and bottom-line
-local function newRowGroup( rowData )
+local function newRowGroup( self, rowData )
     local row = display.newGroup()
     
     -- create background
@@ -20,7 +20,7 @@ local function newRowGroup( rowData )
     local line
     
     --Only create the line if the user hasn't specified noLines == true in options table.
-    if options and not options.noLines == true or options and not options.noLines or options and options.noLines == false then
+    if self._options and not self._options.noLines == true or self._options and not self._options.noLines or self._options and self._options.noLines == false then
         line = display.newLine( row, 0, rowData.height, rowData.width, rowData.height )
         line:setColor( rowData.lineColor[1], rowData.lineColor[2], rowData.lineColor[3], rowData.lineColor[4] )
         row.line = line
@@ -40,7 +40,7 @@ end
 local function renderRow( self, row )   -- self == tableView
     local content = self.content
     if row.view then row.view:removeSelf(); end
-    row.view = newRowGroup( row )
+    row.view = newRowGroup( self, row )
     self.virtual:insert( row.view )
     
     row.view.x = 0
@@ -72,7 +72,7 @@ local function renderCategory( self, row )  -- self == tableView; row should be 
     local newCategoryRender = function()
         if content.category then display.remove( content.category ); end
         
-        content.category = newRowGroup( row )
+        content.category = newRowGroup( self, row )
         content.category.index = row.index
         content.category.x, content.category.y = 0, 0 ---row.height
         
@@ -863,6 +863,7 @@ function m.createTableView( options, scrollFriction )
     tableView.maxVelocity = maxVelocity
     tableView.renderFramePace = 0
     tableView.renderFrameCount = 0
+    tableView._options = options
     
     -- clean method will be called whenever 'removeSelf' is called
     tableView.clean = cleanTableView

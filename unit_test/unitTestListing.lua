@@ -1,4 +1,4 @@
-local widget = require( "widgetnew" )
+local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -6,6 +6,8 @@ local scene = storyboard.newScene()
 widget.setTheme( "theme_ios" )
 
 function scene:createScene( event )
+	storyboard.purgeAll() -- Purge
+	
 	local group = self.view
 	
 	--Display an iOS style background
@@ -17,6 +19,9 @@ function scene:createScene( event )
 	title.x, title.y = display.contentCenterX, 20
 	group:insert( title )
 	
+	local newScrollView = widget.newScrollView{}
+	group:insert( newScrollView )
+	
 	--Go to selected unit test
 	local function gotoSelection( event )
 		local targetScene = event.target.id
@@ -26,84 +31,85 @@ function scene:createScene( event )
 		return true
 	end
 
-	--Picker Wheel unit test
-	local newPickerWheelButton = widget.newButton{
-	    id = "unitTest_newPickerWheel",
+	-- spinner unit test
+	local newSpinnerButton = widget.newButton{
+	    id = "newSpinner",
 	    left = 60,
 	    top = 50,
-	    label = "newPickerWheel",
+	    label = "Spinner",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	group:insert( newPickerWheelButton )
+	newScrollView:insert( newSpinnerButton )
 	
 	
-	--ScrollView unit test
-	local newScrollViewButton = widget.newButton{
-	    id = "unitTest_newScrollView",
+	-- switch unit test
+	local newSwitchButton = widget.newButton{
+	    id = "newSwitch",
 	    left = 60,
-	    top = newPickerWheelButton.y + 35,
-	    label = "newScrollView",
+	    top = newSpinnerButton.y + 35,
+	    label = "Switch",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	group:insert( newScrollViewButton )
+	newScrollView:insert( newSwitchButton )
 	
 	
-	--TableView unit test
-	local newTableViewButton = widget.newButton{
-	    id = "unitTest_newTableView",
+	-- Stepper unit test
+	local newStepperButton = widget.newButton{
+	    id = "newStepper",
 	    left = 60,
-	    top = newScrollViewButton.y + 35,
-	    label = "newTableView",
+	    top = newSwitchButton.y + 35,
+	    label = "Stepper",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	group:insert( newTableViewButton )
+	newScrollView:insert( newStepperButton )
 	
 	
-	--NewSlider unit test
-	local newSliderButton = widget.newButton{
-	    id = "unitTest_newSlider",
+	-- Search field unit test
+	local newSearchFieldButton = widget.newButton{
+	    id = "newSearchField",
 	    left = 60,
-	    top = newTableViewButton.y + 35,
-	    label = "newSlider",
+	    top = newStepperButton.y + 35,
+	    label = "Search Field",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	group:insert( newSliderButton )
+	newScrollView:insert( newSearchFieldButton )
 	
-	--NewButton unit test
-	local newButtonButton = widget.newButton{
-	    id = "unitTest_newButton",
+	-- progressView unit test
+	local newProgressViewButton = widget.newButton{
+	    id = "newProgressView",
 	    left = 60,
-	    top = newSliderButton.y + 35,
-	    label = "newButton",
+	    top = newSearchFieldButton.y + 35,
+	    label = "Progress View",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	group:insert( newButtonButton )
+	newScrollView:insert( newProgressViewButton )
 	
-	--NewTabBar unit test
-	local newTabBarButton = widget.newButton{
-	    id = "unitTest_newTabBar",
+	-- segmentedControl unit test
+	local newSegmentedControlButton = widget.newButton{
+	    id = "newSegmentedControl",
 	    left = 60,
-	    top = newButtonButton.y + 35,
-	    label = "newTabBar",
+	    top = newProgressViewButton.y + 35,
+	    label = "Segmented Control",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	group:insert( newTabBarButton )
+	newScrollView:insert( newSegmentedControlButton )
 	
+	--[[
 	--NewEmbossedText unit test
 	local newEmbossedTextButton = widget.newButton{
-	    id = "unitTest_newEmbossedText",
+	    id = "test_embossedText",
 	    left = 60,
 	    top = newTabBarButton.y + 35,
 	    label = "newEmbossedText",
@@ -111,7 +117,8 @@ function scene:createScene( event )
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	group:insert( newEmbossedTextButton )
+	newScrollView:insert( newEmbossedTextButton )
+	--]]
 end
 
 function scene:exitScene( event )
