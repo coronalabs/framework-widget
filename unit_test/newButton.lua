@@ -1,4 +1,7 @@
-local widget = require( "widgetnew" )
+-- Copyright (C) 2012 Corona Inc. All Rights Reserved.
+-- File: newButton unit test.
+
+local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -25,7 +28,7 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
 	
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time

@@ -1,27 +1,12 @@
 -- Copyright (C) 2012 Corona Inc. All Rights Reserved.
--- File: ... unit test.
-
--- Change the package.path and make it so we can require the "widget.lua" file from the root directory
--------------------------------------------------------------------------------------------------
-local path = package.path
-
--- get index of first semicolon
-local i = string.find( path, ';', 1, true )
-if ( i > 0 ) then
-	-- first path (before semicolon) is project dir
-	local projDir = string.sub( path, 1, i )
-
-	-- assume widget dir is parent to projDir
-	local widgetDir = string.gsub( projDir, '(.*)/([^/]?/\?\.lua)', '%1/../%2' )
-	package.path = widgetDir .. path
-end
-
-package.preload.widget = nil
--------------------------------------------------------------------------------------------------
+-- File: newSlider unit test.
 
 local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
+
+--Forward reference for test function timer
+local testTimer = nil
 
 function scene:createScene( event )
 	local group = self.view
@@ -43,35 +28,54 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
 	
-	--[[
+	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
+	local TEST_SET_VALUE = true
 	
-	RECENT CHANGES/THINGS TO REVIEW:
+	--Create some text to show the sliders output
+	local sliderResult = display.newEmbossedText( "Slider at 50%", 0, 0, native.systemFontBold, 22 )
+	sliderResult:setTextColor( 0 )
+	sliderResult:setReferencePoint( display.CenterReferencePoint )
+	sliderResult.x = 160
+	sliderResult.y = 250
+	group:insert( sliderResult )
 	
-	1) CHANGE/FEATURE NAME. 
+	--Slider listener function
+	local function sliderListener( event )
+		sliderResult:setText( "Slider at " .. event.value .. "%" )
+	end
 	
-	How: HOW TO TEST CHANGE.
-	Expected behavior: EXPECTED BEHAVIOR OF CHANGE.
-
-	--]]
-	
-	
+	--Create the slider
+	local slider = widget.newSlider{
+		top = 300,						--Test setting top position.
+		left = 50,						--Test setting left position.
+		listener = sliderListener		--Test setting event handler.
+	}
+	group:insert( slider )
 	
 	
 	----------------------------------------------------------------------------------------------------------------
-	--											TESTS											 	  			  --
+	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
 	
-	--[[
-	timer.performWithDelay( 2000, function()
+	--Test setValue()
+	if TEST_SET_VALUE then
+		testTimer = timer.performWithDelay( 1000, function()
+			slider:setValue( 100 ) -- 100%
+			sliderResult:setText( "Slider at " .. slider.value .. "%" )
 		end, 1 )
-	--]]
-	
+	end
 end
 
 function scene:exitScene( event )
+	--Cancel test timer if active
+	if testTimer ~= nil then
+		timer.cancel( testTimer )
+		testTimer = nil
+	end
+	
 	storyboard.purgeAll()
 end
 

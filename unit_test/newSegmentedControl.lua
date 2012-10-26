@@ -1,4 +1,7 @@
-local widget = require( "widgetnew" )
+-- Copyright (C) 2012 Corona Inc. All Rights Reserved.
+-- File: newProgressView unit test.
+
+local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -16,7 +19,7 @@ function scene:createScene( event )
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
 	    left = 60,
-	    top = 50,
+	    top = 10,
 	    label = "Return To Menu",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -25,47 +28,57 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
 	
-	--[[
-	
-	RECENT CHANGES/THINGS TO REVIEW:
-	
-	1) text:setSize( size ). 
-	
-	How: With a new embossed text object ie : myText = widget.newEmbossedText, set myText:setSize( size ) to change the text's size.
-	Expected behavior: Text should change to the new text size.
+	--Toggle these defines to execute automated tests.
+	local TEST_REMOVE_SEGMENTED_CONTROL = false
+	local TEST_DELAY = 1000
 
-	--]]
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
 	
-	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_SET_TEXT = false
-	local TEST_SET_SIZE = true
+	local currentSegment = display.newEmbossedText( "You selected: ", 40, 200, native.systemFontBold, 18 )
+	group:insert( currentSegment )
 	
-	local myText = widget.embossedText( "Embossed Text", 0, 0, native.systemFont, 28 )
-	myText.x, myText.y = display.contentCenterX, display.contentCenterY
-	myText:setTextColor( 0 )
-	group:insert( myText )
-	
-	----------------------------------------------------------------------------------------------------------------
-	--											TESTS											 	  			  --
-	----------------------------------------------------------------------------------------------------------------
-	
-	--Test setText()
-	if TEST_SET_TEXT then
-		testTimer = timer.performWithDelay( 2000, function()
-			myText:setText( "Hello World!" ) -- Hello World!
-		end, 1 )
+	local function onPress( event )
+		print( "Segment no:", event.target.segment )
+		print( "Segment name:", event.target.segmentName )
+		
+		currentSegment:setText( "You selected: " .. event.target.segmentName )
 	end
 	
-	--Test set size
-	if TEST_SET_SIZE then
-		testTimer = timer.performWithDelay( 2000, function()
-			myText:setSize( 40 ) -- 40px
-			print( "changing size")
-		end, 1 )
+	-- Create a new progress view object
+	local newSegmentedControl = widget.newSegmentedControl
+	{
+		left = -5,
+		top = 150,
+		segments = { "Item 1", "Item 2", "Item 3", "Item 4" },
+		defaultSegment = 1,
+		--[[
+		labelSize = 14,
+		labelFont = native.systemFontBold,
+		labelXOffset = 0,
+		labelYOffset = - 2,
+		--]]
+		onPress = onPress,
+	}
+	group:insert( newSegmentedControl )
+
+	
+	----------------------------------------------------------------------------------------------------------------
+	--											TESTS
+	----------------------------------------------------------------------------------------------------------------
+
+	-- Test removing the segmentedControl
+	if TEST_REMOVE_SEGMENTED_CONTROL then
+		timer.performWithDelay( 100, function()
+			display.remove( newSegmentedControl )
+			
+			TEST_DELAY = TEST_DELAY + TEST_DELAY
+		end )
 	end
+
 	
 end
 

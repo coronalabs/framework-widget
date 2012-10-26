@@ -1,4 +1,7 @@
-local widget = require( "widgetnew" )
+-- Copyright (C) 2012 Corona Inc. All Rights Reserved.
+-- File: newStepper unit test.
+
+local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -16,7 +19,7 @@ function scene:createScene( event )
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
 	    left = 60,
-	    top = 50,
+	    top = 10,
 	    label = "Return To Menu",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -25,45 +28,67 @@ function scene:createScene( event )
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--										START OF UNIT TEST													  --
+	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------	
+	--Toggle these defines to execute automated tests.
+	local TEST_REMOVE_STEPPER = false
+	local TEST_DELAY = 1000
+
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
 	
-	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_SET_VALUE = true
+	local startAtNumber = 0
 	
-	--Create some text to show the sliders output
-	local sliderResult = display.newEmbossedText( "Slider at 50%", 0, 0, native.systemFontBold, 22 )
-	sliderResult:setTextColor( 0 )
-	sliderResult:setReferencePoint( display.CenterReferencePoint )
-	sliderResult.x = 160
-	sliderResult.y = 250
-	group:insert( sliderResult )
+	local numberText = display.newText( "0000", 0, 0, native.systemFontBold, 24 )
+	numberText.x = display.contentCenterX
+	numberText.y = 140
+	numberText.no = startAtNumber
+	group:insert( numberText )
 	
-	--Slider listener function
-	local function sliderListener( event )
-		sliderResult:setText( "Slider at " .. event.value .. "%" )
+	
+	local function onPress( event )
+		local phase = event.phase
+		
+		--print( phase )
+		
+		if "increment" == phase then
+			numberText.no = numberText.no + 1
+		elseif "decrement" == phase then
+			numberText.no = numberText.no - 1
+		end
+
+		numberText.text = string.format( "%04d", numberText.no )
 	end
+		
 	
-	--Create the slider
-	local slider = widget.newSlider{
-		top = 300,						--Test setting top position.
-		left = 50,						--Test setting left position.
-		listener = sliderListener		--Test setting event handler.
+	local newStepper = widget.newStepper
+	{
+		left = 150,
+		top = 200,
+		startNumber = startAtNumber,
+		minimumValue = 0,
+		maximumValue = 25,
+		onPress = onPress,
 	}
-	group:insert( slider )
+	group:insert( newStepper )
 	
+	-- Update the intial text
+	numberText.text = string.format( "%04d", startAtNumber )
 	
 	----------------------------------------------------------------------------------------------------------------
-	--											TESTS											 	  			  --
+	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
 	
-	--Test setValue()
-	if TEST_SET_VALUE then
-		testTimer = timer.performWithDelay( 1000, function()
-			slider:setValue( 100 ) -- 100%
-			sliderResult:setText( "Slider at " .. slider.value .. "%" )
-		end, 1 )
+	-- Test removing stepper
+	if TEST_REMOVE_STEPPER then
+		timer.performWithDelay( 100, function()
+			display.remove( newStepper )
+			
+			TEST_DELAY = TEST_DELAY + TEST_DELAY
+		end )
 	end
+
+	
 end
 
 function scene:exitScene( event )
