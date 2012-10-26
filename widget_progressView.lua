@@ -45,7 +45,7 @@ local function initWithImage( progressView, options )
 	local rangeFactor = 100
 	local availableMoveSpace = view.width - viewFillLeft.width - viewFillRight.width
 	local moveFactor = availableMoveSpace / rangeFactor
-	local currentPercent = ( availableMoveSpace / rangeFactor ) * ( 0.0 * rangeFactor )
+	local currentPercent = ( availableMoveSpace / rangeFactor ) * ( rangeFactor )
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -103,18 +103,18 @@ local function initWithImage( progressView, options )
 				if not hasReachedLimit then
 					-- Set the current fill %
 					currentPercent = ( availableMoveSpace / rangeFactor ) * ( self._view._currentProgress * rangeFactor )
-					
-					-- If the fill is animated
-					if self._view._isAnimated then
-						transition.to( viewFillMiddle, { width = currentPercent, x = viewFillLeft.x + currentPercent * 0.5 } )
-						transition.to( viewFillRight, { x = math.floor( viewFillLeft.x + currentPercent + viewFillRight.contentWidth * 0.5  ) } )
-					else
-					-- The fill isn't animated
-						viewFillMiddle.width = currentPercent
-						viewFillMiddle.x = viewFillLeft.x + currentPercent * 0.5
-						viewFillRight.x = math.floor( viewFillLeft.x + currentPercent + viewFillRight.contentWidth * 0.5  )
-					end
 				end	
+			end
+			
+			-- If the fill is animated
+			if self._view._isAnimated then
+				transition.to( viewFillMiddle, { width = currentPercent, x = viewFillLeft.x + currentPercent * 0.5 } )
+				transition.to( viewFillRight, { x = math.floor( viewFillLeft.x + currentPercent + viewFillRight.contentWidth * 0.5  ) } )
+			else
+			-- The fill isn't animated
+				viewFillMiddle.width = currentPercent
+				viewFillMiddle.x = viewFillLeft.x + currentPercent * 0.5
+				viewFillRight.x = math.floor( viewFillLeft.x + currentPercent + viewFillRight.contentWidth * 0.5  )
 			end
 		end
  	end
