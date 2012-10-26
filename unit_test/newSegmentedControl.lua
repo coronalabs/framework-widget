@@ -1,24 +1,6 @@
 -- Copyright (C) 2012 Corona Inc. All Rights Reserved.
 -- File: newProgressView unit test.
 
--- Change the package.path and make it so we can require the "widget.lua" file from the root directory
--------------------------------------------------------------------------------------------------
-local path = package.path
-
--- get index of first semicolon
-local i = string.find( path, ';', 1, true )
-if ( i > 0 ) then
-	-- first path (before semicolon) is project dir
-	local projDir = string.sub( path, 1, i )
-
-	-- assume widget dir is parent to projDir
-	local widgetDir = string.gsub( projDir, '(.*)/([^/]?/\?\.lua)', '%1/../%2' )
-	package.path = widgetDir .. path
-end
-
-package.preload.widget = nil
--------------------------------------------------------------------------------------------------
-
 local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
@@ -56,16 +38,21 @@ function scene:createScene( event )
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
+	local currentSegment = display.newEmbossedText( "You selected: ", 40, 200, native.systemFontBold, 18 )
+	group:insert( currentSegment )
+	
 	local function onPress( event )
 		print( "Segment no:", event.target.segment )
 		print( "Segment name:", event.target.segmentName )
+		
+		currentSegment:setText( "You selected: " .. event.target.segmentName )
 	end
 	
 	-- Create a new progress view object
 	local newSegmentedControl = widget.newSegmentedControl
 	{
 		left = -5,
-		top = 200,
+		top = 150,
 		segments = { "Item 1", "Item 2", "Item 3", "Item 4" },
 		defaultSegment = 1,
 		--[[
@@ -78,6 +65,7 @@ function scene:createScene( event )
 	}
 	group:insert( newSegmentedControl )
 
+	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
