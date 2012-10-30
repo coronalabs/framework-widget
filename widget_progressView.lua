@@ -56,7 +56,7 @@ local function initWithImage( progressView, options )
 	view._currentProgress = 0.00
 	
 	-- Set the left fills position
-	viewFillLeft.x = - view.contentWidth * 0.5 + viewFillLeft.contentWidth * 0.5 + 3
+	viewFillLeft.x = - view.contentWidth * 0.5 + viewFillLeft.contentWidth * 0.5 + 2
 
 	-- Set the fill's initial width
 	viewFillMiddle.width = 1
@@ -102,7 +102,7 @@ local function initWithImage( progressView, options )
 				-- If we haven't reached the limit yet (1.0) increase the fill
 				if not hasReachedLimit then
 					-- Set the current fill %
-					currentPercent = ( availableMoveSpace / rangeFactor ) * ( self._view._currentProgress * rangeFactor )
+					currentPercent = ( availableMoveSpace / rangeFactor ) * ( self._view._currentProgress * rangeFactor ) + 2
 				end	
 			end
 			

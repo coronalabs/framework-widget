@@ -65,7 +65,6 @@ local function initWithImage( searchField, options )
 	-- Insert the view into the searchField (group)
 	searchField:insert( view )
 	searchField:insert( view._cancelButton )
-	searchField:insert( view._textBox )
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -112,6 +111,10 @@ local function initWithImage( searchField, options )
 			else
 				view._cancelButton.isVisible = false
 			end
+		
+		elseif "submitted" == phase then
+			-- Hide keyboard
+			native.setKeyboardFocus( nil )
 		end
 		
 		-- If there is a listener defined, execute it
@@ -129,6 +132,8 @@ local function initWithImage( searchField, options )
 	
 	-- Finalize function
 	function searchField:_finalize()
+		display.remove( self._textBox )
+		
 		self._view = nil
 		self._cancelButton = nil
 		self._textBox = nil

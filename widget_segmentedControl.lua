@@ -24,7 +24,7 @@ local function initWithImage( segmentedControl, options )
 	local opt = options
 	
 	-- Forward references
-	local imageSheet, view, viewSegments
+	local imageSheet, view, segmentLabels, segmentDividers
 	
 	-- Create the imageSheet
 	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
@@ -82,69 +82,109 @@ local function initWithImage( segmentedControl, options )
 		},
 	}
 	
+	local dividerSegmentOptions = 
+	{ 
+		{
+			name = "middleSegmentOff",
+			start = opt.middleSegmentFrame,
+			count = 1,
+			time = 1,
+		},
+		
+		{
+			name = "middleSegmentOn",
+			start = opt.middleSegmentSelectedFrame,
+			count = 1,
+			time = 1,
+		},
+	}
+	
 	-- Reference the passed in segments
 	local segments = opt.segments
 	
 	-- Create the view's segments
-	viewSegments = {}
+	segmentLabels = {}
+	segmentDividers = {}
 	
+	local overallControlWidth = ( opt.segmentWidth * #segments )
+	local segmentWidth = overallControlWidth / #segments
+	
+	-- The left segment edge
+	local leftSegment = display.newSprite( imageSheet, leftSegmentOptions )
+	leftSegment:setSequence( "leftSegmentOff" )
+	leftSegment.width = opt.width
+	
+	-- The segment fill
+	local middleSegment = display.newSprite( imageSheet, middleSegmentOptions )	middleSegment:setSequence( "middleSegmentOff" )
+	middleSegment:setReferencePoint( display.CenterLeftReferencePoint )
+	middleSegment.width = ( overallControlWidth ) - 18
+	middleSegment.x = leftSegment.x + middleSegment.width * 0.5
+	
+	-- The right segment edge
+	local rightSegment = display.newSprite( imageSheet, rightSegmentOptions )
+	rightSegment:setSequence( "rightSegmentOff" )
+	rightSegment.width = opt.width
+	rightSegment:setReferencePoint( display.CenterRightReferencePoint )
+	rightSegment.x = middleSegment.x + middleSegment.width * 0.5 + rightSegment.width
+	
+	-- Create the segment labels & dividers
 	for i = 1, #segments do
-		local frame, sequenceData, offSequence, onSequence
-		
-		-- For the first iteration set the frame & properties to the "left" segment
-		if 1 == i then
-			frame = opt.leftSegmentFrame
-			sequenceData = leftSegmentOptions
-			offSequence = "leftSegmentOff"
-			onSequence = "leftSegmentOn"
-		-- For all other iterations set the frame & properties to the "middle" segment
-		else
-			frame = opt.middleSegmentFrame
-			sequenceData = middleSegmentOptions
-			offSequence = "middleSegmentOff"
-			onSequence = "middleSegmentOn"
-		end
+		-- Create the labels
+		local label = display.newEmbossedText( segments[i], 0, 0, opt.labelFont, opt.labelSize )
+		label:setTextColor( 255 )
+		label:setReferencePoint( display.CenterLeftReferencePoint )
+		label.x = ( segmentWidth * ( i - 1 ) )
+		label.y = leftSegment.y
+		segmentLabels[#segmentLabels + 1] = label
 	
-		-- If the iteration is at it's last index then set the frame & properties to the "right" segment
-		if #segments == i then
-			frame = opt.rightSegmentFrame
-			sequenceData = rightSegmentOptions
-			offSequence = "rightSegmentOff"
-			onSequence = "rightSegmentOn"
-		end	
-		
-		-- Create the segment
-		viewSegments[i] = display.newSprite( imageSheet, sequenceData )
-		viewSegments[i].x = ( viewSegments[i].contentWidth - 1 ) * i
-		viewSegments[i].segment = i
-		viewSegments[i].segmentName = segments[i]
-		viewSegments[i].offSequence = offSequence
-		viewSegments[i].onSequence = onSequence
-		
-		-- Set the default segment to active
-		if opt.defaultSegment == i then
-			viewSegments[i]:setSequence( viewSegments[i].onSequence )
+		-- Create the dividers
+		if i < #segments then
+			local divider = display.newImageRect( imageSheet, opt.dividerFrame, 1, 29 )
+			if i == 1 then
+				divider.x = segmentWidth * i - leftSegment.x - leftSegment.width * 0.5 
+			else
+				divider.x = segmentWidth * i - leftSegment.x - leftSegment.width * 0.5 --+ divider.width * 0.5
+			end
+			segmentDividers[#segmentDividers + 1] = divider
 		end
+	end
 
-		-- Create the segment's label
-		viewSegments[i].label = display.newEmbossedText( segments[i], 0, 0, opt.labelFont, opt.labelSize )
-		viewSegments[i].label:setTextColor( 255 )
-		viewSegments[i].label.x = viewSegments[i].x + opt.labelXOffset
-		viewSegments[i].label.y = viewSegments[i].y + opt.labelYOffset
-	end		
-
+	-- The "over" frame
+	local segmentOver = display.newSprite( imageSheet, middleSegmentOptions )	segmentOver:setSequence( "middleSegmentOn" )
+	segmentOver.width = sWidth
+	segmentOver.isVisible = false
+	
 	-------------------------------------------------------
 	-- Assign properties to the view
 	-------------------------------------------------------
 	
+	-- Segment properties
+	view._segmentWidth = segmentWidth
+	view._edgeWidth = opt.width
+	view._totalSegments = #segments
+	
 	-- Create a reference to the segments
-	view._segments = viewSegments
+	view._leftSegment = leftSegment
+	view._middleSegment = middleSegment
+	view._rightSegment = rightSegment
+	view._segmentOver = segmentOver
+	view._segmentLabels = segmentLabels
+	view._segmentDividers = segmentDividers
 	
 	-- Insert the segments into the view (group)
-	for i = 1, #view._segments do
-		view:insert( view._segments[i] )
-		view:insert( view._segments[i].label )
+	view:insert( view._leftSegment )
+	view:insert( view._middleSegment )
+	view:insert( view._rightSegment )
+	
+	for i = 1, #view._segmentLabels do
+		view:insert( view._segmentLabels[i] )
 	end
+	
+	for i = 1, #segmentDividers do
+		view:insert( view._segmentDividers[i] )
+	end
+	
+	view:insert( view._segmentOver )
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the segmentedControl
@@ -164,39 +204,61 @@ local function initWithImage( segmentedControl, options )
 	function view:touch( event )
 		local phase = event.phase
 		local target = event.target
-		local firstSegment = 1 == target.segment
-		local lastSegment = #self._segments == target.segment
+		local _segmentedControl = event.target.parent
+		local firstSegment = 1
+		local lastSegment = self._totalSegments
 		
 		if "began" == phase then
-			for i = 1, #self._segments do
-				local currentSegment = self._segments[i]
-				
-				-- If the current segment isn't equal to the target segment then turn it off.
-				if currentSegment.segment ~= target.segment then
-					-- Set the segment to "deSelected"
-					currentSegment:setSequence( currentSegment.offSequence )
-				else
-					-- If the segment isn't already selected then fire the _onPress event (if there is one)
-					if currentSegment.sequence ~= currentSegment.onSequence then
-						if segmentedControl._onPress then
-							segmentedControl._onPress( event )
+			for i = 1, self._totalSegments do
+				if event.x >= self._segmentWidth * i - self._edgeWidth then
+					if event.x <= _segmentedControl.x + self._segmentWidth * i - ( self._edgeWidth / 2 ) then
+						-- Show the "over" segment
+						segmentOver.isVisible = true
+						
+						-- First segment (Far left)
+						if firstSegment == i then
+							self._rightSegment:setSequence( "rightSegmentOff" )
+							self._leftSegment:setSequence( "leftSegmentOn" )
+							segmentOver.width = opt.segmentWidth - self._leftSegment.width - 0.5
+							segmentOver.x = self._leftSegment.x + self._leftSegment.width * 0.5 + segmentOver.width * 0.5
 						end
+						
+						-- Last segment (Far right)
+						if lastSegment == i then
+							self._leftSegment:setSequence( "leftSegmentOff" )
+							self._rightSegment:setSequence( "rightSegmentOn" )
+							segmentOver.width = opt.segmentWidth - self._rightSegment.width - 0.5
+							segmentOver.x = self._rightSegment.x - self._rightSegment.width - segmentOver.width * 0.5 - self._segmentDividers[#self._segmentDividers].width * 0.5
+						end
+						
+						-- Any other segment
+						if firstSegment ~= i and lastSegment ~= i then
+							self._leftSegment:setSequence( "leftSegmentOff" )
+							self._rightSegment:setSequence( "rightSegmentOff" )
+							segmentOver.width = self._segmentWidth
+							segmentOver.x = self._segmentDividers[i - 1].x + segmentOver.width * 0.5
+						end
+						 
+						-- Push the segment labels to the front
+						for i = 1, #self._segmentLabels do
+							local label = self._segmentLabels[i]
+							
+							label:toFront()
+						end
+						
+						break
 					end
-				
-					-- Set the segment to "selected"
-					currentSegment:setSequence( currentSegment.onSequence )
 				end
 			end
+			
+
 		end
 		
 		return true
 	end
 	
-	-- Add an event listener for each segment
-	for i = 1, #view._segments do
-		view._segments[i]:addEventListener( "touch", view )
-	end
-		
+	view:addEventListener( "touch" )
+
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -242,6 +304,7 @@ function M.new( options, theme )
 	opt.labelFont = customOptions.labelFont or native.systemFont
 	opt.labelXOffset = customOptions.labelXOffset or 0
 	opt.labelYOffset = customOptions.labelYOffset or 0
+	opt.segmentWidth = customOptions.segmentWidth or 50
 	opt.onPress = customOptions.onPress
 	
 	-- Frames & Images
@@ -253,6 +316,7 @@ function M.new( options, theme )
 	opt.rightSegmentSelectedFrame = customOptions.rightSegmentSelectedFrame or require( theme.data ):getFrameIndex( theme.rightSegmentSelectedFrame )
 	opt.middleSegmentFrame = customOptions.middleSegmentFrame or require( theme.data ):getFrameIndex( theme.middleSegmentFrame )
 	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or require( theme.data ):getFrameIndex( theme.middleSegmentSelectedFrame)
+	opt.dividerFrame = customOptions.dividerFrame or require( theme.data ):getFrameIndex( theme.dividerFrame)
 	
 	-------------------------------------------------------
 	-- Constructor error handling

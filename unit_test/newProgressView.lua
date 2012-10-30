@@ -43,21 +43,22 @@ function scene:createScene( event )
 	{
 		left = 150,
 		top = 200,
-		isAnimated = true,
+		--isAnimated = true,
 	}
 	group:insert( newProgressView )
 	
-	local currentProgress = 0.5
+	local currentProgress = 0.0
 	
 
 	timer.performWithDelay( 2000, function( event )
-		currentProgress = currentProgress + 0.25
 		
+		currentProgress = currentProgress + 0.25
 		newProgressView:setProgress( currentProgress )
+		
 	end, 2 )
 	
 	
-	newProgressView:setProgress( 0.5 )
+	--newProgressView:setProgress( 0.5 )
 
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS

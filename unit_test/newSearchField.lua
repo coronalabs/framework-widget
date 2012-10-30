@@ -48,7 +48,7 @@ function scene:createScene( event )
 	{
 		left = 150,
 		top = 200,
-		placeholder = "Search For ...",
+		placeholder = "Search For …",
 		listener = onEvent,
 	}
 	group:insert( newSearchField )
