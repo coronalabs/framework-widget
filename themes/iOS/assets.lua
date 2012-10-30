@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.texturepacker.com)
 --
--- $TexturePacker:SmartUpdate:04d4480a92899a69d62a7efad7666879$
+-- $TexturePacker:SmartUpdate:3ea6d339f84ef076efbd542582d4906f$
 --
 -- local sheetInfo = require("myExportedImageSheet") -- lua file that Texture packer published
 --
@@ -19,16 +19,16 @@ SheetInfo.sheet =
     
         {
             -- progressView_leftFill
-            x=140,
-            y=199,
+            x=244,
+            y=38,
             width=12,
             height=10,
 
         },
         {
             -- progressView_middleFill
-            x=101,
-            y=199,
+            x=189,
+            y=40,
             width=35,
             height=10,
 
@@ -36,198 +36,126 @@ SheetInfo.sheet =
         {
             -- progressView_outerFrame
             x=3,
-            y=75,
+            y=47,
             width=182,
             height=10,
 
         },
         {
             -- progressView_rightFill
-            x=189,
-            y=75,
+            x=228,
+            y=38,
             width=12,
             height=10,
 
         },
         {
-            -- searchField_bar
+            -- spinner_spinner
             x=3,
             y=3,
-            width=207,
-            height=33,
-
-        },
-        {
-            -- searchField_remove
-            x=199,
-            y=124,
-            width=19,
-            height=19,
-
-        },
-        {
-            -- segmentedControl_divider
-            x=244,
-            y=41,
-            width=1,
-            height=29,
-
-        },
-        {
-            -- segmentedControl_left
-            x=234,
-            y=177,
-            width=11,
-            height=29,
-
-        },
-        {
-            -- segmentedControl_leftOn
-            x=234,
-            y=144,
-            width=11,
-            height=29,
-
-        },
-        {
-            -- segmentedControl_middle
-            x=223,
-            y=111,
-            width=11,
-            height=29,
-
-        },
-        {
-            -- segmentedControl_middleOn
-            x=219,
-            y=180,
-            width=11,
-            height=29,
-
-        },
-        {
-            -- segmentedControl_right
-            x=219,
-            y=147,
-            width=11,
-            height=29,
-
-        },
-        {
-            -- segmentedControl_rightOn
-            x=223,
-            y=78,
-            width=11,
-            height=29,
-
-        },
-        {
-            -- spinner_spinner
-            x=101,
-            y=155,
             width=40,
             height=40,
 
         },
         {
             -- stepper_minusActive
-            x=101,
-            y=124,
+            x=717,
+            y=3,
             width=94,
             height=27,
 
         },
         {
             -- stepper_noMinus
-            x=3,
-            y=182,
+            x=619,
+            y=34,
             width=94,
             height=27,
 
         },
         {
             -- stepper_noPlus
-            x=3,
-            y=151,
+            x=619,
+            y=3,
             width=94,
             height=27,
 
         },
         {
             -- stepper_nonActive
-            x=3,
-            y=120,
+            x=521,
+            y=34,
             width=94,
             height=27,
 
         },
         {
             -- stepper_plusActive
-            x=3,
-            y=89,
+            x=521,
+            y=3,
             width=94,
             height=27,
 
         },
         {
             -- switch_background
-            x=3,
-            y=40,
+            x=195,
+            y=3,
             width=165,
             height=31,
 
         },
         {
             -- switch_checkboxDefault
-            x=182,
-            y=155,
+            x=158,
+            y=3,
             width=33,
             height=33,
 
         },
         {
             -- switch_checkboxSelected
-            x=207,
-            y=41,
+            x=121,
+            y=3,
             width=33,
             height=33,
 
         },
         {
             -- switch_handle
-            x=188,
-            y=89,
+            x=486,
+            y=3,
             width=31,
             height=31,
 
         },
         {
             -- switch_handleOver
-            x=172,
-            y=40,
+            x=451,
+            y=3,
             width=31,
             height=31,
 
         },
         {
             -- switch_overlay
-            x=101,
-            y=89,
+            x=364,
+            y=3,
             width=83,
             height=31,
 
         },
         {
             -- switch_radioButtonDefault
-            x=145,
-            y=155,
+            x=84,
+            y=3,
             width=33,
             height=34,
 
         },
         {
             -- switch_radioButtonSelected
-            x=214,
+            x=47,
             y=3,
             width=33,
             height=34,
@@ -235,8 +163,8 @@ SheetInfo.sheet =
         },
     },
     
-    sheetContentWidth = 250,
-    sheetContentHeight = 212
+    sheetContentWidth = 814,
+    sheetContentHeight = 64
 }
 
 SheetInfo.frameIndex =
@@ -246,29 +174,20 @@ SheetInfo.frameIndex =
     ["progressView_middleFill"] = 2,
     ["progressView_outerFrame"] = 3,
     ["progressView_rightFill"] = 4,
-    ["searchField_bar"] = 5,
-    ["searchField_remove"] = 6,
-    ["segmentedControl_divider"] = 7,
-    ["segmentedControl_left"] = 8,
-    ["segmentedControl_leftOn"] = 9,
-    ["segmentedControl_middle"] = 10,
-    ["segmentedControl_middleOn"] = 11,
-    ["segmentedControl_right"] = 12,
-    ["segmentedControl_rightOn"] = 13,
-    ["spinner_spinner"] = 14,
-    ["stepper_minusActive"] = 15,
-    ["stepper_noMinus"] = 16,
-    ["stepper_noPlus"] = 17,
-    ["stepper_nonActive"] = 18,
-    ["stepper_plusActive"] = 19,
-    ["switch_background"] = 20,
-    ["switch_checkboxDefault"] = 21,
-    ["switch_checkboxSelected"] = 22,
-    ["switch_handle"] = 23,
-    ["switch_handleOver"] = 24,
-    ["switch_overlay"] = 25,
-    ["switch_radioButtonDefault"] = 26,
-    ["switch_radioButtonSelected"] = 27,
+    ["spinner_spinner"] = 5,
+    ["stepper_minusActive"] = 6,
+    ["stepper_noMinus"] = 7,
+    ["stepper_noPlus"] = 8,
+    ["stepper_nonActive"] = 9,
+    ["stepper_plusActive"] = 10,
+    ["switch_background"] = 11,
+    ["switch_checkboxDefault"] = 12,
+    ["switch_checkboxSelected"] = 13,
+    ["switch_handle"] = 14,
+    ["switch_handleOver"] = 15,
+    ["switch_overlay"] = 16,
+    ["switch_radioButtonDefault"] = 17,
+    ["switch_radioButtonSelected"] = 18,
 }
 
 function SheetInfo:getSheet()

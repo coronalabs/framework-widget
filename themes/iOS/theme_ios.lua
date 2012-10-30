@@ -328,26 +328,5 @@ themeTable.progressView =
 }
 
 -----------------------------------------------------------------------------------------
---
--- segmentedControl
---
------------------------------------------------------------------------------------------
-
-themeTable.segmentedControl = 
-{
-	sheet = assetDir .. "/assets.png",
-	data = assetDir .. ".assets",
-	width = 12,
-	height = 29,
-	leftSegmentFrame = "segmentedControl_left",
-	leftSegmentSelectedFrame = "segmentedControl_leftOn",
-	rightSegmentFrame = "segmentedControl_right",
-	rightSegmentSelectedFrame = "segmentedControl_rightOn",
-	middleSegmentFrame = "segmentedControl_middle",
-	middleSegmentSelectedFrame = "segmentedControl_middleOn",
-	dividerFrame = "segmentedControl_divider",
-}
-
------------------------------------------------------------------------------------------
 
 return themeTable
