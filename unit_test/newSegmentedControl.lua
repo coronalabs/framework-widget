@@ -51,10 +51,12 @@ function scene:createScene( event )
 	-- Create a new progress view object
 	local newSegmentedControl = widget.newSegmentedControl
 	{
-		left = -5,
+		left = 50,
 		top = 150,
-		segments = { "Item 1", "Item 2", "Item 3", "Item 4" },
+		segments = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" },
 		defaultSegment = 1,
+		--segmentWidth = 25,
+		--labelSize = 6,
 		--[[
 		labelSize = 14,
 		labelFont = native.systemFontBold,
