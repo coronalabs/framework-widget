@@ -313,6 +313,8 @@ themeTable.progressView =
 {
 	sheet = assetDir .. "/assets.png",
 	data = assetDir .. ".assets",
+	fillXOffset = 2,
+	fillYOffset = 0,
 	fillOuterFrame = "progressView_outerFrame",
 	fillOuterWidth = 182,
 	fillOuterHeight = 14,
@@ -328,5 +330,45 @@ themeTable.progressView =
 }
 
 -----------------------------------------------------------------------------------------
+--
+-- segmentedControl
+--
+-----------------------------------------------------------------------------------------
+
+themeTable.segmentedControl = 
+{
+	sheet = assetDir .. "/assets.png",
+	data = assetDir .. ".assets",
+	width = 12,
+	height = 29,
+	leftSegmentFrame = "segmentedControl_left",
+	leftSegmentSelectedFrame = "segmentedControl_leftOn",
+	rightSegmentFrame = "segmentedControl_right",
+	rightSegmentSelectedFrame = "segmentedControl_rightOn",
+	middleSegmentFrame = "segmentedControl_middle",
+	middleSegmentSelectedFrame = "segmentedControl_middleOn",
+	dividerFrame = "segmentedControl_divider",
+}
+
+-----------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+--
+-- searchField
+--
+-----------------------------------------------------------------------------------------
+
+themeTable.searchField = 
+{
+    sheet = assetDir .. "/assets.png",
+    data = assetDir .. ".assets",
+    defaultFrame = "searchField_bar",
+    cancelFrame = "searchField_remove",
+    defaultFrameWidth = 207,
+    defaultFrameHeight = 33,
+    cancelFrameWidth = 19,
+    cancelFrameHeight = 19,
+}
+
 
 return themeTable
