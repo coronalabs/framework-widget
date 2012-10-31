@@ -28,7 +28,9 @@ local function initWithImage( segmentedControl, options )
 	
 	-- Create the imageSheet
 	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
-	view = display.newGroup()
+	
+	-- The view is the segmentedControl (group)
+	view = segmentedControl
 	
 	-- Create the sequenceData table
 	local leftSegmentOptions = 
@@ -195,12 +197,11 @@ local function initWithImage( segmentedControl, options )
 	-- Assign objects to the segmentedControl
 	segmentedControl._imageSheet = imageSheet
 	segmentedControl._view = view
+	segmentedControl._onPress = opt.onPress
+	
+	-- Public properties
 	segmentedControl.segmentName = view._segmentLabels[1].text
 	segmentedControl.segmentNumber = view._segmentNumber
-	segmentedControl._onPress = opt.onPress
-
-	-- Insert the view into the segmentedControl (group)
-	segmentedControl:insert( view )
 		
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -208,8 +209,7 @@ local function initWithImage( segmentedControl, options )
 	
 	function view:touch( event )
 		local phase = event.phase
-		local _segmentedControl = event.target.parent
-		event.target = _segmentedControl
+		local _segmentedControl = event.target
 		local firstSegment = 1
 		local lastSegment = self._totalSegments
 		
