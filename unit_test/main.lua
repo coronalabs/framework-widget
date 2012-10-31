@@ -38,5 +38,6 @@ io.output():setvbuf( "no" )
 display.setStatusBar(display.HiddenStatusBar)
 
 local storyboard = require( "storyboard" )
---storyboard.gotoScene( "unitTestListing" )
-storyboard.gotoScene( "newSegmentedControl" )
+storyboard.gotoScene( "unitTestListing" )
+
+--storyboard.gotoScene( "newProgressView" )

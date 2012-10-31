@@ -28,31 +28,34 @@ local function initWithImage( searchField, options )
 	end
 	
 	-- Forward references
-	local imageSheet, view, cancelButton, viewTextbox
+	local imageSheet, view, cancelButton, viewTextField
 	
 	-- Create the imageSheet
 	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
 	-- Create the view
 	view = display.newImageRect( imageSheet, opt.defaultFrame, opt.defaultFrameWidth, opt.defaultFrameHeight )
+	
+	-- The SearchFields cancel button
 	cancelButton = display.newImageRect( imageSheet, opt.cancelFrame, opt.cancelFrameWidth, opt.cancelFrameHeight )
 	
 	-- Create the textbox (that is contained within the searchField)
-	viewTextbox = native.newTextField( 0, 0, view.contentWidth - 65, view.contentHeight - 14 )
-	viewTextbox.x = view.x
-	viewTextbox.y = view.y - 2
-	viewTextbox.isEditable = true
-	viewTextbox.hasBackground = false
-	viewTextbox.align = "left"
-	viewTextbox.placeholder = opt.placeholder
-	viewTextbox._listener = opt.listener
+	viewTextField = native.newTextField( 0, 0, view.contentWidth - 65, view.contentHeight - 14 )
+	viewTextField.x = view.x + viewTextField.width
+	viewTextField.y = searchField.y - opt.textFieldYOffset
+	viewTextField.isEditable = true
+	viewTextField.hasBackground = false
+	viewTextField.align = "left"
+	viewTextField.placeholder = opt.placeholder
+	viewTextField._listener = opt.listener
 	
 	-- Set the cancel buttons position
-	cancelButton.x = view.contentWidth * 0.4
+	cancelButton.x = view.contentWidth * 0.4 + opt.cancelButtonXOffset
+	cancelButton.y = opt.cancelButtonYOffset
 	cancelButton.isVisible = false
 	
 	-- Objects
-	view._textBox = viewTextbox
+	view._textField = viewTextField
 	view._cancelButton = cancelButton
 	
 	-------------------------------------------------------
@@ -76,7 +79,7 @@ local function initWithImage( searchField, options )
 		
 		if "ended" == phase then
 			-- Clear any text in the textField
-			view._textBox.text = ""
+			view._textField.text = ""
 			
 			-- Hide the cancel button
 			view._cancelButton.isVisible = false
@@ -90,7 +93,7 @@ local function initWithImage( searchField, options )
 	-- Handle tap events on the Cancel button
 	function cancelButton:tap( event )
 		-- Clear any text in the textField
-		view._textBox.text = ""
+		view._textField.text = ""
 		
 		-- Hide the cancel button
 		view._cancelButton.isVisible = false
@@ -101,7 +104,7 @@ local function initWithImage( searchField, options )
 	cancelButton:addEventListener( "tap" )
 	
 	-- Function to listen for textbox events
-	function viewTextbox:_inputListener( event )
+	function viewTextField:_inputListener( event )
 		local phase = event.phase
 		
 		if "editing" == phase then
@@ -123,8 +126,8 @@ local function initWithImage( searchField, options )
 		end
 	end
 	
-	viewTextbox.userInput = viewTextbox._inputListener
-	viewTextbox:addEventListener( "userInput" )
+	viewTextField.userInput = viewTextField._inputListener
+	viewTextField:addEventListener( "userInput" )
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
@@ -132,11 +135,11 @@ local function initWithImage( searchField, options )
 	
 	-- Finalize function
 	function searchField:_finalize()
-		display.remove( self._textBox )
+		display.remove( self._textField )
 		
 		self._view = nil
 		self._cancelButton = nil
-		self._textBox = nil
+		self._textField = nil
 		
 		-- Set searchField imageSheet to nil
 		self._imageSheet = nil
@@ -165,6 +168,10 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.placeholder = customOptions.placeholder or ""
+	opt.textFieldXOffset = customOptions.textFieldXOffset or 0
+	opt.textFieldYOffset = customOptions.textFieldYOffset or - 2
+	opt.cancelButtonXOffset = customOptions.cancelButtonXOffset or 0
+	opt.cancelButtonYOffset = customOptions.cancelButtonYOffset or 0
 	opt.listener = customOptions.listener
 	
 	-- Frames & Images
