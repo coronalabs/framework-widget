@@ -16,7 +16,20 @@ if ( i > 0 ) then
 	package.path = widgetDir .. path
 end
 
+-- Nil out the widgets loaded from the core so we use the local versions of the files.
 package.preload.widget = nil
+package.preload.widget_button = nil
+package.preload.widget_picker = nil
+package.preload.widget_progressView = nil
+package.preload.widget_scrollView = nil
+package.preload.widget_searchField = nil
+package.preload.widget_segmentedControl = nil
+package.preload.widget_slider = nil
+package.preload.widget_spinner = nil
+package.preload.widget_stepper = nil
+package.preload.widget_tabbar = nil
+package.preload.widget_tableview = nil
+
 -------------------------------------------------------------------------------------------------
 
 -- For xcode console output
@@ -25,5 +38,5 @@ io.output():setvbuf( "no" )
 display.setStatusBar(display.HiddenStatusBar)
 
 local storyboard = require( "storyboard" )
-storyboard.gotoScene( "unitTestListing" )
---storyboard.gotoScene( "newSegmentedControl" )
+--storyboard.gotoScene( "unitTestListing" )
+storyboard.gotoScene( "newSegmentedControl" )

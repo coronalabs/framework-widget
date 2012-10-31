@@ -42,7 +42,7 @@ function scene:createScene( event )
 	group:insert( currentSegment )
 	
 	local function onPress( event )
-		print( "Segment no:", event.target.segment )
+		print( "Segment no:", event.target.segmentNumber )
 		print( "Segment name:", event.target.segmentName )
 		
 		currentSegment:setText( "You selected: " .. event.target.segmentName )
@@ -56,7 +56,6 @@ function scene:createScene( event )
 		segments = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" },
 		defaultSegment = 1,
 		--segmentWidth = 25,
-		--labelSize = 6,
 		--[[
 		labelSize = 14,
 		labelFont = native.systemFontBold,
