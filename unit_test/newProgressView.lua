@@ -55,7 +55,7 @@ function scene:createScene( event )
 		currentProgress = currentProgress + 0.25
 		newProgressView:setProgress( currentProgress )
 		
-	end, 2 )
+	end, 4 )
 	
 	
 	--newProgressView:setProgress( 0.5 )

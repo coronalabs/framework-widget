@@ -1,5 +1,5 @@
 -- Copyright (C) 2012 Corona Inc. All Rights Reserved.
--- File: newProgressView unit test.
+-- File: newSegmentedControl unit test.
 
 local widget = require( "widget" )
 local storyboard = require( "storyboard" )

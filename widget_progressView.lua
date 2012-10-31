@@ -56,19 +56,21 @@ local function initWithImage( progressView, options )
 	view._currentProgress = 0.00
 	
 	-- Set the left fills position
-	viewFillLeft.x = - view.contentWidth * 0.5 + viewFillLeft.contentWidth * 0.5 + 2
+	viewFillLeft.x = - view.contentWidth * 0.5 + viewFillLeft.contentWidth * 0.5 + opt.fillXOffset
 
 	-- Set the fill's initial width
 	viewFillMiddle.width = 1
 	viewFillMiddle.x = viewFillLeft.x + viewFillMiddle.width * 0.5
 	
 	-- Set the right fills position
-	viewFillRight.x = viewFillLeft.x + viewFillMiddle.width + viewFillRight.contentWidth * 0.5 - 1
+	viewFillRight.x = viewFillLeft.x + viewFillMiddle.width + viewFillRight.contentWidth * 0.5
 	
 	-- Objects
 	view._fillMiddle = viewFillMiddle
 	view._fillLeft = viewFillLeft
 	view._fillRight = viewFillRight
+	view._fillXOffset = opt.fillXOffset
+	view._fillYOffset = opt.fillYOffset
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the progressView
@@ -90,31 +92,34 @@ local function initWithImage( progressView, options )
 	
 	-- Function to set the progressView's current progress (ie fill)
 	function progressView:setProgress( progress )
+		-- Create a local reference to the view
+		local view = self._view
+		
 		-- Only execute this if the progressView's view hasn't been removed
-		if self._view then
+		if view then
 			-- While the progress is less than the user specified progress, increase by 0.01
-			while self._view._currentProgress < progress do
-				local hasReachedLimit = self._view._currentProgress >= 1.0
+			while view._currentProgress < progress do
+				local hasReachedLimit = view._currentProgress >= 1.0
 				
 				-- Increment the current progress
-				self._view._currentProgress = self._view._currentProgress + 0.01
+				view._currentProgress = view._currentProgress + 0.01
 				
 				-- If we haven't reached the limit yet (1.0) increase the fill
 				if not hasReachedLimit then
 					-- Set the current fill %
-					currentPercent = ( availableMoveSpace / rangeFactor ) * ( self._view._currentProgress * rangeFactor ) + 2
+					currentPercent = ( availableMoveSpace / rangeFactor ) * ( view._currentProgress * rangeFactor ) + view._fillXOffset
 				end	
 			end
 			
 			-- If the fill is animated
-			if self._view._isAnimated then
-				transition.to( viewFillMiddle, { width = currentPercent, x = viewFillLeft.x + currentPercent * 0.5 } )
-				transition.to( viewFillRight, { x = math.floor( viewFillLeft.x + currentPercent + viewFillRight.contentWidth * 0.5  ) } )
+			if view._isAnimated then
+				transition.to( view._fillMiddle, { width = currentPercent, x = view._fillLeft.x + currentPercent * 0.5 } )
+				transition.to( view._fillRight, { x = math.floor( view._fillLeft.x + currentPercent + view._fillRight.contentWidth * 0.5  ) } )
 			else
 			-- The fill isn't animated
-				viewFillMiddle.width = currentPercent
-				viewFillMiddle.x = viewFillLeft.x + currentPercent * 0.5
-				viewFillRight.x = math.floor( viewFillLeft.x + currentPercent + viewFillRight.contentWidth * 0.5  )
+				view._fillMiddle.width = currentPercent
+				view._fillMiddle.x = view._fillLeft.x + currentPercent * 0.5
+				view._fillRight.x = math.floor( view._fillLeft.x + currentPercent + view._fillRight.contentWidth * 0.5  )
 			end
 		end
  	end
@@ -159,6 +164,8 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.isAnimated = customOptions.isAnimated or false
+	opt.fillXOffset = customOptions.fillXOffset or theme.fillXOffset
+	opt.fillYOffset = customOptions.fillYOffset or theme.fillYOffset
 	
 	-- Frames & Images
 	opt.sheet = customOptions.sheet or theme.sheet
