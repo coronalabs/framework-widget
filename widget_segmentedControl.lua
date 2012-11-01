@@ -195,7 +195,7 @@ local function initWithImage( segmentedControl, options )
 	segmentedControl._onPress = opt.onPress
 	
 	-- Public properties
-	segmentedControl.segmentName = view._segmentLabels[1].text
+	segmentedControl.segmentLabel = view._segmentLabels[1].text
 	segmentedControl.segmentNumber = view._segmentNumber
 		
 	----------------------------------------------------------
@@ -228,7 +228,7 @@ local function initWithImage( segmentedControl, options )
 					end
 					
 					-- Set the segment name
-					_segmentedControl.segmentName = self._segmentName
+					_segmentedControl.segmentLabel = self._segmentLabel
 					
 					-- Set the segment number
 					_segmentedControl.segmentNumber = self._segmentNumber
@@ -264,7 +264,7 @@ local function initWithImage( segmentedControl, options )
 		segmentOver.x = self._leftSegment.x + self._leftSegment.width * 0.5 + segmentOver.width * 0.5
 		
 		-- Set the segment's name
-		self._segmentName = self._segmentLabels[1].text
+		self._segmentLabel = self._segmentLabels[1].text
 		
 		-- Set the segment number
 		self._segmentNumber = 1
@@ -282,7 +282,7 @@ local function initWithImage( segmentedControl, options )
 		segmentOver.x = self._rightSegment.x - self._rightSegment.width - segmentOver.width * 0.5 - self._segmentDividers[#self._segmentDividers].width * 0.5
 	
 		-- Set the segment's name
-		self._segmentName = self._segmentLabels[self._totalSegments].text
+		self._segmentLabel = self._segmentLabels[self._totalSegments].text
 		
 		-- Set the segment number
 		self._segmentNumber = self._totalSegments
@@ -300,7 +300,7 @@ local function initWithImage( segmentedControl, options )
 		segmentOver.x = self._segmentDividers[segmentNum - 1].x + segmentOver.width * 0.5
 		
 		-- Set the segment's name
-		self._segmentName = self._segmentLabels[segmentNum].text
+		self._segmentLabel = self._segmentLabels[segmentNum].text
 		
 		-- Set the segment number
 		self._segmentNumber = segmentNum
@@ -356,12 +356,12 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.segments = customOptions.segments or { "One", "Two" }
+	opt.segmentWidth = customOptions.segmentWidth or 50
 	opt.defaultSegment = customOptions.defaultSegment or 1
 	opt.labelSize = customOptions.labelSize or 12
 	opt.labelFont = customOptions.labelFont or native.systemFont
 	opt.labelXOffset = customOptions.labelXOffset or 0
 	opt.labelYOffset = customOptions.labelYOffset or 0
-	opt.segmentWidth = customOptions.segmentWidth or 50
 	opt.onPress = customOptions.onPress
 	
 	-- Frames & Images
