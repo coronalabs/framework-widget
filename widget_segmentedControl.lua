@@ -134,19 +134,14 @@ local function initWithImage( segmentedControl, options )
 		-- Create the labels
 		local label = display.newEmbossedText( segments[i], 0, 0, opt.labelFont, opt.labelSize )
 		label:setTextColor( 255 )
-		label:setReferencePoint( display.CenterLeftReferencePoint )
-		label.x = ( segmentWidth * ( i - 1 ) )
+		label.x = segmentWidth * 0.5 + segmentWidth * ( i - 1 ) - leftSegment.x - leftSegment.width * 0.5
 		label.y = leftSegment.y
 		segmentLabels[i] = label
-	
+
 		-- Create the dividers
 		if i < #segments then
 			local divider = display.newImageRect( imageSheet, opt.dividerFrame, 1, 29 )
-			if i == 1 then
-				divider.x = segmentWidth * i - leftSegment.x - leftSegment.width * 0.5 
-			else
-				divider.x = segmentWidth * i - leftSegment.x - leftSegment.width * 0.5
-			end
+			divider.x = segmentWidth * i - leftSegment.x - leftSegment.width * 0.5 
 			segmentDividers[i] = divider
 		end
 	end

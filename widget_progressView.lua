@@ -164,8 +164,8 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.isAnimated = customOptions.isAnimated or false
-	opt.fillXOffset = customOptions.fillXOffset or theme.fillXOffset
-	opt.fillYOffset = customOptions.fillYOffset or theme.fillYOffset
+	opt.fillXOffset = customOptions.fillXOffset or theme.fillXOffset or 0
+	opt.fillYOffset = customOptions.fillYOffset or theme.fillYOffset or 0
 	
 	-- Frames & Images
 	opt.sheet = customOptions.sheet or theme.sheet
