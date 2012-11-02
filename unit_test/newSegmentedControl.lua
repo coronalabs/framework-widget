@@ -43,9 +43,9 @@ function scene:createScene( event )
 	
 	local function onPress( event )
 		print( "Segment no:", event.target.segmentNumber )
-		print( "Segment name:", event.target.segmentName )
+		print( "Segment label:", event.target.segmentLabel )
 		
-		currentSegment:setText( "You selected: " .. event.target.segmentName )
+		currentSegment:setText( "You selected: " .. event.target.segmentLabel )
 	end
 	
 	-- Create a new progress view object
