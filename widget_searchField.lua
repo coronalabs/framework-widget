@@ -135,11 +135,11 @@ local function initWithImage( searchField, options )
 	
 	-- Finalize function
 	function searchField:_finalize()
-		display.remove( self._textField )
+		display.remove( self._view._textField )
 		
+		self._view._textField = nil
+		self._view._cancelButton = nil
 		self._view = nil
-		self._cancelButton = nil
-		self._textField = nil
 		
 		-- Set searchField imageSheet to nil
 		self._imageSheet = nil
