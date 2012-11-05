@@ -35,14 +35,15 @@ local function initWithImage( searchField, options )
 	
 	-- Create the view
 	view = display.newImageRect( imageSheet, opt.defaultFrame, opt.defaultFrameWidth, opt.defaultFrameHeight )
-	
+
 	-- The SearchFields cancel button
 	cancelButton = display.newImageRect( imageSheet, opt.cancelFrame, opt.cancelFrameWidth, opt.cancelFrameHeight )
 	
 	-- Create the textbox (that is contained within the searchField)
-	viewTextField = native.newTextField( 0, 0, view.contentWidth - 65, view.contentHeight - 14 )
-	viewTextField.x = view.x + viewTextField.width
-	viewTextField.y = searchField.y - opt.textFieldYOffset
+	viewTextField = native.newTextField( 0, 0, opt.textFieldWidth, opt.textFieldHeight )
+	viewTextField:setReferencePoint( display.TopLeftReferencePoint )
+	viewTextField.x = searchField.x + opt.textFieldXOffset
+	viewTextField.y = searchField.y + opt.textFieldYOffset
 	viewTextField.isEditable = true
 	viewTextField.hasBackground = false
 	viewTextField.align = "left"
@@ -168,8 +169,10 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.placeholder = customOptions.placeholder or ""
-	opt.textFieldXOffset = customOptions.textFieldXOffset or 0
-	opt.textFieldYOffset = customOptions.textFieldYOffset or - 2
+	opt.textFieldXOffset = customOptions.textFieldXOffset or 28
+	opt.textFieldYOffset = customOptions.textFieldYOffset or 7
+	opt.textFieldWidth = customOptions.textFieldWidth or theme.textFieldWidth
+	opt.textFieldHeight = customOptions.textFieldHeight or theme.textFieldHeight
 	opt.cancelButtonXOffset = customOptions.cancelButtonXOffset or 0
 	opt.cancelButtonYOffset = customOptions.cancelButtonYOffset or 0
 	opt.listener = customOptions.listener
@@ -217,6 +220,9 @@ function M.new( options, theme )
 
 	-- Create the searchField
 	initWithImage( searchField, opt )
+	
+	-- Set the search field's reference point to "topLeft"
+	require( "widget" )._setTopLeftReference( searchField, opt )
 	
 	return searchField
 end

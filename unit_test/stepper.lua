@@ -1,5 +1,5 @@
 -- Copyright (C) 2012 Corona Inc. All Rights Reserved.
--- File: newProgressView unit test.
+-- File: newStepper unit test.
 
 local widget = require( "widget" )
 local storyboard = require( "storyboard" )
@@ -29,44 +29,59 @@ function scene:createScene( event )
 	
 	----------------------------------------------------------------------------------------------------------------
 	--										START OF UNIT TEST
-	----------------------------------------------------------------------------------------------------------------
-	
+	----------------------------------------------------------------------------------------------------------------	
 	--Toggle these defines to execute automated tests.
-	local TEST_REMOVE_PROGRESS_VIEW = false
+	local TEST_REMOVE_STEPPER = false
 	local TEST_DELAY = 1000
 
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
-	-- Create a new progress view object
-	local newProgressView = widget.newProgressView
+	local startAtNumber = 0
+	
+	local numberText = display.newText( "0000", 0, 0, native.systemFontBold, 24 )
+	numberText.x = display.contentCenterX
+	numberText.y = 140
+	numberText.no = startAtNumber
+	group:insert( numberText )
+	
+	local function onPress( event )
+		local phase = event.phase
+		
+		--print( phase )
+		
+		if "increment" == phase then
+			numberText.no = numberText.no + 1
+		elseif "decrement" == phase then
+			numberText.no = numberText.no - 1
+		end
+
+		numberText.text = string.format( "%04d", numberText.no )
+	end
+		
+	
+	local newStepper = widget.newStepper
 	{
-		left = 150,
+		left = 80,
 		top = 200,
-		--isAnimated = true,
+		startNumber = startAtNumber,
+		minimumValue = 0,
+		maximumValue = 25,
+		onPress = onPress,
 	}
-	group:insert( newProgressView )
+	group:insert( newStepper )
 	
-	local currentProgress = 0.0
+	-- Update the intial text
+	numberText.text = string.format( "%04d", startAtNumber )
 	
-
-	timer.performWithDelay( 2000, function( event )
-		
-		currentProgress = currentProgress + 0.25
-		newProgressView:setProgress( currentProgress )
-		
-	end, 4 )
-	
-	
-	--newProgressView:setProgress( 0.5 )
-
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
-	-- Test removing the progress view
-	if TEST_REMOVE_PROGRESS_VIEW then
+	
+	-- Test removing stepper
+	if TEST_REMOVE_STEPPER then
 		timer.performWithDelay( 100, function()
-			display.remove( newProgressView )
+			display.remove( newStepper )
 			
 			TEST_DELAY = TEST_DELAY + TEST_DELAY
 		end )

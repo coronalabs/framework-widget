@@ -368,6 +368,8 @@ themeTable.searchField =
     defaultFrameHeight = 33,
     cancelFrameWidth = 19,
     cancelFrameHeight = 19,
+	textFieldWidth = 145,
+	textFieldHeight = 20,
 }
 
 

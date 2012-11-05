@@ -46,7 +46,7 @@ function scene:createScene( event )
 	
 	local newSearchField = widget.newSearchField
 	{
-		left = 150,
+		left = 0,
 		top = 200,
 		placeholder = "Search For …",
 		listener = onEvent,

@@ -196,6 +196,8 @@ local function createOnOffSwitch( switch, options )
 		view.maskX = view._handle.x + math.abs( view._startRange ) + view._endRange
 	end
 	
+	
+	
 	-- Assign objects to the switch
 	switch._imageSheet = imageSheet
 	switch._view = view
@@ -541,8 +543,13 @@ function M.new( options, theme )
 	-- Create the switch based on the given type
  	if "onOff" == opt.switchType then
  		createOnOffSwitch( switch, opt )
+		switch.x = opt.left + switch.contentWidth * 0.25
+		switch.y = opt.top
  	else
  		createStandardSwitch( switch, opt )
+
+		-- Set the switch reference point to "topLeft"
+		require( "widget" )._setTopLeftReference( switch, opt )
 	end
 	
 	return switch
