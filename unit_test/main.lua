@@ -27,6 +27,7 @@ package.preload.widget_segmentedControl = nil
 package.preload.widget_slider = nil
 package.preload.widget_spinner = nil
 package.preload.widget_stepper = nil
+package.preload.widget_switch = nil
 package.preload.widget_tabbar = nil
 package.preload.widget_tableview = nil
 
@@ -40,4 +41,4 @@ display.setStatusBar(display.HiddenStatusBar)
 local storyboard = require( "storyboard" )
 storyboard.gotoScene( "unitTestListing" )
 
---storyboard.gotoScene( "newProgressView" )
+--storyboard.gotoScene( "switch" )

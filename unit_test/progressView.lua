@@ -1,5 +1,5 @@
 -- Copyright (C) 2012 Corona Inc. All Rights Reserved.
--- File: newSegmentedControl unit test.
+-- File: newProgressView unit test.
 
 local widget = require( "widget" )
 local storyboard = require( "storyboard" )
@@ -32,49 +32,41 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	--Toggle these defines to execute automated tests.
-	local TEST_REMOVE_SEGMENTED_CONTROL = false
+	local TEST_REMOVE_PROGRESS_VIEW = false
 	local TEST_DELAY = 1000
 
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
-	local currentSegment = display.newEmbossedText( "You selected: ", 40, 200, native.systemFontBold, 18 )
-	group:insert( currentSegment )
-	
-	local function onPress( event )
-		print( "Segment no:", event.target.segmentNumber )
-		print( "Segment label:", event.target.segmentLabel )
-		
-		currentSegment:setText( "You selected: " .. event.target.segmentLabel )
-	end
-	
 	-- Create a new progress view object
-	local newSegmentedControl = widget.newSegmentedControl
+	local newProgressView = widget.newProgressView
 	{
-		left = 50,
-		top = 150,
-		segments = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" },
-		defaultSegment = 1,
-		--segmentWidth = 25,
-		--[[
-		labelSize = 14,
-		labelFont = native.systemFontBold,
-		labelXOffset = 0,
-		labelYOffset = - 2,
-		--]]
-		onPress = onPress,
+		left = 0,
+		top = 200,
+		--isAnimated = true,
 	}
-	group:insert( newSegmentedControl )
-
+	group:insert( newProgressView )
 	
+	local currentProgress = 0.0
+	
+
+	timer.performWithDelay( 2000, function( event )
+		
+		currentProgress = currentProgress + 0.25
+		newProgressView:setProgress( currentProgress )
+		
+	end, 4 )
+	
+	
+	--newProgressView:setProgress( 0.5 )
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
-
-	-- Test removing the segmentedControl
-	if TEST_REMOVE_SEGMENTED_CONTROL then
+	-- Test removing the progress view
+	if TEST_REMOVE_PROGRESS_VIEW then
 		timer.performWithDelay( 100, function()
-			display.remove( newSegmentedControl )
+			display.remove( newProgressView )
 			
 			TEST_DELAY = TEST_DELAY + TEST_DELAY
 		end )

@@ -236,6 +236,9 @@ function M.new( options, theme )
 		initWithImage( spinner, opt )
 	end
 	
+	-- Set the spinner's reference point to "topLeft"
+	require( "widget" )._setTopLeftReference( spinner, opt )
+	
 	return spinner
 end
 

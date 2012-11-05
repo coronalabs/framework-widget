@@ -204,15 +204,18 @@ local function initWithImage( segmentedControl, options )
 	
 	function view:touch( event )
 		local phase = event.phase
-		local _segmentedControl = event.target
 		local firstSegment = 1
 		local lastSegment = self._totalSegments
-		
+
 		if "began" == phase then
+			-- Set the x/y reference to 0
+			self.xReference = 0
+			self.yReference = 0	
+				
 			-- Loop through the segments
 			for i = 1, self._totalSegments do
-				local segmentLeftEdge = self._segmentWidth * i - self._edgeWidth
-				local segmentRightEdge = _segmentedControl.x + self._segmentWidth * i - ( self._edgeWidth / 2 )
+				local segmentLeftEdge = ( ( self.x - self._segmentWidth ) - ( self._edgeWidth / 2 ) ) * i 
+				local segmentRightEdge = self.x + self._segmentWidth * i - ( self._edgeWidth / 2 )
 				
 				-- If the touch is within the segments range
 				if event.x >= segmentLeftEdge and event.x <= segmentRightEdge then
@@ -228,10 +231,10 @@ local function initWithImage( segmentedControl, options )
 					end
 					
 					-- Set the segment name
-					_segmentedControl.segmentLabel = self._segmentLabel
+					self.segmentLabel = self._segmentLabel
 					
 					-- Set the segment number
-					_segmentedControl.segmentNumber = self._segmentNumber
+					self.segmentNumber = self._segmentNumber
 					
 					-- Execute onPress listener
 					if self._onPress and "function" == type( self._onPress ) then
@@ -408,6 +411,9 @@ function M.new( options, theme )
 		
 	-- Create the segmentedControl
 	initWithImage( segmentedControl, opt )
+	
+	-- Set the segmented control's reference point to "topLeft"
+	require( "widget" )._setTopLeftReference( segmentedControl, opt )
 	
 	return segmentedControl
 end

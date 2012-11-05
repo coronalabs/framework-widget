@@ -44,7 +44,7 @@ function scene:createScene( event )
 	-- Create a default spinner (created using theme file) - (Single Rotating Image)
 	local spinnerDefault = widget.newSpinner
 	{
-		left = 150,
+		left = 0,
 		top = 140,
 	}
 	group:insert( spinnerDefault )

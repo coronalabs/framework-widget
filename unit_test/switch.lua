@@ -60,7 +60,7 @@ function scene:createScene( event )
 	-- Create a radio switch
 	local radioButton = widget.newSwitch
 	{
-		left = 130,
+		left = 0,
 		top = 120,
 		style = "radio",
 		id = "Radio button",
@@ -83,9 +83,9 @@ function scene:createScene( event )
 	
 	local onOffSwitch = widget.newSwitch
 	{
-		left = 130,
+		left = 0,
 		top = 300,
-		initialSwitchState = true,
+		--initialSwitchState = true,
 		onPress = onOnOffPress
 	}
 	group:insert( onOffSwitch )

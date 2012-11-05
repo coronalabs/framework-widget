@@ -78,6 +78,16 @@ function widget._new( options )
 	return newWidget
 end
 
+-- Set 
+function widget._setTopLeftReference( group, options )
+	group:setReferencePoint( display.TopLeftReferencePoint )
+	group.x = options.left
+	group.y = options.top
+	group:setReferencePoint( display.CenterReferencePoint )
+	
+	return group
+end
+
 -- set current theme from external .lua module
 function widget.setTheme( themeModule )
 	widget.theme = require( themeModule )	-- should return table w/ theme data

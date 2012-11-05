@@ -32,8 +32,8 @@ function scene:createScene( event )
 	end
 
 	-- spinner unit test
-	local newSpinnerButton = widget.newButton{
-	    id = "newSpinner",
+	local spinnerButton = widget.newButton{
+	    id = "spinner",
 	    left = 60,
 	    top = 50,
 	    label = "Spinner",
@@ -41,84 +41,83 @@ function scene:createScene( event )
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	newScrollView:insert( newSpinnerButton )
+	newScrollView:insert( spinnerButton )
 	
 	
 	-- switch unit test
-	local newSwitchButton = widget.newButton{
-	    id = "newSwitch",
+	local switchButton = widget.newButton{
+	    id = "switch",
 	    left = 60,
-	    top = newSpinnerButton.y + 35,
+	    top = spinnerButton.y + 35,
 	    label = "Switch",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	newScrollView:insert( newSwitchButton )
+	newScrollView:insert( switchButton )
 	
 	
 	-- Stepper unit test
-	local newStepperButton = widget.newButton{
-	    id = "newStepper",
+	local stepperButton = widget.newButton{
+	    id = "stepper",
 	    left = 60,
-	    top = newSwitchButton.y + 35,
+	    top = switchButton.y + 35,
 	    label = "Stepper",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	newScrollView:insert( newStepperButton )
+	newScrollView:insert( stepperButton )
 	
 	
 	-- Search field unit test
-	local newSearchFieldButton = widget.newButton{
-	    id = "newSearchField",
+	local searchFieldButton = widget.newButton{
+	    id = "searchField",
 	    left = 60,
-	    top = newStepperButton.y + 35,
+	    top = stepperButton.y + 35,
 	    label = "Search Field",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	newScrollView:insert( newSearchFieldButton )
+	newScrollView:insert( searchFieldButton )
 	
 	-- progressView unit test
-	local newProgressViewButton = widget.newButton{
-	    id = "newProgressView",
+	local progressViewButton = widget.newButton{
+	    id = "progressView",
 	    left = 60,
-	    top = newSearchFieldButton.y + 35,
+	    top = searchFieldButton.y + 35,
 	    label = "Progress View",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	newScrollView:insert( newProgressViewButton )
+	newScrollView:insert( progressViewButton )
 	
 	-- segmentedControl unit test
-	local newSegmentedControlButton = widget.newButton{
-	    id = "newSegmentedControl",
+	local segmentedControlButton = widget.newButton{
+	    id = "segmentedControl",
 	    left = 60,
-	    top = newProgressViewButton.y + 35,
+	    top = progressViewButton.y + 35,
 	    label = "Segmented Control",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	newScrollView:insert( newSegmentedControlButton )
+	newScrollView:insert( segmentedControlButton )
 	
-	--[[
-	--NewEmbossedText unit test
-	local newEmbossedTextButton = widget.newButton{
-	    id = "test_embossedText",
+	-- picker unit test
+	local pickerButton = widget.newButton{
+	    id = "picker",
 	    left = 60,
-	    top = newTabBarButton.y + 35,
-	    label = "newEmbossedText",
+	    top = segmentedControlButton.y + 35,
+	    label = "Picker",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
-	newScrollView:insert( newEmbossedTextButton )
-	--]]
+	newScrollView:insert( pickerButton )
+
 end
 
 function scene:exitScene( event )

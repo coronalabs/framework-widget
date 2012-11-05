@@ -221,6 +221,9 @@ function M.new( options, theme )
 	-- Create the progressView
 	initWithImage( progressView, opt )
 	
+	-- Set the progress view's reference point to "topLeft"
+	require( "widget" )._setTopLeftReference( progressView, opt )
+	
 	return progressView
 end
 

@@ -120,6 +120,10 @@ local function initWithSprite( stepper, options )
 		event.target = stepper
 		
 		if "began" == phase then
+			-- Set the x/y reference to 0
+			_stepper.xReference = 0
+			_stepper.yReference = 0
+			
 			-- Set focus on the stepper (if focus isn't already on it)
 			if not self._isFocus then
 				display.getCurrentStage():setFocus( self, event.id )
@@ -144,18 +148,18 @@ local function initWithSprite( stepper, options )
 			if self._onPress then
 				self._onPress( self._event )
 			end
-		
+	
 		elseif self._isFocus then
 			if "moved" == phase then
 				-- Handle switching from one side of the stepper to the other whilst still holding your finger on the screen
 				if event.x >= _stepper.x then
 					if self._event.phase ~= "increment" then
-						self:dispatchEvent( { name = "touch", phase = "began", x = 160 } )
+						self:dispatchEvent( { name = "touch", phase = "began", x = event.x } )
 					end
 				else
             		-- Dispatch a touch event to self
             		if self._event.phase ~= "decrement" then
-						self:dispatchEvent( { name = "touch", phase = "began", x = 60 } )
+						self:dispatchEvent( { name = "touch", phase = "began", x = event.x } )
 					end
 				end
 		
@@ -372,6 +376,9 @@ function M.new( options, theme )
 
 	-- Create the stepper
 	initWithSprite( stepper, opt )
+	
+	-- Set the stepper's reference point to "topLeft"
+	require( "widget" )._setTopLeftReference( stepper, opt )
 	
 	return stepper
 end

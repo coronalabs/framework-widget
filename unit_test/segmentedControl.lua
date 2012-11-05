@@ -1,5 +1,5 @@
 -- Copyright (C) 2012 Corona Inc. All Rights Reserved.
--- File: newStepper unit test.
+-- File: newSegmentedControl unit test.
 
 local widget = require( "widget" )
 local storyboard = require( "storyboard" )
@@ -29,60 +29,51 @@ function scene:createScene( event )
 	
 	----------------------------------------------------------------------------------------------------------------
 	--										START OF UNIT TEST
-	----------------------------------------------------------------------------------------------------------------	
+	----------------------------------------------------------------------------------------------------------------
+	
 	--Toggle these defines to execute automated tests.
-	local TEST_REMOVE_STEPPER = false
+	local TEST_REMOVE_SEGMENTED_CONTROL = false
 	local TEST_DELAY = 1000
 
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
-	local startAtNumber = 0
-	
-	local numberText = display.newText( "0000", 0, 0, native.systemFontBold, 24 )
-	numberText.x = display.contentCenterX
-	numberText.y = 140
-	numberText.no = startAtNumber
-	group:insert( numberText )
-	
+	local currentSegment = display.newEmbossedText( "You selected: ", 40, 200, native.systemFontBold, 18 )
+	group:insert( currentSegment )
 	
 	local function onPress( event )
-		local phase = event.phase
+		print( "Segment no:", event.target.segmentNumber )
+		print( "Segment label:", event.target.segmentLabel )
 		
-		--print( phase )
-		
-		if "increment" == phase then
-			numberText.no = numberText.no + 1
-		elseif "decrement" == phase then
-			numberText.no = numberText.no - 1
-		end
-
-		numberText.text = string.format( "%04d", numberText.no )
+		currentSegment:setText( "You selected: " .. event.target.segmentLabel )
 	end
-		
 	
-	local newStepper = widget.newStepper
+	-- Create a new progress view object
+	local newSegmentedControl = widget.newSegmentedControl
 	{
-		left = 150,
-		top = 200,
-		startNumber = startAtNumber,
-		minimumValue = 0,
-		maximumValue = 25,
+		left = 60,
+		top = 150,
+		segments = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" },
+		defaultSegment = 1,
+		--segmentWidth = 25,
+		--[[
+		labelSize = 14,
+		labelFont = native.systemFontBold,
+		labelXOffset = 0,
+		labelYOffset = - 2,
+		--]]
 		onPress = onPress,
 	}
-	group:insert( newStepper )
-	
-	-- Update the intial text
-	numberText.text = string.format( "%04d", startAtNumber )
-	
+	group:insert( newSegmentedControl )
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
-	
-	-- Test removing stepper
-	if TEST_REMOVE_STEPPER then
+
+	-- Test removing the segmentedControl
+	if TEST_REMOVE_SEGMENTED_CONTROL then
 		timer.performWithDelay( 100, function()
-			display.remove( newStepper )
+			display.remove( newSegmentedControl )
 			
 			TEST_DELAY = TEST_DELAY + TEST_DELAY
 		end )
