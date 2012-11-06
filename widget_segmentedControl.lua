@@ -316,7 +316,7 @@ local function initWithImage( segmentedControl, options )
 		elseif #segments == segmentNum then
 			view:setRightSegmentActive()
 		else
-			view:setMiddleSegmentActive( self._segmentNumber )
+			view:setMiddleSegmentActive( view._segmentNumber )
 		end
 	end
 	

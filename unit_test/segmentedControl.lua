@@ -54,7 +54,7 @@ function scene:createScene( event )
 		left = 60,
 		top = 150,
 		segments = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" },
-		defaultSegment = 1,
+		defaultSegment = 4,
 		--segmentWidth = 25,
 		--[[
 		labelSize = 14,
