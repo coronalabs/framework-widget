@@ -117,6 +117,18 @@ function scene:createScene( event )
 	    onRelease = gotoSelection
 	}
 	newScrollView:insert( pickerButton )
+	
+	-- tableView unit test
+	local tableViewButton = widget.newButton{
+	    id = "tableView",
+	    left = 60,
+	    top = pickerButton.y + 35,
+	    label = "TableView",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	newScrollView:insert( tableViewButton )
 
 end
 

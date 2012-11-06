@@ -47,14 +47,16 @@ function scene:createScene( event )
 	
 	local function onPress( event )
 		local phase = event.phase
-		
-		--print( phase )
-		
+
 		if "increment" == phase then
 			numberText.no = numberText.no + 1
 		elseif "decrement" == phase then
 			numberText.no = numberText.no - 1
 		end
+	
+		print( "current value is:", event.value )
+		print( "minimum value is:", event.minimumValue )
+		print( "maximum value is:", event.maximumValue )
 
 		numberText.text = string.format( "%04d", numberText.no )
 	end
@@ -62,6 +64,7 @@ function scene:createScene( event )
 	
 	local newStepper = widget.newStepper
 	{
+		id = "dy",
 		left = 80,
 		top = 200,
 		startNumber = startAtNumber,
