@@ -184,36 +184,56 @@ local function initWithSprite( stepper, options )
 
 	-- Function to dispatch a increment event for the stepper
 	function view:_dispatchIncrement()
-		local phase = nil
+		local newPhase = nil
 		
 		-- If the currentNumber is less then the maxiumum value then set the phase to "increment"
 		if self._currentValue < self._maximumValue then
-			phase = "increment"
+			newPhase = "increment"
 			self._currentValue = self._currentValue + 1
 		else
 			-- The currentNumber is more then the maxiumum value, set the phase to "maxLimit"
-			phase = "maxLimit"
+			newPhase = "maxLimit"
 		end
 		
-		-- Set the new event phase
-		self._event.phase = phase
+		-- Set up the event to dispatch
+		local eventToDispatch = 
+		{
+			phase = newPhase,
+			target = stepper,
+			value = self._currentValue,
+			minimumValue = self._minimumValue,
+			maximumValue = self._maximumValue,
+		}
+		
+		-- Pass the event
+		self._event = eventToDispatch
 	end
 	
 	-- Function to dispatch a decrement event for the stepper
 	function view:_dispatchDecrement()
-		local phase = nil
+		local newPhase = nil
 		
 		-- If the currentNumber is more then the minimum value then set the phase to "decrement"
 		if self._currentValue > self._minimumValue then
-			phase = "decrement"
+			newPhase = "decrement"
 			self._currentValue = self._currentValue - 1
 		else
 			-- The currentNumber is less then the minimum value, set the phase to "minLimit"
-			phase = "minLimit"
+			newPhase = "minLimit"
 		end
 		
-		-- Set the new event phase
-		self._event.phase = phase
+		-- Set up the event to dispatch
+		local eventToDispatch = 
+		{
+			phase = newPhase,
+			target = stepper,
+			value = self._currentValue,
+			minimumValue = self._minimumValue,
+			maximumValue = self._maximumValue,
+		}
+		
+		-- Pass the event
+		self._event = eventToDispatch
 	end
 		
 	-- Function to manage the steppers pressed/held touch state

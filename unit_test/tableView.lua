@@ -55,6 +55,7 @@ function scene:createScene( event )
 		hideBackground = true, 			 			--Test hiding the background color.
 		scrollBarColor = { 255, 0, 128 }, 			--Test setting the scrollbar color. If this is ommited or not a table, the scrollbar falls back to it's default color.
 		hideScrollBar = true, 						--Test hiding the scrollbar. When set to true, scrollbar is shown when set to false or omitted.
+		topPadding = 157,
 		listener = tableViewListener,
 	}
 
