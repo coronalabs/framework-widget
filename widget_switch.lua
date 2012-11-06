@@ -544,7 +544,7 @@ function M.new( options, theme )
  	if "onOff" == opt.switchType then
  		createOnOffSwitch( switch, opt )
 		switch.x = opt.left + switch.contentWidth * 0.25
-		switch.y = opt.top
+		switch.y = opt.top + switch.contentHeight * 0.5
  	else
  		createStandardSwitch( switch, opt )
 
