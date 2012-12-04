@@ -11,6 +11,9 @@ local testTimer = nil
 function scene:createScene( event )
 	local group = self.view
 	
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
+	
 	--Display an iOS style background
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )
@@ -18,13 +21,14 @@ function scene:createScene( event )
 	--Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
-	    left = 60,
-	    top = 10,
-	    label = "Return To Menu",
+	    left = 0,
+	    top = 5,
+	    label = "Exit",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
+	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
@@ -33,9 +37,6 @@ function scene:createScene( event )
 	--Toggle these defines to execute automated tests.
 	local TEST_REMOVE_SEARCH_FIELD = false
 	local TEST_DELAY = 1000
-
-	-- Set a theme
-	widget.setTheme( "theme_ios" )
 	
 	local function onEvent( event )
 		local phase = event.phase
@@ -47,12 +48,14 @@ function scene:createScene( event )
 	local newSearchField = widget.newSearchField
 	{
 		left = 0,
-		top = 200,
+		top = 100,
+		width = 200,
 		placeholder = "Search For …",
 		listener = onEvent,
 	}
+	newSearchField.x = display.contentCenterX
 	group:insert( newSearchField )
-
+	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------

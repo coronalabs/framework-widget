@@ -1,22 +1,21 @@
---****************************************************************************************
---
--- ====================================================================
--- Corona SDK Widget Module
--- ====================================================================
---
--- File: widget.lua
---
--- Copyright (C) 2012 Corona Labs Inc. All Rights Reserved.
---
---****************************************************************************************
+--[[
+	Copyright:
+		Copyright (C) 2012 Corona Inc. All Rights Reserved.
+		
+	File: 
+		widget.lua
+--]]
 
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.8"
+widget.version = "0.9"
 
+---------------------------------------------------------------------------------
+-- PRIVATE METHODS
+---------------------------------------------------------------------------------
 
--- modify factory function to ensure widgets are properly cleaned on group removal
+-- Modify factory function to ensure widgets are properly cleaned on group removal
 local cached_displayNewGroup = display.newGroup
 function display.newGroup()
 	local g = cached_displayNewGroup()
@@ -48,14 +47,15 @@ function display.newGroup()
 			self.parent:remove( self )
 		end
 	end
+	
 	return g
 end
 
-
 -- Override removeSelf() method
--- All widget objects can add a finalize method for cleanup
 local function _removeSelf( self )
+	-- All widget objects can add a finalize method for cleanup
 	local finalize = self._finalize
+	
 	if type( finalize ) == "function" then
 		finalize( self )
 	end
@@ -78,14 +78,36 @@ function widget._new( options )
 	return newWidget
 end
 
--- Set 
-function widget._setTopLeftReference( group, options )
-	group:setReferencePoint( display.TopLeftReferencePoint )
-	group.x = options.left
-	group.y = options.top
-	group:setReferencePoint( display.CenterReferencePoint )
+-- Function to check if the requirements for creating a widget has been met.
+function widget._checkRequirements( options, theme, widgetName )
+	-- If there isn't an options table and there isn't a theme set, throw an error
+	local noParams = not options and not theme
 	
-	return group
+	if noParams then
+		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not support " .. widgetName " .", 3 )
+	end
+	
+	-- If the user hasn't provided the necessary image sheet lua file (either via custom sheet or widget theme)
+	local noData = not options.data and not theme.data
+
+	if noData then
+		if widget.theme then
+			error( "ERROR: " .. widgetName .. ": theme data file expected, got nil", 3 )
+		else
+			error( "ERROR: " .. widgetName .. ": Attempt to create a widget with no custom imageSheet data set and no theme set, if you want to use a theme, you must call widget.setTheme( theme )", 3 )
+		end
+	end
+	
+	-- Throw error if the user hasn't defined a sheet and has defined data or vice versa.
+	local noSheet = not options.sheet and not theme.sheet
+	
+	if noSheet then
+		if widget.theme then
+			error( "ERROR: " .. widgetName .. ": Theme sheet expected, got nil", 3 )
+		else
+			error( "ERROR: " .. widgetName .. ": Attempt to create a widget with no custom imageSheet set and no theme set, if you want to use a theme, you must call widget.setTheme( theme )", 3 )
+		end
+	end		
 end
 
 -- set current theme from external .lua module
@@ -93,8 +115,42 @@ function widget.setTheme( themeModule )
 	widget.theme = require( themeModule )	-- should return table w/ theme data
 end
 
--- add 'setText()' method to display.newText (to be consistent with display.newEmbossed text)
+-- Function to retrieve a widget's theme settings
+local function _getTheme( widgetTheme, options )	
+	local theme = nil
+		
+	-- If a theme has been set
+	if widget.theme then
+		theme = widget.theme[widgetTheme]
+	end
+	
+	-- If a theme exists
+	if theme then
+		-- Style parameter optionally set by user
+		if options and options.style then
+			local style = theme[options.style]
+			
+			-- For themes that support various "styles" per widget
+			if style then
+				theme = style
+			end
+		end
+	end
+	
+	return theme
+end
+
+------------------------------------------------------------------------------------------
+-- PUBLIC METHODS
+------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+-- newEmbossedText widget
+-----------------------------------------------------------------------------------------
+
+-- Add 'setText()' method to display.newText (to be consistent with display.newEmbossed text)
 local cached_newText = display.newText
+
 function display.newText( ... )
 	local text = cached_newText( ... )
 
@@ -105,13 +161,6 @@ function display.newText( ... )
 	return text
 end
 
--- creates very sharp text for high resolution/high density displays
-function widget.retinaText( ... )
-	text = display.newText( ... );
-	return text
-end; display.newRetinaText = display.newText --widget.retinaText
-
--- creates sharp (retina) text with an embossed/inset effect
 function widget.embossedText( ... )
 	local arg = { ... }
 	
@@ -214,118 +263,42 @@ function widget.embossedText( ... )
 	
 	if parentG then parentG:insert( text ) end
 	text.text = string
-	return text
-end; display.newEmbossedText = widget.embossedText
-
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- button widget
---
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
-
-function widget.newButton( options )
-	-- this widget supports visual customization via themes
-	local themeOptions
-	if widget.theme then
-		local buttonTheme = widget.theme.button
-		
-		if buttonTheme then
-			if options and options.style then	-- style parameter optionally set by user
-				
-				-- for themes that support various "styles" per widget
-				local style = buttonTheme[options.style]
-				
-				if style then themeOptions = style; end
-			else
-				-- if no style parameter set, use default style specified by theme
-				themeOptions = buttonTheme
-			end
-		end
-	end
-
-	if options.emboss then
-		options.textFunction = widget.embossedText
-	end
-
-	return require( "widget_button" ).createButton( options, themeOptions )
-end
-
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- slider widget
---
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
-
-function widget.newSlider( options )
-	-- this widget supports visual customization via themes
-	local themeOptions
-	if widget.theme then
-		local sliderTheme = widget.theme.slider
-		
-		if sliderTheme then
-			if options and options.style then	-- style parameter optionally set by user
-				
-				-- for themes that support various "styles" per widget
-				local style = sliderTheme[options.style]
-				
-				if style then themeOptions = style; end
-			else
-				-- if no style parameter set, use default style specified by theme
-				themeOptions = sliderTheme
-			end
-		end
-	end
 	
-	return require( "widget_slider" ).createSlider( options, themeOptions )
+	return text
+end
+display.newEmbossedText = widget.embossedText
+
+
+-----------------------------------------------------------------------------------------
+-- newSlider widget
+-----------------------------------------------------------------------------------------
+
+function widget.newSlider( options )	
+	local theme = _getTheme( "pickerWheel", options )
+	
+	if theme then
+		return require( "widget_slider" ).createSlider( options, theme )
+	else
+		print( "WARNING: The slider widget requires a visual theme. Use widget.setTheme()." )
+	end
 end
 
 -----------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- pickerWheel widget
---
------------------------------------------------------------------------------------------
+-- newPickerWheel widget
 -----------------------------------------------------------------------------------------
 
 function widget.newPickerWheel( options )
-	-- this widget requires visual customization via themes to work properly
-	local themeOptions
-	if widget.theme then
-		local pickerTheme = widget.theme.pickerWheel
-		
-		if pickerTheme then
-			if options and options.style then	-- style parameter optionally set by user
-				
-				-- for themes that support various "styles" per widget
-				local style = pickerTheme[options.style]
-				
-				if style then themeOptions = style; end
-			else
-				-- if no style parameter set, use default style specified by theme
-				themeOptions = pickerTheme
-			end
-			
-			return require( "widget_picker" ).createPickerWheel( options, themeOptions )
-		else
-			print( "WARNING: The widget theme you are using does not support the pickerWheel widget." )
-			return
-		end
+	local theme = _getTheme( "pickerWheel", options )
+	
+	if theme then
+		return require( "widget_picker" ).createPickerWheel( options, theme )
 	else
 		print( "WARNING: The pickerWheel widget requires a visual theme. Use widget.setTheme()." )
-		return
 	end
 end
 
 -----------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- scrollView widget
---
------------------------------------------------------------------------------------------
+-- newScrollView widget
 -----------------------------------------------------------------------------------------
 
 function widget.newScrollView( options )
@@ -338,42 +311,7 @@ function widget.newScrollView( options )
 end
 
 -----------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- tabBar widget
---
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
-
-function widget.newTabBar( options )
-	-- this widget supports visual customization via themes
-	local themeOptions
-	if widget.theme then
-		local tabBarTheme = widget.theme.tabBar
-		
-		if tabBarTheme then
-			if options and options.style then	-- style parameter optionally set by user
-				
-				-- for themes that support various "styles" per widget
-				local style = tabBarTheme[options.style]
-				
-				if style then themeOptions = style; end
-			else
-				-- if no style parameter set, use default style specified by theme
-				themeOptions = tabBarTheme
-			end
-		end
-	end
-	
-	return require( "widget_tabbar" ).createTabBar( options, themeOptions )
-end
-
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- tableView widget (based on scrollView widget)
---
------------------------------------------------------------------------------------------
+-- newTableView widget
 -----------------------------------------------------------------------------------------
 
 function widget.newTableView( options )
@@ -381,245 +319,83 @@ function widget.newTableView( options )
 end
 
 -----------------------------------------------------------------------------------------
+-- newTabBar widget
 -----------------------------------------------------------------------------------------
 
+function widget.newTabBar( options )
+	local theme = _getTheme( "tabBar", options )
+	
+	return require( "widget_tabBar" ).new( options, theme )
+end
 
 -----------------------------------------------------------------------------------------
+-- newButton widget
 -----------------------------------------------------------------------------------------
---
--- Spinner widget
---
+
+function widget.newButton( options )
+	local theme = _getTheme( "button", options )
+	
+	return require( "widget_button" ).new( options, theme )
+end
+
 -----------------------------------------------------------------------------------------
+-- newSpinner widget
 -----------------------------------------------------------------------------------------
 
 function widget.newSpinner( options )
-	-- this widget requires visual customization via themes to work properly
-	local themeOptions
-	if widget.theme then
-		local spinnerTheme = widget.theme.spinner
-				
-		if spinnerTheme then
-			if options and options.style then	-- style parameter optionally set by user
-				
-				-- for themes that support various "styles" per widget
-				local style = spinnerTheme[options.style]
-				
-				if style then themeOptions = style; end
-			else
-				-- if no style parameter set, use default style specified by theme
-				themeOptions = spinnerTheme
-			end
-			
-			return require( "widget_spinner" ).new( options, themeOptions )
-		else
-			print( "WARNING: The widget theme you are using does not support the spinner widget." )
-			return
-		end
-	else
-		return require( "widget_spinner" ).new( options )
-	end
+	local theme = _getTheme( "spinner", options )
+
+	return require( "widget_spinner" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
-
-
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- Switch widget
---
------------------------------------------------------------------------------------------
+-- newSwitch widget
 -----------------------------------------------------------------------------------------
 
 function widget.newSwitch( options )
-	-- this widget requires visual customization via themes to work properly
-	local themeOptions
-	if widget.theme then
-		local switchTheme = widget.theme.switch
-				
-		if switchTheme then
-			if options and options.style then	-- style parameter optionally set by user
-				
-				-- for themes that support various "styles" per widget
-				local style = switchTheme[options.style]
-				
-				if style then themeOptions = style; end
-			else
-				-- if no style parameter set, use default style specified by theme
-				themeOptions = switchTheme
-			end
-			
-			return require( "widget_switch" ).new( options, themeOptions )
-		else
-			print( "WARNING: The widget theme you are using does not support the switch widget." )
-			return
-		end
-	else
-		return require( "widget_switch" ).new( options )
-	end
+	local theme = _getTheme( "switch", options )
+	
+	return require( "widget_switch" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
-
-
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- Stepper widget
---
------------------------------------------------------------------------------------------
+-- newStepper widget
 -----------------------------------------------------------------------------------------
 
 function widget.newStepper( options )
-	-- this widget requires visual customization via themes to work properly
-	local themeOptions
-	if widget.theme then
-		local stepperTheme = widget.theme.stepper
-				
-		if stepperTheme then
-			if options and options.style then	-- style parameter optionally set by user
-				
-				-- for themes that support various "styles" per widget
-				local style = stepperTheme[options.style]
-				
-				if style then themeOptions = style; end
-			else
-				-- if no style parameter set, use default style specified by theme
-				themeOptions = stepperTheme
-			end
-						
-			return require( "widget_stepper" ).new( options, themeOptions )
-		else
-			print( "WARNING: The widget theme you are using does not support the stepper widget." )
-			return
-		end
-	else
-		return require( "widget_stepper" ).new( options )
-	end
+	local theme = _getTheme( "stepper", options )
+	
+	return require( "widget_stepper" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
-
-
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- SearchField widget
---
------------------------------------------------------------------------------------------
+-- newSearchField widget
 -----------------------------------------------------------------------------------------
 
 function widget.newSearchField( options )
-	-- this widget requires visual customization via themes to work properly
-	local themeOptions
-	if widget.theme then
-		local searchFieldTheme = widget.theme.searchField
-				
-		if searchFieldTheme then
-			if options and options.style then	-- style parameter optionally set by user
-				
-				-- for themes that support various "styles" per widget
-				local style = searchFieldTheme[options.style]
-				
-				if style then themeOptions = style; end
-			else
-				-- if no style parameter set, use default style specified by theme
-				themeOptions = searchFieldTheme
-			end
-						
-			return require( "widget_searchField" ).new( options, themeOptions )
-		else
-			print( "WARNING: The widget theme you are using does not support the searchField widget." )
-			return
-		end
-	else
-		return require( "widget_searchField" ).new( options )
-	end
+	local theme = _getTheme( "searchField", options )
+	
+	return require( "widget_searchField" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
-
-
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
--- ProgressView widget
---
------------------------------------------------------------------------------------------
+-- newProgressView widget
 -----------------------------------------------------------------------------------------
 
 function widget.newProgressView( options )
-	-- this widget requires visual customization via themes to work properly
-	local themeOptions
-	if widget.theme then
-		local progressViewTheme = widget.theme.progressView
-				
-		if progressViewTheme then
-			if options and options.style then	-- style parameter optionally set by user
-				
-				-- for themes that support various "styles" per widget
-				local style = progressViewTheme[options.style]
-				
-				if style then themeOptions = style; end
-			else
-				-- if no style parameter set, use default style specified by theme
-				themeOptions = progressViewTheme
-			end
-						
-			return require( "widget_progressView" ).new( options, themeOptions )
-		else
-			print( "WARNING: The widget theme you are using does not support the progressView widget." )
-			return
-		end
-	else
-		return require( "widget_progressView" ).new( options )
-	end
+	local theme = _getTheme( "progressView", options )
+	
+	return require( "widget_progressView" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
-
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
---
 -- newSegmentedControl widget
---
------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
 function widget.newSegmentedControl( options )
-	-- this widget requires visual customization via themes to work properly
-	local themeOptions
-	if widget.theme then
-		local segmentedControlTheme = widget.theme.segmentedControl
-				
-		if segmentedControlTheme then
-			if options and options.style then			-- style parameter optionally set by user
-				
-				-- for themes that support various "styles" per widget
-				local style = segmentedControlTheme[options.style]
-				
-				if style then themeOptions = style; end
-			else
-				-- if no style parameter set, use default style specified by theme
-				themeOptions = segmentedControlTheme
-			end
-						
-			return require( "widget_segmentedControl" ).new( options, themeOptions )
-		else
-			print( "WARNING: The widget theme you are using does not support the segmentedControl widget." )
-			return
-		end
-	else
-		return require( "widget_segmentedControl" ).new( options )
-	end
+	local theme = _getTheme( "segmentedControl", options )
+	
+	return require( "widget_segmentedControl" ).new( options, theme )
 end
-
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
 
 return widget

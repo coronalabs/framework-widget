@@ -11,6 +11,9 @@ local testTimer = nil
 function scene:createScene( event )
 	local group = self.view
 	
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
+	
 	--Display an iOS style background
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )
@@ -20,11 +23,12 @@ function scene:createScene( event )
 	    id = "returnToListing",
 	    left = 60,
 	    top = 10,
-	    label = "Return To Menu",
+	    label = "Exit",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
+	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
@@ -34,9 +38,6 @@ function scene:createScene( event )
 	--Toggle these defines to execute automated tests.
 	local TEST_REMOVE_SWITCH = false
 	local TEST_DELAY = 1000
-
-	-- Set a theme
-	widget.setTheme( "theme_ios" )
 	
 	local function onRadioPress( event )
 		local self = event.target
@@ -67,18 +68,20 @@ function scene:createScene( event )
 		initialSwitchState = true,
 		onPress = onRadioPress,
 	}
+	radioButton.x = display.contentCenterX
 	group:insert( radioButton )
 	
 	
 	-- Create a checkbox switch
 	local checkboxButton = widget.newSwitch
 	{
-		left = 130,
+		left = 0,
 		top = 200,
 		style = "checkbox",
 		id = "Checkbox button",
 		onPress = onCheckBoxPress,
 	}
+	checkboxButton.x = display.contentCenterX
 	group:insert( checkboxButton )
 	
 	local onOffSwitch = widget.newSwitch
@@ -88,6 +91,7 @@ function scene:createScene( event )
 		--initialSwitchState = true,
 		onPress = onOnOffPress
 	}
+	onOffSwitch.x = display.contentCenterX
 	group:insert( onOffSwitch )
 
 	----------------------------------------------------------------------------------------------------------------

@@ -8,6 +8,9 @@ local scene = storyboard.newScene()
 function scene:createScene( event )
 	local group = self.view
 	
+	-- Set a theme
+	--widget.setTheme( "theme_ios" )
+	
 	--Display an iOS style background
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )

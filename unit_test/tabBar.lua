@@ -28,51 +28,41 @@ function scene:createScene( event )
 	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
 	
-	--[[
-	
-	RECENT CHANGES/THINGS TO REVIEW:
-	
-	1) CHANGE/FEATURE NAME. 
-	
-	How: HOW TO TEST CHANGE.
-	Expected behavior: EXPECTED BEHAVIOR OF CHANGE.
-
-	--]]
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
 	
 	
 	-- create buttons table for the tab bar
+	
+	--print(  )
+	
 	local tabButtons = {
 		{
-			label = "Tab1",
-			default = "assets/tabIcon.png",
-			down = "assets/tabIcon-down.png",
-			width = 32, height = 32,
-			onPress = function() print( "Tab 1 pressed" ) end,
+			--label = "Tab1",
+			--width = 32, height = 32,
+			--onPress = function() print( "Tab 1 pressed" ) end,
 			selected = true
 		},
+		
 		{
-			label = "Tab2",
-			default = "assets/tabIcon.png",
-			down = "assets/tabIcon-down.png",
-			width = 32, height = 32,
-			onPress = function() print( "Tab 2 pressed" ) end,
+			--label = "Tab2",
+			--width = 32, height = 32,
+			--onPress = function() print( "Tab 1 pressed" ) end,
+			selected = true
 		},
-		{
-			label = "Tab3",
-			default = "assets/tabIcon.png",
-			down = "assets/tabIcon-down.png",
-			width = 32, height = 32,
-			onPress = function() print( "Tab 3 pressed" ) end,
-		}
 	}
 	
+	
 	-- create a tab-bar and place it at the bottom of the screen
-	local demoTabs = widget.newTabBar{
+	local tabBar = widget.newTabBar
+	{
 		top = display.contentHeight-50,
 		buttons = tabButtons,
-		maxTabWidth = 120
+		width = display.contentWidth,
+		height = 50,
+		--maxTabWidth = 120,
 	}
-	group:insert( demoTabs )
+	group:insert( tabBar )
 	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS

@@ -11,6 +11,9 @@ local testTimer = nil
 function scene:createScene( event )
 	local group = self.view
 	
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
+	
 	--Display an iOS style background
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )
@@ -18,15 +21,16 @@ function scene:createScene( event )
 	--Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
-	    left = 60,
-	    top = 10,
-	    label = "Return To Menu",
+	    left = 0,
+	    top = 5,
+	    label = "Exit",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
+	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
-	
+
 	----------------------------------------------------------------------------------------------------------------
 	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------	
@@ -37,47 +41,50 @@ function scene:createScene( event )
 	local TEST_TRANSLATE_SPINNER = false
 	local TEST_REMOVE_SPINNER = false
 	local TEST_DELAY = 1000
-	
-	-- Set a theme
-	widget.setTheme( "theme_ios" )
-	
+
 	-- Create a default spinner (created using theme file) - (Single Rotating Image)
 	local spinnerDefault = widget.newSpinner
 	{
 		left = 0,
-		top = 140,
+		top = 80,
 	}
+	spinnerDefault.x = display.contentCenterX
 	group:insert( spinnerDefault )
+	
 	
 	local spinnerText = display.newText( "Default spinner (From theme)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
 	spinnerText.x = display.contentCenterX
-	spinnerText.y = spinnerDefault.y - 42
+	spinnerText.y = spinnerDefault.y + ( spinnerDefault.contentWidth * 0.5 ) + 20
 	group:insert( spinnerText )
-	
+
 	-- Create a custom spinner (Animating sprite from imagesheet)
 	local spinnerCustom = widget.newSpinner
 	{
-		left = 150,
-		top = 230,
+		left = 100,
+		top = 180,
+		width = 35, 
+		height = 35,
 		sheet = "assets/customSpinner.png",
 		data = "assets.customSpinner",
 		startFrame = 1,
 		count = 30,
 		time = 1000,
 	}
+	spinnerCustom.x = display.contentCenterX
 	group:insert( spinnerCustom )
+	
 	
 	local spinnerCustomText = display.newText( "Custom spinner (Custom graphics)\nAnimating sprite from imagesheet", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
 	spinnerCustomText.x = display.contentCenterX
-	spinnerCustomText.y = spinnerCustom.y - 42
+	spinnerCustomText.y = spinnerCustom.y + ( spinnerCustom.contentWidth * 0.5 ) + 20
 	group:insert( spinnerCustomText )
 	
 	
 	-- Create a custom spinner that isn't animated and just rotates - (Single Rotating Image from imagesheet)
 	local spinnerCustomJustRotates = widget.newSpinner
 	{
-		left = 150,
-		top = 310,
+		left = 60,
+		top = 280,
 		width = 35,
 		height = 35,
 		sheet = "assets/customSpinner.png",
@@ -86,13 +93,13 @@ function scene:createScene( event )
 		count = 1,
 		deltaAngle = -1,
 	}
+	spinnerCustomJustRotates.x = display.contentCenterX
 	group:insert( spinnerCustomJustRotates )
 	
 	local spinnerCustomJustRotatesText = display.newText( "Custom spinner (Custom graphics)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
 	spinnerCustomJustRotatesText.x = display.contentCenterX
-	spinnerCustomJustRotatesText.y = spinnerCustomJustRotates.y - 42
+	spinnerCustomJustRotatesText.y = spinnerCustomJustRotates.y + ( spinnerCustomJustRotates.contentWidth * 0.5 ) + 20
 	group:insert( spinnerCustomJustRotatesText )
-
 
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
