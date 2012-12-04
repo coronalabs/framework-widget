@@ -11,6 +11,9 @@ local testTimer = nil
 function scene:createScene( event )
 	local group = self.view
 	
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
+	
 	--Display an iOS style background
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )
@@ -34,16 +37,13 @@ function scene:createScene( event )
 	--Toggle these defines to execute automated tests.
 	local TEST_REMOVE_SEGMENTED_CONTROL = false
 	local TEST_DELAY = 1000
-
-	-- Set a theme
-	widget.setTheme( "theme_ios" )
 	
 	local currentSegment = display.newEmbossedText( "You selected: ", 40, 200, native.systemFontBold, 18 )
 	group:insert( currentSegment )
 	
 	local function onPress( event )
 		print( "Segment no:", event.target.segmentNumber )
-		print( "Segment label:", event.target.segmentLabel )
+		--print( "Segment label:", event.target.segmentLabel )
 		
 		currentSegment:setText( "You selected: " .. event.target.segmentLabel )
 	end
@@ -51,10 +51,10 @@ function scene:createScene( event )
 	-- Create a new progress view object
 	local newSegmentedControl = widget.newSegmentedControl
 	{
-		left = 60,
-		top = 150,
+		left = 0,
+		top = 80,
 		segments = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" },
-		defaultSegment = 4,
+		defaultSegment = 1,
 		--segmentWidth = 25,
 		--[[
 		labelSize = 14,
@@ -64,8 +64,9 @@ function scene:createScene( event )
 		--]]
 		onPress = onPress,
 	}
+	newSegmentedControl.x = display.contentCenterX
 	group:insert( newSegmentedControl )
-
+	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------

@@ -31,7 +31,12 @@ local function initWithImage( switch, options )
 	
 	-- Create the view
 	viewOff = display.newImageRect( imageSheet, opt.frameOff, opt.width, opt.height )
+	viewOff.x = switch.x + ( viewOff.contentWidth * 0.5 )
+	viewOff.y = switch.y + ( viewOff.contentHeight * 0.5 )
+	
 	viewOn = display.newImageRect( imageSheet, opt.frameOn, opt.width, opt.height )
+	viewOn.x = switch.x + ( viewOn.contentWidth * 0.5 )
+	viewOn.y = switch.y + ( viewOn.contentHeight * 0.5 )
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -97,6 +102,8 @@ local function initWithSprite( switch, options )
 		[2] = "off",
 	}
 	view:setSequence( view._animStates[tonumber( opt.initialSwitchState )] )
+	view.x = switch.x + ( view.contentWidth * 0.5 )
+	view.y = switch.y + ( view.contentHeight * 0.5 )
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the switch
@@ -150,13 +157,13 @@ local function createOnOffSwitch( switch, options )
 	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
 	-- The view is the switches background image
-	view = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffBackgroundFrame ), opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
+	view = display.newImageRect( switch, imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffBackgroundFrame ), opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
 	
 	-- The view's overlay is the "shine" effect
-	viewOverlay = display.newImageRect( imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffOverlayFrame ), opt.onOffOverlayWidth, opt.onOffOverlayHeight )
+	viewOverlay = display.newImageRect( switch, imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffOverlayFrame ), opt.onOffOverlayWidth, opt.onOffOverlayHeight )
 	
 	-- The view's handle
-	viewHandle = display.newSprite( imageSheet, handleSheetOptions )
+	viewHandle = display.newSprite( switch, imageSheet, handleSheetOptions )
 	viewHandle:setSequence( "off" )
 	
 	-- The view's mask
@@ -196,17 +203,13 @@ local function createOnOffSwitch( switch, options )
 		view.maskX = view._handle.x + math.abs( view._startRange ) + view._endRange
 	end
 	
-	
-	
 	-- Assign objects to the switch
 	switch._imageSheet = imageSheet
 	switch._view = view
-		
-	-- Insert the view's into the switch (group)
-	switch:insert( view )
-	switch:insert( view._overlay )
-	switch:insert( view._handle )
-	
+
+	switch.x = switch.x + ( view.contentWidth * 0.5 )
+	switch.y = switch.y + ( view.contentHeight * 0.5 )
+
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
@@ -373,6 +376,8 @@ local function createStandardSwitch( switch, options )
 	-- Create local reference to the view
 	local view = switch._view or switch._viewOn
 	view.isHitTestable = true
+	view.x = switch.x + ( view.contentWidth * 0.5 )
+	view.y = switch.y + ( view.contentHeight * 0.5 )
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -452,18 +457,18 @@ end
 
 function M.new( options, theme )
 	local customOptions = options or {}
+	local themeOptions = theme or {}
 	
 	-- Create a local reference to our options table
 	local opt = M._options
 	
-	-- If there isn't an options table and there isn't a theme set throw an error
-	if not options and not theme then
-		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not have a theme defined for the switch widget." )
-	end
+	-- Check if the requirements for creating a widget has been met (throws an error if not)
+	require( "widget")._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
 	-------------------------------------------------------	
+	
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
@@ -490,40 +495,23 @@ function M.new( options, theme )
 	end	
 			
 	-- Options for the on/off switch only
-	opt.onOffBackgroundFrame = customOptions.backgroundFrame or theme.backgroundFrame
-	opt.onOffBackgroundWidth = customOptions.backgroundWidth or theme.backgroundWidth
-	opt.onOffBackgroundHeight = customOptions.backgroundHeight or theme.backgroundHeight
-	opt.onOffOverlayFrame = customOptions.overlayFrame or theme.overlayFrame
-	opt.onOffOverlayWidth = customOptions.overlayWidth or theme.overlayWidth
-	opt.onOffOverlayHeight = customOptions.overlayHeight or theme.overlayHeight
-	opt.onOffHandleDefaultFrame = customOptions.handleDefualtFrame or theme.handleDefaultFrame
-	opt.onOffHandleOverFrame = customOptions.handleOverFrame or theme.handleOverFrame
-	opt.onOffMask = customOptions.mask or theme.mask
-	
-	-------------------------------------------------------
-	-- Constructor error handling
-	-------------------------------------------------------
-	
-	-- Throw error if the user hasn't defined a sheet and has defined data or vice versa.
-	if not customOptions.sheet and customOptions.data then
-		error( M._widgetName .. ": Sheet expected, got nil" )
-	elseif customOptions.sheet and not customOptions.data then
-		error( M._widgetName .. ": Sheet data file expected, got nil" )
-	end
-	
-	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
-	local hasProvidedSize = opt.width and opt.height
-	local hasProvidedOnOffSize = opt.onOffBackgroundWidth and opt.onOffBackgroundHeight and opt.onOffOverlayWidth and opt.onOffOverlayHeight
-	
-	if not hasProvidedSize then
-		if "onOff" ~= opt.switchType then
-			error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
+	if "onOff" == opt.switchType then
+		opt.onOffBackgroundFrame = customOptions.backgroundFrame or theme.backgroundFrame
+		opt.onOffBackgroundWidth = customOptions.backgroundWidth or theme.backgroundWidth or error( "ERROR: " .. M._widgetName .. ": backgroundWidth expected, got nil", 3 )
+		opt.onOffBackgroundHeight = customOptions.backgroundHeight or theme.backgroundHeight or error( "ERROR: " .. M._widgetName .. ": backgroundHeight expected, got nil", 3 )
+		opt.onOffOverlayFrame = customOptions.overlayFrame or theme.overlayFrame
+		opt.onOffOverlayWidth = customOptions.overlayWidth or theme.overlayWidth or error( "ERROR: " .. M._widgetName .. ": overlayWidth expected, got nil", 3 )
+		opt.onOffOverlayHeight = customOptions.overlayHeight or theme.overlayHeight or error( "ERROR: " .. M._widgetName .. ": overlayHeight expected, got nil", 3 )
+		opt.onOffHandleDefaultFrame = customOptions.handleDefualtFrame or theme.handleDefaultFrame 
+		opt.onOffHandleOverFrame = customOptions.handleOverFrame or theme.handleOverFrame
+		opt.onOffMask = customOptions.mask or theme.mask
+	else
+		if not opt.width then 
+			error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
 		end
-	end
-
-	if not hasProvidedOnOffSize then
-		if "onOff" == opt.switchType then
-			error( M._widgetName .. ": You must pass width & height parameters for the background and overlay images when using " .. M._widgetName .. " with an imageSheet" )
+		
+		if not opt.height then
+			error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
 		end
 	end
 	
@@ -543,13 +531,13 @@ function M.new( options, theme )
 	-- Create the switch based on the given type
  	if "onOff" == opt.switchType then
  		createOnOffSwitch( switch, opt )
-		switch.x = opt.left + switch.contentWidth * 0.25
-		switch.y = opt.top + switch.contentHeight * 0.5
  	else
  		createStandardSwitch( switch, opt )
 
-		-- Set the switch reference point to "topLeft"
-		require( "widget" )._setTopLeftReference( switch, opt )
+		-- Set the switch's position ( set the reference point to center, just to be sure )
+		switch:setReferencePoint( display.CenterReferencePoint )
+		switch.x = opt.left + switch.contentWidth * 0.5
+		switch.y = opt.top + switch.contentHeight * 0.5
 	end
 	
 	return switch

@@ -112,43 +112,50 @@ local function initWithImage( segmentedControl, options )
 	local segmentWidth = overallControlWidth / #segments
 	
 	-- The left segment edge
-	local leftSegment = display.newSprite( imageSheet, leftSegmentOptions )
+	local leftSegment = display.newSprite( segmentedControl, imageSheet, leftSegmentOptions )
+	leftSegment.x = segmentedControl.x + ( leftSegment.contentWidth * 0.5 )
+	leftSegment.y = segmentedControl.y + ( leftSegment.contentHeight * 0.5 )
 	leftSegment:setSequence( "leftSegmentOff" )
 	leftSegment.width = opt.width
 	
 	-- The segment fill
-	local middleSegment = display.newSprite( imageSheet, middleSegmentOptions )	middleSegment:setSequence( "middleSegmentOff" )
+	local middleSegment = display.newSprite( segmentedControl, imageSheet, middleSegmentOptions )	middleSegment:setSequence( "middleSegmentOff" )
 	middleSegment:setReferencePoint( display.CenterLeftReferencePoint )
 	middleSegment.width = ( overallControlWidth ) - ( opt.width + opt.width * 0.5 )
-	middleSegment.x = leftSegment.x + middleSegment.width * 0.5
+	middleSegment.x = leftSegment.x + ( middleSegment.width * 0.5 )
+	middleSegment.y = segmentedControl.y + ( middleSegment.contentHeight * 0.5 )
 	
 	-- The right segment edge
-	local rightSegment = display.newSprite( imageSheet, rightSegmentOptions )
+	local rightSegment = display.newSprite( segmentedControl, imageSheet, rightSegmentOptions )
 	rightSegment:setSequence( "rightSegmentOff" )
 	rightSegment.width = opt.width
 	rightSegment:setReferencePoint( display.CenterRightReferencePoint )
-	rightSegment.x = middleSegment.x + middleSegment.width * 0.5 + rightSegment.width
+	rightSegment.x = middleSegment.x + ( middleSegment.width * 0.5 ) + rightSegment.width
+	rightSegment.y = segmentedControl.y + ( rightSegment.contentHeight * 0.5 )
 	
 	-- Create the segment labels & dividers
 	for i = 1, #segments do
 		-- Create the labels
-		local label = display.newEmbossedText( segments[i], 0, 0, opt.labelFont, opt.labelSize )
+		local label = display.newEmbossedText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
 		label:setTextColor( 255 )
-		label.x = segmentWidth * 0.5 + segmentWidth * ( i - 1 ) - leftSegment.x - leftSegment.width * 0.5
+		label.x = leftSegment.x + ( segmentWidth * 0.5 + segmentWidth * ( i - 1 ) ) - leftSegment.width * 0.5
 		label.y = leftSegment.y
 		segmentLabels[i] = label
 
 		-- Create the dividers
 		if i < #segments then
-			local divider = display.newImageRect( imageSheet, opt.dividerFrame, 1, 29 )
-			divider.x = segmentWidth * i - leftSegment.x - leftSegment.width * 0.5 
+			local divider = display.newImageRect( segmentedControl, imageSheet, opt.dividerFrame, 1, 29 )
+			divider.x = leftSegment.x + ( segmentWidth * i ) -  ( leftSegment.width * 0.5 )
+			divider.y = leftSegment.y
 			segmentDividers[i] = divider
 		end
 	end
 
 	-- The "over" frame
-	local segmentOver = display.newSprite( imageSheet, middleSegmentOptions )	segmentOver:setSequence( "middleSegmentOn" )
+	local segmentOver = display.newSprite( segmentedControl, imageSheet, middleSegmentOptions )	
+	segmentOver:setSequence( "middleSegmentOn" )
 	segmentOver.width = opt.width
+	segmentOver.y = leftSegment.y
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -168,12 +175,6 @@ local function initWithImage( segmentedControl, options )
 	view._segmentDividers = segmentDividers
 	view._segmentNumber = opt.defaultSegment
 	view._onPress = opt.onPress
-	
-	-- Insert the segments into the view (group)
-	view:insert( view._leftSegment )
-	view:insert( view._middleSegment )
-	view:insert( view._rightSegment )
-	view:insert( view._segmentOver )
 	
 	-- Insert the segment labels into the view
 	for i = 1, #view._segmentLabels do
@@ -208,18 +209,19 @@ local function initWithImage( segmentedControl, options )
 		local lastSegment = self._totalSegments
 
 		if "began" == phase then
-			-- Set the x/y reference to 0
-			self.xReference = 0
-			self.yReference = 0	
-				
 			-- Loop through the segments
 			for i = 1, self._totalSegments do
-				local segmentLeftEdge = ( ( self.x - self._segmentWidth ) - ( self._edgeWidth / 2 ) ) * i 
-				local segmentRightEdge = self.x + self._segmentWidth * i - ( self._edgeWidth / 2 )
+				local segmentedControlXPosition = self.x - ( self.contentWidth * 0.5 )
+				local currentSegment = i
+				local segmentWidth = self._segmentWidth
+				
+				-- Work out the current segments position
+				local currentSegmentLeftEdge = segmentedControlXPosition * currentSegment
+				local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment )
 				
 				-- If the touch is within the segments range
-				if event.x >= segmentLeftEdge and event.x <= segmentRightEdge then
-					-- First segment (Far left)
+				if event.x >= currentSegmentLeftEdge and event.x <= currentSegmentRightEdge then
+					-- First segment (Near left)
 					if firstSegment == i then
 						self:setLeftSegmentActive()
 					-- Last segment (Far right)
@@ -339,14 +341,13 @@ end
 -- Function to create a new segmentedControl object ( widget.newSegmentedControl )
 function M.new( options, theme )	
 	local customOptions = options or {}
+	local themeOptions = theme or {}
 	
 	-- Create a local reference to our options table
 	local opt = M._options
 	
-	-- If there isn't an options table and there isn't a theme set throw an error
-	if not options and not theme then
-		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not support the segmentedControl widget." )
-	end
+	-- Check if the requirements for creating a widget has been met (throws an error if not)
+	require( "widget")._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -354,8 +355,8 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or theme.width
-	opt.height = customOptions.height or theme.height
+	opt.width = customOptions.width or theme.width or error( "ERROR:" .. M._widgetName .. ": width expected, got nil", 3 )
+	opt.height = customOptions.height or theme.height or error( "ERROR:" .. M._widgetName .. ": height expected, got nil", 3 )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.segments = customOptions.segments or { "One", "Two" }
@@ -377,25 +378,7 @@ function M.new( options, theme )
 	opt.middleSegmentFrame = customOptions.middleSegmentFrame or require( theme.data ):getFrameIndex( theme.middleSegmentFrame )
 	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or require( theme.data ):getFrameIndex( theme.middleSegmentSelectedFrame)
 	opt.dividerFrame = customOptions.dividerFrame or require( theme.data ):getFrameIndex( theme.dividerFrame)
-	
-	-------------------------------------------------------
-	-- Constructor error handling
-	-------------------------------------------------------
-		
-	-- Throw error if the user hasn't defined a sheet and has defined data or vice versa.
-	if not customOptions.sheet and customOptions.data then
-		error( M._widgetName .. ": Sheet expected, got nil" )
-	elseif customOptions.sheet and not customOptions.data then
-		error( M._widgetName .. ": Sheet data file expected, got nil" )
-	end
-	
-	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
-	local hasProvidedSize = opt.width and opt.height
-	
-	if not hasProvidedSize then
-		error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
-	end
-	
+
 	-------------------------------------------------------
 	-- Create the segmentedControl
 	-------------------------------------------------------
@@ -412,8 +395,10 @@ function M.new( options, theme )
 	-- Create the segmentedControl
 	initWithImage( segmentedControl, opt )
 	
-	-- Set the segmented control's reference point to "topLeft"
-	require( "widget" )._setTopLeftReference( segmentedControl, opt )
+	-- Set the segmentedControl's position ( set the reference point to center, just to be sure )
+	segmentedControl:setReferencePoint( display.CenterReferencePoint )
+	segmentedControl.x = opt.left + segmentedControl.contentWidth * 0.5
+	segmentedControl.y = opt.top + segmentedControl.contentHeight * 0.5
 	
 	return segmentedControl
 end

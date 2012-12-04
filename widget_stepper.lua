@@ -70,8 +70,10 @@ local function initWithSprite( stepper, options )
 	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
 	
 	-- Create the view
-	view = display.newSprite( imageSheet, sheetOptions )
+	view = display.newSprite( stepper, imageSheet, sheetOptions )
 	view:setSequence( "default" )
+	view.x = stepper.x + ( view.contentWidth * 0.5 )
+	view.y = stepper.y + ( view.contentHeight * 0.5 )
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -106,9 +108,6 @@ local function initWithSprite( stepper, options )
 	stepper._imageSheet = imageSheet
 	stepper._view = view
 	
-	-- Insert the view into the stepper (group)
-	stepper:insert( view )
-	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
@@ -120,10 +119,6 @@ local function initWithSprite( stepper, options )
 		event.target = stepper
 		
 		if "began" == phase then
-			-- Set the x/y reference to 0
-			_stepper.xReference = 0
-			_stepper.yReference = 0
-			
 			-- Set focus on the stepper (if focus isn't already on it)
 			if not self._isFocus then
 				display.getCurrentStage():setFocus( self, event.id )
@@ -331,12 +326,13 @@ end
 -- Function to create a new Stepper object ( widget.newStepper)
 function M.new( options, theme )	
 	local customOptions = options or {}
+	local themeOptions = theme or {}
+	
+	-- Create a local reference to our options table
 	local opt = M._options
 	
-	-- If there isn't an options table and there isn't a theme set throw an error
-	if not options and not theme then
-		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not support the stepper widget." )
-	end
+	-- Check if the requirements for creating a widget has been met (throws an error if not)
+	require( "widget")._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -344,8 +340,8 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or theme.width
-	opt.height = customOptions.height or theme.height
+	opt.width = customOptions.width or theme.width or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
+	opt.height = customOptions.height or theme.height or error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.initialValue = customOptions.initialValue or 0
@@ -362,24 +358,6 @@ function M.new( options, theme )
 	opt.noPlusFrame = customOptions.noPlusFrame or require( theme.data ):getFrameIndex( theme.noPlusFrame )
 	opt.minusActiveFrame = customOptions.minusActiveFrame or require( theme.data ):getFrameIndex( theme.minusActiveFrame )
 	opt.plusActiveFrame = customOptions.plusActiveFrame or require( theme.data ):getFrameIndex( theme.plusActiveFrame )
-
-	-------------------------------------------------------
-	-- Constructor error handling
-	-------------------------------------------------------
-		
-	-- Throw error if the user hasn't defined a sheet and has defined data or vice versa.
-	if not customOptions.sheet and customOptions.data then
-		error( M._widgetName .. ": Sheet expected, got nil" )
-	elseif customOptions.sheet and not customOptions.data then
-		error( M._widgetName .. ": Sheet data file expected, got nil" )
-	end
-	
-	-- If the user has passed in a sheet but hasn't defined the width & height throw an error
-	local hasProvidedSize = opt.width and opt.height
-	
-	if not hasProvidedSize then
-		error( M._widgetName .. ": You must pass width & height parameters when using " .. M._widgetName .. " with an imageSheet" )
-	end
 	
 	-------------------------------------------------------
 	-- Create the Stepper
@@ -397,8 +375,10 @@ function M.new( options, theme )
 	-- Create the stepper
 	initWithSprite( stepper, opt )
 	
-	-- Set the stepper's reference point to "topLeft"
-	require( "widget" )._setTopLeftReference( stepper, opt )
+	-- Set the stepper's position ( set the reference point to center, just to be sure )
+	stepper:setReferencePoint( display.CenterReferencePoint )
+	stepper.x = opt.left + stepper.contentWidth * 0.5
+	stepper.y = opt.top + stepper.contentHeight * 0.5
 	
 	return stepper
 end

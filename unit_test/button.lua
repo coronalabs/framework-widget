@@ -15,16 +15,22 @@ function scene:createScene( event )
 	local background = display.newImageRect( "assets/background.png", 640, 960 )
 	group:insert( background )
 	
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
+	
 	--Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
-	    left = 60,
-	    top = 50,
-	    label = "Return To Menu",
+	    left = 0,
+	    top = 5,
+	    label = "Exit",
+		labelAlign = "center",
+		fontSize = 18,
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
+	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
@@ -34,73 +40,75 @@ function scene:createScene( event )
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SET_LABEL = false
 	
+	local oldLabel = nil
+	
 	--Handle widget button events
 	local onButtonEvent = function (event )
 		local phase = event.phase
 		local target = event.target
 		
-		if phase == "press" then
-			--event.target.label.size = 18 
-			event.target:setLabelSize( 18 )
+		if "began" == phase then
 			print( target.id .. " pressed" )
-    	elseif phase == "release" then
+			
+			-- Set the old label
+			oldLabel = target:getLabel()
+			
+			-- Set a new label
+			target:setLabel( "Hello Corona!" )
+    	elseif "ended" == phase then
         	print( target.id .. " released" )
+						
+			-- Reset the label
+			target:setLabel( oldLabel )
     	end
     	
     	return true
 	end
-
-	--Standard button
-	local defaultButton = widget.newButton{
-	    id = "Default_Button",			--Test setting id.
-	    left = 60,						--Test setting left position.
-	    top = 250,						--Test setting top position.
-	    label = "Default Button",		--Test setting label.
-	    width = 200, height = 52,		--Test setting width/height.
-	    cornerRadius = 8,				--Test setting corner radius.
-	    onEvent = onButtonEvent			--Test setting event handler.
-	}
-	group:insert( defaultButton )
-
 	
-	--Custom button using two images (default and over)
-	local customButton = widget.newButton{
-	    id = "Custom_Button",					--Test setting id.
-	    left = 60,								--Test setting left position.
-	    top = defaultButton.y + 50,				--Test setting top position.
-	    label = "Custom Button",				--Test setting label.
-	    default = "assets/buttonBlue.png",		--Test setting default image.
-	    over = "assets/buttonBlueOver.png",		--Test setting over image.
-	    width = 200, height = 60,				--Test setting width/height.
-	    cornerRadius = 8,						--Test setting corner radius.
-	    onEvent = onButtonEvent					--Test setting event handler.
+		
+	-- Standard button 
+	local topLeftButton = widget.newButton
+	{
+	    id = "Left Button",
+	    left = 0,
+	    top = 80,
+	    label = "Left",
+		labelAlign = "center",
+	    width = 140, 
+		height = 50,
+		fontSize = 18,
+		labelColor =
+		{ 
+			default = { 0, 0, 0 },
+			over = { 255, 255, 255 },
+		},
+	    onEvent = onButtonEvent
 	}
-	group:insert( customButton )
+	group:insert( topLeftButton )
 	
 	
-	--Custom button using imagesheet
-	local sheetOptions = {
-		width = 200, 
-	    height = 60,
-	    numFrames = 2,
-	   	sheetContentWidth = 200,
-	    sheetContentHeight = 120
+	-- Standard button 
+	local centerButton = widget.newButton
+	{
+	    id = "Center Button",
+	    left = 0,
+	    top = 0,
+	    label = "Center",
+		labelAlign = "center",
+	    width = 140, 
+		height = 50,
+		fontSize = 18,
+		labelColor =
+		{ 
+			default = { 0, 0, 0 },
+			over = { 255, 255, 255 },
+		},
+	    onEvent = onButtonEvent
 	}
-    local buttonSheet = graphics.newImageSheet( "assets/buttonRedSheet.png", sheetOptions )
+	centerButton.x = display.contentCenterX
+	centerButton.y = display.contentCenterY
+	group:insert( centerButton )
 	
-	local imageSheetButton = widget.newButton{
-		sheet = buttonSheet,			--Test setting imageSheet.
-        defaultIndex = 1,				--Test setting imageSheet default button index.
-        overIndex = 2,					--Test setting imageSheet over button index.
-	    id = "ImageSheet_Button",		--Test setting id.
-	    left = 60,						--Test setting left position.
-	    top = customButton.y + 50,		--Test setting top position.
-	    label = "ImageSheet Button",	--Test setting label.
-	    width = 200, height = 60,		--Test setting width/height.
-	    cornerRadius = 8,				--Test setting corner radius.
-	    onEvent = onButtonEvent			--Test setting event handler.
-	}
-	group:insert( imageSheetButton )
 	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --
@@ -109,7 +117,7 @@ function scene:createScene( event )
 	--Test setting label
 	if TEST_SET_LABEL then
 		testTimer = timer.performWithDelay( 2000, function()
-			defaultButton:setLabel( "New Label" ) -- "New Label"
+			topLeftButton:setLabel( "New Label" ) -- "New Label"
 		end, 1 )		
 	end
 	

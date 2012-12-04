@@ -34,8 +34,8 @@ function scene:createScene( event )
 	-- spinner unit test
 	local spinnerButton = widget.newButton{
 	    id = "spinner",
-	    left = 60,
-	    top = 50,
+	    left = 50,
+	    top = 10,
 	    label = "Spinner",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -47,8 +47,8 @@ function scene:createScene( event )
 	-- switch unit test
 	local switchButton = widget.newButton{
 	    id = "switch",
-	    left = 60,
-	    top = spinnerButton.y + 35,
+	    left = 50,
+	    top = spinnerButton.y + 30,
 	    label = "Switch",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -60,8 +60,8 @@ function scene:createScene( event )
 	-- Stepper unit test
 	local stepperButton = widget.newButton{
 	    id = "stepper",
-	    left = 60,
-	    top = switchButton.y + 35,
+	    left = 50,
+	    top = switchButton.y + 30,
 	    label = "Stepper",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -73,8 +73,8 @@ function scene:createScene( event )
 	-- Search field unit test
 	local searchFieldButton = widget.newButton{
 	    id = "searchField",
-	    left = 60,
-	    top = stepperButton.y + 35,
+	    left = 50,
+	    top = stepperButton.y + 30,
 	    label = "Search Field",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -85,8 +85,8 @@ function scene:createScene( event )
 	-- progressView unit test
 	local progressViewButton = widget.newButton{
 	    id = "progressView",
-	    left = 60,
-	    top = searchFieldButton.y + 35,
+	    left = 50,
+	    top = searchFieldButton.y + 30,
 	    label = "Progress View",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -97,8 +97,8 @@ function scene:createScene( event )
 	-- segmentedControl unit test
 	local segmentedControlButton = widget.newButton{
 	    id = "segmentedControl",
-	    left = 60,
-	    top = progressViewButton.y + 35,
+	    left = 50,
+	    top = progressViewButton.y + 30,
 	    label = "Segmented Control",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -106,11 +106,59 @@ function scene:createScene( event )
 	}
 	newScrollView:insert( segmentedControlButton )
 	
+	-- button unit test
+	local buttonButton = widget.newButton{
+	    id = "button",
+	    left = 50,
+	    top = segmentedControlButton.y + 30,
+	    label = "Button",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	newScrollView:insert( buttonButton )
+	
+	-- tabBar unit test
+	local tabBarButton = widget.newButton{
+	    id = "tabBar",
+	    left = 50,
+	    top = buttonButton.y + 30,
+	    label = "TabBar",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	newScrollView:insert( tabBarButton )
+	
+	-- slider unit test
+	local sliderButton = widget.newButton{
+	    id = "slider",
+	    left = 50,
+	    top = tabBarButton.y + 30,
+	    label = "Slider",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	newScrollView:insert( sliderButton )
+	
+	-- embossedText unit test
+	local embossedTextButton = widget.newButton{
+	    id = "embossedText",
+	    left = 50,
+	    top = sliderButton.y + 30,
+	    label = "Embossed Text",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	newScrollView:insert( embossedTextButton )
+	
 	-- picker unit test
 	local pickerButton = widget.newButton{
 	    id = "picker",
-	    left = 60,
-	    top = segmentedControlButton.y + 35,
+	    left = 50,
+	    top = embossedTextButton.y + 30,
 	    label = "Picker",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -121,14 +169,26 @@ function scene:createScene( event )
 	-- tableView unit test
 	local tableViewButton = widget.newButton{
 	    id = "tableView",
-	    left = 60,
-	    top = pickerButton.y + 35,
+	    left = 50,
+	    top = pickerButton.y + 30,
 	    label = "TableView",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = gotoSelection
 	}
 	newScrollView:insert( tableViewButton )
+	
+	-- scrollView unit test
+	local scrollViewButton = widget.newButton{
+	    id = "scrollView",
+	    left = 50,
+	    top = tableViewButton.y + 30,
+	    label = "ScrollView",
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = gotoSelection
+	}
+	newScrollView:insert( scrollViewButton )
 
 end
 

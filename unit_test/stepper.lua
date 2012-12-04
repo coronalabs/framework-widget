@@ -11,6 +11,9 @@ local testTimer = nil
 function scene:createScene( event )
 	local group = self.view
 	
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
+	
 	--Display an iOS style background
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )
@@ -33,9 +36,6 @@ function scene:createScene( event )
 	--Toggle these defines to execute automated tests.
 	local TEST_REMOVE_STEPPER = false
 	local TEST_DELAY = 1000
-
-	-- Set a theme
-	widget.setTheme( "theme_ios" )
 	
 	local startAtNumber = 0
 	
@@ -65,13 +65,14 @@ function scene:createScene( event )
 	local newStepper = widget.newStepper
 	{
 		id = "dy",
-		left = 80,
-		top = 200,
+		left = 100,
+		top = 100,
 		startNumber = startAtNumber,
 		minimumValue = 0,
 		maximumValue = 25,
 		onPress = onPress,
 	}
+	newStepper.x = display.contentCenterX
 	group:insert( newStepper )
 	
 	-- Update the intial text
