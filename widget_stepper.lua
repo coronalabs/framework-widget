@@ -332,7 +332,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget")._checkRequirements( customOptions, themeOptions, M._widgetName )
+	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -340,8 +340,8 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or theme.width or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
-	opt.height = customOptions.height or theme.height or error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
+	opt.width = customOptions.width or themeOptions.width or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
+	opt.height = customOptions.height or themeOptions.height or error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.initialValue = customOptions.initialValue or 0
@@ -351,13 +351,13 @@ function M.new( options, theme )
 	opt.onHold = customOptions.onHold
 	
 	-- Frames & Images
-	opt.sheet = customOptions.sheet or theme.sheet
-	opt.sheetData = customOptions.data or theme.data
-	opt.defaultFrame = customOptions.defaultFrame or require( theme.data ):getFrameIndex( theme.defaultFrame )
-	opt.noMinusFrame = customOptions.noMinusFrame or require( theme.data ):getFrameIndex( theme.noMinusFrame )
-	opt.noPlusFrame = customOptions.noPlusFrame or require( theme.data ):getFrameIndex( theme.noPlusFrame )
-	opt.minusActiveFrame = customOptions.minusActiveFrame or require( theme.data ):getFrameIndex( theme.minusActiveFrame )
-	opt.plusActiveFrame = customOptions.plusActiveFrame or require( theme.data ):getFrameIndex( theme.plusActiveFrame )
+	opt.sheet = customOptions.sheet or themeOptions.sheet
+	opt.sheetData = customOptions.data or themeOptions.data
+	opt.defaultFrame = customOptions.defaultFrame or require( themeOptions.data ):getFrameIndex( themeOptions.defaultFrame )
+	opt.noMinusFrame = customOptions.noMinusFrame or require( themeOptions.data ):getFrameIndex( themeOptions.noMinusFrame )
+	opt.noPlusFrame = customOptions.noPlusFrame or require( themeOptions.data ):getFrameIndex( themeOptions.noPlusFrame )
+	opt.minusActiveFrame = customOptions.minusActiveFrame or require( themeOptions.data ):getFrameIndex( themeOptions.minusActiveFrame )
+	opt.plusActiveFrame = customOptions.plusActiveFrame or require( themeOptions.data ):getFrameIndex( themeOptions.plusActiveFrame )
 	
 	-------------------------------------------------------
 	-- Create the Stepper
