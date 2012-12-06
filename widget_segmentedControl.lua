@@ -347,7 +347,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget")._checkRequirements( customOptions, themeOptions, M._widgetName )
+	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -355,8 +355,8 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or theme.width or error( "ERROR:" .. M._widgetName .. ": width expected, got nil", 3 )
-	opt.height = customOptions.height or theme.height or error( "ERROR:" .. M._widgetName .. ": height expected, got nil", 3 )
+	opt.width = customOptions.width or themeOptions.width or error( "ERROR:" .. M._widgetName .. ": width expected, got nil", 3 )
+	opt.height = customOptions.height or themeOptions.height or error( "ERROR:" .. M._widgetName .. ": height expected, got nil", 3 )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.segments = customOptions.segments or { "One", "Two" }
@@ -369,15 +369,15 @@ function M.new( options, theme )
 	opt.onPress = customOptions.onPress
 	
 	-- Frames & Images
-	opt.sheet = customOptions.sheet or theme.sheet
-	opt.sheetData = customOptions.data or theme.data
-	opt.leftSegmentFrame = customOptions.leftSegmentFrame or require( theme.data ):getFrameIndex( theme.leftSegmentFrame )
-	opt.leftSegmentSelectedFrame = customOptions.leftSegmentSelectedFrame or require( theme.data ):getFrameIndex( theme.leftSegmentSelectedFrame )
-	opt.rightSegmentFrame = customOptions.rightSegmentFrame or require( theme.data ):getFrameIndex( theme.rightSegmentFrame )
-	opt.rightSegmentSelectedFrame = customOptions.rightSegmentSelectedFrame or require( theme.data ):getFrameIndex( theme.rightSegmentSelectedFrame )
-	opt.middleSegmentFrame = customOptions.middleSegmentFrame or require( theme.data ):getFrameIndex( theme.middleSegmentFrame )
-	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or require( theme.data ):getFrameIndex( theme.middleSegmentSelectedFrame)
-	opt.dividerFrame = customOptions.dividerFrame or require( theme.data ):getFrameIndex( theme.dividerFrame)
+	opt.sheet = customOptions.sheet or themeOptions.sheet
+	opt.sheetData = customOptions.data or themeOptions.data
+	opt.leftSegmentFrame = customOptions.leftSegmentFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftSegmentFrame )
+	opt.leftSegmentSelectedFrame = customOptions.leftSegmentSelectedFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftSegmentSelectedFrame )
+	opt.rightSegmentFrame = customOptions.rightSegmentFrame or require( themeOptions.data ):getFrameIndex( themeOptions.rightSegmentFrame )
+	opt.rightSegmentSelectedFrame = customOptions.rightSegmentSelectedFrame or require( themeOptions.data ):getFrameIndex( themeOptions.rightSegmentSelectedFrame )
+	opt.middleSegmentFrame = customOptions.middleSegmentFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleSegmentFrame )
+	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleSegmentSelectedFrame)
+	opt.dividerFrame = customOptions.dividerFrame or require( themeOptions.data ):getFrameIndex( themeOptions.dividerFrame)
 
 	-------------------------------------------------------
 	-- Create the segmentedControl

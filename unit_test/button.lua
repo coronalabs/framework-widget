@@ -5,7 +5,7 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
---Forward reference for test function timer
+-- Forward reference for test function timer
 local testTimer = nil
 
 function scene:createScene( event )
@@ -37,12 +37,12 @@ function scene:createScene( event )
 	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
 	
-	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
+	-- Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SET_LABEL = false
 	
 	local oldLabel = nil
 	
-	--Handle widget button events
+	-- Handle widget button events
 	local onButtonEvent = function (event )
 		local phase = event.phase
 		local target = event.target

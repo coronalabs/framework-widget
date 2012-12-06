@@ -206,7 +206,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget")._checkRequirements( customOptions, themeOptions, M._widgetName )
+	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -219,27 +219,27 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.isAnimated = customOptions.isAnimated or false
-	opt.fillXOffset = customOptions.fillXOffset or theme.fillXOffset or 0
-	opt.fillYOffset = customOptions.fillYOffset or theme.fillYOffset or 0
-	opt.padding = customOptions.padding or theme.fillOuterWidth or 0
+	opt.fillXOffset = customOptions.fillXOffset or themeOptions.fillXOffset or 0
+	opt.fillYOffset = customOptions.fillYOffset or themeOptions.fillYOffset or 0
+	opt.padding = customOptions.padding or themeOptions.fillOuterWidth or 0
 	
 	-- Frames & Images
-	opt.sheet = customOptions.sheet or theme.sheet
-	opt.sheetData = customOptions.data or theme.data
+	opt.sheet = customOptions.sheet or themeOptions.sheet
+	opt.sheetData = customOptions.data or themeOptions.data
 	
-	opt.fillWidth = customOptions.fillWidth or theme.fillWidth or error( "ERROR: " .. M._widgetName .. ": fillWidth expected, got nil", 3 )
-	opt.fillHeight = customOptions.fillHeight or theme.fillHeight or error( "ERROR: " .. M._widgetName .. ": fillHeight expected, got nil", 3 )
+	opt.fillWidth = customOptions.fillWidth or themeOptions.fillWidth or error( "ERROR: " .. M._widgetName .. ": fillWidth expected, got nil", 3 )
+	opt.fillHeight = customOptions.fillHeight or themeOptions.fillHeight or error( "ERROR: " .. M._widgetName .. ": fillHeight expected, got nil", 3 )
 	
-	opt.fillOuterWidth = customOptions.fillOuterWidth or theme.fillOuterWidth or error( "ERROR: " .. M._widgetName .. ": outerWidth expected, got nil", 3 )
-	opt.fillOuterHeight = customOptions.fillOuterHeight or theme.fillOuterHeight or error( "ERROR: " .. M._widgetName .. ": outerHeight expected, got nil", 3 )
+	opt.fillOuterWidth = customOptions.fillOuterWidth or themeOptions.fillOuterWidth or error( "ERROR: " .. M._widgetName .. ": outerWidth expected, got nil", 3 )
+	opt.fillOuterHeight = customOptions.fillOuterHeight or themeOptions.fillOuterHeight or error( "ERROR: " .. M._widgetName .. ": outerHeight expected, got nil", 3 )
 	
-	opt.fillOuterLeftFrame = customOptions.fillOuterLeftFrame or require( theme.data ):getFrameIndex( theme.fillOuterLeftFrame )
-	opt.fillOuterMiddleFrame = customOptions.fillOuterMiddleFrame or require( theme.data ):getFrameIndex( theme.fillOuterMiddleFrame )
-	opt.fillOuterRightFrame = customOptions.fillOuterRightFrame or require( theme.data ):getFrameIndex( theme.fillOuterRightFrame )
+	opt.fillOuterLeftFrame = customOptions.fillOuterLeftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillOuterLeftFrame )
+	opt.fillOuterMiddleFrame = customOptions.fillOuterMiddleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillOuterMiddleFrame )
+	opt.fillOuterRightFrame = customOptions.fillOuterRightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillOuterRightFrame )
 	
-	opt.fillInnerLeftFrame = customOptions.fillInnerLeftFrame or require( theme.data ):getFrameIndex( theme.fillInnerLeftFrame )
-	opt.fillInnerMiddleFrame = customOptions.fillInnerMiddleFrame or require( theme.data ):getFrameIndex( theme.fillInnerMiddleFrame )
-	opt.fillInnerRightFrame = customOptions.fillInnerRightFrame or require( theme.data ):getFrameIndex( theme.fillInnerRightFrame )
+	opt.fillInnerLeftFrame = customOptions.fillInnerLeftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillInnerLeftFrame )
+	opt.fillInnerMiddleFrame = customOptions.fillInnerMiddleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillInnerMiddleFrame )
+	opt.fillInnerRightFrame = customOptions.fillInnerRightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillInnerRightFrame )
 	
 	-------------------------------------------------------
 	-- Create the progressView

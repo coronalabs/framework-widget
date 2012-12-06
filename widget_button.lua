@@ -685,7 +685,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget")._checkRequirements( customOptions, themeOptions, M._widgetName )
+	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -694,51 +694,51 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or theme.width or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
-	opt.height = customOptions.height or theme.height or error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
+	opt.width = customOptions.width or themeOptions.width or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
+	opt.height = customOptions.height or themeOptions.height or error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.label = customOptions.label
 	opt.labelColor = customOptions.labelColor or { default = { 0, 0, 0 }, over = { 255, 0, 0 } }
-	opt.font = customOptions.font or theme.font or native.systemFont
-	opt.fontSize = customOptions.fontSize or theme.fontSize or 14
+	opt.font = customOptions.font or themeOptions.font or native.systemFont
+	opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 14
 	opt.labelAlign = customOptions.labelAlign or "center"
 	opt.labelXOffset = customOptions.labelXOffset or 0
 	opt.labelYOffset = customOptions.labelYOffset or 0
-	opt.embossedLabel = customOptions.embossedLabel or theme.embossedLabel or false
+	opt.embossedLabel = customOptions.embossedLabel or themeOptions.embossedLabel or false
 	opt.onPress = customOptions.onPress
 	opt.onRelease = customOptions.onRelease
 	opt.onEvent = customOptions.onEvent
 	
 	-- Frames & Images
-	opt.sheet = customOptions.sheet or theme.sheet
-	opt.sheetData = customOptions.data or theme.data
-	opt.defaultFrame = customOptions.defaultFrame or require( theme.data ):getFrameIndex( theme.defaultFrame )
-	opt.overFrame = customOptions.overFrame or require( theme.data ):getFrameIndex( theme.overFrame )
+	opt.sheet = customOptions.sheet or themeOptions.sheet
+	opt.sheetData = customOptions.data or themeOptions.data
+	opt.defaultFrame = customOptions.defaultFrame or require( themeOptions.data ):getFrameIndex( themeOptions.defaultFrame )
+	opt.overFrame = customOptions.overFrame or require( themeOptions.data ):getFrameIndex( themeOptions.overFrame )
 	
 	-- Left ( 9 piece set )
-	opt.topLeftFrame = customOptions.topLeftFrame or require( theme.data ):getFrameIndex( theme.topLeftFrame )
-	opt.topLeftFrameOver = customOptions.topLeftFrameOver or require( theme.data ):getFrameIndex( theme.topLeftFrameOver )
-	opt.middleLeftFrame = customOptions.middleLeftFrame or require( theme.data ):getFrameIndex( theme.middleLeftFrame )
-	opt.middleLeftFrameOver = customOptions.middleLeftFrameOver or require( theme.data ):getFrameIndex( theme.middleLeftFrameOver )
-	opt.bottomLeftFrame = customOptions.bottomLeftFrame or require( theme.data ):getFrameIndex( theme.bottomLeftFrame )
-	opt.bottomLeftFrameOver = customOptions.bottomLeftFrameOver or require( theme.data ):getFrameIndex( theme.bottomLeftFrameOver )
+	opt.topLeftFrame = customOptions.topLeftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.topLeftFrame )
+	opt.topLeftFrameOver = customOptions.topLeftFrameOver or require( themeOptions.data ):getFrameIndex( themeOptions.topLeftFrameOver )
+	opt.middleLeftFrame = customOptions.middleLeftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleLeftFrame )
+	opt.middleLeftFrameOver = customOptions.middleLeftFrameOver or require( themeOptions.data ):getFrameIndex( themeOptions.middleLeftFrameOver )
+	opt.bottomLeftFrame = customOptions.bottomLeftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomLeftFrame )
+	opt.bottomLeftFrameOver = customOptions.bottomLeftFrameOver or require( themeOptions.data ):getFrameIndex( themeOptions.bottomLeftFrameOver )
 	
 	-- Right ( 9 piece set )
-	opt.topRightFrame = customOptions.topRightFrame or require( theme.data ):getFrameIndex( theme.topRightFrame )
-	opt.topRightFrameOver = customOptions.topRightFrameOver or require( theme.data ):getFrameIndex( theme.topRightFrameOver )
-	opt.middleRightFrame = customOptions.middleRightFrame or require( theme.data ):getFrameIndex( theme.middleRightFrame )
-	opt.middleRightOverFrame = customOptions.middleRightOverFrame or require( theme.data ):getFrameIndex( theme.middleRightOverFrame )
-	opt.bottomRightFrame = customOptions.bottomRightFrame or require( theme.data ):getFrameIndex( theme.bottomRightFrame )
-	opt.bottomRightOverFrame = customOptions.bottomRightOverFrame or require( theme.data ):getFrameIndex( theme.bottomRightOverFrame )
+	opt.topRightFrame = customOptions.topRightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.topRightFrame )
+	opt.topRightFrameOver = customOptions.topRightFrameOver or require( themeOptions.data ):getFrameIndex( themeOptions.topRightFrameOver )
+	opt.middleRightFrame = customOptions.middleRightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleRightFrame )
+	opt.middleRightOverFrame = customOptions.middleRightOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleRightOverFrame )
+	opt.bottomRightFrame = customOptions.bottomRightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomRightFrame )
+	opt.bottomRightOverFrame = customOptions.bottomRightOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomRightOverFrame )
 	
 	-- Middle ( 9 piece set )
-	opt.topMiddleFrame = customOptions.topMiddleFrame or require( theme.data ):getFrameIndex( theme.topMiddleFrame )
-	opt.topMiddleOverFrame = customOptions.topMiddleOverFrame or require( theme.data ):getFrameIndex( theme.topMiddleOverFrame )
-	opt.middleFrame = customOptions.middleFrame or require( theme.data ):getFrameIndex( theme.middleFrame )
-	opt.middleOverFrame = customOptions.middleOverFrame or require( theme.data ):getFrameIndex( theme.middleOverFrame )
-	opt.bottomMiddleFrame = customOptions.bottomMiddleFrame or require( theme.data ):getFrameIndex( theme.bottomMiddleFrame )
-	opt.bottomMiddleOverFrame = customOptions.bottomMiddleOverFrame or require( theme.data ):getFrameIndex( theme.bottomMiddleOverFrame )
+	opt.topMiddleFrame = customOptions.topMiddleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.topMiddleFrame )
+	opt.topMiddleOverFrame = customOptions.topMiddleOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.topMiddleOverFrame )
+	opt.middleFrame = customOptions.middleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleFrame )
+	opt.middleOverFrame = customOptions.middleOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleOverFrame )
+	opt.bottomMiddleFrame = customOptions.bottomMiddleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomMiddleFrame )
+	opt.bottomMiddleOverFrame = customOptions.bottomMiddleOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomMiddleOverFrame )
 
 	-- Are we using a nine piece button?
 	local using9PieceButton = opt.topLeftFrame and opt.topLeftFrameOver and opt.middleLeftFrame and opt.middleLeftFrameOver and opt.bottomLeftFrame and opt.bottomLeftFrameOver and 

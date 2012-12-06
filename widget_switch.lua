@@ -463,7 +463,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget")._checkRequirements( customOptions, themeOptions, M._widgetName )
+	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -472,8 +472,8 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or theme.width
-	opt.height = customOptions.height or theme.height
+	opt.width = customOptions.width or themeOptions.width
+	opt.height = customOptions.height or themeOptions.height
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.switchType = customOptions.style or "onOff"
@@ -483,28 +483,28 @@ function M.new( options, theme )
 	opt.onEvent = customOptions.onEvent
 	
 	-- Frames & Images	
-	opt.sheet = customOptions.sheet or theme.sheet
-	opt.sheetData = customOptions.data or theme.data
+	opt.sheet = customOptions.sheet or themeOptions.sheet
+	opt.sheetData = customOptions.data or themeOptions.data
 	opt.frameOff = customOptions.frameOff
 	opt.frameOn = customOptions.frameOn
 		
 	-- If the user hasn't set a on/off frame but a theme has been set and it includes a data property then grab the required start/end frames
-	if not opt.frameOff and not opt.frameOn and theme and theme.data then
-		opt.frameOff = require( theme.data ):getFrameIndex( theme.frameOff )
-		opt.frameOn = require( theme.data ):getFrameIndex( theme.frameOn )
+	if not opt.frameOff and not opt.frameOn and theme and themeOptions.data then
+		opt.frameOff = require( themeOptions.data ):getFrameIndex( themeOptions.frameOff )
+		opt.frameOn = require( themeOptions.data ):getFrameIndex( themeOptions.frameOn )
 	end	
 			
 	-- Options for the on/off switch only
 	if "onOff" == opt.switchType then
-		opt.onOffBackgroundFrame = customOptions.backgroundFrame or theme.backgroundFrame
-		opt.onOffBackgroundWidth = customOptions.backgroundWidth or theme.backgroundWidth or error( "ERROR: " .. M._widgetName .. ": backgroundWidth expected, got nil", 3 )
-		opt.onOffBackgroundHeight = customOptions.backgroundHeight or theme.backgroundHeight or error( "ERROR: " .. M._widgetName .. ": backgroundHeight expected, got nil", 3 )
-		opt.onOffOverlayFrame = customOptions.overlayFrame or theme.overlayFrame
-		opt.onOffOverlayWidth = customOptions.overlayWidth or theme.overlayWidth or error( "ERROR: " .. M._widgetName .. ": overlayWidth expected, got nil", 3 )
-		opt.onOffOverlayHeight = customOptions.overlayHeight or theme.overlayHeight or error( "ERROR: " .. M._widgetName .. ": overlayHeight expected, got nil", 3 )
-		opt.onOffHandleDefaultFrame = customOptions.handleDefualtFrame or theme.handleDefaultFrame 
-		opt.onOffHandleOverFrame = customOptions.handleOverFrame or theme.handleOverFrame
-		opt.onOffMask = customOptions.mask or theme.mask
+		opt.onOffBackgroundFrame = customOptions.backgroundFrame or themeOptions.backgroundFrame
+		opt.onOffBackgroundWidth = customOptions.backgroundWidth or themeOptions.backgroundWidth or error( "ERROR: " .. M._widgetName .. ": backgroundWidth expected, got nil", 3 )
+		opt.onOffBackgroundHeight = customOptions.backgroundHeight or themeOptions.backgroundHeight or error( "ERROR: " .. M._widgetName .. ": backgroundHeight expected, got nil", 3 )
+		opt.onOffOverlayFrame = customOptions.overlayFrame or themeOptions.overlayFrame
+		opt.onOffOverlayWidth = customOptions.overlayWidth or themeOptions.overlayWidth or error( "ERROR: " .. M._widgetName .. ": overlayWidth expected, got nil", 3 )
+		opt.onOffOverlayHeight = customOptions.overlayHeight or themeOptions.overlayHeight or error( "ERROR: " .. M._widgetName .. ": overlayHeight expected, got nil", 3 )
+		opt.onOffHandleDefaultFrame = customOptions.handleDefualtFrame or themeOptions.handleDefaultFrame 
+		opt.onOffHandleOverFrame = customOptions.handleOverFrame or themeOptions.handleOverFrame
+		opt.onOffMask = customOptions.mask or themeOptions.mask
 	else
 		if not opt.width then 
 			error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
