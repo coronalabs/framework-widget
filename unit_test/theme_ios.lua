@@ -56,27 +56,17 @@ theme.button =
 
 theme.slider = 
 {
-	-- default style
-	width = 220, 
-	height = 10,
-	background = assetDir .. "/slider/sliderBg.png",
-	fillImage = assetDir .. "/slider/sliderFill.png",
-	fillWidth = 2, leftWidth = 16,
-	handle = assetDir .. "/slider/handle.png",
-	handleWidth = 32, handleHeight = 32,
-	
-	-- slider styles
-	--[[
-	small120 = 
-	{
-		width = 120, 10,
-		background = assetDir .. "/slider/small120/sliderBg.png",
-		fillImage = assetDir .. "/slider/sliderFill.png",
-		fillWidth = 2, leftWidth = 16,
-		handle = assetDir .. "/slider/handle.png",
-		handleWidth = 32, handleHeight = 32
-	},
-	--]]
+	sheet = assetDir .. "/assets.png",
+    data = assetDir .. ".assets",
+	leftFrame = "slider_leftFrame",
+	rightFrame = "slider_rightFrame",
+	middleFrame = "silder_middleFrame",
+	fillFrame = "slider_fill",
+	frameWidth = 10,
+	frameHeight = 10,
+	handleFrame = "slider_handle",
+	handleWidth = 32, 
+	handleHeight = 32,
 }
 
 -----------------------------------------------------------------------------------------

@@ -84,7 +84,7 @@ function widget._checkRequirements( options, theme, widgetName )
 	local noParams = not options and not theme
 	
 	if noParams then
-		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not support " .. widgetName " .", 3 )
+		error( "WARNING: Either you haven't set a theme using widget.setTheme or the widget theme you are using does not support " .. widgetName, 3 )
 	end
 	
 	-- If the user hasn't provided the necessary image sheet lua file (either via custom sheet or widget theme)
@@ -110,9 +110,10 @@ function widget._checkRequirements( options, theme, widgetName )
 	end		
 end
 
--- set current theme from external .lua module
+-- Set the current theme from a lua theme file
 function widget.setTheme( themeModule )
-	widget.theme = require( themeModule )	-- should return table w/ theme data
+	-- Returns table with theme data
+	widget.theme = require( themeModule )
 end
 
 -- Function to retrieve a widget's theme settings
@@ -268,21 +269,6 @@ function widget.embossedText( ... )
 end
 display.newEmbossedText = widget.embossedText
 
-
------------------------------------------------------------------------------------------
--- newSlider widget
------------------------------------------------------------------------------------------
-
-function widget.newSlider( options )	
-	local theme = _getTheme( "pickerWheel", options )
-	
-	if theme then
-		return require( "widget_slider" ).createSlider( options, theme )
-	else
-		print( "WARNING: The slider widget requires a visual theme. Use widget.setTheme()." )
-	end
-end
-
 -----------------------------------------------------------------------------------------
 -- newPickerWheel widget
 -----------------------------------------------------------------------------------------
@@ -316,6 +302,16 @@ end
 
 function widget.newTableView( options )
 	return require( "widget_tableview" ).createTableView( options )
+end
+
+-----------------------------------------------------------------------------------------
+-- newSlider widget
+-----------------------------------------------------------------------------------------
+
+function widget.newSlider( options )	
+	local theme = _getTheme( "slider", options )
+	
+	return require( "widget_slider" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------

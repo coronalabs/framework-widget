@@ -89,6 +89,6 @@ io.output():setvbuf( "no" )
 display.setStatusBar(display.HiddenStatusBar)
 
 local storyboard = require( "storyboard" )
-storyboard.gotoScene( "unitTestListing" )
+--storyboard.gotoScene( "unitTestListing" )
 
---storyboard.gotoScene( "tabBar" )
+storyboard.gotoScene( "tabBar" )
