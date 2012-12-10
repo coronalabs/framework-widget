@@ -75,12 +75,18 @@ local function initWithImage( tabBar, options )
 		
 		-- Create the tab button's label
 		viewButtons[i].label = display.newText( tabBar, opt.tabButtons[i].label, 0, 0, labelFont, labelSize )
-		viewButtons[i].label:setTextColor( unpack( labelColor ) )
+		viewButtons[i].label:setTextColor( unpack( labelColor.default ) )
 		
 		-- Set the default tab
 		if opt.tabButtons[i].selected then
 			view._defaultTab = i
-		end		
+			
+			-- Set the selected tab's label to the over color 
+			viewButtons[i].label:setTextColor( unpack( labelColor.over ) )
+		end	
+		
+		-- Keep a reference to the label's colors
+		viewButtons[i].label._color = labelColor	
 	end
 		
 		
@@ -218,10 +224,16 @@ local function initWithImage( tabBar, options )
 				-- Set the tab as pressed
 				self._tabs[i]._isPressed = true
 
+				-- Set the label's color to 'over'
+				self._tabs[i].label:setTextColor( unpack( self._tabs[i].label._color.over ) )
+
 			-- Turn off all other tabs
 			else
 				-- Set the tab to it's inactive state
 				self._tabs[i]:setSequence( "inActive" )
+				
+				-- Set the label's color to 'default'
+				self._tabs[i].label:setTextColor( unpack( self._tabs[i].label._color.default ) )
 				
 				-- Set the tab as not pressed
 				self._tabs[i]._isPressed = false
@@ -262,7 +274,7 @@ function M.new( options, theme )
 	opt.tabButtons = customOptions.buttons
 	opt.defaultLabelFont = native.systemFont
 	opt.defaultLabelSize = 8
-	opt.defaultLabelColor = { 255, 255, 255 }
+	opt.defaultLabelColor = { default = { 220, 220, 220 }, over = { 255, 255, 255 } }
 	opt.onPress = customOptions.onPress
 	
 	-- Frames & Images
