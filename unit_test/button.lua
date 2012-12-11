@@ -39,9 +39,7 @@ function scene:createScene( event )
 	
 	-- Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SET_LABEL = false
-	
-	local oldLabel = nil
-	
+		
 	-- Handle widget button events
 	local onButtonEvent = function (event )
 		local phase = event.phase
@@ -49,17 +47,14 @@ function scene:createScene( event )
 		
 		if "began" == phase then
 			print( target.id .. " pressed" )
-			
-			-- Set the old label
-			oldLabel = target:getLabel()
-			
+						
 			-- Set a new label
 			target:setLabel( "Hello Corona!" )
     	elseif "ended" == phase then
         	print( target.id .. " released" )
 						
 			-- Reset the label
-			target:setLabel( oldLabel )
+			target:setLabel( target.oldLabel )
     	end
     	
     	return true
@@ -84,6 +79,7 @@ function scene:createScene( event )
 		},
 	    onEvent = onButtonEvent
 	}
+	topLeftButton.oldLabel = "Left"
 	group:insert( topLeftButton )
 	
 	
@@ -105,6 +101,7 @@ function scene:createScene( event )
 		},
 	    onEvent = onButtonEvent
 	}
+	centerButton.oldLabel = "Center"
 	centerButton.x = display.contentCenterX
 	centerButton.y = display.contentCenterY
 	group:insert( centerButton )

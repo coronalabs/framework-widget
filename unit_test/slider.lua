@@ -15,16 +15,20 @@ function scene:createScene( event )
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )
 	
-	--Button to return to unit test listing
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
+	
+	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
 	    left = 60,
-	    top = 50,
-	    label = "Return To Menu",
+	    top = 5,
+	    label = "Exit",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
+	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
@@ -32,7 +36,7 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_SET_VALUE = true
+	local TEST_SET_VALUE = false
 	
 	--Create some text to show the sliders output
 	local sliderResult = display.newEmbossedText( "Slider at 50%", 0, 0, native.systemFontBold, 22 )
@@ -44,18 +48,21 @@ function scene:createScene( event )
 	
 	--Slider listener function
 	local function sliderListener( event )
+		--print( "phase is:", event.phase )
 		sliderResult:setText( "Slider at " .. event.value .. "%" )
 	end
 	
 	--Create the slider
-	local slider = widget.newSlider{
-		top = 300,						--Test setting top position.
-		left = 50,						--Test setting left position.
-		listener = sliderListener		--Test setting event handler.
+	local slider = widget.newSlider
+	{
+		width = 200,
+		top = 300,
+		left = 50,
+		value = 50,
+		listener = sliderListener,
 	}
 	group:insert( slider )
-	
-	
+		
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
