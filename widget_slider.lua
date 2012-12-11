@@ -15,14 +15,14 @@ local M =
 	_widgetName = "widget.newSlider",
 }
 
--- Creates a new slider from an imageSheet
-local function initWithImage( slider, options )
+-- Creates a new horizontal slider from an imageSheet
+local function createHorizontalSlider( slider, options )
 	-- Create a local reference to our options table
 	local opt = options
 		
 	-- Forward references
 	local imageSheet, view, viewLeft, viewRight, viewMiddle, viewFill, viewHandle
-	
+		
 	-- Create the view
 	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	
@@ -75,7 +75,13 @@ local function initWithImage( slider, options )
 	-------------------------------------------------------
 	
 	-- We need to assign these properties to the object
+	view._left = viewLeft
+	view._right = viewRight
+	view._fill = viewFill
 	view._handle = viewHandle
+	view._currentPercent = 0
+	view._width = opt.width
+	view._listener = opt.listener
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the slider
@@ -83,7 +89,7 @@ local function initWithImage( slider, options )
 	
 	-- Assign objects to the slider
 	slider._imageSheet = imageSheet
-	slider._view = view
+	slider._view = view	
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -95,26 +101,53 @@ local function initWithImage( slider, options )
 
 	function view:touch( event )
 		local phase = event.phase
-		local _handle = self._view._handle
 		-- Set the target to the handle
-		event.target = _handle
+		event.target = self._handle
 	
 		if "began" == phase then
-			display.getCurrentStage():setFocus( event.target, event.id )
-			self._isFocus = true
+			-- Did the touch begin on the Handle?
+			local touchBeganOnHandle = event.x >= self._handle.x - ( self._handle.width * 0.5 ) and event.x <= self._handle.x + ( self._handle.width * 0.5 )
 			
-			-- Store the initial position
-			_handle.x0 = event.x - _handle.x
-			--_handle.y0 = event.y - _handle.y
+			-- If the touch began on the handle
+			if touchBeganOnHandle then
+				display.getCurrentStage():setFocus( event.target, event.id )
+				self._isFocus = true
+			
+				-- Store the initial position
+				self._handle.x0 = event.x - self._handle.x
+			end
 			
 		elseif self._isFocus then
 			if "moved" == phase then
-				_handle.x = event.x - _handle.x0
-				--_handle.y = 
+				self._handle.x = event.x - self._handle.x0
+								
+				if self._handle.x <= self._left.x then
+					self._handle.x = self._left.x
+				elseif self._handle.x >= self._right.x then
+					self._handle.x = self._right.x
+				end
+								
+				-- Check the handle's position relative to the slider's width
+				local handlePosition = self._handle.x - self._left.x
+				local fillXPos = self._left.x + ( handlePosition * 0.5 )
+
+				-- Calculate the current percent
+				self._currentPercent = ( handlePosition * 100 ) / ( self._width - self._left.contentWidth - ( self._right.contentWidth * 0.5 ) )
+				
+				-- Set the fill's width & position
+				self._fill.width = handlePosition
+				self._fill.x = fillXPos
 			
 			elseif "ended" == phase or "cancelled" == phase then
+				-- Remove focus
 				display.getCurrentStage():setFocus( nil )
 				self._isFocus = false
+			end
+			
+			-- Execute the listener ( if any )
+			if self._listener then
+				event.value = math.round( self._currentPercent )
+				self._listener( event )
 			end
 		end
 		
@@ -151,12 +184,14 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or themeOptions.width or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
-	--opt.height = customOptions.height or themeOptions.height or error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
+	opt.width = customOptions.width or themeOptions.width --or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
+	opt.height = customOptions.height or themeOptions.height --or error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
-	opt.defaultValue = customOptions.value or 1
-		
+	opt.defaultValue = customOptions.value or 50
+	opt.orientation = customOptions.orientation or "horizontal"
+	opt.listener = customOptions.listener
+	
 	-- Frames & Images
 	opt.sheet = customOptions.sheet or themeOptions.sheet
 	opt.sheetData = customOptions.data or themeOptions.data
@@ -184,12 +219,18 @@ function M.new( options, theme )
 	}
 
 	-- Create the slider
-	initWithImage( slider, opt )
+	if "horizontal" == opt.orientation then
+		createHorizontalSlider( slider, opt )
+	else
+		
+	end
 	
 	-- Set the slider's position ( set the reference point to center, just to be sure )
 	slider:setReferencePoint( display.CenterReferencePoint )
 	slider.x = opt.left + slider.contentWidth * 0.5
 	slider.y = opt.top + slider.contentHeight * 0.5
+	
+	slider._currentPosition = opt.defaultValue
 	
 	return slider
 end

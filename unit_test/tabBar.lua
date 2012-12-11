@@ -36,7 +36,7 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	-- Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_SET_BUTTON_ACTIVE = true
+	local TEST_SET_BUTTON_ACTIVE = false
 	
 	-- Create the tabBar's buttons
 	local tabButtons = 

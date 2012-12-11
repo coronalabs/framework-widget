@@ -81,12 +81,12 @@ local function initWithImage( tabBar, options )
 		if opt.tabButtons[i].selected then
 			view._defaultTab = i
 			
-			-- Set the selected tab's label to the over color 
+			-- Set the selected tab's label to the over color
 			viewButtons[i].label:setTextColor( unpack( labelColor.over ) )
 		end	
 		
 		-- Keep a reference to the label's colors
-		viewButtons[i].label._color = labelColor	
+		viewButtons[i].label._color = labelColor
 	end
 		
 		
