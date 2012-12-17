@@ -58,10 +58,17 @@ theme.slider =
 {
 	sheet = assetDir .. "/assets.png",
     data = assetDir .. ".assets",
+
 	leftFrame = "slider_leftFrame",
 	rightFrame = "slider_rightFrame",
 	middleFrame = "silder_middleFrame",
 	fillFrame = "slider_fill",
+	
+	topFrame ="slider_topFrameVertical",
+	bottomFrame = "slider_bottomFrameVertical",
+	middleVerticalFrame = "silder_middleFrameVertical",
+	fillVerticalFrame = "slider_fillVertical",
+	
 	frameWidth = 10,
 	frameHeight = 10,
 	handleFrame = "slider_handle",

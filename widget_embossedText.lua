@@ -16,110 +16,261 @@ local M =
 }
 
 
+local function initWithEmbossedText( embossedText, options )
+	-- Create a local reference to our options table
+	local opt = options
+	
+	-- Forward references
+	local view, textHighLight, textShadow, textColor
+		
+	-- Create the view
+	view = display.newText( embossedText, opt.string, 0, 0, opt.width, opt.height, opt.font, opt.fontSize )
+	
+	-- Create the text's highlight
+	textHighlight = display.newText( embossedText, opt.string, 0, 0, opt.width, opt.height, opt.font, opt.fontSize )
+	
+	-- Create the text's shadow
+	textShadow = display.newText( embossedText, opt.string, 0, 0, opt.width, opt.height, opt.font, opt.fontSize )
+
+	----------------------------------
+	-- Positioning
+	----------------------------------
+	
+	-- The view
+	view.x = embossedText.x + ( view.contentWidth * 0.5 )
+	view.y = embossedText.y + ( view.contentHeight * 0.5 )
+	
+	-- The view's highlight
+	textHighlight.x = view.x + 0.5
+	textHighlight.y = view.y + 1
+	
+	-- The view's shadow
+	textShadow.x = view.x - 0.5
+	textShadow.y = view.y - 1
+	
+	----------------------------------
+	-- Setup
+	----------------------------------
+	
+	-- Push the view to the front
+	view:toFront()
+	
+	-- Set the text's color
+	view:setTextColor( 0, 0, 0, 255 )
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the view
+	-------------------------------------------------------
+	
+	view._highlight = textHighlight
+	view._shadow = textShadow
+	view._fontSize = opt.fontSize
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the embossedText
+	-------------------------------------------------------
+	
+	-- Assign objects to the embossedText
+	embossedText._view = view
+	
+	----------------------------------------------------------
+	--	PUBLIC METHODS	
+	----------------------------------------------------------
+	
+	-- Function to set the text's color
+	function embossedText:setTextColor( ... )
+		return self._view:_setTextColor( ... )
+	end
+	
+	-- Function to set the text's emboss color
+	function embossedText:setEmbossColor( embossColor )
+		return self.view:_setEmbossColor( embossColor )
+	end
+
+	-- Function to update the text's string
+	function embossedText:setText( newString )
+		return self._view:_setText( newString )
+	end
+	
+	-- Function to set the text's size
+	function embossedText:setSize( newSize )
+		return self._view:_setSize( newSize )
+	end
+	
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
+	
+	-- Function to set the text's color
+	function view:_setTextColor( ... )
+		local arg = { ... }
+		local color = { r = 0, g = 0, b = 0, a = 0 }
+					
+		-- Set the color
+		if 4 == #arg then
+			color.r = arg[1]
+			color.g = arg[2]
+			color.b = arg[3]
+			color.a = arg[4]
+		elseif 3 == #arg then
+			color.r = arg[1]
+			color.g = arg[2]
+			color.b = arg[3]
+			color.a = 255
+		elseif 2 == #arg then
+			color.r = arg[1]
+			color.g = color.r
+			color.b = color.r
+			color.a = arg[2]
+		elseif 1 == #arg then
+			color.r = arg[1]
+			color.g = color.r
+			color.b = color.r
+			color.a = 255
+		end
+					
+		-- Set the textBrightness
+		self._textBrightness = ( color.r + color.g + color.b ) / 3
+		
+		-- Set the highlight and shadow colors
+		if self._textBrightness > 127 then
+			self._highlight:setTextColor( 255, 255, 255, 20 )
+			self._shadow:setTextColor( 0, 0, 0, 128 )
+		else
+			self._highlight:setTextColor( 255, 255, 255, 140 )
+			self._shadow:setTextColor( 0, 0, 0, 20 )
+		end
+		
+		-- Set the text objects color
+		self:setTextColor( color.r, color.g, color.b, color.a )
+	end
+		
+	-- Function to set the emboss color
+	function view:_setEmbossColor( embossColor )
+		local color = 
+		{
+			highlight = 
+			{
+				r = embossColor.highlight.r or 255,
+				g = embossColor.highlight.g or embossColor.highlight.r,
+				b = embossColor.highlight.b or embossColor.highlight.r,
+				a = embossColor.highlight.a or 255,
+			},
+			shadow =
+			{
+				r = embossColor.shadow.r or 255,
+				g = embossColor.shadow.g or embossColor.shadow.r,
+				b = embossColor.shadow.b or embossColor.shadow.r,
+				a = embossColor.shadow.a or 255,
+			},
+		}
+		
+		self._highlight:setTextColor( color.highlight.r, color.highlight.g, color.highlight.b, color.highlight.a  )
+		self._shadow:setTextColor( color.shadow.r, color.shadow.g, color.shadow.b, color.shadow.a )
+	end	
+		
+	-- Function to update the text's string
+	function view:_setText( newString )
+		local string = newString or self.text
+		
+		self.text = newString
+		self._highlight.text = self.text
+		self._shadow.text = self.text
+	end
+	
+	
+	-- Function to set the text's size
+	function view:_setSize( newSize )
+		local size = newSize or self._fontSize
+	
+		self.size = size
+		self._highlight.size = self.size
+		self._shadow.size = self.size
+	end
+
+	-- Insert the embossedText group into a parent group if specified
+	if opt.parentGroup then 
+		opt.parentGroup:insert( embossedText ) 
+	end
+	
+	-- Finalize function
+	function embossedText:_finalize()
+		-- 
+	end
+
+	return embossedText
+end
+
+	
+-- Function to create a new EmbossedText object ( display.newEmbossedText )
 function M.new( ... )
+	-- Create a table to hold the passed in arguments
 	local arg = { ... }
 	
-	-- parse arguments
-	local parentG, w, h
-	local argOffset = 0
+	-- Create our options table
+	local opt = {}
 	
-	-- determine if a parentGroup was specified
-	if arg[1] and type(arg[1]) == "table" then
-		parentG = arg[1]; argOffset = 1
+	-- Create variables to hold the current argument offset
+	local argOffset, newArgOffset = 0, 0
+	
+	-- Get parent group if passed
+	if arg[1] and type( arg[1] ) == "table" then
+		opt.parentGroup = arg[1]
+		argOffset = 1
 	end
 	
-	local string = arg[1+argOffset] or ""
-	local x = arg[2+argOffset] or 0
-	local y = arg[3+argOffset] or 0
-	local w, h = 0, 0
+	-- Get the text string
+	opt.string = arg[1+argOffset] or ""
 	
-	local newOffset = 3+argOffset
-	if type(arg[4+argOffset]) == "number" then w = arg[4+argOffset]; newOffset=newOffset+1; end
-	if w and #arg >= 7+argOffset then h = arg[5+argOffset]; newOffset=newOffset+1; end
+	-- Get left/top positions
+	opt.left = arg[2+argOffset] or 0
+	opt.top = arg[3+argOffset] or 0
 	
-	local font = arg[1+newOffset] or native.systemFont
-	local size = arg[2+newOffset] or 12
-	local color = { 0, 0, 0, 255 }
+	-- Set width/height to 0 initally
+	opt.width = 0
+	opt.height = 0
 	
-	---------------------------------------------
+	-- Set the new offset
+	newArgOffset = 3 + argOffset
 	
-	local r, g, b, a = color[1], color[2], color[3], color[4]
-	local textBrightness = ( r + g + b ) / 3
-	
-	local highlight = display.newText( string, 0.5, 1, w, h, font, size )
-	if ( textBrightness > 127) then
-		highlight:setTextColor( 255, 255, 255, 20 )
-	else
-		highlight:setTextColor( 255, 255, 255, 140 )
+	-- Get width
+	if type( arg[4+argOffset] ) == "number" then 
+		opt.width = arg[4+argOffset]
+		newArgOffset = newArgOffset + 1
 	end
 	
-	local shadow = display.newText( string, -0.5, -1, w, h, font, size )
-	if ( textBrightness > 127) then
-		shadow:setTextColor( 0, 0, 0, 128 )
-	else
-		shadow:setTextColor( 0, 0, 0, 20 )
+	-- Get Height
+	if opt.width and #arg >= 7 + argOffset then 
+		opt.height = arg[5+argOffset]
+		newArgOffset = newArgOffset 
 	end
 	
-	local label = display.newText( string, 0, 0, w, h, font, size )
-	label:setTextColor( r, g, b, a )
-	
-	-- create display group, insert all embossed text elements, and position it
-	local text = display.newGroup()
-	text:insert( highlight ); text.highlight = highlight
-	text:insert( shadow ); text.shadow = shadow
-	text:insert( label ); text.label = label
-	text.x, text.y = x, y
-	text:setReferencePoint( display.CenterReferencePoint )
-	
-	-- setTextColor method
-	function text:setTextColor( ... )
-		local r, g, b, a; local arg = { ... }
+	-- Get font, fontSize & fontColor
+	opt.font = arg[1+newArgOffset] or native.systemFont
+	opt.fontSize = arg[2+newArgOffset] or 12
 		
-		if #arg == 4 then
-			r = arg[1]; g = arg[2]; b = arg[3]; a = arg[4]
-		elseif #arg == 3 then
-			r = arg[1]; g = arg[2]; b = arg[3]; a = 255
-		elseif #arg == 2 then
-			r = arg[1]; g = r; b = r; a = arg[2]
-		elseif #arg == 1 then
-			if type(arg[1]) == "number" then
-				r = arg[1]; g = r; b = r; a = 255
-			end
-		end
+	-------------------------------------------------------
+	-- Create the Embossed Text
+	-------------------------------------------------------
 		
-		local textBrightness = ( r + g + b ) / 3
-		if ( textBrightness > 127) then
-			self.highlight:setTextColor( 255, 255, 255, 20 )
-			self.shadow:setTextColor( 0, 0, 0, 128 )
-		else
-			self.highlight:setTextColor( 255, 255, 255, 140 )
-			self.shadow:setTextColor( 0, 0, 0, 20 )
-		end
-		self.label:setTextColor( r, g, b, a )
-	end
+	-- Create the EmbossedText object
+	local embossedText = require( "widget" )._new
+	{
+		left = opt.left,
+		top = opt.top,
+		id = opt.id or "widget_embossedText",
+		baseDir = opt.baseDir,
+	}
+
+	-- Create the embossedText
+	initWithEmbossedText( embossedText, opt )
 	
-	-- setText method
-	function text:setText( newString )
-		local newString = newString or self.text
-		self.highlight.text = newString
-		self.shadow.text = newString
-		self.label.text = newString
-		self.text = newString
-	end
+	-- Set the embossedText's position ( set the reference point to center, just to be sure )
+	embossedText:setReferencePoint( display.CenterReferencePoint )
+	embossedText.x = opt.left + embossedText.contentWidth * 0.5
+	embossedText.y = opt.top + embossedText.contentHeight * 0.5
 	
-	-- setSize method
-	function text:setSize ( newSize )
-		local newSize = newSize or size
-		self.highlight.size = newSize
-		self.shadow.size = newSize
-		self.label.size = newSize
-		self.size = newSize
-	end
-	
-	if parentG then parentG:insert( text ) end
-	text.text = string
-	
-	return text
+	return embossedText	
 end
 
 return M

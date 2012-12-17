@@ -53,18 +53,12 @@ function scene:createScene( event )
 	
 	local currentProgress = 0.0
 
-
 	testTimer = timer.performWithDelay( 50, function( event )
 		currentProgress = currentProgress + 0.01
 		newProgressView:setProgress( currentProgress )
 		print( newProgressView:getProgress() )
 	end, 0 )
-
-
-	newProgressView:setProgress( 0.001 )
 	
-	--newProgressView:setProgress( 0.5 )
-
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
