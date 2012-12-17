@@ -51,7 +51,9 @@ local function initWithTwoFrameButton( button, options )
 		viewLabel = display.newText( button, opt.label, 0, 0, opt.font, opt.fontSize )
 	end
 	
-	-- Position the button
+	----------------------------------
+	-- Positioning
+	----------------------------------
 	
 	-- The view
 	view.x = button.x + ( view.contentWidth * 0.5 )
@@ -477,7 +479,7 @@ local function initWithNinePieceButton( button, options )
 	
 	-- Label's position
 	if "center" == opt.labelAlign then
-		viewLabel.x = button.x + ( opt.width * 0.5 ) + opt.labelXOffset
+		viewLabel.x = button.x + ( opt.width * 0.5 ) + opt.labelXOffset   
 	elseif "left" == opt.labelAlign then
 		viewLabel.x = viewTopLeft.x + ( viewLabel.contentWidth * 0.5 ) + opt.labelXOffset
 	elseif "right" == opt.labelAlign then

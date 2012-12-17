@@ -11,21 +11,27 @@ local testTimer = nil
 function scene:createScene( event )
 	local group = self.view
 	
+	widget.setTheme( "theme_ios" )
+	
 	--Display an iOS style background
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )
 	
-	--Button to return to unit test listing
+	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
-	    left = 60,
-	    top = 50,
-	    label = "Return To Menu",
+	    left = 0,
+	    top = 5,
+	    label = "Exit",
+		labelAlign = "center",
+		fontSize = 18,
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
+	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
+	
 	
 	----------------------------------------------------------------------------------------------------------------
 	--										START OF UNIT TEST
@@ -33,13 +39,14 @@ function scene:createScene( event )
 	
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SET_TEXT = false
-	local TEST_SET_SIZE = true
+	local TEST_SET_SIZE = false
 	
 	local myText = widget.embossedText( "Embossed Text", 0, 0, native.systemFont, 28 )
-	myText.x, myText.y = display.contentCenterX, display.contentCenterY
-	myText:setTextColor( 0 )
+	myText.x = display.contentCenterX
+	myText.y = display.contentCenterY
+	myText:setTextColor( 255 )
 	group:insert( myText )
-	
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
@@ -47,15 +54,14 @@ function scene:createScene( event )
 	--Test setText()
 	if TEST_SET_TEXT then
 		testTimer = timer.performWithDelay( 2000, function()
-			myText:setText( "Hello World!" ) -- Hello World!
+			myText:setText( "Hello World!" )
 		end, 1 )
 	end
 	
 	--Test set size
 	if TEST_SET_SIZE then
 		testTimer = timer.performWithDelay( 2000, function()
-			myText:setSize( 40 ) -- 40px
-			print( "changing size")
+			myText:setSize( 40 )
 		end, 1 )
 	end
 	

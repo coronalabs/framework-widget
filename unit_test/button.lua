@@ -18,7 +18,7 @@ function scene:createScene( event )
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
-	--Button to return to unit test listing
+	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
 	    left = 0,

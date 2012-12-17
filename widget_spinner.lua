@@ -162,7 +162,7 @@ local function initWithSprite( spinner, options )
 end
 
 
--- Function to create a new Spinner object ( widget.newSpinner)
+-- Function to create a new Spinner object ( widget.newSpinner )
 function M.new( options, theme )	
 	local customOptions = options or {}
 	local themeOptions = theme or {}
