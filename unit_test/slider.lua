@@ -36,7 +36,7 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_SET_VALUE = false
+	local TEST_SET_VALUE = true
 	
 	--Create some text to show the sliders output
 	local sliderResult = display.newEmbossedText( "Slider at 50%", 0, 0, native.systemFontBold, 22 )
@@ -51,17 +51,30 @@ function scene:createScene( event )
 		--print( "phase is:", event.phase )
 		sliderResult:setText( "Slider at " .. event.value .. "%" )
 	end
-	
-	--Create the slider
-	local slider = widget.newSlider
+
+	-- Create a horizontal slider
+	local sliderHorizontal = widget.newSlider
 	{
 		width = 200,
 		top = 300,
 		left = 50,
-		value = 50,
+		value = 100,
 		listener = sliderListener,
 	}
-	group:insert( slider )
+	group:insert( sliderHorizontal )
+	
+		
+	-- Create a vertical slider
+	local sliderVertical = widget.newSlider
+	{
+		height = 150,
+		top = 130,
+		left = 50,
+		value = 100,
+		orientation = "vertical",
+		listener = sliderListener,
+	}
+	group:insert( sliderVertical )
 		
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
@@ -70,8 +83,8 @@ function scene:createScene( event )
 	--Test setValue()
 	if TEST_SET_VALUE then
 		testTimer = timer.performWithDelay( 1000, function()
-			slider:setValue( 100 ) -- 100%
-			sliderResult:setText( "Slider at " .. slider.value .. "%" )
+			sliderHorizontal:setValue( 20 ) -- 100%
+			sliderResult:setText( "Slider at " .. sliderHorizontal.value .. "%" )
 		end, 1 )
 	end
 end
