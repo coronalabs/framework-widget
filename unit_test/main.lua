@@ -6,48 +6,6 @@
 		main.lua
 --]]
 
--- Function to copy a file
-local function _copyFile( options )
-	local sourceFile = options.sourceFile or error( "copyFile - options.sourceFile is either nil or omitted" )
-	local sourcePath = options.sourcePath or error( "copyFile - options.sourcePath is either nil or omitted" )
-	local destinationFile = options.destinationFile or error( "copyFile - options.destinationFile is either nil or omitted" )
-	local destinationPath = options.destinationPath	or error( "copyFile - options.destinationPath is either nil or omitted" )
-    local results = true
-
-    -- Copy the source file to the destination file
-    local readFilePath = system.pathForFile( sourceFile, sourcePath )
-    local writeFilePath = system.pathForFile( destinationFile, destinationPath )
- 
-    local readHandle = io.open( readFilePath, "rb" )              
-    local writeHandle = io.open( writeFilePath, "wb" )
-        
-    if not writeHandle then
-        error( "copyFile - Problem opening write file path" )
-        results = false
-    else
-        -- Read the file from the source directory and write it to the destination directory
-        local data = readHandle:read( "*a" )
-                
-        if not data then
-            error( "copyFile - Problem reading data!" )
-            results = false
-        else
-            if not writeHandle:write( data ) then
-                print( "copyFile - Problem writing data!" ) 
-                results = false
-            end
-        end
-    end
-        
-    -- Clean up our file handles
-    readHandle:close()
-    readHandle = nil
-    writeHandle:close()
-    writeHandle = nil
- 
-	return results  
-end
-
 -------------------------------------------------------------------------------------------------
 -- Change the package.path and make it so we can require the "widget.lua" file from the root directory
 -------------------------------------------------------------------------------------------------
@@ -91,4 +49,4 @@ display.setStatusBar(display.HiddenStatusBar)
 local storyboard = require( "storyboard" )
 storyboard.gotoScene( "unitTestListing" )
 
---storyboard.gotoScene( "slider" )
+--storyboard.gotoScene( "segmentedControl" )

@@ -93,7 +93,11 @@ local function initWithSprite( stepper, options )
 	view._onPress = opt.onPress
 	
 	-- If the startNumber is equal to/greater than the minimum or maxium values, set the steppers image sequence to reflect it
-	if view._currentValue <= 0 then
+	print( "current value is:", view._currentValue ) 
+	print( "minimum value is:", view._minimumValue ) 
+
+	if view._currentValue <= view._minimumValue then
+		print( "ermm" )
 		view:setSequence( "noMinus" )
 	elseif view._currentValue >= view._maximumValue then
 		view._currentValue = view._maximumValue

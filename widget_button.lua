@@ -82,7 +82,10 @@ local function initWithTwoFrameButton( button, options )
 	view._pressedState = "default"
 	view._width = opt.width
 	view._fontSize = opt.fontSize
+	view._label = viewLabel
 	view._labelAlign = opt.labelAlign
+	view._labelXOffset = opt.labelXOffset
+	view._labelYOffset = opt.labelYOffset
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the button
@@ -91,7 +94,6 @@ local function initWithTwoFrameButton( button, options )
 	-- Assign objects to the button
 	button._imageSheet = imageSheet
 	button._view = view
-	button._viewLabel = viewLabel
 	
 	-- Methods
 	view._onPress = opt.onPress
@@ -163,15 +165,23 @@ local function initWithTwoFrameButton( button, options )
 	
 	-- Function to set the button's label
 	function view:setLabel( newLabel )
-		self._viewLabel:setText( newLabel )
-		self._viewLabel.x = self._viewLabel.x
-		self._viewLabel.y = self._viewLabel.y
+		self._label:setText( newLabel )
+		
+		-- Labels position
+		if "center" == self._labelAlign then
+			self._label.x = button.x + ( self.contentWidth * 0.5 ) + self._labelXOffset
+		elseif "left" == opt.labelAlign then
+			self._label.x = button.x + ( self._label.contentWidth * 0.5 ) + 10 + self._labelXOffset
+		elseif "right" == opt.labelAlign then
+			self._label.x = button.x + ( button.contentWidth ) - ( self._label.contentWidth * 0.5 ) - 10 + self._labelXOffset
+		end
+		
+		self._label.y = self._label.y + self._labelYOffset
 	end
 	
 	-- Function to get the button's label
 	function view:getLabel()
-		print( self._viewLabel.text )
-		return self._viewLabel.text
+		return self._label.text
 	end
 	
 	----------------------------------------------------------
@@ -496,6 +506,18 @@ local function initWithNinePieceButton( button, options )
 	view._width = opt.width
 	view._fontSize = opt.fontSize
 	view._labelAlign = opt.labelAlign
+	view._labelXOffset = opt.labelXOffset
+	view._labelYOffset = opt.labelYOffset
+	view._label = viewLabel
+	view._topLeft = viewTopLeft
+	view._middleLeft = viewMiddleLeft
+	view._bottomLeft = viewBottomLeft
+	view._topMiddle = viewTopMiddle
+	view._middle = viewMiddle
+	view._bottomMiddle = viewBottomMiddle
+	view._topRight = viewTopRight
+	view._middleRight = viewMiddleRight
+	view._bottomRight = viewBottomRight
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the button
@@ -504,16 +526,6 @@ local function initWithNinePieceButton( button, options )
 	-- Assign objects to the button
 	button._imageSheet = imageSheet
 	button._view = view
-	button._topLeft = viewTopLeft
-	button._middleLeft = viewMiddleLeft
-	button._bottomLeft = viewBottomLeft
-	button._topMiddle = viewTopMiddle
-	button._middle = viewMiddle
-	button._bottomMiddle = viewBottomMiddle
-	button._topRight = viewTopRight
-	button._middleRight = viewMiddleRight
-	button._bottomRight = viewBottomRight
-	button._viewLabel = viewLabel
 	
 	-- Methods
 	view._onPress = opt.onPress
@@ -585,14 +597,23 @@ local function initWithNinePieceButton( button, options )
 	
 	-- Function to set the button's label
 	function view:setLabel( newLabel )
-		self._viewLabel:setText( newLabel )
-		self._viewLabel.x = self._viewLabel.x
-		self._viewLabel.y = self._viewLabel.y
+		self._label:setText( newLabel )
+		
+		-- Label's position
+		if "center" == opt.labelAlign then
+			self._label.x = button.x + ( opt.width * 0.5 ) + self._labelXOffset   
+		elseif "left" == opt.labelAlign then
+			self._label.x = self._topLeft.x + ( self._label.contentWidth * 0.5 ) + self._labelXOffset
+		elseif "right" == opt.labelAlign then
+			self._label.x = self._topRight.x - ( self._label.contentWidth * 0.5 ) + self._labelXOffset
+		end
+		
+		self._label.y = self._label.y + self._labelYOffset
 	end
 	
 	-- Function to get the button's label
 	function view:getLabel()
-		return self._viewLabel.text
+		return self._label.text
 	end
 	
 	----------------------------------------------------------

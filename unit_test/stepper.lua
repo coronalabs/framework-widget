@@ -37,7 +37,7 @@ function scene:createScene( event )
 	local TEST_REMOVE_STEPPER = false
 	local TEST_DELAY = 1000
 	
-	local startAtNumber = 0
+	local startAtNumber = 2
 	
 	local numberText = display.newText( "0000", 0, 0, native.systemFontBold, 24 )
 	numberText.x = display.contentCenterX
@@ -67,7 +67,7 @@ function scene:createScene( event )
 		id = "dy",
 		left = 100,
 		top = 100,
-		startNumber = startAtNumber,
+		initialValue = startAtNumber,
 		minimumValue = 0,
 		maximumValue = 25,
 		onPress = onPress,
