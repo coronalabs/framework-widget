@@ -68,7 +68,7 @@ function scene:createScene( event )
 	    left = 0,
 	    top = 80,
 	    label = "Left",
-		labelAlign = "center",
+		labelAlign = "left",
 	    width = 140, 
 		height = 50,
 		fontSize = 18,
@@ -81,7 +81,7 @@ function scene:createScene( event )
 	}
 	topLeftButton.oldLabel = "Left"
 	group:insert( topLeftButton )
-	
+		
 	
 	-- Standard button 
 	local centerButton = widget.newButton

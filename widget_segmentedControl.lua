@@ -140,6 +140,7 @@ local function initWithImage( segmentedControl, options )
 		label:setTextColor( 255 )
 		label.x = leftSegment.x + ( segmentWidth * 0.5 + segmentWidth * ( i - 1 ) ) - leftSegment.width * 0.5
 		label.y = leftSegment.y
+		label.segmentName = segments[i] 
 		segmentLabels[i] = label
 
 		-- Create the dividers
@@ -205,6 +206,8 @@ local function initWithImage( segmentedControl, options )
 	
 	function view:touch( event )
 		local phase = event.phase
+		local _segmentedControl = self.parent
+		event.target = _segmentedControl
 		local firstSegment = 1
 		local lastSegment = self._totalSegments
 
@@ -232,11 +235,11 @@ local function initWithImage( segmentedControl, options )
 						self:setMiddleSegmentActive( i )
 					end
 					
-					-- Set the segment name
-					self.segmentLabel = self._segmentLabel
+					-- Set the segment name					
+					_segmentedControl.segmentLabel = self._segmentLabels[i].segmentName
 					
 					-- Set the segment number
-					self.segmentNumber = self._segmentNumber
+					_segmentedControl.segmentNumber = self._segmentNumber
 					
 					-- Execute onPress listener
 					if self._onPress and "function" == type( self._onPress ) then
