@@ -15,16 +15,22 @@ function scene:createScene( event )
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )
 	
-	--Button to return to unit test listing
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
+	
+	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
-	    left = 60,
-	    top = 20,
-	    label = "Return To Menu",
+	    left = 0,
+	    top = 5,
+	    label = "Exit",
+		labelAlign = "center",
+		fontSize = 18,
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
+	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
@@ -38,50 +44,67 @@ function scene:createScene( event )
 	local TEST_SCROLL_TO_BOTTOM = false
 	local TEST_SCROLL_TO_LEFT = false
 	local TEST_SCROLL_TO_RIGHT = false
+	local TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER = false
 	
-	--Forward reference to scrollView listener
+	local scrollView
+	
+	-- Forward reference to scrollView listener
 	local function scrollListener( event )
-		print( "Event type:", event.type )
+		print( "Event type:", event.phase )
+		
 		return true
 	end
-	
-	--Create scrollView
-	local scrollView = widget.newScrollView{
-		top = 100,										--Test setting top position.
-		left = 10,										--Test setting left position.
-		width = 300, height = 350,						--Test setting width/height.
-		scrollWidth = 768, scrollHeight = 1024,			--Test setting scroll width/height.
-		maskFile = "assets/scrollViewMask-350.png",		--Test setting a mask.
-		--baseDir = system.DocumentsDirectory,			--Test base directory (Ensure maskFile specified above exists in the baseDir specified).
-		bgColor = { 255, 255, 255, 255 }, 				--Test setting a background color.
-		hideBackground = true, 			 			 	--Test hiding the background color.
-		scrollBarColor = { 255, 0, 128 }, 				--Test setting the scrollbar color. If this is ommited or not a table, the scrollbar falls back to it's default color.
-		hideScrollBar = true, 							--Test hiding the scrollbar. When set to true, scrollbar is shown when set to false or omitted.
-		listener = scrollListener						--Test setting a listener for the scrollView.
+
+	-- Create scrollView
+	scrollView = widget.newScrollView
+	{
+		top = 100,
+		left = 10,
+		width = 300,
+		height = 350,
+		id = "onBottom",
+		--topPadding = 80,
+		--bottomPadding = 40,
+		--leftPadding = 40,
+		--rightPadding = 80,
+		--hideBackground = true,
+		horizontalScrollingDisabled = false,
+		verticalScrollingDisabled = false,
+		maskFile = "assets/scrollViewMask-350.png",
+		listener = scrollListener,
 	}
-	scrollView.isHitTestMasked = true
 	
 	-- insert image into scrollView widget
-	local bg = display.newImageRect( "assets/scrollimage.jpg", 768, 1024 )
+	local bg = display.newImageRect( "assets/scrollimage2.jpg", 768, 1024 )
 	bg:setReferencePoint( display.TopLeftReferencePoint )
 	bg.x, bg.y = 0, 0
 	scrollView:insert( bg )
-	
-	-- don't forget to insert objects into the scene group!
 	group:insert( scrollView )
+
+	if TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER then
+		-- Create scrollView2
+		local scrollView2 = widget.newScrollView
+		{
+			top = 250,
+			left = 10,
+			width = 300,
+			height = 350,
+			id = "onTop",
+			maskFile = "assets/scrollViewMask-350.png",
+			listener = scrollListener,
+		}
 	
+		-- insert image into scrollView widget
+		local bg2 = display.newImageRect( "assets/scrollimage.jpg", 768, 1024 )
+		bg2:setReferencePoint( display.TopLeftReferencePoint )
+		bg2.x, bg2.y = 0, 0
+		scrollView2:insert( bg2 )
+		group:insert( scrollView2 )
+	end
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
-	
-	--[[
-	local TEST_GET_CONTENT_POSITION = false
-	local TEST_SCROLL_TO_POSITION = false
-	local TEST_SCROLL_TO_TOP = false
-	local TEST_SCROLL_TO_BOTTOM = false
-	local TEST_SCROLL_TO_LEFT = false
-	local TEST_SCROLL_TO_RIGHT = false
-	--]]
 	
 	--Test getContentPosition()
 	if TEST_GET_CONTENT_POSITION then
@@ -92,44 +115,39 @@ function scene:createScene( event )
 		end, 1 )
 	end
 	
-	--Test takeFocus
 	
 	--Test scrollToPosition()
 	if TEST_SCROLL_TO_POSITION then
 		testTimer = timer.performWithDelay( 2000, function()
-			scrollView:scrollToPosition( -100, -600, 800, function() print( "scrollToPosition test completed" ) end )
+			scrollView:scrollToPosition( { x = - 0, y = - 600, time = 800, onComplete = function() print( "scrollToPosition test completed" ) end } )
 		end, 1 )
 	end	
 	
 	--Test scrollToTop()
-	if TEST_SCROLL_TO_TOP then
-		scrollView:scrollToBottom( 0 )
-		
+	if TEST_SCROLL_TO_TOP then		
 		testTimer = timer.performWithDelay( 2000, function()
-			scrollView:scrollToTop( 800, function() print( "scrollToTop test completed" ) end  )
+			scrollView:scrollTo( "top", { time = 800, onComplete = function() print( "scrollToTop test completed" ) end } )
 		end, 1 )
 	end
 	
 	--Test scrollToBottom()
 	if TEST_SCROLL_TO_BOTTOM then
 		testTimer = timer.performWithDelay( 2000, function()
-			scrollView:scrollToBottom( 800, function() print( "scrollToBottom test completed" ) end  )
+			scrollView:scrollTo( "bottom", { time = 800, onComplete = function() print( "scrollToBottom test completed" ) end } )
 		end, 1 )
 	end
 	
 	--Test scrollToLeft()
-	if TEST_SCROLL_TO_LEFT then
-		scrollView:scrollToRight( 0 )
-		
+	if TEST_SCROLL_TO_LEFT then		
 		testTimer = timer.performWithDelay( 2000, function()
-			scrollView:scrollToLeft( 800, function() print( "scrollToLeft test completed" ) end  )
+			scrollView:scrollTo( "left", { time = 800, onComplete =  function() print( "scrollToLeft test completed" ) end }  )
 		end, 1 )
 	end
 	
 	--Test scrollToRight()
 	if TEST_SCROLL_TO_RIGHT then
 		testTimer = timer.performWithDelay( 2000, function()
-			scrollView:scrollToRight( 800, function() print( "scrollToRight test completed" ) end  )
+			scrollView:scrollTo( "right", { position = "right", time = 800, onComplete = function() print( "scrollToRight test completed" ) end } )
 		end, 1 )
 	end
 	
