@@ -3,20 +3,20 @@
 		Copyright (C) 2012 Corona Inc. All Rights Reserved.
 		
 	File: 
-		widget_tableView.lua
+		widget_pickerWheel.lua
 		
 	What is it?: 
-		A widget object that can be used to replicate native tableViews.
+		A widget object that can be used to replicate native pickerWheels.
 --]]
 
 local M = 
 {
 	_options = {},
-	_widgetName = "widget.newtableView",
+	_widgetName = "widget.newpickerWheel",
 }
 
--- Creates a new tableView
-local function createTableView( tableView, options )
+-- Creates a new pickerWheel
+local function createPickerWheel( pickerWheel, options )
 	-- Create a local reference to our options table
 	local opt = options
 		
@@ -30,14 +30,14 @@ local function createTableView( tableView, options )
 	-------------------------------------------------------
 	
 	-- We need to assign these properties to the object
-	--tableView._velocity = 0
+	--pickerWheel._velocity = 0
 	
 	-------------------------------------------------------
-	-- Assign properties/objects to the tableView
+	-- Assign properties/objects to the pickerWheel
 	-------------------------------------------------------
 	
-	-- Assign objects to the tableView
-	--tableView._view = view
+	-- Assign objects to the pickerWheel
+	--pickerWheel._view = view
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -47,15 +47,15 @@ local function createTableView( tableView, options )
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
 	
-	-- Finalize function for the tableView
-	function tableView:_finalize()
+	-- Finalize function for the pickerWheel
+	function pickerWheel:_finalize()
 	end
 			
-	return tableView
+	return pickerWheel
 end
 
 
--- Function to create a new tableView object ( widget.newtableView )
+-- Function to create a new pickerWheel object ( widget.newpickerWheel )
 function M.new( options, theme )	
 	local customOptions = options or {}
 	local themeOptions = theme or {}
@@ -80,30 +80,33 @@ function M.new( options, theme )
 	opt.maskFile = customOptions.maskFile
 		
 	-- Frames & Images
-
+	opt.sheet = customOptions.sheet or themeOptions.sheet
+	opt.sheetData = customOptions.data or themeOptions.data
+	opt.startFrame = customOptions.startFrame or require( themeOptions.data ):getFrameIndex( themeOptions.startFrame )
+	opt.frameCount = customOptions.count or themeOptions.count or 0
 
 	-------------------------------------------------------
-	-- Create the tableView
+	-- Create the pickerWheel
 	-------------------------------------------------------
 		
-	-- Create the tableView object
-	local tableView = require( "widget" )._new
+	-- Create the pickerWheel object
+	local pickerWheel = require( "widget" )._new
 	{
 		left = opt.left,
 		top = opt.top,
-		id = opt.id or "widget_tableView",
+		id = opt.id or "widget_pickerWheel",
 		baseDir = opt.baseDir,
 	}
 
-	-- Create the tableView
-	createtableView( tableView, opt )
+	-- Create the pickerWheel
+	createpickerWheel( pickerWheel, opt )
 	
-	-- Set the tableView's position ( set the reference point to center, just to be sure )
-	tableView:setReferencePoint( display.CenterReferencePoint )
-	tableView.x = opt.left + tableView.contentWidth * 0.5
-	tableView.y = opt.top + tableView.contentHeight * 0.5
+	-- Set the pickerWheel's position ( set the reference point to center, just to be sure )
+	pickerWheel:setReferencePoint( display.CenterReferencePoint )
+	pickerWheel.x = opt.left + pickerWheel.contentWidth * 0.5
+	pickerWheel.y = opt.top + pickerWheel.contentHeight * 0.5
 	
-	return tableView
+	return pickerWheel
 end
 
 return M

@@ -19,7 +19,13 @@ function scene:createScene( event )
 	title.x, title.y = display.contentCenterX, 20
 	group:insert( title )
 	
-	local newScrollView = widget.newScrollView{}
+	local newScrollView = widget.newScrollView
+	{
+		width = display.contentWidth,
+		height = display.contentHeight - 20,
+		topPadding = 40,
+		hideBackground = true,
+	}
 	group:insert( newScrollView )
 	
 	--Go to selected unit test

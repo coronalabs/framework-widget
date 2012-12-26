@@ -170,26 +170,17 @@ widget.embossedText = display.newEmbossedText
 -----------------------------------------------------------------------------------------
 
 function widget.newPickerWheel( options )
-	local theme = _getTheme( "pickerWheel", options )
+	local theme = _getTheme( "picker", options )
 	
-	if theme then
-		return require( "widget_picker" ).createPickerWheel( options, theme )
-	else
-		print( "WARNING: The pickerWheel widget requires a visual theme. Use widget.setTheme()." )
-	end
+	return require( "widget_pickerWheel" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
 -- newScrollView widget
 -----------------------------------------------------------------------------------------
 
-function widget.newScrollView( options )
-	if options and (not options.friction) then
-		options.friction = scrollFriction
-	elseif not options then
-		options = { friction=scrollFriction }
-	end
-	return require( "widget_scrollview" ).createScrollView( options )
+function widget.newScrollView( options )	
+	return require( "widget_scrollView" ).new( options )
 end
 
 -----------------------------------------------------------------------------------------
@@ -197,7 +188,7 @@ end
 -----------------------------------------------------------------------------------------
 
 function widget.newTableView( options )
-	return require( "widget_tableview" ).createTableView( options )
+	return require( "widget_tableView" ).new( options )
 end
 
 -----------------------------------------------------------------------------------------
