@@ -154,8 +154,7 @@ local function createScrollView( scrollView, options )
 			end
 		end
 	end
-	
-	
+
 	-- Override the insert method for scrollView to insert into the view instead
     scrollView._cachedInsert = scrollView.insert
 
@@ -232,7 +231,7 @@ local function createScrollView( scrollView, options )
 		-- Fire a touch event to a object inside a scrollview.
 		if "began" == self._phase then
 			if not self._target._isActive then
-				if timeHeld > 110 then
+				if timeHeld > 60 then
 					-- If the object has been inserted into the scrollView
 					if self._target._insertedIntoScrollView then
 						-- Remove it's flag from the scrollView temporally

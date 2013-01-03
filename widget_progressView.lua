@@ -127,7 +127,6 @@ local function initWithImage( progressView, options )
 		local view = self._view
 		
 		if progress > 1 then
-			print( "Warning: progressView:setProgress() - Progress passed is more than the maximum range. Accepted values are 0.0 > 1.0" )
 			return
 		end
 
@@ -148,7 +147,7 @@ local function initWithImage( progressView, options )
 		if view then
 			-- While the progress is less than the user specified progress, increase by 0.01
 			while view._currentProgress < progress do
-				local hasReachedLimit = view._currentProgress >= 1.0
+				local hasReachedLimit = view._currentProgress > 1.0
 				
 				-- Increment the current progress
 				view._currentProgress = view._currentProgress + 0.01

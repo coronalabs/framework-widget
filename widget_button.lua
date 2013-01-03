@@ -159,10 +159,12 @@ local function initWithTwoFrameButton( button, options )
 				-- Remove focus from the button
 				self._isFocus = false
 				display.getCurrentStage():setFocus( nil )
-				
-				-- Reset ScrollView properties				
-				self._insertedIntoScrollView = true
-				self._isActive = false
+							
+				-- Reset ScrollView properties	(if this button is in a scrollView)
+				if self._isInScrollView then
+					self._insertedIntoScrollView = true
+					self._isActive = false
+				end
 			end
 		end
 		
@@ -183,9 +185,9 @@ local function initWithTwoFrameButton( button, options )
 		-- Labels position
 		if "center" == self._labelAlign then
 			self._label.x = button.x + ( self.contentWidth * 0.5 ) + self._labelXOffset
-		elseif "left" == opt.labelAlign then
+		elseif "left" == self.labelAlign then
 			self._label.x = button.x + ( self._label.contentWidth * 0.5 ) + 10 + self._labelXOffset
-		elseif "right" == opt.labelAlign then
+		elseif "right" == self.labelAlign then
 			self._label.x = button.x + ( button.contentWidth ) - ( self._label.contentWidth * 0.5 ) - 10 + self._labelXOffset
 		end
 		
@@ -553,7 +555,8 @@ local function initWithNinePieceButton( button, options )
 		local phase = event.phase
 		
 		-- If the button is inside a scrollView, just return true
-		if self._insertedIntoScrollView then	
+		if self._insertedIntoScrollView then
+			self._isInScrollView = true	
 			return true
 		end	
 
@@ -605,9 +608,11 @@ local function initWithNinePieceButton( button, options )
 				self._isFocus = false
 				display.getCurrentStage():setFocus( nil )
 				
-				-- Reset ScrollView properties				
-				self._insertedIntoScrollView = true
-				self._isActive = false
+				-- Reset ScrollView properties	(if this button is in a scrollView)
+				if self._isInScrollView then
+					self._insertedIntoScrollView = true
+					self._isActive = false
+				end
 			end
 		end
 		
@@ -625,15 +630,13 @@ local function initWithNinePieceButton( button, options )
 	function view:setLabel( newLabel )
 		self._label:setText( newLabel )
 		
-		-- Label's position
-		if "center" == opt.labelAlign then
-			self._label.x = button.x + ( opt.width * 0.5 ) + self._labelXOffset   
-		elseif "left" == opt.labelAlign then
-			self._label.x = self._topLeft.x + ( self._label.contentWidth * 0.5 ) + self._labelXOffset
-		elseif "right" == opt.labelAlign then
-			self._label.x = self._topRight.x - ( self._label.contentWidth * 0.5 ) + self._labelXOffset
+		-- Labels position
+		if "left" == self._labelAlign then
+			self._label.x = self._topLeft.x + ( self._label.contentWidth * 0.5 ) + self._labelXOffset			
+		elseif "right" == self._labelAlign then
+			self._label.x = self._topRight.x - ( self._label.contentWidth * 0.5 ) - self._labelXOffset
 		end
-		
+
 		self._label.y = self._label.y + self._labelYOffset
 	end
 	
