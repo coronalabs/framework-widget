@@ -72,6 +72,7 @@ function widget._new( options )
 	newWidget.id = options.id or "widget*"
 	newWidget.baseDir = options.baseDir or system.ResourceDirectory
 	newWidget._isWidget = true
+	newWidget._widgetType = options.widgetType
 	newWidget._removeSelf = newWidget.removeSelf
 	newWidget.removeSelf = _removeSelf
 	

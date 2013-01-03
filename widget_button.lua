@@ -107,6 +107,11 @@ local function initWithTwoFrameButton( button, options )
 	function view:touch( event )
 		local phase = event.phase
 		
+		-- If the button is inside a scrollView, just return true
+		if self._insertedIntoScrollView then	
+			return true
+		end
+		
 		if "began" == phase then
 			-- Set the button to it's over image state
 			self:_setState( "over" )
@@ -118,7 +123,11 @@ local function initWithTwoFrameButton( button, options )
 			
 			-- Set focus on the button
 			self._isFocus = true
-			display.getCurrentStage():setFocus( self, event.id )
+						
+			-- Don't set focus to a button inside a scrollView
+			if not event._insideScrollView then
+				display.getCurrentStage():setFocus( self, event.id )
+			end
 			
 		elseif self._isFocus then
 			local bounds = self.contentBounds
@@ -150,6 +159,10 @@ local function initWithTwoFrameButton( button, options )
 				-- Remove focus from the button
 				self._isFocus = false
 				display.getCurrentStage():setFocus( nil )
+				
+				-- Reset ScrollView properties				
+				self._insertedIntoScrollView = true
+				self._isActive = false
 			end
 		end
 		
@@ -531,14 +544,19 @@ local function initWithNinePieceButton( button, options )
 	view._onPress = opt.onPress
 	view._onRelease = opt.onRelease
 	view._onEvent = opt.onEvent
-	
+			
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
-	
+
 	function view:touch( event )
 		local phase = event.phase
 		
+		-- If the button is inside a scrollView, just return true
+		if self._insertedIntoScrollView then	
+			return true
+		end	
+
 		if "began" == phase then
 			-- Set the button to it's over image state
 			self:_setState( "over" )
@@ -550,7 +568,11 @@ local function initWithNinePieceButton( button, options )
 			
 			-- Set focus on the button
 			self._isFocus = true
-			display.getCurrentStage():setFocus( self, event.id )
+			
+			-- Don't set focus to a button inside a scrollView
+			if not event._insideScrollView then
+				display.getCurrentStage():setFocus( self, event.id )
+			end
 			
 		elseif self._isFocus then
 			local bounds = self.contentBounds
@@ -561,7 +583,7 @@ local function initWithNinePieceButton( button, options )
 				if not isWithinBounds then
 					-- Set the button to it's default image state
 					self:_setState( "default" )
-				else
+				else					
 					if self:_getState() ~= "over" then
 						-- Set the button to it's over image state
 						self:_setState( "over" )
@@ -582,6 +604,10 @@ local function initWithNinePieceButton( button, options )
 				-- Remove focus from the button
 				self._isFocus = false
 				display.getCurrentStage():setFocus( nil )
+				
+				-- Reset ScrollView properties				
+				self._insertedIntoScrollView = true
+				self._isActive = false
 			end
 		end
 		
@@ -789,6 +815,7 @@ function M.new( options, theme )
 		top = opt.top,
 		id = opt.id or "widget_button",
 		baseDir = opt.baseDir,
+		widgetType = "button",
 	}
 	
 	-- Create the button

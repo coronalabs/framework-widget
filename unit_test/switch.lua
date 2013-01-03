@@ -19,7 +19,8 @@ function scene:createScene( event )
 	group:insert( background )
 	
 	--Button to return to unit test listing
-	local returnToListing = widget.newButton{
+	local returnToListing = widget.newButton
+	{
 	    id = "returnToListing",
 	    left = 60,
 	    top = 10,

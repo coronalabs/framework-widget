@@ -17,9 +17,10 @@ function scene:createScene( event )
 	
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
-	
+
 	-- Button to return to unit test listing
-	local returnToListing = widget.newButton{
+	local returnToListing = widget.newButton
+	{
 	    id = "returnToListing",
 	    left = 0,
 	    top = 5,
@@ -50,7 +51,7 @@ function scene:createScene( event )
 	
 	-- Forward reference to scrollView listener
 	local function scrollListener( event )
-		print( "Event type:", event.phase )
+		--print( "Event type:", event.phase )
 		
 		return true
 	end
@@ -62,6 +63,8 @@ function scene:createScene( event )
 		left = 10,
 		width = 300,
 		height = 350,
+		scrollWidth = 465,
+		scrollHeight = 670,
 		id = "onBottom",
 		--topPadding = 80,
 		--bottomPadding = 40,
@@ -80,6 +83,57 @@ function scene:createScene( event )
 	bg.x, bg.y = 0, 0
 	scrollView:insert( bg )
 	group:insert( scrollView )
+	
+	
+	local testButton = widget.newButton
+	{
+	    id = "returnToListing",
+	    left = 0,
+	    top = 100,
+	    label = "Exit",
+		labelAlign = "center",
+		fontSize = 18,
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
+	}
+	testButton.x = display.contentCenterX
+	scrollView:insert( testButton )
+	
+	local onOffSwitch = widget.newSwitch
+	{
+		left = 0,
+		top = 200,
+		--style = "checkbox",
+	}
+	onOffSwitch.x = display.contentCenterX
+	scrollView:insert( onOffSwitch )
+	
+	local stepper = widget.newStepper
+	{
+		left = 0,
+		top = 240,
+	}
+	stepper.x = display.contentCenterX
+	scrollView:insert( stepper )
+	
+	local testButton2 = widget.newButton
+	{
+	    id = "returnToListing",
+	    left = 0,
+	    top = 300,
+	    label = "Hi",
+		labelAlign = "center",
+		fontSize = 18,
+	    width = 200, height = 52,
+	    cornerRadius = 8,
+	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
+	}
+	testButton2.x = display.contentCenterX
+	scrollView:insert( testButton2 )
+	
+	
+	
 
 	if TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER then
 		-- Create scrollView2

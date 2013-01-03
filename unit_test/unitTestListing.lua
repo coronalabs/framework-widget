@@ -21,10 +21,15 @@ function scene:createScene( event )
 	
 	local newScrollView = widget.newScrollView
 	{
+		top = 40,
 		width = display.contentWidth,
-		height = display.contentHeight - 20,
-		topPadding = 40,
-		hideBackground = true,
+		height = display.contentHeight,
+		scrollWidth = display.contentWidth * 33,
+		scrollHeight = display.contentHeight - 180,
+		--horizontalScrollingDisabled = true,
+		--topPadding = 40,
+		--bottomPadding = 40,
+		hideBackground = false,
 	}
 	group:insert( newScrollView )
 	
