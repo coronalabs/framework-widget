@@ -90,7 +90,7 @@ function scene:createScene( event )
 	    left = 0,
 	    top = 0,
 	    label = "Center",
-		labelAlign = "center",
+		labelAlign = "right",
 	    width = 140, 
 		height = 50,
 		fontSize = 18,
