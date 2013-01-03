@@ -82,6 +82,10 @@ local function createScrollView( scrollView, options )
 	view._isVerticalScrollingDisabled = opt.isVerticalScrollingDisabled
 	view._listener = opt.listener
 	view._friction = opt.friction or 0.972
+	view._maxVelocity = opt.maxVelocity or 2
+	view._timeHeld = 0
+	view._scrollWidth = opt.scrollWidth
+	view._scrollHeight = opt.scrollHeight
 	view._trackVelocity = false	
 	view._updateRuntime = false
 			
@@ -136,7 +140,21 @@ local function createScrollView( scrollView, options )
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
-	----------------------------------------------------------
+	----------------------------------------------------------	
+	
+	-- Handle touch events on any inserted widget buttons
+	local function _handleButtonTouch( event )
+		if event.target then
+			if not event.target._isActive then
+				local phase = event.phase
+				
+				view:touch( event )
+
+				return true
+			end
+		end
+	end
+	
 	
 	-- Override the insert method for scrollView to insert into the view instead
     scrollView._cachedInsert = scrollView.insert
@@ -144,13 +162,13 @@ local function createScrollView( scrollView, options )
     function scrollView:insert( arg1, arg2 )
         local index, obj
         
-        if arg1 and type(arg1) == "number" then
+        if arg1 and type( arg1 ) == "number" then
             index = arg1
-        elseif arg1 and type(arg1) == "table" then
+        elseif arg1 and type( arg1 ) == "table" then
             obj = arg1
         end
         
-        if arg2 and type(arg2) == "table" then
+        if arg2 and type( arg2 ) == "table" then
             obj = arg2
         end
         
@@ -159,19 +177,30 @@ local function createScrollView( scrollView, options )
         else
             self._view:insert( obj )
         end
+
+		-- If the inserted object is a button, set it as inserted and add a touch listener to it 
+		if "button" == obj._widgetType then
+ 			obj._view:addEventListener( "touch", _handleButtonTouch )
+			obj._view._insertedIntoScrollView = true
+			obj._view._isActive = false
+		end
     end
 
 	-- Transfer touch from the view's background to the view's content
-	function viewBackground:touch( event )
+	function viewBackground:touch( event )		
 		view:touch( event )
 		
 		return true
 	end
 	
 	viewBackground:addEventListener( "touch" )
-
+	
+	
 	-- Handle touches on the scrollview
 	function view:touch( event )
+		local phase = event.phase 
+		local time = event.time
+				
 		-- Handle momentum scrolling
 		require( "widget_momentumScrolling" )._touch( self, event )
 		
@@ -180,16 +209,48 @@ local function createScrollView( scrollView, options )
 			self._listener( event )
 		end
 		
+		-- Set the view's phase so we can access it in the enterFrame listener below
+		self._phase = phase
+		
+		-- Set the view's target object (the object we touched) so we can access it in the enterFrame listener below
+		self._target = event.target
+		
 		return true
 	end
 	
 	view:addEventListener( "touch" )
 	
+	
   	-- EnterFrame
 	function view:enterFrame( event )
 		-- Handle momentum @ runtime
-		require( "widget_momentumScrolling" )._runtime( self, event )
+		require( "widget_momentumScrolling" )._runtime( self, event )		
 		
+		-- Calculate the time the touch has been held
+		local timeHeld = event.time - self._timeHeld
+			
+		-- Fire a touch event to a object inside a scrollview.
+		if "began" == self._phase then
+			if not self._target._isActive then
+				if timeHeld > 110 then
+					-- If the object has been inserted into the scrollView
+					if self._target._insertedIntoScrollView then
+						-- Remove it's flag from the scrollView temporally
+						self._target._insertedIntoScrollView = false
+						
+						-- The object is now active
+						self._target._isActive = true
+						
+						-- Dispatch a touch event to the object
+						self._target:dispatchEvent( { name = "touch", phase = "began", _insideScrollView = true } )
+						
+						-- The phase is now none (we don't want the touch event to fire more than once)	
+						self._phase = "none"
+					end
+				end
+			end
+		end
+
 		return true
 	end
 	
@@ -234,6 +295,20 @@ function M.new( options )
 	opt.rightPadding = customOptions.rightPadding or 0
 	opt.isHorizontalScrollingDisabled = customOptions.horizontalScrollingDisabled or false
 	opt.isVerticalScrollingDisabled = customOptions.verticalScrollingDisabled or false
+	opt.friction = customOptions.friction
+	opt.maxVelocity = customOptions.maxVelocity
+	opt.scrollWidth = customOptions.scrollWidth
+	opt.scrollHeight = customOptions.scrollHeight
+	
+	-- If horizontal scrolling isn't disabled and a scrollWidth hasn't been defined, throw an error
+	if not isHorizontalScrollingDisabled and not opt.scrollWidth then
+		error( "ERROR: " .. M._widgetName .. ": scrollWidth expected, got nil", 3 )
+	end
+	
+	-- If vertical scrolling isn't disabled and a scrollWidth hasn't been defined, throw an error
+	if not isVerticalScrollingDisabled and not opt.scrollHeight then
+		error( "ERROR: " .. M._widgetName .. ": scrollHeight expected, got nil", 3 )
+	end
 	
 	-------------------------------------------------------
 	-- Create the scrollView

@@ -15,16 +15,23 @@ function scene:createScene( event )
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )
 	
-	--Button to return to unit test listing
-	local returnToListing = widget.newButton{
+	-- Set a theme
+	widget.setTheme( "theme_ios" )
+	
+	-- Button to return to unit test listing
+	local returnToListing = widget.newButton
+	{
 	    id = "returnToListing",
-	    left = 60,
-	    top = 20,
-	    label = "Return To Menu",
+	    left = 0,
+	    top = 5,
+	    label = "Exit",
+		labelAlign = "center",
+		fontSize = 18,
 	    width = 200, height = 52,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
+	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
@@ -38,108 +45,59 @@ function scene:createScene( event )
 	local TEST_DELETE_SINGLE_ROW = false
 	local TEST_LOCKING_LIST = false
 	
-	local function tableViewListener( event ) 
+	local function tableViewListener( event )
+		local phase = event.phase
 		--print( event.phase )
-		print( event.type )
 	end
-	
-	--Create Table view
-	local list = widget.newTableView{
-		top = 100,									--Test setting top position.
-		width = 320, height = 366,					--Test setting width/height.
-		--renderThresh = 100,							--Test setting render thresh hold.
-		noLines = true,								--Test setting noLines between rows.
-		--maxVelocity = 5,							--Test setting maxVelocity.
-		maskFile = "assets/mask-320x366.png",		--Test setting a mask.
-		--baseDir = system.DocumentsDirectory		--Test base directory (Ensure maskFile specified above exists in the baseDir specified).
-		hideBackground = true, 			 			--Test hiding the background color.
-		scrollBarColor = { 255, 0, 128 }, 			--Test setting the scrollbar color. If this is ommited or not a table, the scrollbar falls back to it's default color.
-		hideScrollBar = true, 						--Test hiding the scrollbar. When set to true, scrollbar is shown when set to false or omitted.
-		topPadding = 157,
-		listener = tableViewListener,
-	}
 
-	--Handle row rendering
 	local function onRowRender( event )
+		local phase = event.phase
 		local row = event.row
-		local rowGroup = event.view
-		local label = "Row ("
-		local color = 0
 		
-		if row.isCategory then
-			label = "Category (";
-			color = 255
-		end
-		
-		row.textObj = display.newRetinaText( rowGroup, label .. row.index .. ")", 0, 0, native.systemFont, 16 )
-		row.textObj:setTextColor( color )
-		row.textObj:setReferencePoint( display.CenterLeftReferencePoint )
-		row.textObj.x, row.textObj.y = 20, rowGroup.contentHeight * 0.5
+		local rowTitle = display.newText( row, "Row " .. row.index, 0, 0, nil, 14 )
+		rowTitle.y = row.contentHeight * 0.5
+		rowTitle:setTextColor( 0, 0, 0 )
 	end
 	
-	--Hande row touch events
 	local function onRowTouch( event )
-		local row = event.row
-		local background = event.background
+		local phase = event.phase
 		
-		if event.phase == "press" then
-			
-			print( "Pressed row: " .. row.index )
-			background:setFillColor( 0, 110, 233, 255 )
-			
-			if row.textObj then
-				row.textObj:setText( "Row pressed..." )
-				row.textObj:setReferencePoint( display.TopLeftReferencePoint )
-				row.textObj.x = 20
-			end
-			
-		elseif event.phase == "release" or event.phase == "tap" then
-			
-			print( "Tapped and/or Released row: " .. row.index )
-			background:setFillColor( 0, 110, 233, 255 )
-			row.reRender = true
-			
-			-- set chosen row index to this row's index
-			chosenRowIndex = row.index
-			
-		elseif event.phase == "swipeLeft" then
-			print( "Swiped Left row: " .. row.index )
+		print( "phase is:", phase )
 		
-		elseif event.phase == "swipeRight" then
-			print( "Swiped Right row: " .. row.index )
-			
+		if "press" == phase then
+			--print( "Touched row:", event.target.index )
 		end
 	end
-
-	local function onRowEvent( event )
-		print( "touched " .. event.row.index )
-	end
 	
-	-- insert rows into list (tableView widget)
+	-- Create a tableView
+	local tableView = widget.newTableView
+	{
+		top = 100,
+		width = 320, 
+		height = 366,
+		maskFile = "assets/mask-320x366.png",
+		--baseDir = system.DocumentsDirectory
+		--hideBackground = true,
+		--topPadding = -40,
+		noLines = false,
+		--bottomPadding = 40,
+		listener = tableViewListener,
+		onRowRender = onRowRender,
+		onRowTouch = onRowTouch,
+	}
+	group:insert( tableView )
+	
 	for i = 1, 100 do
-		local isCategory, rowColor, rowHeight
-		local listener = onRowTouch
-		
-		if i == 1 or i == 25 or i == 50 or i == 75 then
-			isCategory = true
-			rowHeight = 24
-			rowColor = { 150, 160, 180, 200 }
-			listener = nil
-		end
-		
-		list:insertRow{
-			height = rowHeight,
-			rowColor = rowColor,
-			isCategory = isCategory,
-			onRender = onRowRender,
-			onEvent = onRowEvent,
-			listener = listener
-		}
+		tableView:insertRow()
 	end
 	
-	-- don't forget to insert objects into the scene group!
-	group:insert( list )
-	
+	timer.performWithDelay( 1000, function()
+		--tableView:deleteRow( 6 )
+		--tableView:deleteAllRows()
+		--tableView:scrollToIndex( 4 )
+		--tableView:scrollToY( { y = - 300, time = 800 } )
+	end)
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------			
