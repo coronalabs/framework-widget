@@ -47,6 +47,8 @@ io.output():setvbuf( "no" )
 display.setStatusBar(display.HiddenStatusBar)
 
 local storyboard = require( "storyboard" )
-storyboard.gotoScene( "button" )
+storyboard.gotoScene( "unitTestListing" )
 
---storyboard.gotoScene( "scrollView" )
+--storyboard.gotoScene( "switch" )
+
+--storyboard.gotoScene( "picker" )

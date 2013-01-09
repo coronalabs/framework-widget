@@ -24,12 +24,11 @@ function scene:createScene( event )
 		top = 40,
 		width = display.contentWidth,
 		height = display.contentHeight,
-		scrollWidth = display.contentWidth * 33,
 		scrollHeight = display.contentHeight - 180,
-		--horizontalScrollingDisabled = true,
+		horizontalScrollingDisabled = true,
 		--topPadding = 40,
 		--bottomPadding = 40,
-		hideBackground = false,
+		hideBackground = true,
 	}
 	group:insert( newScrollView )
 	

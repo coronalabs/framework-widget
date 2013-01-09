@@ -175,6 +175,8 @@ local function createOnOffSwitch( switch, options )
 	-------------------------------------------------------
 		
 	-- Properties
+	view._transition = nil
+	view._handleTransition = nil
 	view._startRange = startRange
 	view._endRange = endRange
 	view._onPress = opt.onPress
@@ -213,33 +215,44 @@ local function createOnOffSwitch( switch, options )
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
-	
+
 	-- Handle taps on the switch
 	function view:tap( event )
 		local _switch = self.parent -- self.parent == switch
 		-- Set the target to the switch
 		event.target = _switch
-		
+				
 		-- Toggle the switch
 		_switch.isOn = not _switch.isOn
-				
+			
+		-- Cancel current view transition if there is one
+		if self._transition then
+			transition.cancel( self._transition )
+			self._transition = nil
+		end
+		
+		if self._handleTransition then
+			transition.cancel( self._handleTransition )
+			self._handleTransition = nil
+		end
+						
 		-- If self has a _onPress method execute it
 		local function executeOnPress()
 			if self._onPress and not self._onEvent then
 				self._onPress( event )
 			end
 		end
-		
+				
 		-- Set the switches transition time
 		local switchTransitionTime = 300
 		
 		-- Transition the switch from on>off and vice versa
 		if _switch.isOn then
 			self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnPress } )
-			self._transition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
+			self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
 		else
 			self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnPress } )
-			self._transition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+			self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
 		end
 		
 		return true
@@ -252,16 +265,27 @@ local function createOnOffSwitch( switch, options )
 		local phase = event.phase
 	
 		if "began" == phase then
+			-- Cancel current view transition if there is one
+			if self._transition then
+				transition.cancel( self._transition )
+				self._transition = nil
+			end
+			
+			if self._handleTransition then
+				transition.cancel( self._handleTransition )
+				self._handleTransition = nil
+			end
+					
 			-- Set focus
 			display.getCurrentStage():setFocus( self ) 
-			self.isFocus = true
+			self._isFocus = true
 			
 			-- Store initial position of the handle
 			self._handle.x0 = event.x - self._handle.x 
 			-- Set the handle to it's 'over' frame
 			self._handle:setSequence( "on" )
 	
-		elseif self.isFocus then
+		elseif self._isFocus then
 			if "moved" == phase then
 				self._handle.x = event.x - self._handle.x0 
 				self.x = event.x - self._handle.x0
@@ -285,9 +309,9 @@ local function createOnOffSwitch( switch, options )
 				local _switch = self.parent -- self.parent == switch
 				-- Set the target to the switch
 				event.target = _switch
-						
+				
 				-- If self has a _onRelease method execute it
-				local function executeOnRelease()	
+				local function executeOnRelease()
 					if self._onRelease and not self._onEvent then
 						self._onRelease( event )
 					end
@@ -295,16 +319,16 @@ local function createOnOffSwitch( switch, options )
 				
 				-- Set the switches transition time
 				local switchTransitionTime = 300
-									
+				
 				-- Transition the switch from on>off and vice versa
 				if self._handle.x < 0 then
 					_switch.isOn = false
 					self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnRelease } )
-					self._transition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+					self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
 				else
 					_switch.isOn = true
 					self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnRelease } )
-					self._transition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
+					self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
 				end
 				
 				-- Set the handle back to it's default frame
@@ -312,7 +336,7 @@ local function createOnOffSwitch( switch, options )
 				
 				-- Remove focus
 				display.getCurrentStage():setFocus( nil )
-				self.isFocus = false
+				self._isFocus = false
 			end
 		end
 		
@@ -332,10 +356,15 @@ local function createOnOffSwitch( switch, options )
 	
 	-- Finalize method for standard switch
 	function switch:_finalize()
-		-- Cancel current transition if there is one
-		if self._view_transition then
+		-- Cancel current view transition if there is one
+		if self._view._transition then
 			transition.cancel( self._view._transition )
 			self._view._transition = nil
+		end
+		
+		if self._view._handleTransition then
+			transition.cancel( self._view._handleTransition )
+			self._view._handleTransition = nil
 		end
 		
 		-- Remove the switch's mask

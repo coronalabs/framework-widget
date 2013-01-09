@@ -167,16 +167,6 @@ display.newEmbossedText = require( "widget_embossedText" ).new
 widget.embossedText = display.newEmbossedText
 
 -----------------------------------------------------------------------------------------
--- newPickerWheel widget
------------------------------------------------------------------------------------------
-
-function widget.newPickerWheel( options )
-	local theme = _getTheme( "picker", options )
-	
-	return require( "widget_pickerWheel" ).new( options, theme )
-end
-
------------------------------------------------------------------------------------------
 -- newScrollView widget
 -----------------------------------------------------------------------------------------
 
@@ -190,6 +180,16 @@ end
 
 function widget.newTableView( options )
 	return require( "widget_tableView" ).new( options )
+end
+
+-----------------------------------------------------------------------------------------
+-- newPickerWheel widget
+-----------------------------------------------------------------------------------------
+
+function widget.newPickerWheel( options )
+	local theme = _getTheme( "pickerWheel", options )
+	
+	return require( "widget_pickerWheel" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------

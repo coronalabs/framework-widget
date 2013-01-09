@@ -9,22 +9,22 @@ function scene:createScene( event )
 	local group = self.view
 	
 	-- Set a theme
-	--widget.setTheme( "theme_ios" )
+	widget.setTheme( "theme_ios" )
 	
 	--Display an iOS style background
-	local background = display.newImage( "assets/background.png" )
+	local background = display.newImageRect( "assets/background.png", 640, 960 )
 	group:insert( background )
 	
-	--Button to return to unit test listing
+	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
 	    left = 60,
-	    top = 50,
-	    label = "Return To Menu",
+	    top = 5,
+	    label = "Exit",
 	    width = 200, height = 52,
-	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
+	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
 	
 	----------------------------------------------------------------------------------------------------------------
@@ -32,40 +32,108 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	--Set up the Picker Wheel's columns
-	local columnData = {}
-	columnData[1] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" }
-	columnData[1].alignment = "right"
-	columnData[1].width = 150
-	columnData[1].startIndex = monthIndex or 3
+	local columnData = 
+	{ 
+		{ 
+			align = "right",
+			width = 150,
+			startIndex = 5,
+			labels = 
+			{
+				"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" 
+			},
+		},
 		
-	columnData[2] = {}
-	for i = 1, 31 do
-		columnData[2][i] = i
-	end
-	columnData[2].alignment = "center"
-	columnData[2].width = 60
-	columnData[2].startIndex = dayIndex or 25
+		{
+			align = "left",
+			width = 60,
+			startIndex = 18,
+			labels = {},
+		},
 		
-	columnData[3] = {}
-	for i = 1, 25 do
-		columnData[3][i] = i + 1990
-	end
-	columnData[3].startIndex = yearIndex or 20
+		{
+			align = "center",
+			width = 80,
+			startIndex = 10,
+			labels = {},
+		},
 		
-	--Create a Picker Wheel
-	local picker = widget.newPickerWheel{
-		top = display.contentHeight - 222, 		--Test setting top position.
-		font = native.systemFontBold,			--Test setting a font.
-		columns = columnData,					--Add column data to picker.
+		--[[
+		{
+			align = "center",
+			--width = 60,
+			startIndex = 1,
+			labels = { "ho" },
+		},
+		--]]
 	}
-	group:insert( picker )
+		
+	local days = {}
+
+	for i = 1, 31 do
+		days[i] = i
+	end
 	
-	--Create some text to display the chosen values on screen
+	columnData[2].labels = days
+
+	local years = {}
+
+	for i = 1, 44 do
+		years[i] = 1969 + i
+	end
+	
+	columnData[3].labels = years
+		
+	-- Create a new Picker Wheel
+	local pickerWheel = widget.newPickerWheel
+	{
+		top = display.contentHeight - 222,
+		font = native.systemFontBold,
+		columns = columnData,
+	}
+	group:insert( pickerWheel )
+	
+	
+	
+	local function showValues( event )
+		local values = pickerWheel:getValues()
+		
+		--print( values )
+		
+		---[[
+		for i = 1, #values do
+			print( "Column", i, "value is:", values[i].value )
+			print( "Column", i, "index is:", values[i].index )
+		end
+		--]]
+		
+		return true
+	end
+	
+	
+	local getValuesButton = widget.newButton{
+	    id = "getValues",
+	    left = 60,
+	    top = 80,
+	    label = "Values",
+	    width = 100, height = 52,
+	    onRelease = showValues;
+	}
+	returnToListing.x = display.contentCenterX
+	group:insert( getValuesButton )
+	
+
+	
+	--transition.to( pickerWheel, { y = 100 } )
+	
+	--[[
+	
+	-- Create some text to display the chosen values on screen
 	local displayedValues = display.newEmbossedText( "Chosen date: ", 0, 0, native.systemFont, 18 )
 	displayedValues.x, displayedValues.y = display.contentCenterX, 160
 	group:insert( displayedValues )
 	
-	--Show picker values on button press
+	-- Show picker values on button press
 	local function showPickerValues( event )
 		-- extract selected rows from pickerWheel columns
 		local pickerValues = picker:getValues()
@@ -84,17 +152,17 @@ function scene:createScene( event )
 	end
 
 	--Button to print picker values
-	local pickerButton = widget.newButton{
+	local pickerButton = widget.newButton
+	{
 	    id = "showPickerValues",
 	    left = 60,
 	    top = 200,
 	    label = "Show Values",
 	    width = 200, height = 52,
-	    cornerRadius = 8,
 	    onRelease = showPickerValues
 	}
 	group:insert( pickerButton )
-	
+	--]]
 end
 
 function scene:exitScene( event )

@@ -82,16 +82,18 @@ theme.slider =
 
 theme.pickerWheel = 
 {
-	width = 296, height = 222,
-	maskFile=assetDir .. "/pickerWheel/wheelmask.png",
-	overlayImage=assetDir .. "/pickerWheel/overlay.png",
-	overlayWidth=320, overlayHeight=222,
-	bgImage=assetDir .. "/pickerWheel/bg.png",
-	bgImageWidth=1, bgImageHeight=222,
-	separator=assetDir .. "/pickerWheel/separator.png",
-	separatorWidth=8, separatorHeight=1,
-	font = "HelveticaNeue-Bold",
-	fontSize = 22
+	sheet = assetDir .. "/assets.png",
+    data = assetDir .. ".assets",
+	backgroundFrame = "picker_bg",
+	backgroundFrameWidth = 1,
+	backgroundFrameHeight = 222,
+	overlayFrame = "picker_overlay",
+	overlayFrameWidth = 320,
+	overlayFrameHeight = 222,
+	seperatorFrame = "picker_separator",
+	seperatorFrameWidth = 2,
+	seperatorFrameHeight = 8,
+	maskFile = assetDir .. "/masks/pickerWheel/pickerWheelMask.png",
 }
 
 -----------------------------------------------------------------------------------------
