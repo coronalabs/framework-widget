@@ -55,7 +55,7 @@ function scene:createScene( event )
 		local row = event.row
 		
 		local rowTitle = display.newText( row, "Row " .. row.index, 0, 0, nil, 14 )
-		rowTitle.x = row.x
+		rowTitle.x = row.x - ( row.contentWidth * 0.5 ) + ( rowTitle.contentWidth * 0.5 )
 		rowTitle.y = row.contentHeight * 0.5
 		rowTitle:setTextColor( 0, 0, 0 )
 	end
@@ -89,13 +89,31 @@ function scene:createScene( event )
 	group:insert( tableView )
 	
 	for i = 1, 100 do
-		tableView:insertRow()
+		local isCategory = false
+		local rowHeight = 40
+		local rowColor = { 255, 255, 255 }
+		local lineColor = { 220, 220, 220 }
+		
+		if i == 5 or i == 50 or i == 75 then
+			isCategory = true
+			rowHeight = 24
+			rowColor = { 150, 160, 180, 200 }
+		end
+		
+		
+		tableView:insertRow
+		{
+			isCategory = isCategory,
+			rowHeight = rowHeight,
+			rowColor = rowColor,
+			lineColor = lineColor,
+		}
 	end
 	
 	timer.performWithDelay( 1000, function()
 		--tableView:deleteRow( 6 )
 		--tableView:deleteAllRows()
-		tableView:scrollToIndex( 40 )
+		--tableView:scrollToIndex( 40 )
 		--tableView:scrollToY( { y = - 300, time = 800 } )
 	end)
 
