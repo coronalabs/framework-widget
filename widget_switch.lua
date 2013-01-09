@@ -215,6 +215,11 @@ local function createOnOffSwitch( switch, options )
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
+	
+	-- Function to set the switches state (on/off) programatically
+	function switch:setState( options )
+		return self._view:_setState( options )
+	end
 
 	-- Handle taps on the switch
 	function view:tap( event )
@@ -306,7 +311,7 @@ local function createOnOffSwitch( switch, options )
 				end
 	
 			elseif "ended" == phase or "cancelled" == phase then
-				local _switch = self.parent -- self.parent == switch
+				local _switch = self.parent
 				-- Set the target to the switch
 				event.target = _switch
 				
@@ -353,6 +358,58 @@ local function createOnOffSwitch( switch, options )
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
+	
+	-- Function to set a switch on/off programatically
+	function view:_setState( options )
+		local _switch = self.parent
+		local _isSwitchOn = options.isOn
+		local _isAnimated = options.isAnimated
+		local _listener = options.onComplete
+		
+		-- If the user hasn't passed the isOn property, throw an error
+		if _isSwitchOn == nil then
+			error( "ERROR: " .. M._widgetName .. ": setState - isOn (true/false) expected, got nil", 3 )
+		end
+		
+		-- If there is a onComplete method
+		local function executeOnComplete()
+			-- Set the switch isOn property
+			_switch.isOn = _isSwitchOn
+			
+			-- Create the event
+			local event = 
+			{
+				target = _switch,
+				phase = "ended",
+			}
+				
+			-- Execute the user listener
+			if _listener then
+				_listener( event )
+			end
+		end
+		
+		-- Set the switch to on/off visually
+		if _isSwitchOn then
+			if _isAnimated then
+				self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnComplete } )
+				self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
+			else
+				self.x = self._endRange
+				self._handle.x = self._endRange
+				self.maskX = self._startRange
+			end
+		else
+			if _isAnimated then
+				self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnComplete } )
+				self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+			else
+				self.x = self._startRange
+				self._handle.x = self._startRange
+				self.maskX = self._endRange
+			end
+		end
+	end
 	
 	-- Finalize method for standard switch
 	function switch:_finalize()
@@ -416,10 +473,19 @@ local function createStandardSwitch( switch, options )
 	view._onPress = opt.onPress
 	view._onRelease = opt.onRelease
 	view._onEvent = opt.onEvent
+	
+	-- Assign objects to the switch
+	switch._imageSheet = imageSheet
+	switch._view = view
 
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
+	
+	-- Function to set the switches state (on/off) programatically
+	function switch:setState( options )
+		return self._view:_setState( options )
+	end
 
 	-- Handle touches on the switch
 	function view:touch( event )
@@ -470,6 +536,50 @@ local function createStandardSwitch( switch, options )
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
+	
+	-- Function to set a switch on/off programatically
+	function view:_setState( options )
+		local _switch = self.parent
+		local _isSwitchOn = options.isOn
+		local _isAnimated = options.isAnimated
+		local _listener = options.onComplete
+		
+		-- If the user hasn't passed the isOn property, throw an error
+		if _isSwitchOn == nil then
+			error( "ERROR: " .. M._widgetName .. ": setState - isOn (true/false) expected, got nil", 3 )
+		end
+		
+		-- If there is a onComplete method
+		local function executeOnComplete()
+			-- Set the switch isOn property
+			_switch.isOn = _isSwitchOn
+						
+			-- Create the event
+			local event = 
+			{
+				target = _switch,
+				phase = "ended",
+			}
+				
+			-- Execute the user listener
+			if _listener then
+				_listener( event )
+			end
+		end
+		
+		-- Set the switch to on/off visually
+		if _isSwitchOn then
+			-- Toggle the view's visibility
+			switch._viewOn.isVisible = true
+			switch._viewOff.isVisible = false
+		else
+			-- Toggle the view's visibility
+			switch._viewOn.isVisible = false
+			switch._viewOff.isVisible = true
+		end
+		
+		executeOnComplete()
+	end
 	
 	-- Finalize method for standard switch
 	function switch:_finalize()		
