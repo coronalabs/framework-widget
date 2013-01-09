@@ -98,11 +98,8 @@ local function createPickerWheel( pickerWheel, options )
 		return group
 	end
 
-	--TEMP
-	--viewBackground.isVisible = false
-	
+	--
 	local availableWidth = viewBackground.width - 28
-	local usedWidth = 0
 	
 	-- Create the pickerWheel Columns
 	for i = 1, #opt.columnData do
@@ -113,16 +110,14 @@ local function createPickerWheel( pickerWheel, options )
 			width = opt.columnData[i].width or availableWidth / #opt.columnData,
 			height = opt.overlayFrameHeight,
 			topPadding = 90,
-			bottomPadding = 74,
+			bottomPadding = 92,
 			noLines = true,
 			hideBackground = true,
 			friction = 0.92,
 			onRowRender = _renderColumns,
 			maskFile = opt.maskFile,
 		}
-		
-		--usedWidth = usedWidth + viewColumns[i].width
- 		
+		 		
 		-- Position the columns
 		if i > 1 then
 			viewColumns[i].x = viewColumns[i-1].x + viewColumns[i-1]._view._width
