@@ -38,6 +38,7 @@ function scene:createScene( event )
 	
 	--Toggle these defines to execute automated tests.
 	local TEST_REMOVE_SWITCH = false
+	local TEST_SET_STATE = true
 	local TEST_DELAY = 1000
 	
 	local function onRadioPress( event )
@@ -57,7 +58,7 @@ function scene:createScene( event )
 		
 		print( self.id, "is on?:", self.isOn )
 		
-		display.remove( self )
+		--display.remove( self )
 	end
 	
 	
@@ -92,12 +93,12 @@ function scene:createScene( event )
 		left = 0,
 		top = 300,
 		style = "onOff",
-		--initialSwitchState = true,
+		initialSwitchState = true,
 		onRelease = onOnOffPress
 	}
 	onOffSwitch.x = display.contentCenterX
 	group:insert( onOffSwitch )
-
+	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
@@ -111,6 +112,14 @@ function scene:createScene( event )
 			
 			TEST_DELAY = TEST_DELAY + TEST_DELAY
 		end )
+	end
+	
+	-- Test toggling the switch programatically
+	if TEST_SET_STATE then
+		timer.performWithDelay( 1000, function()
+			onOffSwitch:setState( { isOn = false, isAnimated = true, onComplete = onOnOffPress } )
+			checkboxButton:setState( { isOn = true, isAnimated = true, onComplete = onCheckBoxPress } )
+		end)
 	end
 
 	
