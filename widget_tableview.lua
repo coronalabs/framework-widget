@@ -47,7 +47,7 @@ local function createTableView( tableView, options )
 	----------------------------------
 	
 	-- Background
-	viewBackground.isVisible = not opt.shouldHideBackground
+	viewBackground.isVisible = false --not opt.shouldHideBackground
 	viewBackground.isHitTestable = true
 	viewBackground:setFillColor( unpack( opt.backgroundColor ) )
 	
@@ -107,8 +107,8 @@ local function createTableView( tableView, options )
 	----------------------------------------------------------
 	
 	-- Function to insert a row into a tableView
-	function tableView:insertRow()
-		return self._view:_insertRow()
+	function tableView:insertRow( options )
+		return self._view:_insertRow( options )
 	end
 	
 	-- Function to delete a row from a tableView
@@ -336,24 +336,26 @@ local function createTableView( tableView, options )
 	end
 					
 	-- Row
-	function view:_insertRow()
+	function view:_insertRow( options )
 		-- Create a new rowGroup
 		self._rows[#self._rows + 1] = display.newGroup()
 		self._rows[#self._rows].index = #self._rows
 		
+		local rowHeight = options.rowHeight or 40
+		local rowColor = options.rowColor or { 255, 255, 255 }
+		local lineColor = options.lineColor or { 220, 220, 220 }
+				
 		-- Create the row's touch rectangle
-		local border = display.newRect( self._rows[#self._rows], 0, 0, opt.width, self._rowHeight )
+		local border = display.newRect( self._rows[#self._rows], 0, 0, opt.width, rowHeight )
 		border.x = 0 + border.contentWidth * 0.5
-		border.isVisible = true
-		border.isHitTestable = true
 		border.y = border.contentHeight * 0.5
-		
-		-- Create the row's border
-		local frame = nil
+		border.strokeWidth = 1
+		border:setFillColor( unpack( rowColor ) )
+		border:setStrokeColor( unpack( rowColor ) )
+				
+		-- If the user want's lines between rows, set the stroke color accordingly
 		if not opt.noLines then
-			frame = display.newLine( self._rows[#self._rows], 0, self._rowHeight, border.contentWidth, self._rowHeight )
-	    	frame:setColor( 220, 220, 220 )
-			frame.y = border.y + ( border.contentHeight * 0.5 )
+			border:setStrokeColor( unpack( lineColor ) )
 		end
 
 		self._rows[#self._rows]:setReferencePoint( display.CenterReferencePoint )
@@ -363,13 +365,19 @@ local function createTableView( tableView, options )
 		
 		-- Insert the row into the view
 		self._rows[#self._rows]._border = border
-		self._rows[#self._rows].frame = frame
-		
-		self:insert( self._rows[#self._rows] )
-		
+				
 		-- Position the row
 		self._rows[#self._rows].x = self.x + self._rows[#self._rows].contentWidth * 0.5
-		self._rows[#self._rows].y = ( self._rowHeight ) * #self._rows - self._rowHeight * 0.5
+		
+		-- Set the row's y position
+		if #self._rows <= 1 then
+			self._rows[#self._rows].y = rowHeight * #self._rows - ( rowHeight * 0.5 ) - 1
+		else
+			self._rows[#self._rows].y = self._rows[#self._rows - 1].y + ( self._rows[#self._rows - 1].contentHeight * 0.5 ) + ( self._rows[#self._rows].contentHeight * 0.5 ) - 1
+		end
+		
+		-- Insert the row into the view
+		self:insert( self._rows[#self._rows] )
 		
 		-- Create the event
 		local event = 

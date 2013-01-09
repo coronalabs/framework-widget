@@ -81,11 +81,9 @@ local function createPickerWheel( pickerWheel, options )
 	end
 	
 	-- Create a background to sit behind the pickerWheel
-	--[[
 	local rect = display.newRect( view, 0, 0, opt.overlayFrameWidth, opt.overlayFrameHeight )
 	rect.x = viewBackground.x
 	rect.y = viewBackground.y
-	--]]
 
 	-- 
 	function view:_createSeperator( x )
@@ -141,7 +139,11 @@ local function createPickerWheel( pickerWheel, options )
 		
 		-- Create the row's
 		for j = 1, #opt.columnData[i].labels do
-			viewColumns[i]:insertRow()
+			viewColumns[i]:insertRow
+			{
+				rowHeight = 40,
+				rowColor = { 255, 255, 255 },
+			}
 		end
 		
 		-- Insert the pickerWheel column into the view
