@@ -73,6 +73,8 @@ local function createTableView( tableView, options )
 	view._lastTime = 0
 	view._top = opt.top
 	view._left = opt.left
+	view._width = opt.width
+	view._height = opt.height
 	view._topPadding = opt.topPadding
 	view._bottomPadding = opt.bottomPadding
 	view._leftPadding = opt.leftPadding
@@ -120,8 +122,8 @@ local function createTableView( tableView, options )
 	end
 	
 	-- Function to scroll the tableView to a specific row
-	function tableView:scrollToIndex( rowIndex )
-		return self._view:_scrollToIndex( rowIndex )
+	function tableView:scrollToIndex( rowIndex, time )
+		return self._view:_scrollToIndex( rowIndex, time )
 	end
 	
 	-- Function to scroll the tableView to a specific y position
@@ -164,6 +166,23 @@ local function createTableView( tableView, options )
 	end
 	
 	viewBackground:addEventListener( "touch" )
+	
+	
+	function view:_getRowAtPosition( position )
+		local yPosition = position
+				
+		for k, v in pairs( self._rows ) do	
+			local bounds = self._rows[k].contentBounds
+			
+			local isWithinBounds = yPosition > bounds.yMin and yPosition < bounds.yMax + 1
+						
+			if isWithinBounds then
+				transition.to( self, { time = 400, y = - self._rows[k].y - self._top , transition = easing.outQuad } )
+				--transition.to( self, { time = 400, y = - self._rows[k].y - self._top - ( self._rows[k].contentHeight * 0.5 ), transition = easing.outQuad } ) -- old
+				return self._rows[k]
+			end
+		end
+	end
 
 
 	-- Handle touches on the tableView
@@ -324,6 +343,7 @@ local function createTableView( tableView, options )
 		
 		-- Create the row's touch rectangle
 		local border = display.newRect( self._rows[#self._rows], 0, 0, opt.width, self._rowHeight )
+		border.x = 0 + border.contentWidth * 0.5
 		border.isVisible = true
 		border.isHitTestable = true
 		border.y = border.contentHeight * 0.5
@@ -331,14 +351,12 @@ local function createTableView( tableView, options )
 		-- Create the row's border
 		local frame = nil
 		if not opt.noLines then
-			frame = display.newLine( self._rows[#self._rows], 0, self._rowHeight, display.contentWidth, self._rowHeight )
+			frame = display.newLine( self._rows[#self._rows], 0, self._rowHeight, border.contentWidth, self._rowHeight )
 	    	frame:setColor( 220, 220, 220 )
 			frame.y = border.y + ( border.contentHeight * 0.5 )
 		end
 
-		-- Position the row
-		self._rows[#self._rows].x = self.x
-		self._rows[#self._rows].y = ( self._rowHeight ) * #self._rows - self._rowHeight
+		self._rows[#self._rows]:setReferencePoint( display.CenterReferencePoint )
 				
 		-- Add event listener to the row
 		self._rows[#self._rows]:addEventListener( "touch", _handleRowTouch )
@@ -346,13 +364,19 @@ local function createTableView( tableView, options )
 		-- Insert the row into the view
 		self._rows[#self._rows]._border = border
 		self._rows[#self._rows].frame = frame
+		
 		self:insert( self._rows[#self._rows] )
+		
+		-- Position the row
+		self._rows[#self._rows].x = self.x + self._rows[#self._rows].contentWidth * 0.5
+		self._rows[#self._rows].y = ( self._rowHeight ) * #self._rows - self._rowHeight * 0.5
 		
 		-- Create the event
 		local event = 
 		{
 			name = "rowRender",
 			row = self._rows[#self._rows],
+			target = tableView,
 		}
 
 		-- If an onRowRender event exists, execute it
@@ -385,8 +409,10 @@ local function createTableView( tableView, options )
 	end
 	
 	-- Function to scroll to a specific row
-	function view:_scrollToIndex( rowIndex )
-		transition.to( self, { y = self.y - self._rows[rowIndex].y + ( self._rows[rowIndex].contentHeight ), transition = easing.outQuad } )
+	function view:_scrollToIndex( rowIndex, time )
+		local scrollTime = time or 400
+		
+		transition.to( self, { y = self.y - self._rows[rowIndex].y + ( self._rows[rowIndex].contentHeight * 0.5 ), time = scrollTime, transition = easing.outQuad } )
 	end
 	
 	-- Function to scroll to a specific y position
@@ -408,7 +434,7 @@ end
 
 
 -- Function to create a new tableView object ( widget.newtableView )
-function M.new( options, theme )	
+function M.new( options )	
 	local customOptions = options or {}
 	
 	-- Create a local reference to our options table

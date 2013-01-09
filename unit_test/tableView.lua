@@ -55,6 +55,7 @@ function scene:createScene( event )
 		local row = event.row
 		
 		local rowTitle = display.newText( row, "Row " .. row.index, 0, 0, nil, 14 )
+		rowTitle.x = row.x
 		rowTitle.y = row.contentHeight * 0.5
 		rowTitle:setTextColor( 0, 0, 0 )
 	end
@@ -94,7 +95,7 @@ function scene:createScene( event )
 	timer.performWithDelay( 1000, function()
 		--tableView:deleteRow( 6 )
 		--tableView:deleteAllRows()
-		--tableView:scrollToIndex( 4 )
+		tableView:scrollToIndex( 40 )
 		--tableView:scrollToY( { y = - 300, time = 800 } )
 	end)
 

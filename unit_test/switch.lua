@@ -56,6 +56,8 @@ function scene:createScene( event )
 		local self = event.target
 		
 		print( self.id, "is on?:", self.isOn )
+		
+		display.remove( self )
 	end
 	
 	
@@ -91,7 +93,7 @@ function scene:createScene( event )
 		top = 300,
 		style = "onOff",
 		--initialSwitchState = true,
-		onPress = onOnOffPress
+		onRelease = onOnOffPress
 	}
 	onOffSwitch.x = display.contentCenterX
 	group:insert( onOffSwitch )

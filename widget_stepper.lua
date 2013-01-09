@@ -173,6 +173,11 @@ local function initWithSprite( stepper, options )
 	
 	view:addEventListener( "touch" )
 	
+	-- Function to set the stepper's value programatically
+	function stepper:setValue( newValue )
+		return self._view:_setValue( newValue )
+	end
+	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -305,6 +310,12 @@ local function initWithSprite( stepper, options )
 			timer.cancel( self._timer )
 			self._timer = nil
 		end
+	end
+	
+	-- Function to set the stepper's value programatically
+	function view:_setValue( newValue )
+		local value = newValue or self._currentValue
+		self._currentValue = newValue
 	end
 	
 	-- Finalize function

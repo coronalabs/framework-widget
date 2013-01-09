@@ -300,12 +300,12 @@ function M.new( options )
 	opt.scrollHeight = customOptions.scrollHeight
 	
 	-- If horizontal scrolling isn't disabled and a scrollWidth hasn't been defined, throw an error
-	if not isHorizontalScrollingDisabled and not opt.scrollWidth then
+	if not opt.isHorizontalScrollingDisabled and not opt.scrollWidth then
 		error( "ERROR: " .. M._widgetName .. ": scrollWidth expected, got nil", 3 )
 	end
 	
 	-- If vertical scrolling isn't disabled and a scrollWidth hasn't been defined, throw an error
-	if not isVerticalScrollingDisabled and not opt.scrollHeight then
+	if not opt.isVerticalScrollingDisabled and not opt.scrollHeight then
 		error( "ERROR: " .. M._widgetName .. ": scrollHeight expected, got nil", 3 )
 	end
 	

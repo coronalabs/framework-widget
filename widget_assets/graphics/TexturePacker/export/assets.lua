@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.texturepacker.com)
 --
--- $TexturePacker:SmartUpdate:e40ee2f2492af37c9d5a5223c5849ff8$
+-- $TexturePacker:SmartUpdate:260df70686a25651e6da04f3dd3fcd3b$
 --
 -- local sheetInfo = require("myExportedImageSheet") -- lua file that Texture packer published
 --
@@ -19,528 +19,552 @@ SheetInfo.sheet =
     
         {
             -- button_bottomLeft
-            x=244,
-            y=48,
-            width=5,
-            height=5,
+            x=554,
+            y=181,
+            width=15,
+            height=15,
 
         },
         {
             -- button_bottomLeftOver
-            x=244,
-            y=39,
-            width=5,
-            height=5,
+            x=555,
+            y=129,
+            width=15,
+            height=15,
 
         },
         {
             -- button_bottomMiddle
-            x=235,
-            y=48,
-            width=5,
-            height=5,
+            x=551,
+            y=148,
+            width=15,
+            height=15,
 
         },
         {
             -- button_bottomMiddleOver
-            x=235,
-            y=39,
-            width=5,
-            height=5,
+            x=536,
+            y=129,
+            width=15,
+            height=15,
 
         },
         {
             -- button_bottomRight
-            x=226,
-            y=48,
-            width=5,
-            height=5,
+            x=532,
+            y=148,
+            width=15,
+            height=15,
 
         },
         {
             -- button_bottomRightOver
-            x=226,
-            y=39,
-            width=5,
-            height=5,
+            x=517,
+            y=129,
+            width=15,
+            height=15,
 
         },
         {
             -- button_middle
-            x=217,
-            y=48,
-            width=5,
-            height=5,
+            x=513,
+            y=148,
+            width=15,
+            height=15,
 
         },
         {
             -- button_middleLeft
-            x=217,
-            y=39,
-            width=5,
-            height=5,
+            x=498,
+            y=129,
+            width=15,
+            height=15,
 
         },
         {
             -- button_middleLeftOver
-            x=208,
-            y=48,
-            width=5,
-            height=5,
+            x=508,
+            y=202,
+            width=15,
+            height=15,
 
         },
         {
             -- button_middleOver
-            x=208,
-            y=39,
-            width=5,
-            height=5,
+            x=489,
+            y=202,
+            width=15,
+            height=15,
 
         },
         {
             -- button_middleRight
-            x=199,
-            y=48,
-            width=5,
-            height=5,
+            x=494,
+            y=149,
+            width=15,
+            height=15,
 
         },
         {
             -- button_middleRightOver
-            x=199,
-            y=39,
-            width=5,
-            height=5,
+            x=475,
+            y=149,
+            width=15,
+            height=15,
 
         },
         {
             -- button_topLeft
-            x=190,
-            y=48,
-            width=5,
-            height=5,
+            x=456,
+            y=149,
+            width=15,
+            height=15,
 
         },
         {
             -- button_topLeftOver
-            x=190,
-            y=39,
-            width=5,
-            height=5,
+            x=470,
+            y=207,
+            width=15,
+            height=15,
 
         },
         {
             -- button_topMiddle
-            x=181,
-            y=47,
-            width=5,
-            height=5,
+            x=451,
+            y=207,
+            width=15,
+            height=15,
 
         },
         {
             -- button_topMiddleOver
-            x=172,
-            y=47,
-            width=5,
-            height=5,
+            x=432,
+            y=207,
+            width=15,
+            height=15,
 
         },
         {
             -- button_topRight
-            x=163,
-            y=47,
-            width=5,
-            height=5,
+            x=413,
+            y=207,
+            width=15,
+            height=15,
 
         },
         {
             -- button_topRightOver
-            x=154,
-            y=47,
-            width=5,
-            height=5,
+            x=394,
+            y=208,
+            width=15,
+            height=15,
+
+        },
+        {
+            -- picker_bg
+            x=327,
+            y=3,
+            width=1,
+            height=222,
+
+        },
+        {
+            -- picker_overlay
+            x=3,
+            y=3,
+            width=320,
+            height=222,
+
+        },
+        {
+            -- picker_separator
+            x=456,
+            y=134,
+            width=8,
+            height=1,
 
         },
         {
             -- progressView_leftFill
-            x=146,
-            y=47,
-            width=4,
-            height=12,
+            x=574,
+            y=110,
+            width=12,
+            height=10,
 
         },
         {
             -- progressView_leftFillBorder
-            x=138,
-            y=47,
-            width=4,
-            height=12,
+            x=558,
+            y=110,
+            width=12,
+            height=10,
 
         },
         {
             -- progressView_middleFill
-            x=130,
-            y=47,
-            width=4,
-            height=12,
+            x=558,
+            y=96,
+            width=12,
+            height=10,
 
         },
         {
             -- progressView_middleFillBorder
-            x=122,
-            y=47,
-            width=4,
-            height=12,
+            x=430,
+            y=82,
+            width=35,
+            height=10,
 
         },
         {
             -- progressView_rightFill
-            x=114,
-            y=47,
-            width=4,
-            height=12,
+            x=574,
+            y=96,
+            width=12,
+            height=10,
 
         },
         {
             -- progressView_rightFillBorder
-            x=106,
-            y=47,
-            width=4,
-            height=12,
+            x=554,
+            y=167,
+            width=12,
+            height=10,
 
         },
         {
             -- searchField_leftEdge
-            x=435,
-            y=3,
-            width=4,
+            x=502,
+            y=168,
+            width=18,
             height=30,
 
         },
         {
             -- searchField_magnifyingGlass
-            x=817,
-            y=31,
-            width=24,
-            height=24,
+            x=374,
+            y=208,
+            width=16,
+            height=17,
 
         },
         {
             -- searchField_middle
-            x=427,
-            y=3,
-            width=4,
+            x=480,
+            y=168,
+            width=18,
             height=30,
 
         },
         {
             -- searchField_remove
-            x=822,
-            y=3,
-            width=24,
-            height=24,
+            x=474,
+            y=38,
+            width=19,
+            height=19,
 
         },
         {
             -- searchField_rightEdge
-            x=419,
-            y=3,
-            width=4,
+            x=474,
+            y=61,
+            width=18,
             height=30,
 
         },
         {
             -- segmentedControl_divider
-            x=443,
-            y=3,
+            x=496,
+            y=61,
             width=1,
-            height=27,
+            height=29,
 
         },
         {
             -- segmentedControl_left
-            x=786,
-            y=3,
-            width=4,
-            height=26,
+            x=539,
+            y=167,
+            width=11,
+            height=29,
 
         },
         {
             -- segmentedControl_leftOn
-            x=780,
-            y=33,
-            width=4,
-            height=26,
+            x=543,
+            y=96,
+            width=11,
+            height=29,
 
         },
         {
             -- segmentedControl_middle
-            x=772,
-            y=33,
-            width=4,
-            height=26,
+            x=524,
+            y=167,
+            width=11,
+            height=29,
 
         },
         {
             -- segmentedControl_middleOn
-            x=764,
-            y=33,
-            width=4,
-            height=26,
+            x=528,
+            y=96,
+            width=11,
+            height=29,
 
         },
         {
             -- segmentedControl_right
-            x=756,
-            y=33,
-            width=4,
-            height=26,
+            x=513,
+            y=96,
+            width=11,
+            height=29,
 
         },
         {
             -- segmentedControl_rightOn
-            x=748,
-            y=33,
-            width=4,
-            height=26,
+            x=498,
+            y=96,
+            width=11,
+            height=29,
+
+        },
+        {
+            -- silder_middleFrame
+            x=570,
+            y=205,
+            width=10,
+            height=10,
+
+        },
+        {
+            -- silder_middleFrameVertical
+            x=556,
+            y=214,
+            width=10,
+            height=10,
 
         },
         {
             -- slider_bottomFrameVertical
-            x=166,
-            y=39,
-            width=12,
-            height=4,
+            x=556,
+            y=200,
+            width=10,
+            height=10,
 
         },
         {
             -- slider_fill
-            x=98,
-            y=47,
-            width=4,
-            height=12,
+            x=587,
+            y=191,
+            width=10,
+            height=10,
 
         },
         {
             -- slider_fillVertical
-            x=150,
-            y=39,
-            width=12,
-            height=4,
+            x=573,
+            y=191,
+            width=10,
+            height=10,
 
         },
         {
             -- slider_handle
-            x=794,
-            y=3,
-            width=24,
-            height=24,
+            x=374,
+            y=172,
+            width=32,
+            height=32,
 
         },
         {
             -- slider_leftFrame
-            x=90,
-            y=47,
-            width=4,
-            height=12,
-
-        },
-        {
-            -- slider_middleFrame
-            x=82,
-            y=47,
-            width=4,
-            height=12,
-
-        },
-        {
-            -- slider_middleFrameVertical
-            x=134,
-            y=39,
-            width=12,
-            height=4,
+            x=587,
+            y=177,
+            width=10,
+            height=10,
 
         },
         {
             -- slider_rightFrame
-            x=74,
-            y=47,
-            width=4,
-            height=12,
+            x=573,
+            y=177,
+            width=10,
+            height=10,
 
         },
         {
             -- slider_topFrameVertical
-            x=118,
-            y=39,
-            width=12,
-            height=4,
+            x=574,
+            y=124,
+            width=10,
+            height=10,
 
         },
         {
             -- spinner_spinner
-            x=74,
-            y=3,
+            x=430,
+            y=38,
             width=40,
             height=40,
 
         },
         {
             -- stepper_minusActive
-            x=694,
-            y=3,
-            width=88,
-            height=26,
+            x=501,
+            y=65,
+            width=94,
+            height=27,
 
         },
         {
             -- stepper_noMinus
-            x=656,
-            y=33,
-            width=88,
-            height=26,
+            x=332,
+            y=69,
+            width=94,
+            height=27,
 
         },
         {
             -- stepper_noPlus
-            x=602,
-            y=3,
-            width=88,
-            height=26,
+            x=332,
+            y=38,
+            width=94,
+            height=27,
 
         },
         {
             -- stepper_nonActive
-            x=564,
-            y=33,
-            width=88,
-            height=26,
+            x=501,
+            y=34,
+            width=94,
+            height=27,
 
         },
         {
             -- stepper_plusActive
-            x=472,
-            y=33,
-            width=88,
-            height=26,
+            x=501,
+            y=3,
+            width=94,
+            height=27,
 
         },
         {
             -- switch_background
-            x=448,
+            x=332,
             y=3,
-            width=150,
-            height=26,
+            width=165,
+            height=31,
 
         },
         {
             -- switch_checkboxDefault
-            x=226,
-            y=3,
-            width=32,
-            height=32,
+            x=369,
+            y=135,
+            width=33,
+            height=33,
 
         },
         {
             -- switch_checkboxSelected
-            x=190,
-            y=3,
-            width=32,
-            height=32,
+            x=332,
+            y=135,
+            width=33,
+            height=33,
 
         },
         {
             -- switch_handle
-            x=384,
-            y=3,
+            x=445,
+            y=172,
             width=31,
             height=31,
 
         },
         {
             -- switch_handleOver
-            x=349,
-            y=3,
+            x=410,
+            y=172,
             width=31,
             height=31,
 
         },
         {
             -- switch_overlay
-            x=262,
-            y=3,
+            x=332,
+            y=100,
             width=83,
             height=31,
 
         },
         {
             -- switch_radioButtonDefault
-            x=154,
-            y=3,
-            width=32,
-            height=32,
+            x=419,
+            y=134,
+            width=33,
+            height=34,
 
         },
         {
             -- switch_radioButtonSelected
-            x=118,
-            y=3,
-            width=32,
-            height=32,
+            x=430,
+            y=96,
+            width=33,
+            height=34,
 
         },
         {
             -- tabBar_background
-            x=3,
-            y=3,
+            x=469,
+            y=95,
             width=25,
             height=50,
 
         },
         {
             -- tabBar_iconActive
-            x=788,
-            y=33,
+            x=570,
+            y=148,
             width=25,
             height=25,
 
         },
         {
             -- tabBar_iconInactive
-            x=443,
-            y=34,
+            x=527,
+            y=200,
             width=25,
             height=25,
 
         },
         {
             -- tabBar_tabSelectedLeftEdge
-            x=60,
-            y=3,
+            x=360,
+            y=172,
             width=10,
             height=50,
 
         },
         {
             -- tabBar_tabSelectedMiddle
-            x=46,
-            y=3,
+            x=346,
+            y=172,
             width=10,
             height=50,
 
         },
         {
             -- tabBar_tabSelectedRightEdge
-            x=32,
-            y=3,
+            x=332,
+            y=172,
             width=10,
             height=50,
 
         },
     },
     
-    sheetContentWidth = 849,
-    sheetContentHeight = 62
+    sheetContentWidth = 600,
+    sheetContentHeight = 228
 }
 
 SheetInfo.frameIndex =
@@ -564,53 +588,56 @@ SheetInfo.frameIndex =
     ["button_topMiddleOver"] = 16,
     ["button_topRight"] = 17,
     ["button_topRightOver"] = 18,
-    ["progressView_leftFill"] = 19,
-    ["progressView_leftFillBorder"] = 20,
-    ["progressView_middleFill"] = 21,
-    ["progressView_middleFillBorder"] = 22,
-    ["progressView_rightFill"] = 23,
-    ["progressView_rightFillBorder"] = 24,
-    ["searchField_leftEdge"] = 25,
-    ["searchField_magnifyingGlass"] = 26,
-    ["searchField_middle"] = 27,
-    ["searchField_remove"] = 28,
-    ["searchField_rightEdge"] = 29,
-    ["segmentedControl_divider"] = 30,
-    ["segmentedControl_left"] = 31,
-    ["segmentedControl_leftOn"] = 32,
-    ["segmentedControl_middle"] = 33,
-    ["segmentedControl_middleOn"] = 34,
-    ["segmentedControl_right"] = 35,
-    ["segmentedControl_rightOn"] = 36,
-    ["slider_bottomFrameVertical"] = 37,
-    ["slider_fill"] = 38,
-    ["slider_fillVertical"] = 39,
-    ["slider_handle"] = 40,
-    ["slider_leftFrame"] = 41,
-    ["slider_middleFrame"] = 42,
-    ["slider_middleFrameVertical"] = 43,
-    ["slider_rightFrame"] = 44,
-    ["slider_topFrameVertical"] = 45,
-    ["spinner_spinner"] = 46,
-    ["stepper_minusActive"] = 47,
-    ["stepper_noMinus"] = 48,
-    ["stepper_noPlus"] = 49,
-    ["stepper_nonActive"] = 50,
-    ["stepper_plusActive"] = 51,
-    ["switch_background"] = 52,
-    ["switch_checkboxDefault"] = 53,
-    ["switch_checkboxSelected"] = 54,
-    ["switch_handle"] = 55,
-    ["switch_handleOver"] = 56,
-    ["switch_overlay"] = 57,
-    ["switch_radioButtonDefault"] = 58,
-    ["switch_radioButtonSelected"] = 59,
-    ["tabBar_background"] = 60,
-    ["tabBar_iconActive"] = 61,
-    ["tabBar_iconInactive"] = 62,
-    ["tabBar_tabSelectedLeftEdge"] = 63,
-    ["tabBar_tabSelectedMiddle"] = 64,
-    ["tabBar_tabSelectedRightEdge"] = 65,
+    ["picker_bg"] = 19,
+    ["picker_overlay"] = 20,
+    ["picker_separator"] = 21,
+    ["progressView_leftFill"] = 22,
+    ["progressView_leftFillBorder"] = 23,
+    ["progressView_middleFill"] = 24,
+    ["progressView_middleFillBorder"] = 25,
+    ["progressView_rightFill"] = 26,
+    ["progressView_rightFillBorder"] = 27,
+    ["searchField_leftEdge"] = 28,
+    ["searchField_magnifyingGlass"] = 29,
+    ["searchField_middle"] = 30,
+    ["searchField_remove"] = 31,
+    ["searchField_rightEdge"] = 32,
+    ["segmentedControl_divider"] = 33,
+    ["segmentedControl_left"] = 34,
+    ["segmentedControl_leftOn"] = 35,
+    ["segmentedControl_middle"] = 36,
+    ["segmentedControl_middleOn"] = 37,
+    ["segmentedControl_right"] = 38,
+    ["segmentedControl_rightOn"] = 39,
+    ["silder_middleFrame"] = 40,
+    ["silder_middleFrameVertical"] = 41,
+    ["slider_bottomFrameVertical"] = 42,
+    ["slider_fill"] = 43,
+    ["slider_fillVertical"] = 44,
+    ["slider_handle"] = 45,
+    ["slider_leftFrame"] = 46,
+    ["slider_rightFrame"] = 47,
+    ["slider_topFrameVertical"] = 48,
+    ["spinner_spinner"] = 49,
+    ["stepper_minusActive"] = 50,
+    ["stepper_noMinus"] = 51,
+    ["stepper_noPlus"] = 52,
+    ["stepper_nonActive"] = 53,
+    ["stepper_plusActive"] = 54,
+    ["switch_background"] = 55,
+    ["switch_checkboxDefault"] = 56,
+    ["switch_checkboxSelected"] = 57,
+    ["switch_handle"] = 58,
+    ["switch_handleOver"] = 59,
+    ["switch_overlay"] = 60,
+    ["switch_radioButtonDefault"] = 61,
+    ["switch_radioButtonSelected"] = 62,
+    ["tabBar_background"] = 63,
+    ["tabBar_iconActive"] = 64,
+    ["tabBar_iconInactive"] = 65,
+    ["tabBar_tabSelectedLeftEdge"] = 66,
+    ["tabBar_tabSelectedMiddle"] = 67,
+    ["tabBar_tabSelectedRightEdge"] = 68,
 }
 
 function SheetInfo:getSheet()
