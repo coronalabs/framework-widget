@@ -73,7 +73,8 @@ local function initWithTwoFrameButton( button, options )
 		viewLabel.x = button.x + ( button.contentWidth ) - ( viewLabel.contentWidth * 0.5 ) - 10 + opt.labelXOffset
 	end
 	
-	viewLabel.y = button.y + ( opt.height * 0.5 ) + opt.labelYOffset
+	-- Set the labels y position
+	viewLabel.y = button.y + ( view.contentHeight * 0.5 ) + opt.labelYOffset
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the view
@@ -87,6 +88,11 @@ local function initWithTwoFrameButton( button, options )
 	view._labelXOffset = opt.labelXOffset
 	view._labelYOffset = opt.labelYOffset
 	
+	-- Methods
+	view._onPress = opt.onPress
+	view._onRelease = opt.onRelease
+	view._onEvent = opt.onEvent
+	
 	-------------------------------------------------------
 	-- Assign properties/objects to the button
 	-------------------------------------------------------
@@ -95,19 +101,27 @@ local function initWithTwoFrameButton( button, options )
 	button._imageSheet = imageSheet
 	button._view = view
 	
-	-- Methods
-	view._onPress = opt.onPress
-	view._onRelease = opt.onRelease
-	view._onEvent = opt.onEvent
-
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
 	
+	-- Function to set the button's label
+	function button:setLabel( newLabel )
+		return self._view:setLabel( newLabel )
+	end
+	
+	-- Function to get the button's label
+	function button:getLabel()
+		return self._view:getLabel()
+	end
+	
+	
 	function view:touch( event )
 		local phase = event.phase
+		local _button = self.parent
+		event.target = _button
 		
-		-- If the button is inside a scrollView, just return true
+		-- If the button is inside a scrollView, set it as so then return true
 		if self._insertedIntoScrollView then	
 			return true
 		end
@@ -178,19 +192,25 @@ local function initWithTwoFrameButton( button, options )
 	
 	view:addEventListener( "touch" )
 	
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
+	
 	-- Function to set the button's label
 	function view:setLabel( newLabel )
+		-- Update the label's text
 		self._label:setText( newLabel )
 		
 		-- Labels position
 		if "center" == self._labelAlign then
-			self._label.x = button.x + ( self.contentWidth * 0.5 ) + self._labelXOffset
-		elseif "left" == self.labelAlign then
-			self._label.x = button.x + ( self._label.contentWidth * 0.5 ) + 10 + self._labelXOffset
-		elseif "right" == self.labelAlign then
-			self._label.x = button.x + ( button.contentWidth ) - ( self._label.contentWidth * 0.5 ) - 10 + self._labelXOffset
+			self._label.x = button.x + self._labelXOffset
+		elseif "left" == self._labelAlign then
+			self._label.x = button.x - ( self.contentWidth * 0.5 ) + ( self._label.contentWidth * 0.5 ) + 10 + self._labelXOffset
+		elseif "right" == self._labelAlign then
+			self._label.x = button.x + ( button.contentWidth ) - ( self._label.contentWidth * 0.5 ) - 10 + self._labelXOffset -- Not correct
 		end
-		
+				
+		-- Update the label's y position
 		self._label.y = self._label.y + self._labelYOffset
 	end
 	
@@ -198,10 +218,6 @@ local function initWithTwoFrameButton( button, options )
 	function view:getLabel()
 		return self._label.text
 	end
-	
-	----------------------------------------------------------
-	--	PRIVATE METHODS	
-	----------------------------------------------------------
 	
 	-- Function to set the buttons current state
 	function view:_setState( state )
@@ -230,8 +246,8 @@ local function initWithTwoFrameButton( button, options )
 	
 	-- Finalize function
 	function button:_finalize()
-		-- Set buttons ImageSheet to nil
-		self._view_imageSheet = nil
+		-- Set the ImageSheet to nil
+		self._imageSheet = nil
 	end
 	
 	return button
@@ -511,6 +527,7 @@ local function initWithNinePieceButton( button, options )
 		viewLabel.x = viewTopRight.x - ( viewLabel.contentWidth * 0.5 ) + opt.labelXOffset
 	end
 	
+	-- The label's y position
 	viewLabel.y = button.y + ( opt.height * 0.5 ) + opt.labelYOffset
 	
 	-------------------------------------------------------
@@ -534,6 +551,11 @@ local function initWithNinePieceButton( button, options )
 	view._middleRight = viewMiddleRight
 	view._bottomRight = viewBottomRight
 	
+	-- Methods
+	view._onPress = opt.onPress
+	view._onRelease = opt.onRelease
+	view._onEvent = opt.onEvent
+	
 	-------------------------------------------------------
 	-- Assign properties/objects to the button
 	-------------------------------------------------------
@@ -541,12 +563,7 @@ local function initWithNinePieceButton( button, options )
 	-- Assign objects to the button
 	button._imageSheet = imageSheet
 	button._view = view
-	
-	-- Methods
-	view._onPress = opt.onPress
-	view._onRelease = opt.onRelease
-	view._onEvent = opt.onEvent
-			
+		
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
@@ -554,7 +571,7 @@ local function initWithNinePieceButton( button, options )
 	function view:touch( event )
 		local phase = event.phase
 		
-		-- If the button is inside a scrollView, just return true
+		-- If the button is inside a scrollView, set it as so then return true
 		if self._insertedIntoScrollView then
 			self._isInScrollView = true	
 			return true
@@ -626,6 +643,10 @@ local function initWithNinePieceButton( button, options )
 	
 	view:addEventListener( "touch" )
 	
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
+	
 	-- Function to set the button's label
 	function view:setLabel( newLabel )
 		self._label:setText( newLabel )
@@ -637,6 +658,7 @@ local function initWithNinePieceButton( button, options )
 			self._label.x = self._topRight.x - ( self._label.contentWidth * 0.5 ) - self._labelXOffset
 		end
 
+		-- Update the label's y position
 		self._label.y = self._label.y + self._labelYOffset
 	end
 	
@@ -644,10 +666,6 @@ local function initWithNinePieceButton( button, options )
 	function view:getLabel()
 		return self._label.text
 	end
-	
-	----------------------------------------------------------
-	--	PRIVATE METHODS	
-	----------------------------------------------------------
 	
 	-- Function to set the buttons current state
 	function view:_setState( state )
@@ -720,8 +738,8 @@ local function initWithNinePieceButton( button, options )
 		
 	-- Finalize function
 	function button:_finalize()
-		-- Set buttons ImageSheet to nil
-		self._view_imageSheet = nil
+		-- Set the ImageSheet to nil
+		self._imageSheet = nil
 	end
 		
 	return button
@@ -757,7 +775,7 @@ function M.new( options, theme )
 	opt.labelAlign = customOptions.labelAlign or "center"
 	opt.labelXOffset = customOptions.labelXOffset or 0
 	opt.labelYOffset = customOptions.labelYOffset or 0
-	opt.embossedLabel = customOptions.embossedLabel or themeOptions.embossedLabel or false
+	opt.embossedLabel = customOptions.emboss or themeOptions.emboss or false
 	opt.onPress = customOptions.onPress
 	opt.onRelease = customOptions.onRelease
 	opt.onEvent = customOptions.onEvent
@@ -770,15 +788,15 @@ function M.new( options, theme )
 	
 	-- Left ( 9 piece set )
 	opt.topLeftFrame = customOptions.topLeftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.topLeftFrame )
-	opt.topLeftFrameOver = customOptions.topLeftFrameOver or require( themeOptions.data ):getFrameIndex( themeOptions.topLeftFrameOver )
+	opt.topLeftFrameOver = customOptions.topLeftOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.topLeftOverFrame )
 	opt.middleLeftFrame = customOptions.middleLeftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleLeftFrame )
-	opt.middleLeftFrameOver = customOptions.middleLeftFrameOver or require( themeOptions.data ):getFrameIndex( themeOptions.middleLeftFrameOver )
+	opt.middleLeftFrameOver = customOptions.middleLeftOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleLeftOverFrame )
 	opt.bottomLeftFrame = customOptions.bottomLeftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomLeftFrame )
-	opt.bottomLeftFrameOver = customOptions.bottomLeftFrameOver or require( themeOptions.data ):getFrameIndex( themeOptions.bottomLeftFrameOver )
+	opt.bottomLeftFrameOver = customOptions.bottomLeftOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomLeftOverFrame )
 	
 	-- Right ( 9 piece set )
 	opt.topRightFrame = customOptions.topRightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.topRightFrame )
-	opt.topRightFrameOver = customOptions.topRightFrameOver or require( themeOptions.data ):getFrameIndex( themeOptions.topRightFrameOver )
+	opt.topRightFrameOver = customOptions.topRightOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.topRightOverFrame )
 	opt.middleRightFrame = customOptions.middleRightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleRightFrame )
 	opt.middleRightOverFrame = customOptions.middleRightOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleRightOverFrame )
 	opt.bottomRightFrame = customOptions.bottomRightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomRightFrame )
@@ -793,10 +811,10 @@ function M.new( options, theme )
 	opt.bottomMiddleOverFrame = customOptions.bottomMiddleOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomMiddleOverFrame )
 
 	-- Are we using a nine piece button?
-	local using9PieceButton = opt.topLeftFrame and opt.topLeftFrameOver and opt.middleLeftFrame and opt.middleLeftFrameOver and opt.bottomLeftFrame and opt.bottomLeftFrameOver and 
+	local using9PieceButton = not opt.defaultFrame and not opt.overFrame and opt.topLeftFrame and opt.topLeftFrameOver and opt.middleLeftFrame and opt.middleLeftFrameOver and opt.bottomLeftFrame and opt.bottomLeftFrameOver and 
 							opt.topRightFrame and opt.topRightFrameOver and opt.middleRightFrame and opt.middleRightOverFrame and opt.bottomRightFrame and opt.bottomRightOverFrame and
 							opt.topMiddleFrame and opt.topMiddleOverFrame and opt.middleFrame and opt.middleOverFrame and opt.bottomMiddleFrame and opt.bottomMiddleOverFrame
-
+	
 	if not using9PieceButton and not opt.defaultFrame and not opt.overFrame then
 		error( "ERROR: " .. M._widgetName .. ": 9 piece frame or default/over frame definition expected, got nil", 3 )
 	end

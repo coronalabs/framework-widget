@@ -249,7 +249,7 @@ local function createOnOffSwitch( switch, options )
 		end
 				
 		-- Set the switches transition time
-		local switchTransitionTime = 300
+		local switchTransitionTime = 250
 		
 		-- Transition the switch from on>off and vice versa
 		if _switch.isOn then
@@ -323,7 +323,7 @@ local function createOnOffSwitch( switch, options )
 				end
 				
 				-- Set the switches transition time
-				local switchTransitionTime = 300
+				local switchTransitionTime = 250
 				
 				-- Transition the switch from on>off and vice versa
 				if self._handle.x < 0 then
@@ -389,6 +389,9 @@ local function createOnOffSwitch( switch, options )
 			end
 		end
 		
+		-- Set the switches transition time
+		local switchTransitionTime = 250
+		
 		-- Set the switch to on/off visually
 		if _isSwitchOn then
 			if _isAnimated then
@@ -432,6 +435,8 @@ local function createOnOffSwitch( switch, options )
 		self._view._handle = nil
 		self._view._mask = nil
 		self._view = nil
+		
+		-- Set the ImageSheet to nil
 		self._imageSheet = nil
 	end
 
@@ -587,6 +592,7 @@ local function createStandardSwitch( switch, options )
 		self._viewOff = nil
 		self._viewOn = nil
 
+		-- Set the ImageSheet to nil
 		self._imageSheet = nil
 	end
 	

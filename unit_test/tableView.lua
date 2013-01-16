@@ -45,11 +45,14 @@ function scene:createScene( event )
 	local TEST_DELETE_SINGLE_ROW = false
 	local TEST_LOCKING_LIST = false
 	
+	-- Listen for tableView events
 	local function tableViewListener( event )
 		local phase = event.phase
-		--print( event.phase )
+		
+		print( event.phase )
 	end
 
+	-- Handle row rendering
 	local function onRowRender( event )
 		local phase = event.phase
 		local row = event.row
@@ -60,13 +63,12 @@ function scene:createScene( event )
 		rowTitle:setTextColor( 0, 0, 0 )
 	end
 	
+	-- Handle touches on the row
 	local function onRowTouch( event )
 		local phase = event.phase
-		
-		print( "phase is:", phase )
-		
+				
 		if "press" == phase then
-			--print( "Touched row:", event.target.index )
+			print( "Touched row:", event.target.index )
 		end
 	end
 	
@@ -77,30 +79,27 @@ function scene:createScene( event )
 		width = 320, 
 		height = 366,
 		maskFile = "assets/mask-320x366.png",
-		--baseDir = system.DocumentsDirectory
-		--hideBackground = true,
-		--topPadding = -40,
-		noLines = false,
-		--bottomPadding = 40,
 		listener = tableViewListener,
 		onRowRender = onRowRender,
 		onRowTouch = onRowTouch,
 	}
 	group:insert( tableView )
 	
+	-- Create 100 rows
 	for i = 1, 100 do
 		local isCategory = false
 		local rowHeight = 40
 		local rowColor = { 255, 255, 255 }
 		local lineColor = { 220, 220, 220 }
 		
-		if i == 5 or i == 50 or i == 75 then
+		-- Make some rows categories
+		if i == 25 or i == 50 or i == 75 then
 			isCategory = true
 			rowHeight = 24
 			rowColor = { 150, 160, 180, 200 }
 		end
 		
-		
+		-- Insert the row into the tableView
 		tableView:insertRow
 		{
 			isCategory = isCategory,

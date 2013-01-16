@@ -5,7 +5,8 @@ function M._touch( view, event )
 	local phase = event.phase
 	local time = event.time
 			
-	if "began" == phase then		
+	if "began" == phase then	
+		-- Reset values	
 		view._startXPos = event.x
 		view._startYPos = event.y
 		view._prevXPos = event.x
@@ -51,15 +52,16 @@ function M._touch( view, event )
 				
 					-- Limit movement
 					local leftLimit = nil
+					local rightLimit = 0
 					
+					-- Set the left limit
 					if view._scrollWidth then
 						leftLimit = -view._scrollWidth
 					else
 						leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 )
 					end
-						
-					local rightLimit = 0
-				
+		
+					-- If the view is more than the limits
 					if view.x < leftLimit or view.x > rightLimit then
 						view.x = view.x + ( view._delta * 0.5 )
 					else
@@ -76,33 +78,37 @@ function M._touch( view, event )
 							
 					-- Limit movement
 					local upperLimit = nil
+					local bottomLimit = view._topPadding
 
+					-- Set the upper limit
 					if view._scrollHeight then
 						upperLimit = -view._scrollHeight
 					else
 						upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
 					end
 					
-					local bottomLimit = view._topPadding
-			
+					-- If the view is more than the limits
 					if view.y < upperLimit or view.y > bottomLimit then
 						view.y = view.y + ( view._delta * 0.5 )
 					else
 						view.y = view.y + view._delta  
 					end
 					
+					-- Set the time held
 					view._timeHeld = time
 				
 					-- Move the scrollBar
 				end
 			end
 			
-		elseif "ended" == phase or "cancelled" == phase then				
+		elseif "ended" == phase or "cancelled" == phase then
+			-- Reset values				
 			view._lastTime = event.time
 			view._trackVelocity = false
 			view._updateRuntime = true
 			view._timeHeld = 0
-														
+						
+			-- Remove focus								
 			display.getCurrentStage():setFocus( nil )
 			view._isFocus = nil
 		end
@@ -122,7 +128,7 @@ function M._runtime( view, event )
 			view._velocity = 0
 			view._updateRuntime = false
 		end
-				
+		
 		-- Set the velocity
 		view._velocity = view._velocity * view._friction
 		
@@ -137,27 +143,63 @@ function M._runtime( view, event )
 		if "horizontal" == view._moveDirection then
 			-- If horizontal scrolling is enabled
 			if not view._isHorizontalScrollingDisabled then
+				-- Reset limit values
+				view._hasHitLeftLimit = false
+				view._hasHitRightLimit = false
+				
+				-- Move the view
 				view.x = view.x + view._velocity * timePassed
 			
 				local leftLimit = nil
+				local rightLimit = view._leftPadding
 				
+				-- Set the left limit
 				if view._scrollWidth then
 					leftLimit = -view._scrollWidth
 				else
 					leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 ) - view._rightPadding
 				end
-				
-				local rightLimit = view._leftPadding
 			
 				-- Left
 				if view.x < leftLimit then
+					-- Transition the view back to it's maximum position
 					transition.to( view, { time = 400, x = leftLimit, transition = easing.outQuad } )
 					view._updateRuntime = false
+					
+					-- If there is a listener specified, dispatch the event
+					if view._listener then
+						-- We have hit the left limit
+						view._hasHitLeftLimit = true
+						
+						local newEvent = 
+						{
+							type = "leftLimit",
+							target = view,
+						}
+						
+						view._listener( newEvent )
+					end
 			
 				-- Right
 				elseif view.x > rightLimit then
+					-- Transition the view back to it's maximum position
 					transition.to( view, { time = 400, x = rightLimit, transition = easing.outQuad } )
+					-- Stop updating the runtime now
 					view._updateRuntime = false
+					
+					-- If there is a listener specified, dispatch the event
+					if view._listener then
+						-- We have hit the right limit
+						view._hasHitRightLimit = true
+						
+						local newEvent = 
+						{
+							type = "rightLimit",
+							target = view,
+						}
+						
+						view._listener( newEvent )
+					end
 				end
 			end	
 			
@@ -165,27 +207,64 @@ function M._runtime( view, event )
 		else
 			-- If vertical scrolling is enabled
 			if not view._isVerticalScrollingDisabled then
+				-- Reset limit values
+				view._hasHitBottomLimit = false
+				view._hasHitTopLimit = false
+				
+				-- Move the view
 				view.y = view.y + view._velocity * timePassed
 	
 				local upperLimit = nil
+				local bottomLimit = view._topPadding
 				
+				-- Set the upper limit
 				if view._scrollHeight then
 					upperLimit = -view._scrollHeight
 				else
 					upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
 				end
 	
-				local bottomLimit = view._topPadding
-	
 				-- Top
 				if view.y < upperLimit then
+					-- Transition the view back to it's maximum position
 					transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
+					-- Stop updating the runtime now
 					view._updateRuntime = false
+					
+					-- If there is a listener specified, dispatch the event
+					if view._listener then
+						-- We have hit the top limit
+						view._hasHitTopLimit = true
+						
+						local newEvent = 
+						{
+							type = "topLimit",
+							target = view,
+						}
+						
+						view._listener( newEvent )
+					end
 							
 				-- Bottom
 				elseif view.y > bottomLimit then
+					-- Transition the view back to it's maximum position
 					transition.to( view, { time = 400, y = bottomLimit, transition = easing.outQuad } )
+					-- Stop updating the runtime now
 					view._updateRuntime = false
+					
+					-- If there is a listener specified, dispatch the event
+					if view._listener then
+						-- We have hit the bottom limit
+						view._hasHitBottomLimit = true
+						
+						local newEvent = 
+						{
+							type = "bottomLimit",
+							target = view,
+						}
+						
+						view._listener( newEvent )
+					end
 				else
 					-- Move the scrollBar
 				end
@@ -195,6 +274,7 @@ function M._runtime( view, event )
 	
 	-- If we are tracking velocity
 	if view._trackVelocity then
+		-- Calculate the time passed
 		local newTimePassed = event.time - view._prevTime
 		view._prevTime = view._prevTime + newTimePassed
 		

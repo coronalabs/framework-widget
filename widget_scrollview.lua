@@ -53,7 +53,7 @@ local function createScrollView( scrollView, options )
 	
 	-- Set the view's initial position ( to account for top padding )
 	view.y = view.y + opt.topPadding
-
+	
 	-------------------------------------------------------
 	-- Assign properties to the view
 	-------------------------------------------------------
@@ -108,8 +108,8 @@ local function createScrollView( scrollView, options )
 	
 	-- Function to scroll the view to a specific position
 	function scrollView:scrollToPosition( options )
-		local newX = options.x
-		local newY = options.y
+		local newX = options.x or self._view.x
+		local newY = options.y or self._view.y
 		local transitionTime = options.time or 400
 		local onTransitionComplete = options.onComplete
 	

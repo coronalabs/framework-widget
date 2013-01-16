@@ -18,6 +18,7 @@ function scene:createScene( event )
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
+	--[[
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
@@ -32,6 +33,7 @@ function scene:createScene( event )
 	}
 	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
+	--]]
 	
 	----------------------------------------------------------------------------------------------------------------
 	--										START OF UNIT TEST
@@ -64,13 +66,15 @@ function scene:createScene( event )
 	-- Standard button 
 	local topLeftButton = widget.newButton
 	{
+		sheet = "assets/assets.png",
+		data = "assets.assets",
+		defaultFrame = 1,
+		overFrame = 2,
 	    id = "Left Button",
-	    left = 0,
+	    left = 10,
 	    top = 80,
 	    label = "Left",
-		labelAlign = "left",
-	    width = 140, 
-		height = 50,
+		labelAlign = "right",
 		fontSize = 18,
 		labelColor =
 		{ 
@@ -79,9 +83,8 @@ function scene:createScene( event )
 		},
 	    onEvent = onButtonEvent
 	}
-	topLeftButton.oldLabel = "Left"
-	group:insert( topLeftButton )
-		
+	topLeftButton.oldLabel = "Left"	
+	group:insert( topLeftButton )		
 	
 	-- Standard button 
 	local centerButton = widget.newButton
@@ -90,7 +93,7 @@ function scene:createScene( event )
 	    left = 0,
 	    top = 0,
 	    label = "Center",
-		labelAlign = "right",
+		labelAlign = "center",
 	    width = 140, 
 		height = 50,
 		fontSize = 18,
@@ -105,7 +108,7 @@ function scene:createScene( event )
 	centerButton.x = display.contentCenterX
 	centerButton.y = display.contentCenterY
 	group:insert( centerButton )
-	
+
 	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --

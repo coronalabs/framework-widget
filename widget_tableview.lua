@@ -47,13 +47,13 @@ local function createTableView( tableView, options )
 	----------------------------------
 	
 	-- Background
-	viewBackground.isVisible = false --not opt.shouldHideBackground
+	viewBackground.isVisible = not opt.shouldHideBackground
 	viewBackground.isHitTestable = true
 	viewBackground:setFillColor( unpack( opt.backgroundColor ) )
 	
 	-- Set the view's initial position ( to account for top padding )
 	view.y = view.y + opt.topPadding
-
+	
 	-------------------------------------------------------
 	-- Assign properties to the view
 	-------------------------------------------------------
@@ -105,6 +105,11 @@ local function createTableView( tableView, options )
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
+	
+	-- Function to retrieve the x/y position of the tableView's content
+	function tableView:getContentPosition()
+		return self._view.y
+	end
 	
 	-- Function to insert a row into a tableView
 	function tableView:insertRow( options )
@@ -167,8 +172,8 @@ local function createTableView( tableView, options )
 	
 	viewBackground:addEventListener( "touch" )
 	
-	
-	function view:_getRowAtPosition( position )
+	-- Function to get a row at a specific position
+	function view:_getRowAtPosition( position, animate )
 		local yPosition = position
 				
 		for k, v in pairs( self._rows ) do	
@@ -176,9 +181,23 @@ local function createTableView( tableView, options )
 			
 			local isWithinBounds = yPosition > bounds.yMin and yPosition < bounds.yMax + 1
 						
+			-- If we have hit the bottom limit, return the first row.
+			if self._hasHitBottomLimit then
+				return self._rows[1]
+			end
+			
+			-- If we have hit the top limit, return the last row.
+			if self._hasHitTopLimit then
+				return self._rows[#self._rows]
+			end			
+						
+			-- Any other row
 			if isWithinBounds then
-				transition.to( self, { time = 400, y = - self._rows[k].y - self._top , transition = easing.outQuad } )
-				--transition.to( self, { time = 400, y = - self._rows[k].y - self._top - ( self._rows[k].contentHeight * 0.5 ), transition = easing.outQuad } ) -- old
+				-- Transition to the target row
+				if animate then
+					transition.to( self, { time = 400, y = - self._rows[k].y - self._top , transition = easing.outQuad } )
+				end
+				
 				return self._rows[k]
 			end
 		end
@@ -277,7 +296,7 @@ local function createTableView( tableView, options )
 		
 		-- Dispatch the "press" phase
 		if "began" == self._phase then
-			if timeHeld >= 110 then
+			if math.abs( self._velocity ) < 0.01 then
 				-- If there is a onRowTouch listener
 				if self._onRowTouch then
 					self._newPhase = "press"
@@ -307,6 +326,9 @@ local function createTableView( tableView, options )
 	
 	Runtime:addEventListener( "enterFrame", view )
 	
+	
+	
+		
 	-- Function to manage all row's lifeCycle
 	function view:_manageRowLifeCycle()
 		local upperLimit = self._background.y - ( self._background.contentHeight * 0.5 )
@@ -315,7 +337,7 @@ local function createTableView( tableView, options )
 		-- Loop through the rows and set any off screen ones to invisible, and on screen ones to visible
 		for k, v in pairs( self._rows ) do
 			local isRowOnScreen = ( self._rows[k].y + self.y ) + self._rows[k].contentHeight > upperLimit and ( self._rows[k].y + self.y ) - self._rows[k].contentHeight < lowerLimit
-			
+					
 			-- Cull rows that are are currently not within our tableView's bounds
 			if not isRowOnScreen then
 				self._rows[k].isVisible = false
@@ -341,7 +363,9 @@ local function createTableView( tableView, options )
 		self._rows[#self._rows + 1] = display.newGroup()
 		self._rows[#self._rows].index = #self._rows
 		
+		local rowId = options.id or #self._rows
 		local rowHeight = options.rowHeight or 40
+		local isRowCategory = options.isCategory or false
 		local rowColor = options.rowColor or { 255, 255, 255 }
 		local lineColor = options.lineColor or { 220, 220, 220 }
 				
@@ -365,6 +389,7 @@ local function createTableView( tableView, options )
 		
 		-- Insert the row into the view
 		self._rows[#self._rows]._border = border
+		self._rows[#self._rows]._isCategory = isRowCategory
 				
 		-- Position the row
 		self._rows[#self._rows].x = self.x + self._rows[#self._rows].contentWidth * 0.5
@@ -375,6 +400,9 @@ local function createTableView( tableView, options )
 		else
 			self._rows[#self._rows].y = self._rows[#self._rows - 1].y + ( self._rows[#self._rows - 1].contentHeight * 0.5 ) + ( self._rows[#self._rows].contentHeight * 0.5 ) - 1
 		end
+		
+		-- Set the row's id
+		self._rows[#self._rows].id = rowId
 		
 		-- Insert the row into the view
 		self:insert( self._rows[#self._rows] )
@@ -401,7 +429,6 @@ local function createTableView( tableView, options )
 		-- Loop through the remaining rows, starting at the next row after the deleted one
 		for i = rowIndex + 1, #self._rows do
 			if self._rows[i].y then
-				--self._rows[i].y = self._rows[i].y - ( self._rows[i].contentHeight )
 				transition.to( self._rows[i], { y = self._rows[i].y - ( self._rows[i]._border.contentHeight ), transition = easing.outQuad } )
 			end
 		end

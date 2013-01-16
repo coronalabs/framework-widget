@@ -154,8 +154,8 @@ local function initWithSprite( spinner, options )
 	
 	-- Finalize function
 	function spinner:_finalize()
-		-- Set spinners ImageSheet to nil
-		self._view_imageSheet = nil
+		-- Set the ImageSheet to nil
+		self._imageSheet = nil
 	end
 		
 	return spinner

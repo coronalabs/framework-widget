@@ -330,7 +330,7 @@ local function initWithImage( segmentedControl, options )
 		self._view._segments = nil
 		self._view = nil
 		
-		-- Set segmentedControl's ImageSheet to nil
+		-- Set the ImageSheet to nil
 		self._imageSheet = nil
 	end
 	
@@ -374,6 +374,7 @@ function M.new( options, theme )
 	-- Frames & Images
 	opt.sheet = customOptions.sheet or themeOptions.sheet
 	opt.sheetData = customOptions.data or themeOptions.data
+	
 	opt.leftSegmentFrame = customOptions.leftSegmentFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftSegmentFrame )
 	opt.leftSegmentSelectedFrame = customOptions.leftSegmentSelectedFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftSegmentSelectedFrame )
 	opt.rightSegmentFrame = customOptions.rightSegmentFrame or require( themeOptions.data ):getFrameIndex( themeOptions.rightSegmentFrame )

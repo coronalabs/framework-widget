@@ -192,13 +192,14 @@ local function initWithImage( searchField, options )
 			timer.cancel( self._textFieldTimer )
 		end
 		
+		-- Remove the textField
 		display.remove( self._view._textField )
 		
 		self._view._textField = nil
 		self._view._cancelButton = nil
 		self._view = nil
 		
-		-- Set searchField imageSheet to nil
+		-- Set the ImageSheet to nil
 		self._imageSheet = nil
 	end
 			
@@ -239,6 +240,7 @@ function M.new( options, theme )
 	-- Frames & Images
 	opt.sheet = customOptions.sheet or themeOptions.sheet
 	opt.sheetData = customOptions.data or themeOptions.data
+	
 	opt.leftFrame = customOptions.leftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftFrame )
 	opt.rightFrame = customOptions.rightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.rightFrame )
 	opt.middleFrame = customOptions.middleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleFrame )

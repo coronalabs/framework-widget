@@ -17,11 +17,11 @@ theme.button =
 	data = assetDir .. ".assets",
 	
 	topLeftFrame = "button_topLeft",
-	topLeftFrameOver =  "button_topLeftOver",
+	topLeftOverFrame =  "button_topLeftOver",
 	middleLeftFrame = "button_middleLeft",
-	middleLeftFrameOver = "button_middleLeftOver",
+	middleLeftOverFrame = "button_middleLeftOver",
 	bottomLeftFrame = "button_bottomLeft",
-	bottomLeftFrameOver = "button_bottomLeftOver",
+	bottomLeftOverFrame = "button_bottomLeftOver",
 	
 	topMiddleFrame = "button_topMiddle",
 	topMiddleOverFrame = "button_topMiddleOver",
@@ -31,7 +31,7 @@ theme.button =
 	bottomMiddleOverFrame = "button_bottomMiddleOver",
 	
 	topRightFrame = "button_topRight",
-	topRightFrameOver = "button_topRightOver",
+	topRightOverFrame = "button_topRightOver",
 	middleRightFrame = "button_middleRight",
 	middleRightOverFrame = "button_middleRightOver",
 	bottomRightFrame = "button_bottomRight",
@@ -46,7 +46,7 @@ theme.button =
 		default = { 0, 0, 0 },
 		over = { 0, 0, 0 },
 	},
-	embossedLabel = true,
+	emboss = true,
 }
 
 

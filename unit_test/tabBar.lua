@@ -42,32 +42,21 @@ function scene:createScene( event )
 	local tabButtons = 
 	{
 		{
-			iconInactiveFrame = "tabBar_iconInactive",
-			iconActiveFrame = "tabBar_iconActive",
 			label = "Tab1",
 			onPress = function() print( "Tab 1 pressed" ) end,
 			selected = false
 		},
 		{
-			iconInactiveFrame = "tabBar_iconInactive",
-			iconActiveFrame = "tabBar_iconActive",
 			label = "Tab2",
-			onPress = function() print( "Tab 2 pressed" ) end,
+			onPress = function( event ) print( "Tab 2 pressed" ); print( event.target._id ) end,
 			selected = true
 		},
 		{
-			iconInactiveFrame = "tabBar_iconInactive",
-			iconActiveFrame = "tabBar_iconActive",
 			label = "Tab3",
-			--labelColor = { 255, 0, 0 },
-			--labelFont = native.systemFontBold,
-			--labelSize = 12,
 			onPress = function() print( "Tab 3 pressed" ) end,
 			selected = false
 		},
 		{
-			iconInactiveFrame = "tabBar_iconInactive",
-			iconActiveFrame = "tabBar_iconActive",
 			label = "Tab4",
 			onPress = function() print( "Tab 4 pressed" ) end,
 			selected = false

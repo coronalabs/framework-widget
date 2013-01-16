@@ -51,16 +51,19 @@ local function initWithImage( tabBar, options )
 	
 	-- Create the tab buttons
 	for i = 1, #opt.tabButtons do
+		local activeFrame = require( opt.sheetData ):getFrameIndex( opt.tabButtons[i].iconInactiveFrame ) or opt.iconActiveFrame
+		local inActiveFrame = require( opt.sheetData ):getFrameIndex( opt.tabButtons[i].iconActiveFrame ) or opt.iconInActiveFrame
+		
 		local spriteOptions = 
 		{
 			{
 				name = "inActive",
-				start = require( opt.sheetData ):getFrameIndex( opt.tabButtons[i].iconInactiveFrame ),
+				start = inActiveFrame,
 				count = 1,
 			},
 			{
 				name = "active",
-				start = require( opt.sheetData ):getFrameIndex( opt.tabButtons[i].iconActiveFrame ),
+				start = activeFrame,
 				count = 1,
 			},	
 		}
@@ -96,6 +99,7 @@ local function initWithImage( tabBar, options )
 	
 	-- Set the tabBar's background width & position	
 	view.width = opt.width
+	view.height = opt.height
 	view.x = tabBar.x + ( view.contentWidth * 0.5 )
 	view.y = tabBar.y + ( view.contentHeight * 0.5 )
 	
@@ -121,6 +125,9 @@ local function initWithImage( tabBar, options )
 		-- Set the button label position
 		viewButtons[i].label.x = viewButtons[i].x
 		viewButtons[i].label.y = ( viewSelectedLeft.y + ( viewSelectedLeft.contentHeight * 0.5 ) ) - ( viewButtons[i].label.contentHeight * 0.5 ) - 1
+		
+		-- Set the buttons id
+		viewButtons[i]._id = opt.tabButtons[i].id or "button" .. i
 		
 		-- Assign the onPress listener to the button
 		viewButtons[i]._onPress = opt.tabButtons[i].onPress
@@ -183,7 +190,7 @@ local function initWithImage( tabBar, options )
 				if pressedWithinRange then
 					-- Activate the tab
 					if not currentTab._isPressed then
-						self:_setTabActive( i )
+						self:_setTabActive( i, true )
 					end
 					
 					break
@@ -206,7 +213,7 @@ local function initWithImage( tabBar, options )
 	----------------------------------------------------------
 	
 	-- Function to set a tab as active
-	function view:_setTabActive( selectedTab )
+	function view:_setTabActive( selectedTab, invokeListener )
 		for i = 1, #self._tabs do
 			-- The pressed tab
 			if selectedTab == i then
@@ -215,7 +222,18 @@ local function initWithImage( tabBar, options )
 				
 				-- Execute the tab buttons onPress method if it has one
 				if self._tabs[i]._onPress then
-					self._tabs[i]._onPress()
+					local newEvent = 
+					{
+						phase = "press",
+						target = self._tabs[i],
+					}
+					
+					-- Execute the onPress method, if it exists
+					if self._tabs[i]._onPress then
+						if invokeListener then
+							self._tabs[i]._onPress( newEvent )
+						end
+					end
 				end
 				
 				-- Set the tab to it's active state
@@ -243,7 +261,7 @@ local function initWithImage( tabBar, options )
 	
 	-- Finalize function for the tabBar
 	function tabBar:_finalize()
-		-- Set tabBar's ImageSheet to nil
+		-- Set the ImageSheet to nil
 		self._imageSheet = nil
 	end
 			
@@ -266,7 +284,7 @@ function M.new( options, theme )
 	-------------------------------------------------------
 	
 	-- Positioning & properties
-	opt.left = customOptions.left or 150
+	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
 	opt.width = customOptions.width or themeOptions.width or display.contentWidth
 	opt.height = customOptions.height or themeOptions.height or 52
@@ -288,6 +306,11 @@ function M.new( options, theme )
 	opt.tabSelectedMiddleFrame = customOptions.tabSelectedMiddleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.tabSelectedMiddleFrame )
 	opt.tabSelectedFrameWidth = customOptions.tabSelectedFrameWidth or themeOptions.tabSelectedFrameWidth
 	opt.tabSelectedFrameHeight = customOptions.tabSelectedFrameHeight or themeOptions.tabSelectedFrameHeight
+	
+	if themeOptions then
+		opt.iconActiveFrame = require( themeOptions.data ):getFrameIndex( themeOptions.iconActiveFrame )
+		opt.iconInActiveFrame = require( themeOptions.data ):getFrameIndex( themeOptions.iconInActiveFrame )
+	end
 	
 	-------------------------------------------------------
 	-- Create the tabBar
