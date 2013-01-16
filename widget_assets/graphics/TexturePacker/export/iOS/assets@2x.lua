@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.texturepacker.com)
 --
--- $TexturePacker:SmartUpdate:260df70686a25651e6da04f3dd3fcd3b$
+-- $TexturePacker:SmartUpdate:02936ef0982f89d0e7f71bc360e9f443$
 --
 -- local sheetInfo = require("myExportedImageSheet") -- lua file that Texture packer published
 --

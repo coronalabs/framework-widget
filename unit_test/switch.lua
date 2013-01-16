@@ -38,7 +38,7 @@ function scene:createScene( event )
 	
 	--Toggle these defines to execute automated tests.
 	local TEST_REMOVE_SWITCH = false
-	local TEST_SET_STATE = true
+	local TEST_SET_STATE = false
 	local TEST_DELAY = 1000
 	
 	local function onRadioPress( event )

@@ -320,14 +320,14 @@ local function initWithSprite( stepper, options )
 	
 	-- Finalize function
 	function stepper:_finalize()
-		-- Set steppers ImageSheet to nil
-		self._imageSheet = nil
-		
 		-- Nil out the stepper's event table
 		self._view._event = nil
 		
 		-- Cancel the timer
 		self._view:_cancelTimer()
+		
+		-- Set the ImageSheet to nil
+		self._imageSheet = nil
 	end
 	
 	return self

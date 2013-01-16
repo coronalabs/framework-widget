@@ -31,7 +31,7 @@ function scene:createScene( event )
 	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
 	
-	--Set up the Picker Wheel's columns
+	-- Set up the Picker Wheel's columns
 	local columnData = 
 	{ 
 		{ 
@@ -57,15 +57,6 @@ function scene:createScene( event )
 			startIndex = 10,
 			labels = {},
 		},
-		
-		--[[
-		{
-			align = "center",
-			--width = 60,
-			startIndex = 1,
-			labels = { "ho" },
-		},
-		--]]
 	}
 		
 	local days = {}

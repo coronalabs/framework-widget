@@ -46,18 +46,35 @@ function scene:createScene( event )
 	local TEST_SCROLL_TO_LEFT = false
 	local TEST_SCROLL_TO_RIGHT = false
 	local TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER = false
-	
-	local scrollView
-	
-	-- Forward reference to scrollView listener
-	local function scrollListener( event )
-		--print( "Event type:", event.phase )
 		
+	-- Our ScrollView listener
+	local function scrollListener( event )
+		local phase = event.phase
+		local eType = event.type
+		
+		if "began" == phase then
+			print( "Began" )
+		elseif "moved" == phase then
+			print( "Moved" )
+		elseif "ended" == phase then
+			print( "Ended" )
+		end
+		
+		if "topLimit" == eType then
+			print( "Reached Top Limit" )
+		elseif "bottomLimit" == eType then
+			print( "Reached Bottom Limit" )
+		elseif "leftLimit" == eType then
+			print( "Reached Left Limit" )
+		elseif "rightLimit" == eType then
+			print( "Reached Right Limit" )
+		end
+				
 		return true
 	end
 
-	-- Create scrollView
-	scrollView = widget.newScrollView
+	-- Create a ScrollView
+	local scrollView = widget.newScrollView
 	{
 		top = 100,
 		left = 10,
@@ -79,9 +96,9 @@ function scene:createScene( event )
 	
 	-- insert image into scrollView widget
 	local bg = display.newImageRect( "assets/scrollimage2.jpg", 768, 1024 )
-	bg:setReferencePoint( display.TopLeftReferencePoint )
-	bg.x, bg.y = 0, 0
-	scrollView:insert( bg )
+	background.x = bg.contentWidth * 0.5
+	background.y = bg.contentHeight * 0.5
+	scrollView:insert( background )
 	group:insert( scrollView )
 	
 	

@@ -46,7 +46,7 @@ function scene:createScene( event )
 	sliderResult.y = 250
 	group:insert( sliderResult )
 	
-	--Slider listener function
+	-- Slider listener function
 	local function sliderListener( event )
 		--print( "phase is:", event.phase )
 		sliderResult:setText( "Slider at " .. event.value .. "%" )

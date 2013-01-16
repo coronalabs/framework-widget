@@ -126,7 +126,8 @@ local function initWithImage( progressView, options )
 		-- Create a local reference to the view
 		local view = self._view
 		
-		if progress > 1 then
+		-- If the progress is more than 100% just return
+		if progress > 1.0 then
 			return
 		end
 
@@ -188,7 +189,7 @@ local function initWithImage( progressView, options )
 		self._view._fillRight = nil
 		self._view = nil
 		
-		-- Set progressViews ImageSheet to nil
+		-- Set the ImageSheet to nil
 		self._imageSheet = nil
 	end
 			

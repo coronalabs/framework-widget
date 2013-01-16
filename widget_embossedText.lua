@@ -147,6 +147,7 @@ local function initWithEmbossedText( embossedText, options )
 		
 	-- Function to set the emboss color
 	function view:_setEmbossColor( embossColor )
+		-- Setup the color table
 		local color = 
 		{
 			highlight = 
@@ -165,7 +166,10 @@ local function initWithEmbossedText( embossedText, options )
 			},
 		}
 		
+		-- Set the highlight color
 		self._highlight:setTextColor( color.highlight.r, color.highlight.g, color.highlight.b, color.highlight.a  )
+		
+		-- Set the shadow color
 		self._shadow:setTextColor( color.shadow.r, color.shadow.g, color.shadow.b, color.shadow.a )
 	end	
 		
@@ -173,6 +177,7 @@ local function initWithEmbossedText( embossedText, options )
 	function view:_setText( newString )
 		local string = newString or self.text
 		
+		-- Update the text string
 		self.text = newString
 		self._highlight.text = self.text
 		self._shadow.text = self.text
@@ -183,6 +188,7 @@ local function initWithEmbossedText( embossedText, options )
 	function view:_setSize( newSize )
 		local size = newSize or self._fontSize
 	
+		-- Update the text size
 		self.size = size
 		self._highlight.size = self.size
 		self._shadow.size = self.size
