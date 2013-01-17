@@ -18,7 +18,6 @@ function scene:createScene( event )
 	-- Set a theme
 	widget.setTheme( "theme_ios" )
 	
-	--[[
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
@@ -33,7 +32,6 @@ function scene:createScene( event )
 	}
 	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
-	--]]
 	
 	----------------------------------------------------------------------------------------------------------------
 	--										START OF UNIT TEST
@@ -64,17 +62,15 @@ function scene:createScene( event )
 	
 		
 	-- Standard button 
-	local topLeftButton = widget.newButton
+	local buttonUsingFiles = widget.newButton
 	{
-		sheet = "assets/assets.png",
-		data = "assets.assets",
-		defaultFrame = 1,
-		overFrame = 2,
+		defaultFile = "assets/default.png",
+		overFile = "assets/over.png",
 	    id = "Left Button",
-	    left = 10,
-	    top = 80,
-	    label = "Left",
-		labelAlign = "right",
+	    left = 0,
+	    top = 120,
+	    label = "Files",
+		labelAlign = "left",
 		fontSize = 18,
 		labelColor =
 		{ 
@@ -83,17 +79,56 @@ function scene:createScene( event )
 		},
 	    onEvent = onButtonEvent
 	}
-	topLeftButton.oldLabel = "Left"	
-	group:insert( topLeftButton )		
+	buttonUsingFiles.x = display.contentCenterX
+	buttonUsingFiles.oldLabel = "Files"	
+	group:insert( buttonUsingFiles )
+
+	-- Set up sheet parameters for imagesheet button
+	local sheetInfo =
+	{
+		width = 200,
+		height = 60,
+		numFrames = 2,
+		sheetContentWidth = 200,
+		sheetContentHeight = 120,
+	}
 	
-	-- Standard button 
-	local centerButton = widget.newButton
+	-- Create the button sheet
+	local buttonSheet = graphics.newImageSheet( "assets/btnBlueSheet.png", sheetInfo )
+
+	
+	-- ImageSheet button 
+	local buttonUsingImageSheet = widget.newButton
+	{
+		sheet = buttonSheet,
+		defaultFrame = 1,
+		overFrame = 2,
+	    id = "Left Button",
+	    left = 60,
+	    top = 200,
+	    label = "ImageSheet",
+		labelAlign = "center",
+		fontSize = 18,
+		labelColor =
+		{ 
+			default = { 255, 255, 255 },
+			over = { 255, 0, 0 },
+		},
+	    onEvent = onButtonEvent
+	}
+	buttonUsingImageSheet.x = display.contentCenterX
+	buttonUsingImageSheet.oldLabel = "ImageSheet"	
+	group:insert( buttonUsingImageSheet )
+		
+
+	-- Theme button 
+	local buttonUsingTheme = widget.newButton
 	{
 	    id = "Center Button",
 	    left = 0,
-	    top = 0,
-	    label = "Center",
-		labelAlign = "center",
+	    top = 280,
+	    label = "Theme",
+		labelAlign = "right",
 	    width = 140, 
 		height = 50,
 		fontSize = 18,
@@ -104,11 +139,9 @@ function scene:createScene( event )
 		},
 	    onEvent = onButtonEvent
 	}
-	centerButton.oldLabel = "Center"
-	centerButton.x = display.contentCenterX
-	centerButton.y = display.contentCenterY
-	group:insert( centerButton )
-
+	buttonUsingTheme.oldLabel = "Theme"
+	buttonUsingTheme.x = display.contentCenterX
+	group:insert( buttonUsingTheme )
 	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --
@@ -117,7 +150,7 @@ function scene:createScene( event )
 	--Test setting label
 	if TEST_SET_LABEL then
 		testTimer = timer.performWithDelay( 2000, function()
-			topLeftButton:setLabel( "New Label" ) -- "New Label"
+			buttonUsingTheme:setLabel( "New Label" ) -- "New Label"
 		end, 1 )		
 	end
 	

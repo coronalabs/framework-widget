@@ -15,34 +15,23 @@ local M =
 	_widgetName = "widget.newButton",
 }
 
--- Creates a new button from a sprite
-local function initWithTwoFrameButton( button, options )
+------------------------------------------------------------------------
+-- Image Files Button
+------------------------------------------------------------------------
+
+-- Creates a new button from single png images
+local function initWithFileButton( button, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
-	-- Animation options
-	local sheetOptions = 
-	{
-		{
-			name = "default", 
-			start = opt.defaultFrame, 
-			count = 1,
-		},
-		{
-			name = "over", 
-			start = opt.overFrame, 
-			count = 1,
-		},
-	}
-	
 	-- Forward references
-	local imageSheet, view, viewLabel
-	
-	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	local view, viewOver, viewLabel
 	
 	-- Create the view
-	view = display.newSprite( button, imageSheet, sheetOptions )
+	view = display.newImageRect( button, opt.defaultFile, opt.width, opt.height )
+	
+	-- Create the view 'over' object
+	viewOver = display.newImageRect( button, opt.overFile, opt.width, opt.height )
 
 	-- Create the label (either embossed or standard)
 	if opt.embossedLabel then
@@ -59,6 +48,10 @@ local function initWithTwoFrameButton( button, options )
 	view.x = button.x + ( view.contentWidth * 0.5 )
 	view.y = button.y + ( view.contentHeight * 0.5 )
 	
+	viewOver.x = view.x
+	viewOver.y = view.y
+	viewOver.isVisible = false
+	
 	-- Setup the label
 	viewLabel:setTextColor( unpack( opt.labelColor.default ) )
 	viewLabel._labelColor = opt.labelColor
@@ -66,13 +59,13 @@ local function initWithTwoFrameButton( button, options )
 	
 	-- Labels position
 	if "center" == opt.labelAlign then
-		viewLabel.x = button.x + ( view.contentWidth * 0.5 ) + opt.labelXOffset
+		viewLabel.x = view.x + opt.labelXOffset
 	elseif "left" == opt.labelAlign then
 		viewLabel.x = button.x + ( viewLabel.contentWidth * 0.5 ) + 10 + opt.labelXOffset
 	elseif "right" == opt.labelAlign then
-		viewLabel.x = button.x + ( button.contentWidth ) - ( viewLabel.contentWidth * 0.5 ) - 10 + opt.labelXOffset
+		viewLabel.x = view.x + ( view.contentWidth * 0.5 ) - ( viewLabel.contentWidth * 0.5 ) - 10 + opt.labelXOffset
 	end
-	
+		
 	-- Set the labels y position
 	viewLabel.y = button.y + ( view.contentHeight * 0.5 ) + opt.labelYOffset
 	
@@ -84,9 +77,11 @@ local function initWithTwoFrameButton( button, options )
 	view._width = opt.width
 	view._fontSize = opt.fontSize
 	view._label = viewLabel
+	view._labelColor = opt.labelColor
 	view._labelAlign = opt.labelAlign
 	view._labelXOffset = opt.labelXOffset
 	view._labelYOffset = opt.labelYOffset
+	view._over = viewOver
 	
 	-- Methods
 	view._onPress = opt.onPress
@@ -98,7 +93,6 @@ local function initWithTwoFrameButton( button, options )
 	-------------------------------------------------------
 	
 	-- Assign objects to the button
-	button._imageSheet = imageSheet
 	button._view = view
 	
 	----------------------------------------------------------
@@ -128,7 +122,11 @@ local function initWithTwoFrameButton( button, options )
 		
 		if "began" == phase then
 			-- Set the button to it's over image state
-			self:_setState( "over" )
+			self.isVisible = false
+			self._over.isVisible = true
+			
+			-- Set the buttons label to it's over color
+			self._label:setTextColor( unpack( self._labelColor.over ) )
 			
 			-- If there is a onPress method ( and not a onEvent method )
 			if self._onPress and not self._onEvent then
@@ -151,11 +149,19 @@ local function initWithTwoFrameButton( button, options )
 			if "moved" == phase then
 				if not isWithinBounds then
 					-- Set the button to it's default image state
-					self:_setState( "default" )
+					self.isVisible = true
+					self._over.isVisible = false
+					
+					-- Set the buttons label to it's default color
+					self._label:setTextColor( unpack( self._labelColor.default ) )
 				else
 					if self:_getState() ~= "over" then
 						-- Set the button to it's over image state
-						self:_setState( "over" )
+						self.isVisible = false
+						self._over.isVisible = true
+						
+						-- Set the buttons label to it's over color
+						self._label:setTextColor( unpack( self._labelColor.over ) )
 					end
 				end
 			
@@ -168,7 +174,11 @@ local function initWithTwoFrameButton( button, options )
 				end
 				
 				-- Set the button to it's default image state
-				self:_setState( "default" )
+				self.isVisible = true
+				self._over.isVisible = false
+				
+				-- Set the buttons label to it's default color
+				self._label:setTextColor( unpack( self._labelColor.default ) )
 				
 				-- Remove focus from the button
 				self._isFocus = false
@@ -203,11 +213,263 @@ local function initWithTwoFrameButton( button, options )
 		
 		-- Labels position
 		if "center" == self._labelAlign then
-			self._label.x = button.x + self._labelXOffset
+			self._label.x = self.x + self._labelXOffset
 		elseif "left" == self._labelAlign then
-			self._label.x = button.x - ( self.contentWidth * 0.5 ) + ( self._label.contentWidth * 0.5 ) + 10 + self._labelXOffset
+			self._label.x = self.x - ( self.contentWidth * 0.5 ) + ( self._label.contentWidth * 0.5 ) + 10 + self._labelXOffset
 		elseif "right" == self._labelAlign then
-			self._label.x = button.x + ( button.contentWidth ) - ( self._label.contentWidth * 0.5 ) - 10 + self._labelXOffset -- Not correct
+			self._label.x = self.x + ( self.contentWidth * 0.5 ) - ( self._label.contentWidth * 0.5 ) - 10 + self._labelXOffset
+		end		
+			
+		-- Update the label's y position
+		self._label.y = self._label.y + self._labelYOffset
+	end
+	
+	-- Function to get the button's label
+	function view:getLabel()
+		return self._label.text
+	end
+	
+	-- Function to set the buttons current state
+	function view:_setState( state )
+		local newState = state
+		
+		if "over" == newState then
+			-- Set the button to the over image state
+			self.isVisible = false
+			self._over.isVisible = true
+			
+			-- The pressedState is now "over"
+			self._pressedState = "over"
+		
+		elseif "default" == newState then
+			-- Set the piece to the default image state
+			self.isVisible = true
+			self._over.isVisible = false
+			
+			-- The pressedState is now "default"
+			self._pressedState = "default"
+		end
+	end
+	
+	-- Function to get the buttons current state
+	function view:_getState()
+		return self._pressedState
+	end
+	
+	-- Finalize function
+	function button:_finalize()
+	end
+	
+	return button
+end
+ 
+
+------------------------------------------------------------------------
+-- Image Sheet (2 Frame) Button
+------------------------------------------------------------------------
+
+-- Creates a new button from a sprite (imageSheet)
+local function initWithTwoFrameButton( button, options )
+	-- Create a local reference to our options table
+	local opt = options
+	
+	-- Animation options
+	local sheetOptions = 
+	{
+		{
+			name = "default", 
+			start = opt.defaultFrame, 
+			count = 1,
+		},
+		{
+			name = "over", 
+			start = opt.overFrame, 
+			count = 1,
+		},
+	}
+	
+	-- Forward references
+	local view, viewLabel
+		
+	-- Create the view
+	view = display.newSprite( button, opt.sheet, sheetOptions )
+
+	-- Create the label (either embossed or standard)
+	if opt.embossedLabel then
+		viewLabel = display.newEmbossedText( button, opt.label, 0, 0, opt.font, opt.fontSize )
+	else
+		viewLabel = display.newText( button, opt.label, 0, 0, opt.font, opt.fontSize )
+	end
+	
+	----------------------------------
+	-- Positioning
+	----------------------------------
+	
+	-- The view
+	view.x = button.x + ( view.contentWidth * 0.5 )
+	view.y = button.y + ( view.contentHeight * 0.5 )
+	
+	-- Setup the label
+	viewLabel:setTextColor( unpack( opt.labelColor.default ) )
+	viewLabel._labelColor = opt.labelColor
+	viewLabel._isLabel = true
+	
+	-- Labels position
+	if "center" == opt.labelAlign then
+		viewLabel.x = view.x + opt.labelXOffset
+	elseif "left" == opt.labelAlign then
+		viewLabel.x = view.x - ( view.contentWidth * 0.5 ) + ( viewLabel.contentWidth * 0.5 ) + 10 + opt.labelXOffset
+	elseif "right" == opt.labelAlign then
+		viewLabel.x = view.x + ( view.contentWidth * 0.5 ) - ( viewLabel.contentWidth * 0.5 ) - 10 + opt.labelXOffset
+	end
+	
+	-- Set the labels y position
+	viewLabel.y = button.y + ( view.contentHeight * 0.5 ) + opt.labelYOffset
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the view
+	-------------------------------------------------------
+	
+	view._pressedState = "default"
+	view._width = opt.width
+	view._fontSize = opt.fontSize
+	view._label = viewLabel
+	view._labelColor = opt.labelColor
+	view._labelAlign = opt.labelAlign
+	view._labelXOffset = opt.labelXOffset
+	view._labelYOffset = opt.labelYOffset
+	
+	-- Methods
+	view._onPress = opt.onPress
+	view._onRelease = opt.onRelease
+	view._onEvent = opt.onEvent
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the button
+	-------------------------------------------------------
+	
+	-- Assign objects to the button
+	button._view = view
+	
+	----------------------------------------------------------
+	--	PUBLIC METHODS	
+	----------------------------------------------------------
+	
+	-- Function to set the button's label
+	function button:setLabel( newLabel )
+		return self._view:setLabel( newLabel )
+	end
+	
+	-- Function to get the button's label
+	function button:getLabel()
+		return self._view:getLabel()
+	end
+	
+	
+	function view:touch( event )
+		local phase = event.phase
+		local _button = self.parent
+		event.target = _button
+		
+		-- If the button is inside a scrollView, set it as so then return true
+		if self._insertedIntoScrollView then	
+			return true
+		end
+		
+		if "began" == phase then
+			-- Set the button to it's over image state
+			self:_setState( "over" )
+			
+			-- Set the buttons label to it's over color
+			self._label:setTextColor( unpack( self._labelColor.over ) )
+			
+			-- If there is a onPress method ( and not a onEvent method )
+			if self._onPress and not self._onEvent then
+				self._onPress( event )
+			end
+			
+			-- Set focus on the button
+			self._isFocus = true
+						
+			-- Don't set focus to a button inside a scrollView
+			if not event._insideScrollView then
+				display.getCurrentStage():setFocus( self, event.id )
+			end
+			
+		elseif self._isFocus then
+			local bounds = self.contentBounds
+	        local x, y = event.x, event.y
+	        local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
+			
+			if "moved" == phase then
+				if not isWithinBounds then
+					-- Set the button to it's default image state
+					self:_setState( "default" )
+					
+					-- Set the buttons label to it's default color
+					self._label:setTextColor( unpack( self._labelColor.default ) )
+				else
+					if self:_getState() ~= "over" then
+						-- Set the button to it's over image state
+						self:_setState( "over" )
+						
+						-- Set the buttons label to it's over color
+						self._label:setTextColor( unpack( self._labelColor.over ) )
+					end
+				end
+			
+			elseif "ended" == phase or "cancelled" == phase then
+				if isWithinBounds then
+					-- If there is a onRelease method ( and not a onEvent method )
+					if self._onRelease and not self._onEvent then
+						self._onRelease( event )
+					end
+				end
+				
+				-- Set the button to it's default image state
+				self:_setState( "default" )
+				
+				-- Set the buttons label to it's default color
+				self._label:setTextColor( unpack( self._labelColor.default ) )
+				
+				-- Remove focus from the button
+				self._isFocus = false
+				display.getCurrentStage():setFocus( nil )
+							
+				-- Reset ScrollView properties	(if this button is in a scrollView)
+				if self._isInScrollView then
+					self._insertedIntoScrollView = true
+					self._isActive = false
+				end
+			end
+		end
+		
+		-- If there is a onEvent method ( and not a onPress or onRelease method )
+		if self._onEvent and not self._onPress and not self._onRelease then
+			self._onEvent( event )
+		end
+		
+		return true
+	end
+	
+	view:addEventListener( "touch" )
+	
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
+	
+	-- Function to set the button's label
+	function view:setLabel( newLabel )
+		-- Update the label's text
+		self._label:setText( newLabel )
+		
+		-- Labels position
+		if "center" == self._labelAlign then
+			self._label.x = view.x + self._labelXOffset
+		elseif "left" == self._labelAlign then
+			self._label.x = view.x - ( self.contentWidth * 0.5 ) + ( self._label.contentWidth * 0.5 ) + 10 + self._labelXOffset
+		elseif "right" == self._labelAlign then
+			self._label.x = self.x + ( self.contentWidth * 0.5 ) - ( self._label.contentWidth * 0.5 ) - 10 + self._labelXOffset
 		end
 				
 		-- Update the label's y position
@@ -246,12 +508,15 @@ local function initWithTwoFrameButton( button, options )
 	
 	-- Finalize function
 	function button:_finalize()
-		-- Set the ImageSheet to nil
-		self._imageSheet = nil
 	end
 	
 	return button
 end
+
+
+------------------------------------------------------------------------
+-- Image Sheet (9 piece/slice) Button
+------------------------------------------------------------------------
 
 -- Creates a new button from a 9 piece sprite
 local function initWithNinePieceButton( button, options )
@@ -266,7 +531,7 @@ local function initWithNinePieceButton( button, options )
 	local viewTopRight, viewMiddleRight, viewBottomRight
 
 	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
 	
 	-- The view is the button (group)
 	view = button
@@ -781,8 +1046,15 @@ function M.new( options, theme )
 	opt.onEvent = customOptions.onEvent
 	
 	-- Frames & Images
-	opt.sheet = customOptions.sheet or themeOptions.sheet
-	opt.sheetData = customOptions.data or themeOptions.data
+	opt.sheet = customOptions.sheet
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
+	
+	-- Single image files
+	opt.defaultFile = customOptions.defaultFile or require( themeOptions.data ):getFrameIndex( themeOptions.defaultFile ) 
+	opt.overFile = customOptions.overFile or require( themeOptions.data ):getFrameIndex( themeOptions.overFile ) 
+	
+	-- ImageSheet ( 2 frame button )
 	opt.defaultFrame = customOptions.defaultFrame or require( themeOptions.data ):getFrameIndex( themeOptions.defaultFrame )
 	opt.overFrame = customOptions.overFrame or require( themeOptions.data ):getFrameIndex( themeOptions.overFrame )
 	
@@ -811,18 +1083,56 @@ function M.new( options, theme )
 	opt.bottomMiddleOverFrame = customOptions.bottomMiddleOverFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomMiddleOverFrame )
 
 	-- Are we using a nine piece button?
-	local using9PieceButton = not opt.defaultFrame and not opt.overFrame and opt.topLeftFrame and opt.topLeftFrameOver and opt.middleLeftFrame and opt.middleLeftFrameOver and opt.bottomLeftFrame and opt.bottomLeftFrameOver and 
+	local using9PieceButton = not opt.defaultFrame and not opt.overFrame and not opt.defaultFile and not opt.overFile and opt.topLeftFrame and opt.topLeftFrameOver and opt.middleLeftFrame and opt.middleLeftFrameOver and opt.bottomLeftFrame and opt.bottomLeftFrameOver and 
 							opt.topRightFrame and opt.topRightFrameOver and opt.middleRightFrame and opt.middleRightOverFrame and opt.bottomRightFrame and opt.bottomRightOverFrame and
 							opt.topMiddleFrame and opt.topMiddleOverFrame and opt.middleFrame and opt.middleOverFrame and opt.bottomMiddleFrame and opt.bottomMiddleOverFrame
 	
-	if not using9PieceButton and not opt.defaultFrame and not opt.overFrame then
+	-- If we are using a 9-piece button and have not passed in an imageSheet, throw an error
+	local isUsingSheet = opt.sheet or opt.themeSheetFile
+	
+	if using9PieceButton and not isUsingSheet then
 		error( "ERROR: " .. M._widgetName .. ": 9 piece frame or default/over frame definition expected, got nil", 3 )
 	end
 	
+	-- Are we using a 2 frame button?
+	local using2FrameButton = not using9PieceButton and opt.defaultFrame and opt.overFrame
+	
+	-- If we are using a 2 frame button and have not passed in an imageSheet, throw an error
+	if using2FrameButton and not opt.sheet then
+		error( "ERROR: " .. M._widgetName .. ": sheet definition expected, got nil", 3 )
+	end
+	
+	-- Ensure the user passed in both a default and over frame index.
+	if not using9PieceButton and opt.defaultFrame and not opt.overFrame then
+		error( "ERROR: " .. M._widgetName .. ": overFrame definition expected, got nil", 3 )
+	elseif not using9PieceButton and opt.overFrame and not opt.defaultFrame then
+		error( "ERROR: " .. M._widgetName .. ": defaultFrame definition expected, got nil", 3 )
+	end
+	
+	-- If we are using single images, ensure BOTH files are specified
+	if not using9PieceButton and not using2FrameButton and opt.defaultFile and not opt.overFile then
+		error( "ERROR: " .. M._widgetName .. ": overFile definition expected, got nil", 3 )
+	end
+	if not using9PieceButton and not using2FrameButton and opt.overFile and not opt.defaultFile then
+		error( "ERROR: " .. M._widgetName .. ": defaultFile definition expected, got nil", 3 )
+	end
+	
+	--[[
+	Notes: 
+		*) A 9-piece/slice button is favored over a 2 frame button.
+		*) A 2 frame button is favored over a 2 file button.
+	--]]
+		
 	-- Favor nine piece button over single image button
 	if using9PieceButton then
 		opt.defaultFrame = nil
 		opt.overFrame = nil
+	end
+	
+	-- Favor 2 frame button over 2 file button
+	if using2FrameButton then
+		opt.defaultFile = nil
+		opt.overFile = nil
 	end
 
 	-------------------------------------------------------
@@ -841,9 +1151,18 @@ function M.new( options, theme )
 	
 	-- Create the button
 	if using9PieceButton then
+		-- If we are using a 9 piece button
 		initWithNinePieceButton( button, opt )
 	else
-		initWithTwoFrameButton( button, opt )
+		-- If using a 2 frame button
+		if using2FrameButton then
+			initWithTwoFrameButton( button, opt )
+		end
+		
+		-- If using 2 images
+		if opt.defaultFile and opt.overFile then
+			initWithFileButton( button, opt )
+		end
 	end
 	
 	-- Set the button's position ( set the reference point to center, just to be sure )
