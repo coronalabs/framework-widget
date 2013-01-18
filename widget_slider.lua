@@ -24,7 +24,11 @@ local function createHorizontalSlider( slider, options )
 	local imageSheet, view, viewLeft, viewRight, viewMiddle, viewFill, viewHandle
 		
 	-- Create the view
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- The view is the slider (group)
 	view = slider
@@ -197,7 +201,11 @@ local function createVerticalSlider( slider, options )
 	local imageSheet, view, viewTop, viewBottom, viewMiddle, viewFill, viewHandle
 		
 	-- Create the view
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- The view is the slider (group)
 	view = slider
@@ -393,8 +401,9 @@ function M.new( options, theme )
 	opt.listener = customOptions.listener
 	
 	-- Frames & Images
-	opt.sheet = customOptions.sheet or themeOptions.sheet
-	opt.sheetData = customOptions.data or themeOptions.data
+	opt.sheet = customOptions.sheet
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
 	
 	opt.leftFrame = customOptions.leftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftFrame )
 	opt.rightFrame = customOptions.rightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.rightFrame )

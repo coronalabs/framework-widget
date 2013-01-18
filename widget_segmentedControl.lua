@@ -27,7 +27,11 @@ local function initWithImage( segmentedControl, options )
 	local imageSheet, view, segmentLabels, segmentDividers
 	
 	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- The view is the segmentedControl (group)
 	view = segmentedControl
@@ -372,8 +376,9 @@ function M.new( options, theme )
 	opt.onPress = customOptions.onPress
 	
 	-- Frames & Images
-	opt.sheet = customOptions.sheet or themeOptions.sheet
-	opt.sheetData = customOptions.data or themeOptions.data
+	opt.sheet = customOptions.sheet
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
 	
 	opt.leftSegmentFrame = customOptions.leftSegmentFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftSegmentFrame )
 	opt.leftSegmentSelectedFrame = customOptions.leftSegmentSelectedFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftSegmentSelectedFrame )

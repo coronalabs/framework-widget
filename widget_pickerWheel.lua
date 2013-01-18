@@ -24,7 +24,11 @@ local function createPickerWheel( pickerWheel, options )
 	local imageSheet, view, viewBackground, viewOverlay, viewColumns
 	
 	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- Create the view
 	view = display.newGroup()
@@ -241,8 +245,9 @@ function M.new( options, theme )
 	opt.columnData = customOptions.columns
 
 	-- Frames & images
-	opt.sheet = customOptions.sheet or themeOptions.sheet
-	opt.sheetData = customOptions.data or themeOptions.data
+	opt.sheet = customOptions.sheet
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
 	
 	opt.backgroundFrame = customOptions.backgroundFrame or require( themeOptions.data ):getFrameIndex( themeOptions.backgroundFrame )
 	opt.backgroundFrameWidth = customOptions.backgroundFrameWidth or themeOptions.backgroundFrameWidth

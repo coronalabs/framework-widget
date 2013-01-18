@@ -66,7 +66,7 @@ function scene:createScene( event )
 	{
 		defaultFile = "assets/default.png",
 		overFile = "assets/over.png",
-	    id = "Left Button",
+	    id = "Left Label Button",
 	    left = 0,
 	    top = 120,
 	    label = "Files",
@@ -103,7 +103,7 @@ function scene:createScene( event )
 		sheet = buttonSheet,
 		defaultFrame = 1,
 		overFrame = 2,
-	    id = "Left Button",
+	    id = "Centered Label Button",
 	    left = 60,
 	    top = 200,
 	    label = "ImageSheet",
@@ -124,7 +124,7 @@ function scene:createScene( event )
 	-- Theme button 
 	local buttonUsingTheme = widget.newButton
 	{
-	    id = "Center Button",
+	    id = "Right Label Button",
 	    left = 0,
 	    top = 280,
 	    label = "Theme",

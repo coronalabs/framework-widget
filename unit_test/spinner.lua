@@ -56,6 +56,11 @@ function scene:createScene( event )
 	spinnerText.x = display.contentCenterX
 	spinnerText.y = spinnerDefault.y + ( spinnerDefault.contentWidth * 0.5 ) + 20
 	group:insert( spinnerText )
+	
+	
+	local sheetOptions = require( "widget_ios.assets" )
+	local imageSheet = graphics.newImageSheet( "widget_ios/assets.png", sheetOptions:getSheet() )
+
 
 	-- Create a custom spinner (Animating sprite from imagesheet)
 	local spinnerCustom = widget.newSpinner
@@ -64,9 +69,8 @@ function scene:createScene( event )
 		top = 180,
 		width = 35, 
 		height = 35,
-		sheet = "assets/customSpinner.png",
-		data = "assets.customSpinner",
-		startFrame = 1,
+		sheet = imageSheet,
+		startFrame = sheetOptions:getFrameIndex( "spinner_spinner" ),
 		count = 30,
 		time = 1000,
 	}
@@ -87,9 +91,8 @@ function scene:createScene( event )
 		top = 280,
 		width = 35,
 		height = 35,
-		sheet = "assets/customSpinner.png",
-		data = "assets.customSpinner",
-		startFrame = 1,
+		sheet = imageSheet,
+		startFrame = sheetOptions:getFrameIndex( "spinner_spinner" ),
 		count = 1,
 		deltaAngle = -1,
 	}

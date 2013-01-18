@@ -27,7 +27,11 @@ local function initWithImage( switch, options )
 	local imageSheet, viewOff, viewOn
 	
 	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- Create the view
 	viewOff = display.newImageRect( imageSheet, opt.frameOff, opt.width, opt.height )
@@ -92,7 +96,11 @@ local function initWithSprite( switch, options )
 	}
 	
 	-- Create the image sheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- Create the view
 	view = display.newSprite( imageSheet, switchSheetOptions )
@@ -135,32 +143,54 @@ local function createOnOffSwitch( switch, options )
 	-- Forward references
 	local imageSheet, view, viewOverlay, viewHandle, viewMask
 	
+	-- Frame references
+	local onFrame, offFrame, backgroundFrame, overlayFrame
+	
+	-- Setup which frames to use for the on/off images
+	if opt.themeData then
+		offFrame = require( opt.themeData ):getFrameIndex( opt.onOffHandleDefaultFrame )
+		onFrame = require( opt.themeData ):getFrameIndex( opt.onOffHandleOverFrame )
+		backgroundFrame = require( opt.themeData ):getFrameIndex( opt.onOffBackgroundFrame )
+		overlayFrame = require( opt.themeData ):getFrameIndex( opt.onOffOverlayFrame )
+	else
+		offFrame = opt.onOffHandleDefaultFrame
+		onFrame = opt.onOffHandleOverFrame
+		backgroundFrame = opt.onOffBackgroundFrame
+		overlayFrame = opt.onOffOverlayFrame
+	end
+	
+	
+	
 	-- Image sheet options for the on/off switch's handle sprite
 	local handleSheetOptions = 
 	{
 		{ 
 			name = "off", 
-			start = require( opt.sheetData ):getFrameIndex( opt.onOffHandleDefaultFrame ), 
+			start = offFrame, 
 			count = 1, 
 			time = 1,
 		},
 		
 		{ 
 			name = "on", 
-			start = require( opt.sheetData ):getFrameIndex( opt.onOffHandleOverFrame ), 
+			start = onFrame, 
 			count = 1, 
 			time = 1, 
 		},
 	}
 	
 	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- The view is the switches background image
-	view = display.newImageRect( switch, imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffBackgroundFrame ), opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
+	view = display.newImageRect( switch, imageSheet, backgroundFrame, opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
 	
 	-- The view's overlay is the "shine" effect
-	viewOverlay = display.newImageRect( switch, imageSheet, require( opt.sheetData ):getFrameIndex( opt.onOffOverlayFrame ), opt.onOffOverlayWidth, opt.onOffOverlayHeight )
+	viewOverlay = display.newImageRect( switch, imageSheet, overlayFrame, opt.onOffOverlayWidth, opt.onOffOverlayHeight )
 	
 	-- The view's handle
 	viewHandle = display.newSprite( switch, imageSheet, handleSheetOptions )
@@ -249,7 +279,7 @@ local function createOnOffSwitch( switch, options )
 		end
 				
 		-- Set the switches transition time
-		local switchTransitionTime = 250
+		local switchTransitionTime = 200
 		
 		-- Transition the switch from on>off and vice versa
 		if _switch.isOn then
@@ -323,7 +353,7 @@ local function createOnOffSwitch( switch, options )
 				end
 				
 				-- Set the switches transition time
-				local switchTransitionTime = 250
+				local switchTransitionTime = 200
 				
 				-- Transition the switch from on>off and vice versa
 				if self._handle.x < 0 then
@@ -390,7 +420,7 @@ local function createOnOffSwitch( switch, options )
 		end
 		
 		-- Set the switches transition time
-		local switchTransitionTime = 250
+		local switchTransitionTime = 200
 		
 		-- Set the switch to on/off visually
 		if _isSwitchOn then
@@ -628,8 +658,10 @@ function M.new( options, theme )
 	opt.onEvent = customOptions.onEvent
 	
 	-- Frames & Images	
-	opt.sheet = customOptions.sheet or themeOptions.sheet
-	opt.sheetData = customOptions.data or themeOptions.data
+	opt.sheet = customOptions.sheet
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
+	
 	opt.frameOff = customOptions.frameOff
 	opt.frameOn = customOptions.frameOn
 		

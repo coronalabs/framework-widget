@@ -29,7 +29,11 @@ local function initWithImage( progressView, options )
 	local imageSheet, view, viewBorderLeft, viewBorderMiddle, viewBorderRight, viewFillLeft, viewFillMiddle, viewFillRight
 	
 	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- The view is the segmentedControl (group)
 	view = progressView
@@ -224,8 +228,9 @@ function M.new( options, theme )
 	opt.padding = customOptions.padding or themeOptions.fillOuterWidth or 0
 	
 	-- Frames & Images
-	opt.sheet = customOptions.sheet or themeOptions.sheet
-	opt.sheetData = customOptions.data or themeOptions.data
+	opt.sheet = customOptions.sheet
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
 	
 	opt.fillWidth = customOptions.fillWidth or themeOptions.fillWidth or error( "ERROR: " .. M._widgetName .. ": fillWidth expected, got nil", 3 )
 	opt.fillHeight = customOptions.fillHeight or themeOptions.fillHeight or error( "ERROR: " .. M._widgetName .. ": fillHeight expected, got nil", 3 )
