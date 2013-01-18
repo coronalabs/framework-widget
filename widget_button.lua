@@ -20,7 +20,7 @@ local M =
 ------------------------------------------------------------------------
 
 -- Creates a new button from single png images
-local function initWithFileButton( button, options )
+local function initWithImageFiles( button, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
@@ -28,10 +28,10 @@ local function initWithFileButton( button, options )
 	local view, viewOver, viewLabel
 	
 	-- Create the view
-	view = display.newImageRect( button, opt.defaultFile, opt.width, opt.height )
+	view = display.newImageRect( button, opt.defaultFile, opt.baseDir, opt.width, opt.height )
 	
 	-- Create the view 'over' object
-	viewOver = display.newImageRect( button, opt.overFile, opt.width, opt.height )
+	viewOver = display.newImageRect( button, opt.overFile, opt.baseDir, opt.width, opt.height )
 
 	-- Create the label (either embossed or standard)
 	if opt.embossedLabel then
@@ -269,7 +269,7 @@ end
 ------------------------------------------------------------------------
 
 -- Creates a new button from a sprite (imageSheet)
-local function initWithTwoFrameButton( button, options )
+local function initWithImageSheet( button, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
@@ -519,7 +519,7 @@ end
 ------------------------------------------------------------------------
 
 -- Creates a new button from a 9 piece sprite
-local function initWithNinePieceButton( button, options )
+local function initWithImageSheet9Slice( button, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
@@ -531,7 +531,11 @@ local function initWithNinePieceButton( button, options )
 	local viewTopRight, viewMiddleRight, viewBottomRight
 
 	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- The view is the button (group)
 	view = button
@@ -1152,16 +1156,16 @@ function M.new( options, theme )
 	-- Create the button
 	if using9PieceButton then
 		-- If we are using a 9 piece button
-		initWithNinePieceButton( button, opt )
+		initWithImageSheet9Slice( button, opt )
 	else
 		-- If using a 2 frame button
 		if using2FrameButton then
-			initWithTwoFrameButton( button, opt )
+			initWithImageSheet( button, opt )
 		end
 		
 		-- If using 2 images
 		if opt.defaultFile and opt.overFile then
-			initWithFileButton( button, opt )
+			initWithImageFiles( button, opt )
 		end
 	end
 	

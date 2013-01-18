@@ -67,7 +67,11 @@ local function initWithSprite( stepper, options )
 	local imageSheet, view
 	
 	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ).sheet )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- Create the view
 	view = display.newSprite( stepper, imageSheet, sheetOptions )
@@ -362,8 +366,10 @@ function M.new( options, theme )
 	opt.onHold = customOptions.onHold
 	
 	-- Frames & Images
-	opt.sheet = customOptions.sheet or themeOptions.sheet
-	opt.sheetData = customOptions.data or themeOptions.data
+	opt.sheet = customOptions.sheet
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
+	
 	opt.defaultFrame = customOptions.defaultFrame or require( themeOptions.data ):getFrameIndex( themeOptions.defaultFrame )
 	opt.noMinusFrame = customOptions.noMinusFrame or require( themeOptions.data ):getFrameIndex( themeOptions.noMinusFrame )
 	opt.noPlusFrame = customOptions.noPlusFrame or require( themeOptions.data ):getFrameIndex( themeOptions.noPlusFrame )

@@ -29,8 +29,14 @@ local function initWithImage( spinner, options )
 	-- Forward references
 	local imageSheet, view
 	
+	-- Create the imageSheet
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
+	
 	-- Create the view
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
 	view = display.newImageRect( spinner, imageSheet, opt.startFrame, opt.width, opt.height )
 	view.x = spinner.x + ( view.contentWidth * 0.5 )
 	view.y = spinner.y + ( view.contentHeight * 0.5 )
@@ -116,7 +122,11 @@ local function initWithSprite( spinner, options )
 	local imageSheet, view
 	
 	-- Create the imageSheet
-	imageSheet = graphics.newImageSheet( opt.sheet, require( opt.sheetData ):getSheet() )
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- Create the view
 	view = display.newSprite( spinner, imageSheet, sheetOptions )
@@ -189,8 +199,10 @@ function M.new( options, theme )
 	opt.increments = customOptions.incrementEvery or themeOptions.incrementEvery or 1
 		
 	-- Frames & Images
-	opt.sheet = customOptions.sheet or themeOptions.sheet
-	opt.sheetData = customOptions.data or themeOptions.data
+	opt.sheet = customOptions.sheet
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
+	
 	opt.startFrame = customOptions.startFrame or require( themeOptions.data ):getFrameIndex( themeOptions.startFrame )
 	opt.frameCount = customOptions.count or themeOptions.count or 0
 
