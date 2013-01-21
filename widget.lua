@@ -79,8 +79,22 @@ function widget._new( options )
 	return newWidget
 end
 
+-- Function to retrieve a frame index from an imageSheet data file
+function widget._getFrameIndex( theme, frame )
+	if theme then
+		if theme.data then
+			return require( theme.data ):getFrameIndex( frame )
+		end
+	end
+end
+
 -- Function to check if the requirements for creating a widget has been met.
 function widget._checkRequirements( options, theme, widgetName )
+	-- If we are using single images, just return
+	if options.defaultFile or options.overFile then
+		return
+	end
+	
 	-- If there isn't an options table and there isn't a theme set, throw an error
 	local noParams = not options and not theme
 	

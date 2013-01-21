@@ -203,7 +203,7 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.startFrame = customOptions.startFrame or require( themeOptions.data ):getFrameIndex( themeOptions.startFrame )
+	opt.startFrame = customOptions.startFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.startFrame )
 	opt.frameCount = customOptions.count or themeOptions.count or 0
 
 	-------------------------------------------------------

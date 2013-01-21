@@ -160,7 +160,6 @@ local function createOnOffSwitch( switch, options )
 	end
 	
 	
-	
 	-- Image sheet options for the on/off switch's handle sprite
 	local handleSheetOptions = 
 	{
@@ -667,8 +666,8 @@ function M.new( options, theme )
 		
 	-- If the user hasn't set a on/off frame but a theme has been set and it includes a data property then grab the required start/end frames
 	if not opt.frameOff and not opt.frameOn and theme and themeOptions.data then
-		opt.frameOff = require( themeOptions.data ):getFrameIndex( themeOptions.frameOff )
-		opt.frameOn = require( themeOptions.data ):getFrameIndex( themeOptions.frameOn )
+		opt.frameOff = require( "widget" )._getFrameIndex( themeOptions, themeOptions.frameOff )
+		opt.frameOn = require( "widget" )._getFrameIndex( themeOptions, themeOptions.frameOn )
 	end	
 			
 	-- Options for the on/off switch only

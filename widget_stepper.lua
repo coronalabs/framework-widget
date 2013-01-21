@@ -370,11 +370,11 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.defaultFrame = customOptions.defaultFrame or require( themeOptions.data ):getFrameIndex( themeOptions.defaultFrame )
-	opt.noMinusFrame = customOptions.noMinusFrame or require( themeOptions.data ):getFrameIndex( themeOptions.noMinusFrame )
-	opt.noPlusFrame = customOptions.noPlusFrame or require( themeOptions.data ):getFrameIndex( themeOptions.noPlusFrame )
-	opt.minusActiveFrame = customOptions.minusActiveFrame or require( themeOptions.data ):getFrameIndex( themeOptions.minusActiveFrame )
-	opt.plusActiveFrame = customOptions.plusActiveFrame or require( themeOptions.data ):getFrameIndex( themeOptions.plusActiveFrame )
+	opt.defaultFrame = customOptions.defaultFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.defaultFrame )
+	opt.noMinusFrame = customOptions.noMinusFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.noMinusFrame )
+	opt.noPlusFrame = customOptions.noPlusFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.noPlusFrame )
+	opt.minusActiveFrame = customOptions.minusActiveFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.minusActiveFrame )
+	opt.plusActiveFrame = customOptions.plusActiveFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.plusActiveFrame )
 	
 	-------------------------------------------------------
 	-- Create the Stepper

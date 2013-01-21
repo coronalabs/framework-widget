@@ -405,20 +405,20 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.leftFrame = customOptions.leftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftFrame )
-	opt.rightFrame = customOptions.rightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.rightFrame )
-	opt.middleFrame = customOptions.middleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleFrame )
-	opt.fillFrame = customOptions.fillFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillFrame )
+	opt.leftFrame = customOptions.leftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.leftFrame )
+	opt.rightFrame = customOptions.rightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.rightFrame )
+	opt.middleFrame = customOptions.middleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleFrame )
+	opt.fillFrame = customOptions.fillFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillFrame )
 	opt.frameWidth = customOptions.frameWidth or themeOptions.frameWidth
 	opt.frameHeight = customOptions.frameHeight or themeOptions.frameHeight
-	opt.handleFrame = customOptions.handleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.handleFrame )
+	opt.handleFrame = customOptions.handleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.handleFrame )
 	opt.handleWidth = customOptions.handleWidth or theme.handleWidth
 	opt.handleHeight = customOptions.handleHeight or theme.handleHeight
 	
-	opt.topFrame = customOptions.topFrame or require( themeOptions.data ):getFrameIndex( themeOptions.topFrame )
-	opt.bottomFrame = customOptions.bottomFrame or require( themeOptions.data ):getFrameIndex( themeOptions.bottomFrame )
-	opt.middleVerticalFrame = customOptions.middleVerticalFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleVerticalFrame )
-	opt.fillVerticalFrame = customOptions.fillVerticalFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillVerticalFrame )
+	opt.topFrame = customOptions.topFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topFrame )
+	opt.bottomFrame = customOptions.bottomFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomFrame )
+	opt.middleVerticalFrame = customOptions.middleVerticalFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleVerticalFrame )
+	opt.fillVerticalFrame = customOptions.fillVerticalFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillVerticalFrame )
 	
 	-- Throw an error if the user hasn't passed in a width or height (depending on orientation)
 	if "horizontal" == opt.orientation then
