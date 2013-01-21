@@ -246,11 +246,11 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.leftFrame = customOptions.leftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftFrame )
-	opt.rightFrame = customOptions.rightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.rightFrame )
-	opt.middleFrame = customOptions.middleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleFrame )
-	opt.magnifyingGlassFrame = customOptions.magnifyingGlassFrame or require( themeOptions.data ):getFrameIndex( themeOptions.magnifyingGlassFrame )
-	opt.cancelFrame = customOptions.cancelFrame or require( themeOptions.data ):getFrameIndex( themeOptions.cancelFrame )
+	opt.leftFrame = customOptions.leftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.leftFrame )
+	opt.rightFrame = customOptions.rightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.rightFrame )
+	opt.middleFrame = customOptions.middleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleFrame )
+	opt.magnifyingGlassFrame = customOptions.magnifyingGlassFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.magnifyingGlassFrame )
+	opt.cancelFrame = customOptions.cancelFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.cancelFrame )
 	opt.edgeWidth = customOptions.edgeWidth or themeOptions.edgeWidth or error( "ERROR: " .. M._widgetName .. ": edgeFrameWidth expected, got nil", 3 )
 	opt.edgeHeight = customOptions.edgeHeight or themeOptions.edgeHeight or error( "ERROR: " .. M._widgetName .. ": edgeFrameHeight expected, got nil", 3 )
 	opt.magnifyingGlassFrameWidth = customOptions.magnifyingGlassFrameWidth or themeOptions.magnifyingGlassFrameWidth or error( "ERROR: " .. M._widgetName .. ": magnifyingGlassFrameWidth expected, got nil", 3 )

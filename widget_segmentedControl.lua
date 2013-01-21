@@ -380,13 +380,13 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.leftSegmentFrame = customOptions.leftSegmentFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftSegmentFrame )
-	opt.leftSegmentSelectedFrame = customOptions.leftSegmentSelectedFrame or require( themeOptions.data ):getFrameIndex( themeOptions.leftSegmentSelectedFrame )
-	opt.rightSegmentFrame = customOptions.rightSegmentFrame or require( themeOptions.data ):getFrameIndex( themeOptions.rightSegmentFrame )
-	opt.rightSegmentSelectedFrame = customOptions.rightSegmentSelectedFrame or require( themeOptions.data ):getFrameIndex( themeOptions.rightSegmentSelectedFrame )
-	opt.middleSegmentFrame = customOptions.middleSegmentFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleSegmentFrame )
-	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or require( themeOptions.data ):getFrameIndex( themeOptions.middleSegmentSelectedFrame)
-	opt.dividerFrame = customOptions.dividerFrame or require( themeOptions.data ):getFrameIndex( themeOptions.dividerFrame)
+	opt.leftSegmentFrame = customOptions.leftSegmentFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.leftSegmentFrame )
+	opt.leftSegmentSelectedFrame = customOptions.leftSegmentSelectedFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.leftSegmentSelectedFrame )
+	opt.rightSegmentFrame = customOptions.rightSegmentFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.rightSegmentFrame )
+	opt.rightSegmentSelectedFrame = customOptions.rightSegmentSelectedFrame or require( "widget" )._getFrameIndex( themeOptions,themeOptions.rightSegmentSelectedFrame )
+	opt.middleSegmentFrame = customOptions.middleSegmentFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleSegmentFrame )
+	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleSegmentSelectedFrame)
+	opt.dividerFrame = customOptions.dividerFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.dividerFrame)
 
 	-------------------------------------------------------
 	-- Create the segmentedControl

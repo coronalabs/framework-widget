@@ -542,9 +542,6 @@ function M.new( options, theme )
 	-- Create a local reference to our options table
 	local opt = M._options
 	
-	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	--require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
-	
 	-------------------------------------------------------
 	-- Properties
 	-------------------------------------------------------

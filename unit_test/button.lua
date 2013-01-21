@@ -16,10 +16,12 @@ function scene:createScene( event )
 	group:insert( background )
 	
 	-- Set a theme
+	---[[
 	widget.setTheme( "theme_ios" )
 	
 	-- Button to return to unit test listing
-	local returnToListing = widget.newButton{
+	local returnToListing = widget.newButton
+	{
 	    id = "returnToListing",
 	    left = 0,
 	    top = 5,
@@ -32,6 +34,7 @@ function scene:createScene( event )
 	}
 	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
+	--]]
 	
 	----------------------------------------------------------------------------------------------------------------
 	--										START OF UNIT TEST
@@ -64,6 +67,8 @@ function scene:createScene( event )
 	-- Standard button 
 	local buttonUsingFiles = widget.newButton
 	{
+		width = 278,
+		height = 46,
 		defaultFile = "assets/default.png",
 		overFile = "assets/over.png",
 	    id = "Left Label Button",
@@ -83,6 +88,7 @@ function scene:createScene( event )
 	buttonUsingFiles.oldLabel = "Files"	
 	group:insert( buttonUsingFiles )
 
+	--[[
 	-- Set up sheet parameters for imagesheet button
 	local sheetInfo =
 	{
@@ -142,6 +148,7 @@ function scene:createScene( event )
 	buttonUsingTheme.oldLabel = "Theme"
 	buttonUsingTheme.x = display.contentCenterX
 	group:insert( buttonUsingTheme )
+	--]]
 	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --

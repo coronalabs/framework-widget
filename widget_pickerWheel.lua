@@ -249,15 +249,15 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.backgroundFrame = customOptions.backgroundFrame or require( themeOptions.data ):getFrameIndex( themeOptions.backgroundFrame )
+	opt.backgroundFrame = customOptions.backgroundFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.backgroundFrame )
 	opt.backgroundFrameWidth = customOptions.backgroundFrameWidth or themeOptions.backgroundFrameWidth
 	opt.backgroundFrameHeight = customOptions.backgroundFrameHeight or themeOptions.backgroundFrameHeight
 	
-	opt.overlayFrame = customOptions.overlayFrame or require( themeOptions.data ):getFrameIndex( themeOptions.overlayFrame )
+	opt.overlayFrame = customOptions.overlayFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.overlayFrame )
 	opt.overlayFrameWidth = customOptions.overlayFrameWidth or themeOptions.overlayFrameWidth
 	opt.overlayFrameHeight = customOptions.overlayFrameHeight or themeOptions.overlayFrameHeight
 	
-	opt.seperatorFrame = customOptions.seperatorFrame or require( themeOptions.data ):getFrameIndex( themeOptions.seperatorFrame )
+	opt.seperatorFrame = customOptions.seperatorFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.seperatorFrame )
 	opt.seperatorFrameWidth = customOptions.seperatorFrameWidth or themeOptions.seperatorFrameWidth
 	opt.seperatorFrameHeight = customOptions.seperatorFrameHeight or themeOptions.seperatorFrameHeight
 	

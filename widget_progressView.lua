@@ -238,13 +238,13 @@ function M.new( options, theme )
 	opt.fillOuterWidth = customOptions.fillOuterWidth or themeOptions.fillOuterWidth or error( "ERROR: " .. M._widgetName .. ": outerWidth expected, got nil", 3 )
 	opt.fillOuterHeight = customOptions.fillOuterHeight or themeOptions.fillOuterHeight or error( "ERROR: " .. M._widgetName .. ": outerHeight expected, got nil", 3 )
 	
-	opt.fillOuterLeftFrame = customOptions.fillOuterLeftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillOuterLeftFrame )
-	opt.fillOuterMiddleFrame = customOptions.fillOuterMiddleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillOuterMiddleFrame )
-	opt.fillOuterRightFrame = customOptions.fillOuterRightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillOuterRightFrame )
+	opt.fillOuterLeftFrame = customOptions.fillOuterLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillOuterLeftFrame )
+	opt.fillOuterMiddleFrame = customOptions.fillOuterMiddleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillOuterMiddleFrame )
+	opt.fillOuterRightFrame = customOptions.fillOuterRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillOuterRightFrame )
 	
-	opt.fillInnerLeftFrame = customOptions.fillInnerLeftFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillInnerLeftFrame )
-	opt.fillInnerMiddleFrame = customOptions.fillInnerMiddleFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillInnerMiddleFrame )
-	opt.fillInnerRightFrame = customOptions.fillInnerRightFrame or require( themeOptions.data ):getFrameIndex( themeOptions.fillInnerRightFrame )
+	opt.fillInnerLeftFrame = customOptions.fillInnerLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillInnerLeftFrame )
+	opt.fillInnerMiddleFrame = customOptions.fillInnerMiddleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillInnerMiddleFrame )
+	opt.fillInnerRightFrame = customOptions.fillInnerRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillInnerRightFrame )
 	
 	-------------------------------------------------------
 	-- Create the progressView
