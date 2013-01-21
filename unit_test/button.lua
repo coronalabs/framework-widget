@@ -88,7 +88,6 @@ function scene:createScene( event )
 	buttonUsingFiles.oldLabel = "Files"	
 	group:insert( buttonUsingFiles )
 
-	--[[
 	-- Set up sheet parameters for imagesheet button
 	local sheetInfo =
 	{
@@ -141,14 +140,13 @@ function scene:createScene( event )
 		labelColor =
 		{ 
 			default = { 0, 0, 0 },
-			over = { 255, 255, 255 },
+			--over = { 255, 255, 255 },
 		},
 	    onEvent = onButtonEvent
 	}
 	buttonUsingTheme.oldLabel = "Theme"
 	buttonUsingTheme.x = display.contentCenterX
 	group:insert( buttonUsingTheme )
-	--]]
 	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --

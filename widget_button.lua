@@ -28,10 +28,18 @@ local function initWithImageFiles( button, options )
 	local view, viewOver, viewLabel
 	
 	-- Create the view
-	view = display.newImageRect( button, opt.defaultFile, opt.baseDir, opt.width, opt.height )
-	
+	if opt.width and opt.height then
+		view = display.newImageRect( button, opt.defaultFile, opt.baseDir, opt.width, opt.height )
+	else
+		view = display.newImage( button, opt.defaultFile, opt.baseDir )
+	end
+		
 	-- Create the view 'over' object
-	viewOver = display.newImageRect( button, opt.overFile, opt.baseDir, opt.width, opt.height )
+	if opt.width and opt.height then
+		viewOver = display.newImageRect( button, opt.overFile, opt.baseDir, opt.width, opt.height )
+	else
+		viewOver = display.newImage( button, opt.overFile, opt.baseDir )
+	end
 
 	-- Create the label (either embossed or standard)
 	if opt.embossedLabel then
@@ -54,8 +62,13 @@ local function initWithImageFiles( button, options )
 	
 	-- Setup the label
 	viewLabel:setTextColor( unpack( opt.labelColor.default ) )
-	viewLabel._labelColor = opt.labelColor
 	viewLabel._isLabel = true
+	viewLabel._labelColor = opt.labelColor
+	
+	-- If there isn't an over color defined, fall back to default label color
+	if not viewLabel._labelColor.over then
+		viewLabel._labelColor.over = viewLabel._labelColor.default
+	end
 	
 	-- Labels position
 	if "center" == opt.labelAlign then
@@ -74,10 +87,9 @@ local function initWithImageFiles( button, options )
 	-------------------------------------------------------
 	
 	view._pressedState = "default"
-	view._width = opt.width
 	view._fontSize = opt.fontSize
 	view._label = viewLabel
-	view._labelColor = opt.labelColor
+	view._labelColor = viewLabel._labelColor
 	view._labelAlign = opt.labelAlign
 	view._labelXOffset = opt.labelXOffset
 	view._labelYOffset = opt.labelYOffset
@@ -311,8 +323,13 @@ local function initWithImageSheet( button, options )
 	
 	-- Setup the label
 	viewLabel:setTextColor( unpack( opt.labelColor.default ) )
-	viewLabel._labelColor = opt.labelColor
 	viewLabel._isLabel = true
+	viewLabel._labelColor = opt.labelColor
+	
+	-- If there isn't an over color defined, fall back to default label color
+	if not viewLabel._labelColor.over then
+		viewLabel._labelColor.over = viewLabel._labelColor.default
+	end
 	
 	-- Labels position
 	if "center" == opt.labelAlign then
@@ -331,10 +348,9 @@ local function initWithImageSheet( button, options )
 	-------------------------------------------------------
 	
 	view._pressedState = "default"
-	view._width = opt.width
 	view._fontSize = opt.fontSize
 	view._label = viewLabel
-	view._labelColor = opt.labelColor
+	view._labelColor = viewLabel._labelColor
 	view._labelAlign = opt.labelAlign
 	view._labelXOffset = opt.labelXOffset
 	view._labelYOffset = opt.labelYOffset
@@ -784,8 +800,13 @@ local function initWithImageSheet9Slice( button, options )
 
 	-- Setup the Label
 	viewLabel:setTextColor( unpack( opt.labelColor.default ) )
-	viewLabel._labelColor = opt.labelColor
 	viewLabel._isLabel = true
+	viewLabel._labelColor = opt.labelColor
+	
+	-- If there isn't an over color defined, fall back to default label color
+	if not viewLabel._labelColor.over then
+		viewLabel._labelColor.over = viewLabel._labelColor.default
+	end
 	
 	-- Label's position
 	if "center" == opt.labelAlign then
@@ -1033,12 +1054,12 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or themeOptions.width or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
-	opt.height = customOptions.height or themeOptions.height or error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
+	opt.width = customOptions.width or themeOptions.width
+	opt.height = customOptions.height or themeOptions.height
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
-	opt.label = customOptions.label
-	opt.labelColor = customOptions.labelColor or { default = { 0, 0, 0 }, over = { 255, 0, 0 } }
+	opt.label = customOptions.label or ""
+	opt.labelColor = customOptions.labelColor or { default = { 0, 0, 0 }, over = { 255, 255, 255 } }	
 	opt.font = customOptions.font or themeOptions.font or native.systemFont
 	opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 14
 	opt.labelAlign = customOptions.labelAlign or "center"
@@ -1056,7 +1077,9 @@ function M.new( options, theme )
 	
 	-- Single image files
 	opt.defaultFile = customOptions.defaultFile or require( "widget" )._getFrameIndex( themeOptions, themeOptions.defaultFile ) 
-	opt.overFile = customOptions.overFile or require( "widget" )._getFrameIndex( themeOptions, themeOptions.overFile ) 
+	opt.overFile = customOptions.overFile or opt.defaultFile or require( "widget" )._getFrameIndex( themeOptions, themeOptions.overFile )
+	
+	-- Handle width/height 
 	
 	-- ImageSheet ( 2 frame button )
 	opt.defaultFrame = customOptions.defaultFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.defaultFrame )
@@ -1093,6 +1116,13 @@ function M.new( options, theme )
 	
 	-- If we are using a 9-piece button and have not passed in an imageSheet, throw an error
 	local isUsingSheet = opt.sheet or opt.themeSheetFile
+	
+	-- If were using a 9 piece/slice button and have not passed a width/height
+	if using9PieceButton and not opt.width then
+		error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
+	elseif using9PieceButton and not opt.height then
+		error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
+	end
 	
 	if using9PieceButton and not isUsingSheet then
 		error( "ERROR: " .. M._widgetName .. ": 9 piece frame or default/over frame definition expected, got nil", 3 )
