@@ -20,7 +20,7 @@ local M =
 ------------------------------------------------------------------------
 
 -- Creates a new button from single png images
-local function initWithImageFiles( button, options )
+local function createUsingImageFiles( button, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
@@ -281,7 +281,7 @@ end
 ------------------------------------------------------------------------
 
 -- Creates a new button from a sprite (imageSheet)
-local function initWithImageSheet( button, options )
+local function createUsingImageSheet( button, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
@@ -535,7 +535,7 @@ end
 ------------------------------------------------------------------------
 
 -- Creates a new button from a 9 piece sprite
-local function initWithImageSheet9Slice( button, options )
+local function createUsing9Slice( button, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
@@ -915,7 +915,7 @@ local function initWithImageSheet9Slice( button, options )
 				self._isFocus = false
 				display.getCurrentStage():setFocus( nil )
 				
-				-- Reset ScrollView properties	(if this button is in a scrollView)
+				-- Reset ScrollView properties(if this button is in a scrollView)
 				if self._isInScrollView then
 					self._insertedIntoScrollView = true
 					self._isActive = false
@@ -1186,16 +1186,16 @@ function M.new( options, theme )
 	-- Create the button
 	if using9PieceButton then
 		-- If we are using a 9 piece button
-		initWithImageSheet9Slice( button, opt )
+		createUsing9Slice( button, opt )
 	else
 		-- If using a 2 frame button
 		if using2FrameButton then
-			initWithImageSheet( button, opt )
+			createUsingImageSheet( button, opt )
 		end
 		
 		-- If using 2 images
 		if opt.defaultFile and opt.overFile then
-			initWithImageFiles( button, opt )
+			createUsingImageFiles( button, opt )
 		end
 	end
 	

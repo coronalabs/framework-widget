@@ -113,6 +113,7 @@ local function createHorizontalSlider( slider, options )
 
 	function view:touch( event )
 		local phase = event.phase
+		local _slider = event.parent
 		-- Set the target to the handle
 		event.target = self._handle
 	
@@ -162,8 +163,14 @@ local function createHorizontalSlider( slider, options )
 			
 			-- Execute the listener ( if any )
 			if self._listener then
-				event.value = math.round( self._currentPercent )
-				self._listener( event )
+				local newEvent = 
+				{ 
+					name = event.name,
+					phase = event.phase,
+					value = math.round( self._currentPercent ),
+					target = self,
+				}
+				self._listener( newEvent )
 			end
 		end
 		
@@ -342,8 +349,14 @@ local function createVerticalSlider( slider, options )
 			
 			-- Execute the listener ( if any )
 			if self._listener then
-				event.value = math.round( self._currentPercent )
-				self._listener( event )
+				local newEvent = 
+				{ 
+					name = event.name,
+					phase = event.phase,
+					value = math.round( self._currentPercent ),
+					target = self,
+				}
+				self._listener( newEvent )
 			end
 		end
 		

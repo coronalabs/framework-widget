@@ -16,7 +16,6 @@ function scene:createScene( event )
 	group:insert( background )
 	
 	-- Set a theme
-	---[[
 	widget.setTheme( "theme_ios" )
 	
 	-- Button to return to unit test listing
@@ -34,7 +33,6 @@ function scene:createScene( event )
 	}
 	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
-	--]]
 	
 	----------------------------------------------------------------------------------------------------------------
 	--										START OF UNIT TEST
@@ -100,7 +98,6 @@ function scene:createScene( event )
 	
 	-- Create the button sheet
 	local buttonSheet = graphics.newImageSheet( "assets/btnBlueSheet.png", sheetInfo )
-
 	
 	-- ImageSheet button 
 	local buttonUsingImageSheet = widget.newButton
