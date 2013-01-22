@@ -31,6 +31,17 @@ function scene:createScene( event )
 	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
 	
+	local days = {}
+	local years = {}
+	
+	for i = 1, 31 do
+		days[i] = i
+	end
+	
+	for i = 1, 44 do
+		years[i] = 1969 + i
+	end
+	
 	-- Set up the Picker Wheel's columns
 	local columnData = 
 	{ 
@@ -48,32 +59,16 @@ function scene:createScene( event )
 			align = "left",
 			width = 60,
 			startIndex = 18,
-			labels = {},
+			labels = days,
 		},
 		
 		{
 			align = "center",
 			width = 80,
 			startIndex = 10,
-			labels = {},
+			labels = years,
 		},
 	}
-		
-	local days = {}
-
-	for i = 1, 31 do
-		days[i] = i
-	end
-	
-	columnData[2].labels = days
-
-	local years = {}
-
-	for i = 1, 44 do
-		years[i] = 1969 + i
-	end
-	
-	columnData[3].labels = years
 		
 	-- Create a new Picker Wheel
 	local pickerWheel = widget.newPickerWheel
