@@ -228,14 +228,15 @@ function M._runtime( view, event )
 				if view.y < upperLimit then
 					-- Transition the view back to it's maximum position
 					transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
+					
+					-- We have hit the top limit
+					view._hasHitTopLimit = true
+										
 					-- Stop updating the runtime now
 					view._updateRuntime = false
 					
 					-- If there is a listener specified, dispatch the event
 					if view._listener then
-						-- We have hit the top limit
-						view._hasHitTopLimit = true
-						
 						local newEvent = 
 						{
 							type = "topLimit",
@@ -249,14 +250,15 @@ function M._runtime( view, event )
 				elseif view.y > bottomLimit then
 					-- Transition the view back to it's maximum position
 					transition.to( view, { time = 400, y = bottomLimit, transition = easing.outQuad } )
+					
+					-- We have hit the bottom limit
+					view._hasHitBottomLimit = true
+					
 					-- Stop updating the runtime now
 					view._updateRuntime = false
 					
 					-- If there is a listener specified, dispatch the event
 					if view._listener then
-						-- We have hit the bottom limit
-						view._hasHitBottomLimit = true
-						
 						local newEvent = 
 						{
 							type = "bottomLimit",

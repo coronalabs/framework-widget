@@ -41,8 +41,19 @@ function scene:createScene( event )
 	local TEST_SET_STATE = false
 	local TEST_DELAY = 1000
 	
+	local radioGroup = {}
+	
 	local function onRadioPress( event )
 		local self = event.target
+
+		-- Turn off other radio buttons in this set
+		--[[
+		for k, v in pairs( radioGroup ) do
+			if radioGroup[k].id ~= self.id then
+				radioGroup[k]:setState( { isOn = false } )
+			end
+		end
+		--]]
 
 		print( self.id, "is on?:", self.isOn )
 	end
@@ -60,6 +71,7 @@ function scene:createScene( event )
 		
 		--display.remove( self )
 	end
+		
 	
 	
 	-- Create a radio switch
@@ -68,12 +80,80 @@ function scene:createScene( event )
 		left = 0,
 		top = 120,
 		style = "radio",
-		id = "Radio button",
+		id = "Radio button1",
 		initialSwitchState = true,
+		radioSet = radioGroup,
 		onPress = onRadioPress,
 	}
 	radioButton.x = display.contentCenterX
 	group:insert( radioButton )
+	
+	-- Create a radio switch
+	local radioButton2 = widget.newSwitch
+	{
+		left = 80,
+		top = 120,
+		style = "radio",
+		id = "Radio button2",
+		initialSwitchState = false,
+		radioSet = radioGroup,
+		onPress = onRadioPress,
+	}
+	--radioButton2.x = display.contentCenterX + 80
+	group:insert( radioButton2 )
+	
+	
+	
+	-- Create a radio switch
+	local radioButton3 = widget.newSwitch
+	{
+		left = 20,
+		top = 120,
+		style = "radio",
+		id = "Radio button3",
+		initialSwitchState = false,
+		radioSet = radioGroup,
+		onPress = onRadioPress,
+	}
+	--radioButton2.x = display.contentCenterX + 80
+	group:insert( radioButton3 )
+	
+	
+	
+	
+	
+	---- other
+	local otherRadioGroup = {}
+	
+	-- Create a radio switch
+	local radioButtonOther = widget.newSwitch
+	{
+		left = 20,
+		top = 160,
+		style = "radio",
+		id = "Radio button4",
+		initialSwitchState = false,
+		radioSet = otherRadioGroup,
+		onPress = onRadioPress,
+	}
+	--radioButton2.x = display.contentCenterX + 80
+	group:insert( radioButtonOther )
+	
+	-- Create a radio switch
+	local radioButtonOther2 = widget.newSwitch
+	{
+		left = 80,
+		top = 160,
+		style = "radio",
+		id = "Radio button4",
+		initialSwitchState = false,
+		radioSet = otherRadioGroup,
+		onPress = onRadioPress,
+	}
+	--radioButton2.x = display.contentCenterX + 80
+	group:insert( radioButtonOther2 )
+	
+	
 	
 	
 	-- Create a checkbox switch
