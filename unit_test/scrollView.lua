@@ -91,13 +91,13 @@ function scene:createScene( event )
 		horizontalScrollingDisabled = false,
 		verticalScrollingDisabled = false,
 		maskFile = "assets/scrollViewMask-350.png",
-		listener = scrollListener,
+		--listener = scrollListener,
 	}
 	
 	-- insert image into scrollView widget
-	local bg = display.newImageRect( "assets/scrollimage2.jpg", 768, 1024 )
-	background.x = bg.contentWidth * 0.5
-	background.y = bg.contentHeight * 0.5
+	local background = display.newImageRect( "assets/scrollimage2.jpg", 768, 1024 )
+	background.x = background.contentWidth * 0.5
+	background.y = background.contentHeight * 0.5
 	scrollView:insert( background )
 	group:insert( scrollView )
 	
