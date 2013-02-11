@@ -149,6 +149,11 @@ local function createTableView( tableView, options )
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
 	
+	-- Override scale function as tableView's don't support it
+	function tableView:scale()
+		print( M._widgetName .. " Does not support scaling" )
+	end
+	
 	-- Override the insert method for tableView to insert into the view instead
     tableView._cachedInsert = tableView.insert
 
@@ -285,6 +290,8 @@ local function createTableView( tableView, options )
 	
   	-- EnterFrame
 	function view:enterFrame( event )
+		local _tableView = self.parent
+		
 		-- Handle momentum @ runtime
 		require( "widget_momentumScrolling" )._runtime( self, event )
 		
@@ -328,6 +335,17 @@ local function createTableView( tableView, options )
 				
 		-- Manage all row's lifeCycle
 		self:_manageRowLifeCycle()
+		
+		-- Constrain x/y scale values to 1.0
+		if _tableView.xScale ~= 1.0 then
+			_tableView.xScale = 1.0
+			print( M._widgetName .. " Does not support scaling" )
+		end
+		
+		if _tableView.yScale ~= 1.0 then
+			_tableView.yScale = 1.0
+			print( M._widgetName .. " Does not support scaling" )
+		end
 		
 		return true
 	end

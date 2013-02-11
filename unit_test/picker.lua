@@ -79,8 +79,6 @@ function scene:createScene( event )
 	}
 	group:insert( pickerWheel )
 	
-	
-	
 	local function showValues( event )
 		local values = pickerWheel:getValues()
 		
