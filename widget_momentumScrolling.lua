@@ -98,6 +98,9 @@ function M._touch( view, event )
 					view._timeHeld = time
 				
 					-- Move the scrollBar
+					if M.scrollBar then
+						M.scrollBar.y = math.abs( view.y ) * M.scrollBar.yRatio + M.scrollBar.height * 0.5 + view._top
+					end
 				end
 			end
 			
@@ -127,6 +130,17 @@ function M._runtime( view, event )
 		if math.abs( view._velocity ) < 0.01 then
 			view._velocity = 0
 			view._updateRuntime = false
+						
+			-- Dispatch a event.direction event
+			if view._listener then
+				local newEvent = 
+				{
+					direction = "right",
+					target = view,
+				}
+			
+				view._listener( newEvent )
+			end
 		end
 		
 		-- Set the velocity
@@ -173,7 +187,8 @@ function M._runtime( view, event )
 						
 						local newEvent = 
 						{
-							type = "leftLimit",
+							direction = "left",
+							limitReached = true,
 							target = view,
 						}
 						
@@ -194,7 +209,8 @@ function M._runtime( view, event )
 						
 						local newEvent = 
 						{
-							type = "rightLimit",
+							direction = "right",
+							limitReached = true,
 							target = view,
 						}
 						
@@ -239,7 +255,8 @@ function M._runtime( view, event )
 					if view._listener then
 						local newEvent = 
 						{
-							type = "topLimit",
+							direction = "up",
+							limitReached = true,
 							target = view,
 						}
 						
@@ -261,7 +278,8 @@ function M._runtime( view, event )
 					if view._listener then
 						local newEvent = 
 						{
-							type = "bottomLimit",
+							direction = "down",
+							limitReached = true,
 							target = view,
 						}
 						
@@ -269,6 +287,9 @@ function M._runtime( view, event )
 					end
 				else
 					-- Move the scrollBar
+					if M.scrollBar then
+						M.scrollBar.y = math.abs( view.y ) * M.scrollBar.yRatio + M.scrollBar.height * 0.5 + view._top
+					end
 				end
 			end
 		end
@@ -303,6 +324,40 @@ function M._runtime( view, event )
 			end
 		end
 	end
+end
+
+
+-- Function to create a scrollBar
+function M.createScrollBar( view, options )
+	-- Set up the scrollBar color. - TODO: (change to use 3 slice image)
+	local scrollBarColor = 
+	{
+		r = options.r or 0,
+		g = options.g or 0,
+		b = options.b or 0,
+		a = options.a or 120,
+	}
+	
+	-- Setup the scrollBar's width/height
+	local scrollBarWidth = options.width or 5
+	local viewRatio = 0
+	
+	if view._scrollHeight then
+		viewRatio = view._scrollHeight - view.parent.contentHeight
+	else
+		viewRatio = view.contentHeight
+	end
+	
+	local barSize = 80
+	local scrollBarHeight = barSize * viewRatio
+		
+	-- Create the scrollBar. - TODO: (change to use 3 slice image)
+	M.scrollBar = display.newRoundedRect( display.contentWidth - 8, 0, scrollBarWidth, scrollBarHeight, 2 ) 
+	M.scrollBar.y = ( M.scrollBar.contentHeight * 0.5 ) + view._top
+	M.scrollBar:setFillColor( unpack( scrollBarColor ) )
+	M.scrollBar.yRatio = viewRatio
+	
+	return M.scrollBar
 end
 
 return M

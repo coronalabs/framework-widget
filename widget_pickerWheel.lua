@@ -40,12 +40,14 @@ local function createPickerWheel( pickerWheel, options )
 	-- Properties
 	----------------------------------
 	
+	-- The table which holds our pickerWheel columns
 	viewColumns = {}
 
 	-------------------------------------------------------
 	-- Assign properties to the view
 	-------------------------------------------------------
 	
+	-- Assign objects to our view
 	view._overlay = viewOverlay
 	view._background = viewBackground
 	view._columns = viewColumns
@@ -101,7 +103,7 @@ local function createPickerWheel( pickerWheel, options )
 	-- The available width for the whole pickerWheel (to fit columns)
 	local availableWidth = viewOverlay.width - 28
 	
-	-- Create the pickerWheel Columns
+	-- Create the pickerWheel Columns (which are tableView's)
 	for i = 1, #opt.columnData do
 		viewColumns[i] = require( "widget" ).newTableView
 		{
@@ -113,6 +115,7 @@ local function createPickerWheel( pickerWheel, options )
 			bottomPadding = 92,
 			noLines = true,
 			hideBackground = true,
+			hideScrollBar = true,
 			friction = 0.92,
 			rowColor = opt.columnColor,
 			onRowRender = _renderColumns,

@@ -21,13 +21,17 @@ local function createTableView( tableView, options )
 	local opt = options
 	
 	-- Forward references
-	local view, viewBackground, viewMask
+	local view, viewBackground, viewMask, categoryGroup, stuckCategoryGroup
 	
 	-- Create the view
 	view = display.newGroup()
-	
+		
 	-- Create the view's background
 	viewBackground = display.newRect( tableView, 0, 0, opt.width, opt.height )
+	
+	-- Create the view's category groups
+	categoryGroup = display.newGroup()
+	stuckCategoryGroup = display.newGroup()
 	
 	-- If there is a mask file, create the mask
 	if opt.maskFile then
@@ -53,7 +57,7 @@ local function createTableView( tableView, options )
 	
 	-- Set the view's initial position ( to account for top padding )
 	view.y = view.y + opt.topPadding
-	
+
 	-------------------------------------------------------
 	-- Assign properties to the view
 	-------------------------------------------------------
@@ -90,13 +94,18 @@ local function createTableView( tableView, options )
 	view._rowWidth = opt.rowWidth
 	view._rowHeight = opt.rowHeight
 	view._onRowRender = opt.onRowRender
+	view._onRowUpdate = opt.onRowUpdate
 	view._onRowTouch = opt.onRowTouch
 	view._trackVelocity = false	
 	view._updateRuntime = false
-					
+	
 	-------------------------------------------------------
 	-- Assign properties/objects to the tableView
 	-------------------------------------------------------
+	
+	-- Assign objects to the view
+	view._categoryGroup = categoryGroup
+	view._stuckCategoryGroup = stuckCategoryGroup
 	
 	-- Assign objects to the tableView
 	tableView._view = view
@@ -105,11 +114,6 @@ local function createTableView( tableView, options )
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
-	
-	-- Function to retrieve the x/y position of the tableView's content
-	function tableView:getContentPosition()
-		return self._view.y
-	end
 	
 	-- Function to insert a row into a tableView
 	function tableView:insertRow( options )
@@ -134,6 +138,11 @@ local function createTableView( tableView, options )
 	-- Function to scroll the tableView to a specific y position
 	function tableView:scrollToY( options )
 		return self._view:_scrollToY( options )
+	end
+	
+	-- Function to retrieve the x/y position of the tableView's content
+	function tableView:getContentPosition()
+		return self._view.x, self._view.y
 	end
 
 	----------------------------------------------------------
@@ -172,8 +181,9 @@ local function createTableView( tableView, options )
 	
 	viewBackground:addEventListener( "touch" )
 	
-	-- Function to get a row at a specific position
-	function view:_getRowAtPosition( position, animate )
+	
+	-- Private Function to get a row at a specific y position
+	function view:_getRowAtPosition( position )
 		local yPosition = position
 				
 		for k, v in pairs( self._rows ) do	
@@ -181,23 +191,9 @@ local function createTableView( tableView, options )
 			
 			local isWithinBounds = yPosition > bounds.yMin and yPosition < bounds.yMax + 1
 						
-			-- If we have hit the bottom limit, return the first row.
-			if self._hasHitBottomLimit then
-				return self._rows[1]
-			end
-			
-			-- If we have hit the top limit, return the last row.
-			if self._hasHitTopLimit then
-				return self._rows[#self._rows]
-			end			
-						
-			-- Any other row
+			-- If the row is within bounds
 			if isWithinBounds then
-				-- Transition to the target row
-				if animate then
-					transition.to( self, { time = 400, y = - self._rows[k].y - self._top , transition = easing.outQuad } )
-				end
-				
+				transition.to( self, { time = 400, y = - self._rows[k].y - self._top , transition = easing.outQuad } )
 				return self._rows[k]
 			end
 		end
@@ -268,10 +264,11 @@ local function createTableView( tableView, options )
 				{
 					phase = "release",
 					target = event.target,
+					row = self._targetRow,
 				}
 				
 				-- Set the row's border's fill color
-				self._targetRow._border:setFillColor( 255, 255, 255 )
+				self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor ) )
 				
 				-- Execute the row's touch event 
 				self._onRowTouch( newEvent )
@@ -296,25 +293,36 @@ local function createTableView( tableView, options )
 		
 		-- Dispatch the "press" phase
 		if "began" == self._phase then
-			if math.abs( self._velocity ) < 0.01 then
+			-- Reset any velocity
+			self._velocity = 0
+			
+			-- If a finger was held down
+			if timeHeld >= 110 then
 				-- If there is a onRowTouch listener
 				if self._onRowTouch then
-					self._newPhase = "press"
-					local newEvent =
-					{
-						phase = "press",
-						target = self._targetRow,
-					}
+					-- If the row isn't a category
+					if nil ~= self._targetRow.isCategory then
+						self._newPhase = "press"
+						local newEvent =
+						{
+							phase = "press",
+							target = self._targetRow,
+							row = self._targetRow,
+						}
 					
-					-- Set the row's border fill color
-					self._targetRow._border:setFillColor( 30, 144, 255 )
+						-- Set the row's border fill color
+						self._targetRow._border:setFillColor( 30, 144, 255 )
 					
-					-- Execute the row's onRowTouch listener
-					self._onRowTouch( newEvent )
-				end
+						-- Execute the row's onRowTouch listener
+						self._onRowTouch( newEvent )
+					end
 				
-				-- Set the phase to nil
-				self._phase = nil
+					-- Set the phase to nil
+					self._phase = nil
+					
+					-- Reset the time held
+					timeHeld = 0
+				end
 			end
 		end
 				
@@ -327,24 +335,115 @@ local function createTableView( tableView, options )
 	Runtime:addEventListener( "enterFrame", view )
 	
 	
-	
+	-- Private function to gather all tableView categories
+	function view:_gatherCategories()
+		local _categories = {}
+		local index = 0
 		
+		-- Loop through all rows, and add each category to the local table
+		for k, v in pairs( self._rows ) do
+			if self._rows[k].isCategory then
+				index = index + 1
+				self._rows[k]._categoryIndex = index
+				_categories[#_categories + 1] = self._rows[k]
+			end
+		end
+		
+		return _categories
+	end
+			
 	-- Function to manage all row's lifeCycle
 	function view:_manageRowLifeCycle()
+
+		-- Gather all tableView categories
+		if not self._categories then
+			self._categories = self:_gatherCategories()
+		end
+				
+		-- Set the upper and lower category limits
 		local upperLimit = self._background.y - ( self._background.contentHeight * 0.5 )
 		local lowerLimit = self._background.y + ( self._background.contentHeight * 0.5 )
-		
+				
 		-- Loop through the rows and set any off screen ones to invisible, and on screen ones to visible
 		for k, v in pairs( self._rows ) do
 			local isRowOnScreen = ( self._rows[k].y + self.y ) + self._rows[k].contentHeight > upperLimit and ( self._rows[k].y + self.y ) - self._rows[k].contentHeight < lowerLimit
+			
+			-- If this row is a category
+			if self._rows[k].isCategory then
+				-- If a category has gone up to the top threshold.
+				if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight * 0.5 <= upperLimit then
+					-- If the category isn't already past the limit (the top threshold)
+					if not self._rows[k]._isPastLimit then
+						-- Insert the row into the category group (which is static)
+						self._categoryGroup:insert( self._rows[k] )
+						self._categoryGroup:setReferencePoint( display.CenterReferencePoint )
+						
+						-- Set the group's position so the row stays at the top of the tableView
+						self._categoryGroup.y = self._top + ( self._rows[k].contentHeight * 0.5 )
+												
+						-- Set the current category to the current row index
+						self._currentCategory = self._rows[k]._categoryIndex
+																		
+						-- Set the row as past the limit
+						self._rows[k]._isPastLimit = true
 					
-			-- Cull rows that are are currently not within our tableView's bounds
+					-- The row is now past the top threshold						
+					else
+						-- If this row isn't the row we just stuck to the top..
+						if self._currentCategory ~= self._rows[k]._categoryIndex then
+							if not self._rows[k]._aboveThreshold then
+								-- Insert the row into the stuck group
+								self._stuckCategoryGroup:insert( self._rows[k] )
+
+								-- Set the group's position so the row stays where it stopped
+								self._stuckCategoryGroup.y = self._top - self._rows[k].contentHeight * 0.5
+							
+								-- The row is above the threshold
+								self._rows[k]._aboveThreshold = true
+							
+								-- Set the row as no longer past the limit
+								self._rows[k]._isPastLimit = false
+							end
+						end					
+					end
+				end
+				
+				-- If the row isn't past or equal to the top threshold, scroll it
+				if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight > upperLimit - ( self._rows[k].contentHeight * 0.5 ) then
+					-- If the row was previously past the limit (top threshold)
+					if self._rows[k]._isPastLimit then
+						-- Insert the row back into the view
+						self:insert( self._rows[k] )
+						
+						-- Set the row as no longer past the limit (top threshold)
+						self._rows[k]._isPastLimit = false
+					end
+				end
+			end
+					
+			-- Cull rows that are are currently not within our tableView's visible bounds
 			if not isRowOnScreen then
-				self._rows[k].isVisible = false
+				if not self._rows[k].isCategory then
+					self._rows[k].isVisible = false
+				end
 			-- Show rows that are within our tableView's bounds
 			else
 				self._rows[k].isVisible = true
+				
+				-- Create the rowRender event
+				local rowEvent = 
+				{
+					name = "rowUpdate",
+					row = self._rows[#self._rows],
+					target = tableView,
+				}
+				
+				-- If an onRowRender event exists, execute it
+				if self._onRowUpdate and "function" == type( self._onRowUpdate ) then
+					self._onRowUpdate( rowEvent )
+				end
 			end
+			
 		end
 	end
 	
@@ -357,21 +456,22 @@ local function createTableView( tableView, options )
 		return true
 	end
 					
-	-- Row
+	-- Function to insert a row into a tableView
 	function view:_insertRow( options )
-		-- Create a new rowGroup
+		-- Create a new row, a row is a display group
 		self._rows[#self._rows + 1] = display.newGroup()
+		-- Set the row's index
 		self._rows[#self._rows].index = #self._rows
 		
-		local rowId = options.id or #self._rows
+		-- Retrieve passed in row customization variables
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
 		local rowColor = options.rowColor or { 255, 255, 255 }
 		local lineColor = options.lineColor or { 220, 220, 220 }
 				
-		-- Create the row's touch rectangle
+		-- Create the row's touch rectangle (ie it's border)
 		local border = display.newRect( self._rows[#self._rows], 0, 0, opt.width, rowHeight )
-		border.x = 0 + border.contentWidth * 0.5
+		border.x = border.contentWidth * 0.5
 		border.y = border.contentHeight * 0.5
 		border.strokeWidth = 1
 		border:setFillColor( unpack( rowColor ) )
@@ -382,14 +482,8 @@ local function createTableView( tableView, options )
 			border:setStrokeColor( unpack( lineColor ) )
 		end
 
+		-- Set the row's reference point to it's center point (just incase)
 		self._rows[#self._rows]:setReferencePoint( display.CenterReferencePoint )
-				
-		-- Add event listener to the row
-		self._rows[#self._rows]:addEventListener( "touch", _handleRowTouch )
-		
-		-- Insert the row into the view
-		self._rows[#self._rows]._border = border
-		self._rows[#self._rows]._isCategory = isRowCategory
 				
 		-- Position the row
 		self._rows[#self._rows].x = self.x + self._rows[#self._rows].contentWidth * 0.5
@@ -401,14 +495,23 @@ local function createTableView( tableView, options )
 			self._rows[#self._rows].y = self._rows[#self._rows - 1].y + ( self._rows[#self._rows - 1].contentHeight * 0.5 ) + ( self._rows[#self._rows].contentHeight * 0.5 ) - 1
 		end
 		
-		-- Set the row's id
-		self._rows[#self._rows].id = rowId
+		-- Assign private properties to the row
+		self._rows[#self._rows]._border = border
+		self._rows[#self._rows]._rowColor = rowColor
+		
+		-- Assign public properties to the row
+		self._rows[#self._rows].isCategory = isRowCategory
+		
+		-- Add event listener to the row
+		if not isRowCategory then
+			self._rows[#self._rows]:addEventListener( "touch", _handleRowTouch )
+		end
 		
 		-- Insert the row into the view
 		self:insert( self._rows[#self._rows] )
 		
-		-- Create the event
-		local event = 
+		-- Create the rowRender event
+		local rowEvent = 
 		{
 			name = "rowRender",
 			row = self._rows[#self._rows],
@@ -416,9 +519,9 @@ local function createTableView( tableView, options )
 		}
 
 		-- If an onRowRender event exists, execute it
-		if self._onRowRender then
-			self._onRowRender( event )
-		end		
+		if self._onRowRender and "function" == type( self._onRowRender ) then
+			self._onRowRender( rowEvent )
+		end
 	end
 	
 	-- Function to delete a row from the tableView
@@ -459,9 +562,26 @@ local function createTableView( tableView, options )
 		transition.to( self, { y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
 	end
 	
+	-- Create the scrollBar
+	if not opt.hideScrollBar then
+		view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
+	end
+	
 	-- Finalize function for the tableView
 	function tableView:_finalize()
 		Runtime:removeEventListener( "enterFrame", self._view )
+		
+		display.remove( self._view._categoryGroup )
+	    display.remove( self._view._scategoryGroup )
+	
+		self._view._categoryGroup = nil
+		self._view._scategoryGroup = nil
+	
+		-- Remove scrollBar if it exists
+		if self._view._scrollBar then
+			display.remove( self._view._scrollBar )
+			self._view._scrollBar = nil
+		end
 	end
 			
 	return tableView
@@ -501,9 +621,11 @@ function M.new( options )
 	opt.friction = customOptions.friction
 	opt.maxVelocity = customOptions.maxVelocity
 	opt.noLines = customOptions.noLines or false
+	opt.hideScrollBar = customOptions.hideScrollBar or false
 	opt.rowWidth = opt.width
 	opt.rowHeight = customOptions.rowHeight or 40
 	opt.onRowRender = customOptions.onRowRender
+	opt.onRowUpdate = customOptions.onRowUpdate
 	opt.onRowTouch = customOptions.onRowTouch
 
 	-------------------------------------------------------

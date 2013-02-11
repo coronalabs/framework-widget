@@ -72,17 +72,17 @@ function scene:createScene( event )
 	
 end
 
-function scene:exitScene( event )
+function scene:didExitScene( event )
 	--Cancel test timer if active
 	if testTimer ~= nil then
 		timer.cancel( testTimer )
 		testTimer = nil
 	end
 	
-	storyboard.purgeAll()
+	storyboard.removeAll()
 end
 
 scene:addEventListener( "createScene", scene )
-scene:addEventListener( "exitScene", scene )
+scene:addEventListener( "didExitScene", scene )
 
 return scene

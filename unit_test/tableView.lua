@@ -43,13 +43,33 @@ function scene:createScene( event )
 	local TEST_SCROLL_TO_INDEX = false
 	local TEST_DELETE_ALL_ROWS = false
 	local TEST_DELETE_SINGLE_ROW = false
-	local TEST_LOCKING_LIST = false
 	
 	-- Listen for tableView events
 	local function tableViewListener( event )
 		local phase = event.phase
+		local direction = event.direction
 		
-		print( event.phase )
+		if "began" == phase then
+			--print( "Began" )
+		elseif "moved" == phase then
+			--print( "Moved" )
+		elseif "ended" == phase then
+			--print( "Ended" )
+		end
+		
+		if event.limitReached then
+			if "up" == direction then
+				print( "Reached Top Limit" )
+			elseif "down" == direction then
+				print( "Reached Bottom Limit" )
+			elseif "left" == direction then
+				print( "Reached Left Limit" )
+			elseif "right" == direction then
+				print( "Reached Right Limit" )
+			end
+		end
+				
+		return true
 	end
 
 	-- Handle row rendering
@@ -79,7 +99,7 @@ function scene:createScene( event )
 		width = 320, 
 		height = 366,
 		maskFile = "assets/mask-320x366.png",
-		listener = tableViewListener,
+		--listener = tableViewListener,
 		onRowRender = onRowRender,
 		onRowTouch = onRowTouch,
 	}
@@ -93,7 +113,7 @@ function scene:createScene( event )
 		local lineColor = { 220, 220, 220 }
 		
 		-- Make some rows categories
-		if i == 25 or i == 50 or i == 75 then
+		if i == 8 or i == 25 or i == 50 or i == 75 then
 			isCategory = true
 			rowHeight = 24
 			rowColor = { 150, 160, 180, 200 }
@@ -108,63 +128,58 @@ function scene:createScene( event )
 			lineColor = lineColor,
 		}
 	end
-	
-	timer.performWithDelay( 1000, function()
-		--tableView:deleteRow( 6 )
-		--tableView:deleteAllRows()
-		--tableView:scrollToIndex( 40 )
-		--tableView:scrollToY( { y = - 300, time = 800 } )
-	end)
 
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------			
 	
-	--Test locking list
-	if TEST_LOCKING_LIST then
-		list.isLocked = true
-	end
-	
-	--Test to scroll list to Y position
+	-- Test to scroll list to Y position
 	if TEST_SCROLL_TO_Y then
 		testTimer = timer.performWithDelay( 1000, function()
 			list:scrollToY( -3755, 6000 ) -- y = -3755
 		end, 1 )
 	end
 	
-	--Test to scroll list to index
+	-- Test to scroll list to index
 	if TEST_SCROLL_TO_INDEX then
 		testTimer = timer.performWithDelay( 1000, function()
 			list:scrollToIndex( 68, 6000 )	-- y = -3755
 		end, 1 )
 	end
 	
-	--Test deleting single row
+	-- Test deleting single row
 	if TEST_DELETE_SINGLE_ROW then
 		testTimer = timer.performWithDelay( 1000, function()			
 			list:deleteRow( 5 ) --Delete Row 5
 		end, 1 )
 	end
 	
-	--Test delete all rows
+	-- Test delete all rows
 	if TEST_DELETE_ALL_ROWS then
 		testTimer = timer.performWithDelay( 1000, function()			
 			list:deleteAllRows() --No rows after execution
 		end, 1 )
 	end
+	
+	-- Test deleting a specific row
+	if TEST_DELETE_SINGLE_ROW then
+		testTimer = timer.performWithDelay( 1000, function()			
+			list:deleteRow( 4 )
+		end, 1 )
+	end
 end
 
-function scene:exitScene( event )
+function scene:didExitScene( event )
 	--Cancel test timer if active
 	if testTimer ~= nil then
 		timer.cancel( testTimer )
 		testTimer = nil
 	end
 	
-	storyboard.purgeAll()
+	storyboard.removeAll()
 end
 
 scene:addEventListener( "createScene", scene )
-scene:addEventListener( "exitScene", scene )
+scene:addEventListener( "didExitScene", scene )
 
 return scene

@@ -113,6 +113,7 @@ local function createScrollView( scrollView, options )
 		local transitionTime = options.time or 400
 		local onTransitionComplete = options.onComplete
 	
+		-- Transition the view to the new position
 		transition.to( self._view, { x = newX, y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
 	end
 	
@@ -135,17 +136,21 @@ local function createScrollView( scrollView, options )
 			newX = self._view._background.x - ( self._view.contentWidth ) + ( self._view._background.contentWidth * 0.5 ) - self._view._rightPadding
 		end
 		
+		-- Transition the view to the new position
 		transition.to( self._view, { x = newX, y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
 	end
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------	
-	
+		
 	-- Handle touch events on any inserted widget buttons
 	local function _handleButtonTouch( event )
-		if event.target then
-			if not event.target._isActive then
+		local _targetButton = event.target
+		
+		-- If the target exists and is not active
+		if _targetButton then
+			if not _targetButton._isActive then
 				local phase = event.phase
 				
 				view:touch( event )
@@ -182,6 +187,11 @@ local function createScrollView( scrollView, options )
  			obj._view:addEventListener( "touch", _handleButtonTouch )
 			obj._view._insertedIntoScrollView = true
 			obj._view._isActive = false
+		end
+		
+		-- Push scrollBar to the front
+		if view._scrollBar then
+			view._scrollBar:toFront()
 		end
     end
 
@@ -231,6 +241,7 @@ local function createScrollView( scrollView, options )
 		-- Fire a touch event to a object inside a scrollview.
 		if "began" == self._phase then
 			if not self._target._isActive then
+				-- If a finger is held
 				if timeHeld > 60 then
 					-- If the object has been inserted into the scrollView
 					if self._target._insertedIntoScrollView then
@@ -254,10 +265,21 @@ local function createScrollView( scrollView, options )
 	end
 	
 	Runtime:addEventListener( "enterFrame", view )
+	
+	-- Create the scrollBar
+	if not opt.hideScrollbar then
+		view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
+	end
 		
 	-- Finalize function for the scrollView
 	function scrollView:_finalize()
 		Runtime:removeEventListener( "enterFrame", self._view )
+				
+		-- Remove scrollBar if it exists
+		if self._view._scrollBar then
+			display.remove( self._view._scrollBar )
+			self._view._scrollBar = nil
+		end
 	end
 			
 	return scrollView
@@ -292,12 +314,13 @@ function M.new( options )
 	opt.bottomPadding = customOptions.bottomPadding or 0
 	opt.leftPadding = customOptions.leftPadding or 0
 	opt.rightPadding = customOptions.rightPadding or 0
-	opt.isHorizontalScrollingDisabled = customOptions.horizontalScrollingDisabled or false
-	opt.isVerticalScrollingDisabled = customOptions.verticalScrollingDisabled or false
+	opt.isHorizontalScrollingDisabled = customOptions.horizontalScrollDisabled or false
+	opt.isVerticalScrollingDisabled = customOptions.verticalScrollDisabled or false
 	opt.friction = customOptions.friction
 	opt.maxVelocity = customOptions.maxVelocity
 	opt.scrollWidth = customOptions.scrollWidth
 	opt.scrollHeight = customOptions.scrollHeight
+	opt.hideScrollBar = customOptions.hideScrollBar or false
 	
 	-- If horizontal scrolling isn't disabled and a scrollWidth hasn't been defined, throw an error
 	if not opt.isHorizontalScrollingDisabled and not opt.scrollWidth then

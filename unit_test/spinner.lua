@@ -175,13 +175,17 @@ function scene:exitScene( event )
 	--storyboard.purgeAll()
 end
 
-scene:addEventListener( "createScene", scene )
-scene:addEventListener( "exitScene", scene )
-
 function scene:didExitScene( event )
-	storyboard.removeScene( "newSpinner" )
+	--Cancel test timer if active
+	if testTimer ~= nil then
+		timer.cancel( testTimer )
+		testTimer = nil
+	end
+	
+	storyboard.removeAll()
 end
 
+scene:addEventListener( "createScene", scene )
 scene:addEventListener( "didExitScene", scene )
 
 return scene
