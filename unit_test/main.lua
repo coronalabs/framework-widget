@@ -9,7 +9,9 @@
 -------------------------------------------------------------------------------------------------
 -- Change the package.path and make it so we can require the "widget.lua" file from the root directory
 -------------------------------------------------------------------------------------------------
-if "simulator" == system.getInfo( "environment" ) then	
+local onDeviceTest = false -- Change this to false if you wish to run this on device
+
+if "simulator" == system.getInfo( "environment" ) and not onDeviceTest then	
 	local path = package.path
 
 	-- Get index of first semicolon
@@ -44,7 +46,10 @@ package.preload.widget_tableview = nil
 -- For xcode console output
 io.output():setvbuf( "no" )
 
+-- Hide the status bar
 display.setStatusBar(display.HiddenStatusBar)
 
-local storyboard = require( "storyboard" )
+local storyboard = require( "storyboard" ); 
+---[[
 storyboard.gotoScene( "unitTestListing" )
+--]]

@@ -50,24 +50,26 @@ function scene:createScene( event )
 	-- Our ScrollView listener
 	local function scrollListener( event )
 		local phase = event.phase
-		local eType = event.type
+		local direction = event.direction
 		
 		if "began" == phase then
-			print( "Began" )
+			--print( "Began" )
 		elseif "moved" == phase then
-			print( "Moved" )
+			--print( "Moved" )
 		elseif "ended" == phase then
-			print( "Ended" )
+			--print( "Ended" )
 		end
 		
-		if "topLimit" == eType then
-			print( "Reached Top Limit" )
-		elseif "bottomLimit" == eType then
-			print( "Reached Bottom Limit" )
-		elseif "leftLimit" == eType then
-			print( "Reached Left Limit" )
-		elseif "rightLimit" == eType then
-			print( "Reached Right Limit" )
+		if event.limitReached then
+			if "up" == direction then
+				print( "Reached Top Limit" )
+			elseif "down" == direction then
+				print( "Reached Bottom Limit" )
+			elseif "left" == direction then
+				print( "Reached Left Limit" )
+			elseif "right" == direction then
+				print( "Reached Right Limit" )
+			end
 		end
 				
 		return true
@@ -91,65 +93,15 @@ function scene:createScene( event )
 		horizontalScrollingDisabled = false,
 		verticalScrollingDisabled = false,
 		maskFile = "assets/scrollViewMask-350.png",
-		--listener = scrollListener,
+		listener = scrollListener,
 	}
 	
 	-- insert image into scrollView widget
-	local background = display.newImageRect( "assets/scrollimage2.jpg", 768, 1024 )
+	local background = display.newImageRect( "assets/scrollimage.jpg", 768, 1024 )
 	background.x = background.contentWidth * 0.5
 	background.y = background.contentHeight * 0.5
 	scrollView:insert( background )
 	group:insert( scrollView )
-	
-	
-	local testButton = widget.newButton
-	{
-	    id = "returnToListing",
-	    left = 0,
-	    top = 100,
-	    label = "Exit",
-		labelAlign = "center",
-		fontSize = 18,
-	    width = 200, height = 52,
-	    cornerRadius = 8,
-	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
-	}
-	testButton.x = display.contentCenterX
-	scrollView:insert( testButton )
-	
-	local onOffSwitch = widget.newSwitch
-	{
-		left = 0,
-		top = 200,
-		--style = "checkbox",
-	}
-	onOffSwitch.x = display.contentCenterX
-	scrollView:insert( onOffSwitch )
-	
-	local stepper = widget.newStepper
-	{
-		left = 0,
-		top = 240,
-	}
-	stepper.x = display.contentCenterX
-	scrollView:insert( stepper )
-	
-	local testButton2 = widget.newButton
-	{
-	    id = "returnToListing",
-	    left = 0,
-	    top = 300,
-	    label = "Hi",
-		labelAlign = "center",
-		fontSize = 18,
-	    width = 200, height = 52,
-	    cornerRadius = 8,
-	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
-	}
-	testButton2.x = display.contentCenterX
-	scrollView:insert( testButton2 )
-	
-	
 	
 
 	if TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER then
@@ -177,7 +129,7 @@ function scene:createScene( event )
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
 	
-	--Test getContentPosition()
+	-- Test getContentPosition()
 	if TEST_GET_CONTENT_POSITION then
 		testTimer = timer.performWithDelay( 2000, function()
 			local x, y = scrollView:getContentPosition()
@@ -186,55 +138,54 @@ function scene:createScene( event )
 		end, 1 )
 	end
 	
-	
-	--Test scrollToPosition()
+	-- Test scrollToPosition()
 	if TEST_SCROLL_TO_POSITION then
 		testTimer = timer.performWithDelay( 2000, function()
 			scrollView:scrollToPosition( { x = - 0, y = - 600, time = 800, onComplete = function() print( "scrollToPosition test completed" ) end } )
 		end, 1 )
 	end	
 	
-	--Test scrollToTop()
+	-- Test scrollToTop()
 	if TEST_SCROLL_TO_TOP then		
 		testTimer = timer.performWithDelay( 2000, function()
 			scrollView:scrollTo( "top", { time = 800, onComplete = function() print( "scrollToTop test completed" ) end } )
 		end, 1 )
 	end
 	
-	--Test scrollToBottom()
+	-- Test scrollToBottom()
 	if TEST_SCROLL_TO_BOTTOM then
 		testTimer = timer.performWithDelay( 2000, function()
 			scrollView:scrollTo( "bottom", { time = 800, onComplete = function() print( "scrollToBottom test completed" ) end } )
 		end, 1 )
 	end
 	
-	--Test scrollToLeft()
+	-- Test scrollToLeft()
 	if TEST_SCROLL_TO_LEFT then		
 		testTimer = timer.performWithDelay( 2000, function()
 			scrollView:scrollTo( "left", { time = 800, onComplete =  function() print( "scrollToLeft test completed" ) end }  )
 		end, 1 )
 	end
 	
-	--Test scrollToRight()
+	-- Test scrollToRight()
 	if TEST_SCROLL_TO_RIGHT then
 		testTimer = timer.performWithDelay( 2000, function()
-			scrollView:scrollTo( "right", { position = "right", time = 800, onComplete = function() print( "scrollToRight test completed" ) end } )
+			scrollView:scrollTo( "right", { time = 800, onComplete = function() print( "scrollToRight test completed" ) end } )
 		end, 1 )
 	end
 	
 end
 
-function scene:exitScene( event )
+function scene:didExitScene( event )
 	--Cancel test timer if active
 	if testTimer ~= nil then
 		timer.cancel( testTimer )
 		testTimer = nil
 	end
 	
-	storyboard.purgeAll()
+	storyboard.removeAll()
 end
 
 scene:addEventListener( "createScene", scene )
-scene:addEventListener( "exitScene", scene )
+scene:addEventListener( "didExitScene", scene )	
 
 return scene

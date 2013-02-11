@@ -5,9 +5,7 @@ local scene = storyboard.newScene()
 --Set theme
 widget.setTheme( "theme_ios" )
 
-function scene:createScene( event )
-	storyboard.purgeAll() -- Purge
-	
+function scene:createScene( event )	
 	local group = self.view
 	
 	--Display an iOS style background
@@ -25,9 +23,7 @@ function scene:createScene( event )
 		width = display.contentWidth,
 		height = display.contentHeight,
 		scrollHeight = display.contentHeight - 180,
-		horizontalScrollingDisabled = true,
-		--topPadding = 40,
-		--bottomPadding = 40,
+		horizontalScrollDisabled = true,
 		hideBackground = true,
 	}
 	group:insert( newScrollView )
@@ -202,11 +198,11 @@ function scene:createScene( event )
 
 end
 
-function scene:exitScene( event )
-	storyboard.purgeAll()
+function scene:didExitScene( event )
+	storyboard.removeAll()
 end
 
 scene:addEventListener( "createScene", scene )
-scene:addEventListener( "exitScene", scene )
+scene:addEventListener( "didExitScene", scene )
 
 return scene
