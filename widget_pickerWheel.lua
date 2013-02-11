@@ -176,13 +176,31 @@ local function createPickerWheel( pickerWheel, options )
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
 
+	-- Override scale function as pickerWheels don't support it
+	function pickerWheel:scale()
+		print( M._widgetName .. " Does not support scaling" )
+	end
+
 	function view:enterFrame( event )
+		local _pickerWheel = self.parent
+		
 		-- Manage the Picker Wheels columns
 		for i = 1, #self._columns do
 			if "ended" == self._columns[i]._view._phase and not self._columns[i]._view._updateRuntime then
 				self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( self._yPosition, true )
 				self._columns[i]._view._phase = "none"
 			end
+		end
+		
+		-- Constrain x/y scale values to 1.0
+		if _pickerWheel.xScale ~= 1.0 then
+			_pickerWheel.xScale = 1.0
+			print( M._widgetName .. " Does not support scaling" )
+		end
+		
+		if _pickerWheel.yScale ~= 1.0 then
+			_pickerWheel.yScale = 1.0
+			print( M._widgetName .. " Does not support scaling" )
 		end
 		
 		return true

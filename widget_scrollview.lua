@@ -143,21 +143,10 @@ local function createScrollView( scrollView, options )
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------	
-		
-	-- Handle touch events on any inserted widget buttons
-	local function _handleButtonTouch( event )
-		local _targetButton = event.target
-		
-		-- If the target exists and is not active
-		if _targetButton then
-			if not _targetButton._isActive then
-				local phase = event.phase
-				
-				view:touch( event )
 
-				return true
-			end
-		end
+	-- Override scale function as scrollView's don't support it
+	function scrollView:scale()
+		print( M._widgetName .. " Does not support scaling" )
 	end
 
 	-- Override the insert method for scrollView to insert into the view instead
@@ -194,6 +183,22 @@ local function createScrollView( scrollView, options )
 			view._scrollBar:toFront()
 		end
     end
+
+	-- Handle touch events on any inserted widget buttons
+	local function _handleButtonTouch( event )
+		local _targetButton = event.target
+		
+		-- If the target exists and is not active
+		if _targetButton then
+			if not _targetButton._isActive then
+				local phase = event.phase
+				
+				view:touch( event )
+
+				return true
+			end
+		end
+	end
 
 	-- Transfer touch from the view's background to the view's content
 	function viewBackground:touch( event )		
@@ -232,6 +237,8 @@ local function createScrollView( scrollView, options )
 	
   	-- EnterFrame
 	function view:enterFrame( event )
+		local _scrollView = self.parent
+		
 		-- Handle momentum @ runtime
 		require( "widget_momentumScrolling" )._runtime( self, event )		
 		
@@ -259,6 +266,17 @@ local function createScrollView( scrollView, options )
 					end
 				end
 			end
+		end
+		
+		-- Constrain x/y scale values to 1.0
+		if _scrollView.xScale ~= 1.0 then
+			_scrollView.xScale = 1.0
+			print( M._widgetName .. " Does not support scaling" )
+		end
+		
+		if _scrollView.yScale ~= 1.0 then
+			_scrollView.yScale = 1.0
+			print( M._widgetName .. " Does not support scaling" )
 		end
 
 		return true

@@ -98,8 +98,8 @@ function M._touch( view, event )
 					view._timeHeld = time
 				
 					-- Move the scrollBar
-					if M.scrollBar then
-						M.scrollBar.y = math.abs( view.y ) * M.scrollBar.yRatio + M.scrollBar.height * 0.5 + view._top
+					if view._scrollBar then
+						view._scrollBar.y = math.abs( view.y ) * view._scrollBar.yRatio + view._scrollBar.height * 0.5 + view._top
 					end
 				end
 			end
@@ -287,8 +287,8 @@ function M._runtime( view, event )
 					end
 				else
 					-- Move the scrollBar
-					if M.scrollBar then
-						M.scrollBar.y = math.abs( view.y ) * M.scrollBar.yRatio + M.scrollBar.height * 0.5 + view._top
+					if view._scrollBar then
+						view._scrollBar.y = math.abs( view.y ) * view._scrollBar.yRatio + view._scrollBar.height * 0.5 + view._top
 					end
 				end
 			end
@@ -352,12 +352,12 @@ function M.createScrollBar( view, options )
 	local scrollBarHeight = barSize * viewRatio
 		
 	-- Create the scrollBar. - TODO: (change to use 3 slice image)
-	M.scrollBar = display.newRoundedRect( display.contentWidth - 8, 0, scrollBarWidth, scrollBarHeight, 2 ) 
-	M.scrollBar.y = ( M.scrollBar.contentHeight * 0.5 ) + view._top
-	M.scrollBar:setFillColor( unpack( scrollBarColor ) )
-	M.scrollBar.yRatio = viewRatio
+	local scrollBar = display.newRoundedRect( display.contentWidth - 8, 0, scrollBarWidth, scrollBarHeight, 2 ) 
+	scrollBar.y = ( scrollBar.contentHeight * 0.5 ) + view._top
+	scrollBar:setFillColor( unpack( scrollBarColor ) )
+	scrollBar.yRatio = viewRatio
 	
-	return M.scrollBar
+	return scrollBar
 end
 
 return M
