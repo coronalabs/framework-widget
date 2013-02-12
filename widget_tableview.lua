@@ -21,7 +21,7 @@ local function createTableView( tableView, options )
 	local opt = options
 	
 	-- Forward references
-	local view, viewBackground, viewMask, categoryGroup, stuckCategoryGroup
+	local view, viewBackground, viewMask, categoryGroup
 	
 	-- Create the view
 	view = display.newGroup()
@@ -29,9 +29,8 @@ local function createTableView( tableView, options )
 	-- Create the view's background
 	viewBackground = display.newRect( tableView, 0, 0, opt.width, opt.height )
 	
-	-- Create the view's category groups
+	-- Create the view's category group
 	categoryGroup = display.newGroup()
-	stuckCategoryGroup = display.newGroup()
 	
 	-- If there is a mask file, create the mask
 	if opt.maskFile then
@@ -105,7 +104,6 @@ local function createTableView( tableView, options )
 	
 	-- Assign objects to the view
 	view._categoryGroup = categoryGroup
-	view._stuckCategoryGroup = stuckCategoryGroup
 	
 	-- Assign objects to the tableView
 	tableView._view = view
@@ -151,7 +149,7 @@ local function createTableView( tableView, options )
 	
 	-- Override scale function as tableView's don't support it
 	function tableView:scale()
-		print( M._widgetName .. " Does not support scaling" )
+		print( M._widgetName, "Does not support scaling" )
 	end
 	
 	-- Override the insert method for tableView to insert into the view instead
@@ -339,12 +337,12 @@ local function createTableView( tableView, options )
 		-- Constrain x/y scale values to 1.0
 		if _tableView.xScale ~= 1.0 then
 			_tableView.xScale = 1.0
-			print( M._widgetName .. " Does not support scaling" )
+			print( M._widgetName, "Does not support scaling" )
 		end
 		
 		if _tableView.yScale ~= 1.0 then
 			_tableView.yScale = 1.0
-			print( M._widgetName .. " Does not support scaling" )
+			print( M._widgetName, "Does not support scaling" )
 		end
 		
 		return true
@@ -369,10 +367,10 @@ local function createTableView( tableView, options )
 		
 		return _categories
 	end
-			
+	
+	
 	-- Function to manage all row's lifeCycle
 	function view:_manageRowLifeCycle()
-
 		-- Gather all tableView categories
 		if not self._categories then
 			self._categories = self:_gatherCategories()
@@ -384,57 +382,31 @@ local function createTableView( tableView, options )
 				
 		-- Loop through the rows and set any off screen ones to invisible, and on screen ones to visible
 		for k, v in pairs( self._rows ) do
+			-- Is this row on screen?
 			local isRowOnScreen = ( self._rows[k].y + self.y ) + self._rows[k].contentHeight > upperLimit and ( self._rows[k].y + self.y ) - self._rows[k].contentHeight < lowerLimit
 			
 			-- If this row is a category
-			if self._rows[k].isCategory then
+			if self._rows[k].isCategory then				
 				-- If a category has gone up to the top threshold.
-				if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight * 0.5 <= upperLimit then
-					-- If the category isn't already past the limit (the top threshold)
-					if not self._rows[k]._isPastLimit then
-						-- Insert the row into the category group (which is static)
-						self._categoryGroup:insert( self._rows[k] )
-						self._categoryGroup:setReferencePoint( display.CenterReferencePoint )
-						
-						-- Set the group's position so the row stays at the top of the tableView
-						self._categoryGroup.y = self._top + ( self._rows[k].contentHeight * 0.5 )
-												
-						-- Set the current category to the current row index
-						self._currentCategory = self._rows[k]._categoryIndex
-																		
-						-- Set the row as past the limit
-						self._rows[k]._isPastLimit = true
-					
-					-- The row is now past the top threshold						
-					else
-						-- If this row isn't the row we just stuck to the top..
-						if self._currentCategory ~= self._rows[k]._categoryIndex then
-							if not self._rows[k]._aboveThreshold then
-								-- Insert the row into the stuck group
-								self._stuckCategoryGroup:insert( self._rows[k] )
-
-								-- Set the group's position so the row stays where it stopped
-								self._stuckCategoryGroup.y = self._top - self._rows[k].contentHeight * 0.5
-							
-								-- The row is above the threshold
-								self._rows[k]._aboveThreshold = true
-							
-								-- Set the row as no longer past the limit
-								self._rows[k]._isPastLimit = false
-							end
-						end					
+				if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight * 0.5 <= upperLimit then						
+					-- Insert all category group rows back into the view
+					for i = self._categoryGroup.numChildren, 1, -1 do
+						self:insert( self._categoryGroup[i] )
 					end
+					
+					-- Insert the current category into the category group
+					self._categoryGroup:insert( self._rows[k] )
+					-- Set the category groups reference point
+					self._categoryGroup:setReferencePoint( display.CenterReferencePoint )
+					-- Set the category groups position
+					self._categoryGroup.y = self._top + self._rows[k].contentHeight * 0.5		
 				end
 				
-				-- If the row isn't past or equal to the top threshold, scroll it
+				-- If the first row isn't past or equal to the top threshold, scroll it
 				if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight > upperLimit - ( self._rows[k].contentHeight * 0.5 ) then
-					-- If the row was previously past the limit (top threshold)
-					if self._rows[k]._isPastLimit then
-						-- Insert the row back into the view
+					-- If we are back to the first category
+					if self._rows[k]._categoryIndex == 1 then
 						self:insert( self._rows[k] )
-						
-						-- Set the row as no longer past the limit (top threshold)
-						self._rows[k]._isPastLimit = false
 					end
 				end
 			end

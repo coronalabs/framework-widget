@@ -178,7 +178,7 @@ local function createPickerWheel( pickerWheel, options )
 
 	-- Override scale function as pickerWheels don't support it
 	function pickerWheel:scale()
-		print( M._widgetName .. " Does not support scaling" )
+		print( M._widgetName, "Does not support scaling" )
 	end
 
 	function view:enterFrame( event )
@@ -195,12 +195,12 @@ local function createPickerWheel( pickerWheel, options )
 		-- Constrain x/y scale values to 1.0
 		if _pickerWheel.xScale ~= 1.0 then
 			_pickerWheel.xScale = 1.0
-			print( M._widgetName .. " Does not support scaling" )
+			print( M._widgetName, "Does not support scaling" )
 		end
 		
 		if _pickerWheel.yScale ~= 1.0 then
 			_pickerWheel.yScale = 1.0
-			print( M._widgetName .. " Does not support scaling" )
+			print( M._widgetName, "Does not support scaling" )
 		end
 		
 		return true

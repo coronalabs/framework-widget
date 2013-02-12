@@ -146,7 +146,7 @@ local function createScrollView( scrollView, options )
 
 	-- Override scale function as scrollView's don't support it
 	function scrollView:scale()
-		print( M._widgetName .. " Does not support scaling" )
+		print( M._widgetName, "Does not support scaling" )
 	end
 
 	-- Override the insert method for scrollView to insert into the view instead
@@ -271,12 +271,12 @@ local function createScrollView( scrollView, options )
 		-- Constrain x/y scale values to 1.0
 		if _scrollView.xScale ~= 1.0 then
 			_scrollView.xScale = 1.0
-			print( M._widgetName .. " Does not support scaling" )
+			print( M._widgetName, "Does not support scaling" )
 		end
 		
 		if _scrollView.yScale ~= 1.0 then
 			_scrollView.yScale = 1.0
-			print( M._widgetName .. " Does not support scaling" )
+			print( M._widgetName, "Does not support scaling" )
 		end
 
 		return true
