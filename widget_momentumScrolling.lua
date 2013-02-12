@@ -125,7 +125,7 @@ function M._runtime( view, event )
 	if view._updateRuntime then
 		local timePassed = event.time - view._lastTime
 		view._lastTime = view._lastTime + timePassed
-	
+		
 		-- Stop scrolling if velocity is near zero
 		if math.abs( view._velocity ) < 0.01 then
 			view._velocity = 0
