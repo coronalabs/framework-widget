@@ -1,6 +1,6 @@
 --[[
 	Copyright:
-		Copyright (C) 2012 Corona Inc. All Rights Reserved.
+		Copyright (C) 2013 Corona Inc. All Rights Reserved.
 		
 	File: 
 		widget_tableView.lua
@@ -554,7 +554,7 @@ local function createTableView( tableView, options )
 	
 	-- Create the scrollBar
 	if not opt.hideScrollBar then
-		view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
+		--view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
 	end
 	
 	-- Finalize function for the tableView

@@ -1,6 +1,6 @@
 --[[
 	Copyright:
-		Copyright (C) 2012 Corona Inc. All Rights Reserved.
+		Copyright (C) 2013 Corona Inc. All Rights Reserved.
 		
 	File: 
 		widget_progressView.lua
@@ -54,7 +54,7 @@ local function initWithImage( progressView, options )
 	
 	-- Properties
 	local rangeFactor = 100
-	local availableMoveSpace = opt.width - opt.padding
+	local availableMoveSpace = ( opt.width - ( opt.fillOuterWidth ) ) - ( opt.fillXOffset * 2 )
 	local moveFactor = availableMoveSpace / rangeFactor
 	local currentPercent = ( availableMoveSpace / rangeFactor ) * ( rangeFactor )
 	
@@ -80,10 +80,7 @@ local function initWithImage( progressView, options )
 	viewFillMiddle.y = progressView.y + ( viewFillMiddle.contentHeight * 0.5 ) + opt.fillYOffset
 	
 	-- OUTER MIDDLE
-	viewOuterMiddle.width = ( opt.width - viewOuterLeft.width ) 
-	if opt.fillXOffset and opt.fillXOffset > 0 then
-		viewOuterMiddle.width = viewOuterMiddle.width + opt.padding
-	end
+	viewOuterMiddle.width = ( opt.width - ( opt.fillOuterWidth * 2 ) )
 	viewOuterMiddle.x = viewOuterLeft.x + ( ( viewOuterLeft.contentWidth * 0.5 ) + ( viewOuterMiddle.width * 0.5 ) )
 	viewOuterMiddle.y = progressView.y + ( viewOuterMiddle.contentHeight * 0.5 )
 	
@@ -92,7 +89,7 @@ local function initWithImage( progressView, options )
 	viewFillRight.y = progressView.y + ( viewFillRight.contentHeight * 0.5 ) + opt.fillYOffset
 	
 	-- OUTER RIGHT
-	viewOuterRight.x = viewOuterMiddle.x + viewOuterMiddle.contentWidth * 0.5
+	viewOuterRight.x = viewOuterMiddle.x + ( viewOuterMiddle.contentWidth * 0.5 ) + ( viewOuterRight.contentWidth * 0.5 )
 	viewOuterRight.y = progressView.y + ( viewOuterRight.contentHeight * 0.5 )
 	
 	-------------------------------------------------------
@@ -131,7 +128,7 @@ local function initWithImage( progressView, options )
 		local view = self._view
 		
 		-- If the progress is more than 100% just return
-		if progress > 1.0 then
+		if progress > 1.01 then
 			return
 		end
 
@@ -152,7 +149,7 @@ local function initWithImage( progressView, options )
 		if view then
 			-- While the progress is less than the user specified progress, increase by 0.01
 			while view._currentProgress < progress do
-				local hasReachedLimit = view._currentProgress > 1.0
+				local hasReachedLimit = view._currentProgress > 1.01
 				
 				-- Increment the current progress
 				view._currentProgress = view._currentProgress + 0.01
@@ -160,7 +157,7 @@ local function initWithImage( progressView, options )
 				-- If we haven't reached the limit yet (1.0) increase the fill
 				if not hasReachedLimit then
 					-- Set the current fill %
-					currentPercent = ( availableMoveSpace / rangeFactor ) * ( view._currentProgress * rangeFactor ) + view._fillXOffset
+					currentPercent = ( availableMoveSpace / rangeFactor ) * ( view._currentProgress * rangeFactor ) -- - ( view._fillXOffset * 2 )
 				end	
 			end
 			

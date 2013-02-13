@@ -1,6 +1,6 @@
 --[[
 	Copyright:
-		Copyright (C) 2012 Corona Inc. All Rights Reserved.
+		Copyright (C) 2013 Corona Inc. All Rights Reserved.
 		
 	File: 
 		widget.lua
@@ -9,7 +9,7 @@
 local modname = ...
 local widget = {}
 package.loaded[modname] = widget
-widget.version = "0.9"
+widget.version = "2.0"
 
 ---------------------------------------------------------------------------------
 -- PRIVATE METHODS

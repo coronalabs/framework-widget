@@ -1,6 +1,6 @@
 --[[
 	Copyright:
-		Copyright (C) 2012 Corona Inc. All Rights Reserved.
+		Copyright (C) 2013 Corona Inc. All Rights Reserved.
 		
 	File: 
 		widget_embossedText.lua

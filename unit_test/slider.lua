@@ -1,9 +1,12 @@
--- Copyright (C) 2012 Corona Inc. All Rights Reserved.
+-- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newSlider unit test.
 
 local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
+
+local USE_THEME = true
+local USE_ANDROID_THEME = false
 
 --Forward reference for test function timer
 local testTimer = nil
@@ -16,7 +19,13 @@ function scene:createScene( event )
 	group:insert( background )
 	
 	-- Set a theme
-	widget.setTheme( "theme_ios" )
+	if USE_THEME then
+		if USE_ANDROID_THEME then
+			widget.setTheme( "theme_android" )
+		else
+			widget.setTheme( "theme_ios" )
+		end
+	end
 	
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
@@ -36,7 +45,7 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_SET_VALUE = true
+	local TEST_SET_VALUE = false
 	
 	--Create some text to show the sliders output
 	local sliderResult = display.newEmbossedText( "Slider at 50%", 0, 0, native.systemFontBold, 22 )
@@ -58,19 +67,18 @@ function scene:createScene( event )
 		width = 200,
 		top = 300,
 		left = 50,
-		value = 100,
+		value = 50,
 		listener = sliderListener,
 	}
 	group:insert( sliderHorizontal )
-	
-		
+			
 	-- Create a vertical slider
 	local sliderVertical = widget.newSlider
 	{
 		height = 150,
 		top = 130,
 		left = 50,
-		value = 100,
+		value = 80,
 		orientation = "vertical",
 		listener = sliderListener,
 	}
@@ -83,7 +91,8 @@ function scene:createScene( event )
 	--Test setValue()
 	if TEST_SET_VALUE then
 		testTimer = timer.performWithDelay( 1000, function()
-			sliderHorizontal:setValue( 20 ) -- 100%
+			sliderHorizontal:setValue( 0 )
+			sliderVertical:setValue( 0 )
 			sliderResult:setText( "Slider at " .. sliderHorizontal.value .. "%" )
 		end, 1 )
 	end
