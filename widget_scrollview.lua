@@ -144,6 +144,22 @@ local function createScrollView( scrollView, options )
 	--	PRIVATE METHODS	
 	----------------------------------------------------------	
 
+	-- Handle touch events on any inserted widget buttons
+	local function _handleButtonTouch( event )
+		local _targetButton = event.target
+		
+		-- If the target exists and is not active
+		if _targetButton then
+			if not _targetButton._isActive then
+				local phase = event.phase
+				
+				view:touch( event )
+
+				return true
+			end
+		end
+	end
+
 	-- Override scale function as scrollView's don't support it
 	function scrollView:scale()
 		print( M._widgetName, "Does not support scaling" )
@@ -183,22 +199,6 @@ local function createScrollView( scrollView, options )
 			view._scrollBar:toFront()
 		end
     end
-
-	-- Handle touch events on any inserted widget buttons
-	local function _handleButtonTouch( event )
-		local _targetButton = event.target
-		
-		-- If the target exists and is not active
-		if _targetButton then
-			if not _targetButton._isActive then
-				local phase = event.phase
-				
-				view:touch( event )
-
-				return true
-			end
-		end
-	end
 
 	-- Transfer touch from the view's background to the view's content
 	function viewBackground:touch( event )		
