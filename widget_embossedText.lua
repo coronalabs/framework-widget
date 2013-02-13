@@ -22,15 +22,15 @@ local function initWithEmbossedText( embossedText, options )
 	
 	-- Forward references
 	local view, textHighLight, textShadow, textColor
-		
-	-- Create the view
-	view = display.newText( embossedText, opt.string, 0, 0, opt.width, opt.height, opt.font, opt.fontSize )
 	
 	-- Create the text's highlight
 	textHighlight = display.newText( embossedText, opt.string, 0, 0, opt.width, opt.height, opt.font, opt.fontSize )
 	
 	-- Create the text's shadow
 	textShadow = display.newText( embossedText, opt.string, 0, 0, opt.width, opt.height, opt.font, opt.fontSize )
+	
+	-- Create the view
+	view = display.newText( embossedText, opt.string, 0, 0, opt.width, opt.height, opt.font, opt.fontSize )
 
 	----------------------------------
 	-- Positioning
@@ -47,17 +47,7 @@ local function initWithEmbossedText( embossedText, options )
 	-- The view's shadow
 	textShadow.x = view.x - 0.5
 	textShadow.y = view.y - 1
-	
-	----------------------------------
-	-- Setup
-	----------------------------------
-	
-	-- Push the view to the front
-	view:toFront()
-	
-	-- Set the text's color
-	view:setTextColor( 0, 0, 0, 255 )
-	
+
 	-------------------------------------------------------
 	-- Assign properties/objects to the view
 	-------------------------------------------------------
@@ -144,6 +134,9 @@ local function initWithEmbossedText( embossedText, options )
 		-- Set the text objects color
 		self:setTextColor( color.r, color.g, color.b, color.a )
 	end
+	
+	-- Set the text color initially
+	view:_setTextColor( 0, 0, 0, 255 )
 		
 	-- Function to set the emboss color
 	function view:_setEmbossColor( embossColor )
