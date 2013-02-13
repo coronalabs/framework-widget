@@ -1,3 +1,15 @@
+--[[
+	Copyright:
+		Copyright (C) 2013 Corona Inc. All Rights Reserved.
+		
+	File: 
+		widget_momentumScrolling.lua
+		
+	What is it?: 
+		Used to provide momentum scrolling to any widget that requires it.
+--]]
+
+
 local M = {}
 
 -- Handle momentum scrolling touch

@@ -1,9 +1,12 @@
--- Copyright (C) 2012 Corona Inc. All Rights Reserved.
+-- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newProgressView unit test.
 
 local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
+
+local USE_THEME = true
+local USE_ANDROID_THEME = false
 
 --Forward reference for test function timer
 local testTimer = nil
@@ -12,7 +15,13 @@ function scene:createScene( event )
 	local group = self.view
 	
 	-- Set a theme
-	widget.setTheme( "theme_ios" )
+	if USE_THEME then
+		if USE_ANDROID_THEME then
+			widget.setTheme( "theme_android" )
+		else
+			widget.setTheme( "theme_ios" )
+		end
+	end
 	
 	--Display an iOS style background
 	local background = display.newImage( "assets/background.png" )
@@ -50,13 +59,13 @@ function scene:createScene( event )
 	newProgressView.x = display.contentCenterX
 	newProgressView.y = display.contentCenterY
 	group:insert( newProgressView )
-	
+		
 	local currentProgress = 0.0
 
 	testTimer = timer.performWithDelay( 50, function( event )
 		currentProgress = currentProgress + 0.01
 		newProgressView:setProgress( currentProgress )
-		print( newProgressView:getProgress() )
+		--print( newProgressView:getProgress() )
 	end, 0 )
 	
 	----------------------------------------------------------------------------------------------------------------

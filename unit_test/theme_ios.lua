@@ -179,7 +179,7 @@ theme.progressView =
 	fillYOffset = 4,
 	fillOuterWidth = 12,
 	fillOuterHeight = 18,
-	fillWidth = 12, 
+	fillWidth = 8, 
 	fillHeight = 10,
 	
 	fillOuterLeftFrame = "progressView_leftFillBorder",

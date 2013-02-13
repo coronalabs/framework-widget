@@ -1,4 +1,4 @@
--- Copyright (C) 2012 Corona Inc. All Rights Reserved.
+-- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newEmbossedText unit test.
 
 local widget = require( "widget" )

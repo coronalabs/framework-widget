@@ -1,4 +1,4 @@
--- Copyright (C) 2012 Corona Inc. All Rights Reserved.
+-- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newScrollView unit test.
 
 local widget = require( "widget" )
@@ -16,7 +16,13 @@ function scene:createScene( event )
 	group:insert( background )
 	
 	-- Set a theme
-	widget.setTheme( "theme_ios" )
+	if USE_THEME then
+		if USE_ANDROID_THEME then
+			widget.setTheme( "theme_android" )
+		else
+			widget.setTheme( "theme_ios" )
+		end
+	end
 
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton
@@ -102,6 +108,9 @@ function scene:createScene( event )
 	background.y = background.contentHeight * 0.5
 	scrollView:insert( background )
 	group:insert( scrollView )
+	
+	
+	print( scrollView._view.contentHeight )
 	
 
 	if TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER then

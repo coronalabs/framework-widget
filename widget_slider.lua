@@ -1,6 +1,6 @@
 --[[
 	Copyright:
-		Copyright (C) 2012 Corona Inc. All Rights Reserved.
+		Copyright (C) 2013 Corona Inc. All Rights Reserved.
 		
 	File: 
 		widget_slider.lua
@@ -71,7 +71,11 @@ local function createHorizontalSlider( slider, options )
 	viewRight.y = viewLeft.y
 	
 	-- Position the slider's handle
-	viewHandle.x = viewFill.x + ( viewFill.contentWidth * 0.5 )
+	if opt.defaultValue < 1 then
+		viewHandle.x = viewLeft.x + ( viewLeft.contentWidth * 0.5 )
+	else
+		viewHandle.x = viewFill.x + ( viewFill.contentWidth * 0.5 )
+	end
 	viewHandle.y = viewLeft.y
 	
 	-------------------------------------------------------
@@ -185,7 +189,14 @@ local function createHorizontalSlider( slider, options )
 		self._fill.x = self._left.x + ( self._left.contentWidth * 0.5 ) + ( self._fill.contentWidth * 0.5 )
 		self._fill.y = self._left.y
 		
-		self._handle.x = self._fill.x + ( self._fill.contentWidth * 0.5 )
+		if value < 1 then
+			self._handle.x = self._left.x + ( self._left.contentWidth * 0.5 )
+			self._fill.width = 1
+			self._fill.x = self._left.x + ( self._left.contentWidth * 0.5 ) + ( self._fill.contentWidth * 0.5 )
+		else
+			self._handle.x = self._fill.x + ( self._fill.contentWidth * 0.5 )
+		end
+		
 		self._currentPercent = value
 	end
 	
@@ -256,7 +267,12 @@ local function createVerticalSlider( slider, options )
 	
 	-- Position the slider's handle
 	viewHandle.x = viewTop.x
-	viewHandle.y = viewFill.y - ( viewFill.contentHeight * 0.5 )
+	
+	if opt.defaultValue < 1 then
+		viewHandle.y = viewBottom.y - ( viewBottom.contentHeight * 0.5 )
+	else
+		viewHandle.y = viewFill.y - ( viewFill.contentHeight * 0.5 )
+	end
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -373,7 +389,15 @@ local function createVerticalSlider( slider, options )
 		self._fill.y = self._bottom.y - ( self._fill.contentHeight * 0.5 ) - ( self._bottom.contentHeight * 0.5 )
 		
 		self._handle.x = self._top.x
-		self._handle.y = self._fill.y - ( self._fill.contentHeight * 0.5 )
+		
+		if value < 1 then
+			self._fill.height = 1
+			self._fill.y = self._bottom.y - ( self._fill.contentHeight * 0.5 ) - ( self._bottom.contentHeight * 0.5 )
+			self._handle.y = self._bottom.y - ( self._bottom.contentHeight * 0.5 )
+		else
+			self._handle.y = self._fill.y - ( self._fill.contentHeight * 0.5 )
+		end
+		
 		self._currentPercent = value
 	end
 	

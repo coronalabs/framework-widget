@@ -1,5 +1,3 @@
-# Widget Readme
-
 # Building a unit test for on device testing.
 
 To automatically generate a folder with all the required files and assets needed in order for you to test on device, all you need to do is follow these simple steps:
@@ -15,7 +13,15 @@ To automatically generate a folder with all the required files and assets needed
 
 This will generate a folder named "widget_unit_test" and populate it with all needed widget code files and assets. This folder will be created on your desktop.
 
-From there you simply need to open the "widget_unit_test" folder we previously generated in the Corona Simulator and proceed to build for your device.
+From there you simply need to: 
+
+1) Navigate to the "widget_unit_test" folder we previously generated. 
+
+2) Open main.lua and change line 12 to true so it reads:
+
+	local onDeviceTest = true
+	
+3) Proceed to build for your device.
 
 
 # Notes
