@@ -35,7 +35,7 @@ function M._touch( view, event )
 	            local moveThresh = 12
 				
 	            if dx > moveThresh or dy > moveThresh then
-	                if dx > moveThresh then
+	                if dx > dy then
 	                    view._moveDirection = "horizontal"
 	                else
 	                    view._moveDirection = "vertical"
@@ -305,9 +305,11 @@ function M._runtime( view, event )
 		if "horizontal" == view._moveDirection then
 			-- If horizontal scrolling is enabled
 			if not view._isHorizontalScrollingDisabled then
-				if view._prevX then
-					view._velocity = ( view.x - view._prevX ) / newTimePassed
-				end
+				local possibleVelocity = ( view.x - view._prevX ) / newTimePassed
+
+                if possibleVelocity ~= 0 then
+                    view._velocity = possibleVelocity
+                end
 		
 				view._prevX = view.x
 			end
@@ -317,7 +319,11 @@ function M._runtime( view, event )
 			-- If vertical scrolling is enabled
 			if not view._isVerticalScrollingDisabled then
 				if view._prevY then
-					view._velocity = ( view.y - view._prevY ) / newTimePassed
+					local possibleVelocity = ( view.y - view._prevY ) / newTimePassed
+
+                    if possibleVelocity ~= 0 then
+                        view._velocity = possibleVelocity
+                    end
 				end
 		
 				view._prevY = view.y
