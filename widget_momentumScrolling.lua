@@ -33,7 +33,16 @@ function M._touch( view, event )
 		view._trackVelocity = true
 		view._updateRuntime = false
 		view._timeHeld = time
-				
+		
+		-- If there is a scrollBar
+		if view._scrollBar then
+			-- Reset scrollbar position (if scrollView was moved)
+			view._scrollBar:resetInitialPosition()
+					
+			-- Show the scrollBar
+			view._scrollBar:show()
+		end				
+		
 		-- Set focus
 		display.getCurrentStage():setFocus( event.target, event.id )
 		view._isFocus = true
@@ -94,7 +103,7 @@ function M._touch( view, event )
 
 					-- Set the upper limit
 					if view._scrollHeight then
-						upperLimit = -view._scrollHeight
+						upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
 					else
 						upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
 					end
@@ -110,8 +119,26 @@ function M._touch( view, event )
 					view._timeHeld = time
 				
 					-- Move the scrollBar
-					if view._scrollBar then
-						view._scrollBar.y = math.abs( view.y ) * view._scrollBar.yRatio + view._scrollBar.height * 0.5 + view._top
+					if view._scrollBar then						
+						local moveFactor = ( view.y * 100 ) / ( view._scrollBar._viewContentHeight - view._scrollBar._viewHeight )
+						local moveQuantity = ( moveFactor * view._scrollBar._viewHeight ) / 100
+						
+						if view.y < 0 then
+							if view._delta < 0 then
+								view._scrollBar.y = view._top + ( view._scrollBar.contentHeight * 0.5 ) - moveQuantity 
+							elseif view._delta > 0 then
+								view._scrollBar.y = view._top - ( view._scrollBar.contentHeight * 0.5 ) - moveQuantity
+							end
+							
+							-- Limit movement
+							if view._scrollBar.y - view._scrollBar.contentHeight * 0.5 < view._top  then
+								view._scrollBar.y = view._top + view._scrollBar.contentHeight * 0.5
+							end
+
+							if view._scrollBar.y + view._scrollBar.contentHeight * 0.5 > view._top + view._scrollBar._viewHeight then
+								view._scrollBar.y = view._top + view._scrollBar._viewHeight - view._scrollBar.contentHeight * 0.5
+							end
+						end
 					end
 				end
 			end
@@ -142,6 +169,11 @@ function M._runtime( view, event )
 		if math.abs( view._velocity ) < 0.01 then
 			view._velocity = 0
 			view._updateRuntime = false
+			
+			-- Hide the scrollBar
+			if view._scrollBar then
+				view._scrollBar:hide()
+			end
 						
 			-- Dispatch a event.direction event
 			if view._listener then
@@ -247,15 +279,20 @@ function M._runtime( view, event )
 				
 				-- Set the upper limit
 				if view._scrollHeight then
-					upperLimit = -view._scrollHeight
+					upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
 				else
 					upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
 				end
 	
 				-- Top
-				if view.y < upperLimit then
+				if view.y <= upperLimit then					
 					-- Transition the view back to it's maximum position
 					transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
+					
+					-- Hide the scrollBar
+					if view._scrollBar then
+						view._scrollBar:hide()
+					end
 					
 					-- We have hit the top limit
 					view._hasHitTopLimit = true
@@ -276,9 +313,14 @@ function M._runtime( view, event )
 					end
 							
 				-- Bottom
-				elseif view.y > bottomLimit then
+				elseif view.y >= bottomLimit then
 					-- Transition the view back to it's maximum position
 					transition.to( view, { time = 400, y = bottomLimit, transition = easing.outQuad } )
+					
+					-- Hide the scrollBar
+					if view._scrollBar then
+						view._scrollBar:hide()
+					end
 					
 					-- We have hit the bottom limit
 					view._hasHitBottomLimit = true
@@ -299,8 +341,26 @@ function M._runtime( view, event )
 					end
 				else
 					-- Move the scrollBar
-					if view._scrollBar then
-						view._scrollBar.y = math.abs( view.y ) * view._scrollBar.yRatio + view._scrollBar.height * 0.5 + view._top
+					if view._scrollBar then						
+						local moveFactor = ( view.y * 100 ) / ( view._scrollBar._viewContentHeight - view._scrollBar._viewHeight )
+						local moveQuantity = ( moveFactor * view._scrollBar._viewHeight ) / 100
+						
+						if view.y < 0 then
+							if view._delta < 0 then
+								view._scrollBar.y = view._top + ( view._scrollBar.contentHeight * 0.5 ) - moveQuantity 
+							elseif view._delta > 0 then
+								view._scrollBar.y = view._top - ( view._scrollBar.contentHeight * 0.5 ) - moveQuantity
+							end 
+							
+							-- Limit movement
+							if view._scrollBar.y - view._scrollBar.contentHeight * 0.5 < view._top  then
+								view._scrollBar.y = view._top + view._scrollBar.contentHeight * 0.5
+							end
+							
+							if view._scrollBar.y + view._scrollBar.contentHeight * 0.5 > view._top + view._scrollBar._viewHeight then
+								view._scrollBar.y = view._top + view._scrollBar._viewHeight - view._scrollBar.contentHeight * 0.5
+							end
+						end
 					end
 				end
 			end
@@ -348,32 +408,69 @@ end
 -- Function to create a scrollBar
 function M.createScrollBar( view, options )
 	-- Set up the scrollBar color. - TODO: (change to use 3 slice image)
-	local scrollBarColor = 
-	{
-		r = options.r or 0,
-		g = options.g or 0,
-		b = options.b or 0,
-		a = options.a or 120,
-	}
+	local scrollBarColor = { r = 0, g = 0, b = 0, a = 120 }
+	
+	-- If the user has passed in a color
+	if options.color then
+		scrollBarColor = 
+		{
+			r = options.color[1] or 0,
+			g = options.color[2] or 0,
+			b = options.color[3] or 0,
+			a = options.color[4] or 120,
+		}
+	end
 	
 	-- Setup the scrollBar's width/height
 	local scrollBarWidth = options.width or 5
-	local viewRatio = 0
+	local viewHeight = view._height -- The height of the windows visible area
+	local viewContentHeight = view._scrollHeight -- The height of the total content height
+	local minimumScrollBarHeight = 24 -- The minimum height the scrollbar can be
+
+	-- Set the scrollbar Height
+	local scrollBarHeight = ( viewHeight * 100 ) / viewContentHeight
 	
-	if view._scrollHeight then
-		viewRatio = view._scrollHeight - view.parent.contentHeight
-	else
-		viewRatio = view.contentHeight
+	-- If the calculated scrollBar height is below the minimum height, set it to it
+	if scrollBarHeight < minimumScrollBarHeight then
+		scrollBarHeight = minimumScrollBarHeight
 	end
 	
-	local barSize = 80
-	local scrollBarHeight = barSize * viewRatio
-		
 	-- Create the scrollBar. - TODO: (change to use 3 slice image)
 	local scrollBar = display.newRoundedRect( display.contentWidth - 8, 0, scrollBarWidth, scrollBarHeight, 2 ) 
+	scrollBar:setReferencePoint( display.CenterReferencePoint )
 	scrollBar.y = ( scrollBar.contentHeight * 0.5 ) + view._top
+	scrollBar._viewHeight = viewHeight
+	scrollBar._viewContentHeight = viewContentHeight
 	scrollBar:setFillColor( unpack( scrollBarColor ) )
-	scrollBar.yRatio = viewRatio
+	scrollBar.alpha = 0 -- The scrollBar is invisible initally
+	scrollBar._tween = nil
+	
+	-- Function to reset the scrollBar position
+	function scrollBar:resetInitialPosition()
+		if self.y - self.contentHeight * 0.5 < view._top  then
+			self.y = view._top + self.contentHeight * 0.5
+		end
+	end
+	
+	-- Function to show the scrollBar
+	function scrollBar:show()
+		-- Cancel any previous transition
+		if self._tween then
+			transition.cancel( self._tween ) 
+			self._tween = nil
+		end
+		
+		-- Set the alpha of the bar back to 1
+		self.alpha = 1
+	end
+	
+	-- Function to hide the scrollBar
+	function scrollBar:hide()
+		-- If there already isn't a tween in progress
+		if not self._tween then
+			self._tween = transition.to( self, { time = 400, alpha = 0, transition = easing.outQuad } )
+		end
+	end
 	
 	return scrollBar
 end

@@ -8,6 +8,9 @@ local scene = storyboard.newScene()
 --Forward reference for test function timer
 local testTimer = nil
 
+local USE_THEME = true
+local USE_ANDROID_THEME = false
+
 function scene:createScene( event )
 	local group = self.view
 	
@@ -134,6 +137,10 @@ function scene:createScene( event )
 			lineColor = lineColor,
 		}
 	end
+	
+	print( "content height", tableView.height )
+	print( "scroll height", tableView._view._scrollHeight )
+	print( "Actual height", (9 * 40)  + 24 )
 
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS

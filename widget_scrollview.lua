@@ -71,8 +71,10 @@ local function createScrollView( scrollView, options )
 	view._velocity = 0
 	view._prevTime = 0
 	view._lastTime = 0
-	view._top = opt.top
 	view._left = opt.left
+	view._top = opt.top
+	view._width = opt.width
+	view._height = opt.height
 	view._topPadding = opt.topPadding
 	view._bottomPadding = opt.bottomPadding
 	view._leftPadding = opt.leftPadding
@@ -279,6 +281,11 @@ local function createScrollView( scrollView, options )
 			print( M._widgetName, "Does not support scaling" )
 		end
 
+		-- Update the top position of the scrollView (if moved)
+		if _scrollView.y ~= self._top then
+			self._top = _scrollView.y
+		end
+
 		return true
 	end
 	
@@ -286,7 +293,7 @@ local function createScrollView( scrollView, options )
 	
 	-- Create the scrollBar
 	if not opt.hideScrollbar then
-		--view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
+		view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
 	end
 		
 	-- Finalize function for the scrollView
@@ -336,8 +343,18 @@ function M.new( options )
 	opt.isVerticalScrollingDisabled = customOptions.verticalScrollDisabled or false
 	opt.friction = customOptions.friction
 	opt.maxVelocity = customOptions.maxVelocity
-	opt.scrollWidth = customOptions.scrollWidth
-	opt.scrollHeight = customOptions.scrollHeight
+	opt.scrollWidth = customOptions.scrollWidth or opt.width
+	opt.scrollHeight = customOptions.scrollHeight or opt.height
+	
+	-- Ensure scroll width/height values are at a minimum, equal to the scroll window width/height
+	if opt.scrollHeight < opt.height then
+		opt.scrollHeight = opt.height
+	end
+	
+	if opt.scrollWidth < opt.width then
+		opt.scrollWidth = opt.width
+	end
+	
 	opt.hideScrollBar = customOptions.hideScrollBar or false
 	
 	-- If horizontal scrolling isn't disabled and a scrollWidth hasn't been defined, throw an error
