@@ -74,8 +74,8 @@ local function createTableView( tableView, options )
 	view._velocity = 0
 	view._prevTime = 0
 	view._lastTime = 0
-	view._top = opt.top
 	view._left = opt.left
+	view._top = opt.top
 	view._width = opt.width
 	view._height = opt.height
 	view._topPadding = opt.topPadding
@@ -95,8 +95,10 @@ local function createTableView( tableView, options )
 	view._onRowRender = opt.onRowRender
 	view._onRowUpdate = opt.onRowUpdate
 	view._onRowTouch = opt.onRowTouch
+	view._scrollHeight = 0
 	view._trackVelocity = false	
 	view._updateRuntime = false
+	view._hasRenderedRows = false
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the tableView
@@ -184,7 +186,6 @@ local function createTableView( tableView, options )
 	
 	viewBackground:addEventListener( "touch" )
 	
-	
 	-- Private Function to get a row at a specific y position
 	function view:_getRowAtPosition( position )
 		local yPosition = position
@@ -193,10 +194,21 @@ local function createTableView( tableView, options )
 			local bounds = self._rows[k].contentBounds
 			
 			local isWithinBounds = yPosition > bounds.yMin and yPosition < bounds.yMax + 1
-						
+			
+			-- If we have hit the bottom limit, return the first row
+			if self._hasHitBottomLimit then
+				return self._rows[1]
+			end
+			
+			-- If we have hit the top limit, return the last row
+			if self._hasHitTopLimit then
+				return self._rows[#self._rows]
+			end
+			
 			-- If the row is within bounds
-			if isWithinBounds then
-				transition.to( self, { time = 400, y = - self._rows[k].y - self._top , transition = easing.outQuad } )
+			if isWithinBounds then								
+				transition.to( self, { time = 280, y = - self._rows[k].y - self.parent.y, transition = easing.outQuad } )
+				
 				return self._rows[k]
 			end
 		end
@@ -285,10 +297,24 @@ local function createTableView( tableView, options )
 	end
 	
 	view:addEventListener( "touch" )
-	
+		
   	-- EnterFrame
 	function view:enterFrame( event )
 		local _tableView = self.parent
+		
+		-- If we have finished rendering all rows
+		if self._hasRenderedRows then
+			-- Create the scrollBar
+			if not opt.hideScrollBar then
+				if not self._scrollBar then
+					self._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
+				else
+					display.remove( self._scrollBar )
+					self._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
+				end
+			end
+			self._hasRenderedRows = false
+		end
 		
 		-- Handle momentum @ runtime
 		require( "widget_momentumScrolling" )._runtime( self, event )
@@ -343,6 +369,11 @@ local function createTableView( tableView, options )
 		if _tableView.yScale ~= 1.0 then
 			_tableView.yScale = 1.0
 			print( M._widgetName, "Does not support scaling" )
+		end
+		
+		-- Update the top position of the tableView (if moved)
+		if _tableView.y ~= self._top then
+			self._top = _tableView.y
 		end
 		
 		return true
@@ -445,9 +476,13 @@ local function createTableView( tableView, options )
 
 		return true
 	end
+
 					
 	-- Function to insert a row into a tableView
 	function view:_insertRow( options )
+		-- We haven't finished rendering all rows yet
+		self._hasRenderedRows = false
+		
 		-- Create a new row, a row is a display group
 		self._rows[#self._rows + 1] = display.newGroup()
 		-- Set the row's index
@@ -512,6 +547,12 @@ local function createTableView( tableView, options )
 		if self._onRowRender and "function" == type( self._onRowRender ) then
 			self._onRowRender( rowEvent )
 		end
+		
+		-- Add this row to the overall height (if this isn't a pickerWheel)
+		self._scrollHeight = self._scrollHeight + rowHeight + border.strokeWidth
+		
+		-- We have finished rendering the rows (unless we render another, in which case this gets reset)
+		self._hasRenderedRows = true
 	end
 	
 	-- Function to delete a row from the tableView
@@ -550,11 +591,6 @@ local function createTableView( tableView, options )
 		local onTransitionComplete = options.onComplete
 	
 		transition.to( self, { y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
-	end
-	
-	-- Create the scrollBar
-	if not opt.hideScrollBar then
-		--view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
 	end
 	
 	-- Finalize function for the tableView

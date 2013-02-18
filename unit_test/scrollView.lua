@@ -8,6 +8,9 @@ local scene = storyboard.newScene()
 --Forward reference for test function timer
 local testTimer = nil
 
+local USE_THEME = true
+local USE_ANDROID_THEME = false
+
 function scene:createScene( event )
 	local group = self.view
 	
@@ -89,7 +92,7 @@ function scene:createScene( event )
 		width = 300,
 		height = 350,
 		scrollWidth = 465,
-		scrollHeight = 670,
+		scrollHeight = 1024,
 		id = "onBottom",
 		--topPadding = 80,
 		--bottomPadding = 40,
@@ -107,11 +110,8 @@ function scene:createScene( event )
 	background.x = background.contentWidth * 0.5
 	background.y = background.contentHeight * 0.5
 	scrollView:insert( background )
-	group:insert( scrollView )
-	
-	
-	print( scrollView._view.contentHeight )
-	
+	group:insert( scrollView )	
+
 
 	if TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER then
 		-- Create scrollView2

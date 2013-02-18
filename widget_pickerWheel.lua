@@ -47,14 +47,17 @@ local function createPickerWheel( pickerWheel, options )
 	-- Assign properties to the view
 	-------------------------------------------------------
 	
+	-- Assign properties to our view
+	view._width = opt.overlayFrameWidth
+	view._height = opt.overlayFrameHeight
+	view._top = opt.top
+	view._yPosition = pickerWheel.y + ( view._height * 0.5 )
+	
 	-- Assign objects to our view
 	view._overlay = viewOverlay
 	view._background = viewBackground
 	view._columns = viewColumns
-	
-	-- We need to assign these properties to the object
-	view._yPosition = pickerWheel.y + ( pickerWheel.contentHeight * 0.5 )
-						
+		
 	-------------------------------------------------------
 	-- Assign properties/objects to the pickerWheel
 	-------------------------------------------------------
@@ -148,6 +151,9 @@ local function createPickerWheel( pickerWheel, options )
 			}
 		end
 		
+		-- Don't use the standard scrollHeight on pickerWheel columns
+		viewColumns[i]._view._scrollHeight = nil
+		
 		-- Insert the pickerWheel column into the view
 		view:insert( viewColumns[i] )
 	
@@ -180,14 +186,18 @@ local function createPickerWheel( pickerWheel, options )
 	function pickerWheel:scale()
 		print( M._widgetName, "Does not support scaling" )
 	end
+	
 
 	function view:enterFrame( event )
 		local _pickerWheel = self.parent
 		
+		-- Update the y position
+		self._yPosition = _pickerWheel.y + ( self._height * 0.5 )
+				
 		-- Manage the Picker Wheels columns
 		for i = 1, #self._columns do
 			if "ended" == self._columns[i]._view._phase and not self._columns[i]._view._updateRuntime then
-				self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( self._yPosition, true )
+				self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( self._yPosition )
 				self._columns[i]._view._phase = "none"
 			end
 		end
@@ -251,8 +261,6 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width
-	opt.height = customOptions.height
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.maskFile = customOptions.maskFile or themeOptions.maskFile
@@ -299,9 +307,9 @@ function M.new( options, theme )
 	createPickerWheel( pickerWheel, opt )
 	
 	-- Set the pickerWheel's position ( set the reference point to center, just to be sure )
-	pickerWheel:setReferencePoint( display.CenterReferencePoint )
-	pickerWheel.x = opt.left + pickerWheel.contentWidth * 0.5
-	pickerWheel.y = opt.top + pickerWheel.contentHeight * 0.5
+	pickerWheel:setReferencePoint( display.TopLeftReferencePoint )
+	pickerWheel.x = opt.left
+	pickerWheel.y = opt.top --+ opt.overlayFrameHeight * 0.5	
 	
 	return pickerWheel
 end

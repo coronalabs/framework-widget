@@ -161,26 +161,6 @@ end
 ------------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------
--- newEmbossedText widget
------------------------------------------------------------------------------------------
-
--- Add 'setText()' method to display.newText (to be consistent with display.newEmbossed text)
-local cached_newText = display.newText
-
-function display.newText( ... )
-	local text = cached_newText( ... )
-
-	function text:setText( newString )
-		self.text = newString
-	end
-
-	return text
-end
-
-display.newEmbossedText = require( "widget_embossedText" ).new
-widget.embossedText = display.newEmbossedText
-
------------------------------------------------------------------------------------------
 -- newScrollView widget
 -----------------------------------------------------------------------------------------
 
