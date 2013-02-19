@@ -92,6 +92,14 @@ function scene:createScene( event )
 		rowTitle:setTextColor( 0, 0, 0 )
 	end
 	
+	-- Handle row's becoming visible on screen
+	local function onRowUpdate( event )
+		local phase = event.phase
+		local row = event.row
+		
+		print( row.index, ": is now visible" )
+	end
+	
 	-- Handle touches on the row
 	local function onRowTouch( event )
 		local phase = event.phase
@@ -110,6 +118,7 @@ function scene:createScene( event )
 		maskFile = "assets/mask-320x366.png",
 		--listener = tableViewListener,
 		onRowRender = onRowRender,
+		onRowUpdate = onRowUpdate,
 		onRowTouch = onRowTouch,
 	}
 	group:insert( tableView )
@@ -137,10 +146,6 @@ function scene:createScene( event )
 			lineColor = lineColor,
 		}
 	end
-	
-	print( "content height", tableView.height )
-	print( "scroll height", tableView._view._scrollHeight )
-	print( "Actual height", (9 * 40)  + 24 )
 
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS

@@ -17,9 +17,7 @@ if "simulator" == system.getInfo( "environment" ) and not onDeviceTest then
 	-- Get index of first semicolon
 	local firstPath = string.find( path, ";", 1, true ) -- This is now the plugin path.
 	local nextPath = string.find( path, ";", firstPath, true ) -- This is now the correct path
-	
-	print( firstPath )
-	
+		
 	if nextPath > 0 then
 		-- Second path (after first semicolon) is project dir
 		local projDir = string.sub( path, 1, nextPath )

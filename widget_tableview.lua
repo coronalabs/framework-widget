@@ -452,19 +452,22 @@ local function createTableView( tableView, options )
 				end
 			-- Show rows that are within our tableView's bounds
 			else
-				self._rows[k].isVisible = true
+				-- If the row isn't already visible
+				if not self._rows[k].isVisible then
+					self._rows[k].isVisible = true
 				
-				-- Create the rowRender event
-				local rowEvent = 
-				{
-					name = "rowUpdate",
-					row = self._rows[#self._rows],
-					target = tableView,
-				}
+					-- Create the rowRender event
+					local rowEvent = 
+					{
+						name = "rowUpdate",
+						row = self._rows[k],
+						target = tableView,
+					}
 				
-				-- If an onRowRender event exists, execute it
-				if self._onRowUpdate and "function" == type( self._onRowUpdate ) then
-					self._onRowUpdate( rowEvent )
+					-- If an onRowRender event exists, execute it
+					if self._onRowUpdate and "function" == type( self._onRowUpdate ) then
+						self._onRowUpdate( rowEvent )
+					end
 				end
 			end
 		end
