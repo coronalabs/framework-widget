@@ -448,7 +448,10 @@ local function createTableView( tableView, options )
 			-- Cull rows that are are currently not within our tableView's visible bounds
 			if not isRowOnScreen then
 				if not self._rows[k].isCategory then
-					self._rows[k].isVisible = false
+					-- If the row is visible
+					if self._rows[k].isVisible then
+						self._rows[k].isVisible = false
+					end
 				end
 			-- Show rows that are within our tableView's bounds
 			else
