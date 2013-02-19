@@ -504,6 +504,7 @@ local function createStandardSwitch( switch, options )
 	-------------------------------------------------------
 	
 	-- If this switch is a radio button, add it to the set
+	--[[
 	if "radio" == opt.switchType then
 		if opt.radioSet then
 			opt.radioSet[#opt.radioSet + 1] = view
@@ -511,6 +512,7 @@ local function createStandardSwitch( switch, options )
 			view._isRadioButton = true
 		end
 	end
+	--]]
 	
 	-- Assign properties/methods to the view.
 	view._onPress = opt.onPress
@@ -542,6 +544,7 @@ local function createStandardSwitch( switch, options )
 			_switch.isOn = not _switch.isOn
 			
 			-- If this is a radio button
+			--[[
 			if self._isRadioButton then
 				-- Loop through the buttons in this set
 				for k, v in pairs( self._radioSet ) do
@@ -554,6 +557,7 @@ local function createStandardSwitch( switch, options )
 				-- Turn the selected radio button on
 				self:_setState( { isOn = true } )
 			end
+			--]]
 					
 			-- Toggle the displayed sprite sequence
 			if usingSprite then
@@ -678,7 +682,7 @@ function M.new( options, theme )
 	opt.onPress = customOptions.onPress
 	opt.onRelease = customOptions.onRelease
 	opt.onEvent = customOptions.onEvent
-	opt.radioSet = customOptions.radioSet
+	--opt.radioSet = customOptions.radioSet
 	
 	-- Frames & Images	
 	opt.sheet = customOptions.sheet
