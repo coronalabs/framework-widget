@@ -86,6 +86,7 @@ local function createUsingImageFiles( button, options )
 	-- Assign properties/objects to the view
 	-------------------------------------------------------
 	
+	view._isEnabled = opt.isEnabled
 	view._pressedState = "default"
 	view._fontSize = opt.fontSize
 	view._label = viewLabel
@@ -113,14 +114,18 @@ local function createUsingImageFiles( button, options )
 	
 	-- Function to set the button's label
 	function button:setLabel( newLabel )
-		return self._view:setLabel( newLabel )
+		return self._view:_setLabel( newLabel )
 	end
 	
 	-- Function to get the button's label
 	function button:getLabel()
-		return self._view:getLabel()
+		return self._view:_getLabel()
 	end
 	
+	-- Function to set a button as active
+	function button:setEnabled( isEnabled )
+		self._view._isEnabled = isEnabled
+	end
 	
 	function view:touch( event )
 		local phase = event.phase
@@ -130,6 +135,11 @@ local function createUsingImageFiles( button, options )
 		-- If the button is inside a scrollView, set it as so then return true
 		if self._insertedIntoScrollView then	
 			return true
+		end
+		
+		-- If the button isn't active, just return
+		if not self._isEnabled then
+			return
 		end
 		
 		if "began" == phase then
@@ -219,7 +229,7 @@ local function createUsingImageFiles( button, options )
 	----------------------------------------------------------
 	
 	-- Function to set the button's label
-	function view:setLabel( newLabel )
+	function view:_setLabel( newLabel )
 		-- Update the label's text
 		self._label:setText( newLabel )
 		
@@ -237,7 +247,7 @@ local function createUsingImageFiles( button, options )
 	end
 	
 	-- Function to get the button's label
-	function view:getLabel()
+	function view:_getLabel()
 		return self._label.text
 	end
 	
@@ -347,6 +357,7 @@ local function createUsingImageSheet( button, options )
 	-- Assign properties/objects to the view
 	-------------------------------------------------------
 	
+	view._isEnabled = opt.isEnabled
 	view._pressedState = "default"
 	view._fontSize = opt.fontSize
 	view._label = viewLabel
@@ -373,14 +384,18 @@ local function createUsingImageSheet( button, options )
 	
 	-- Function to set the button's label
 	function button:setLabel( newLabel )
-		return self._view:setLabel( newLabel )
+		return self._view:_setLabel( newLabel )
 	end
 	
 	-- Function to get the button's label
 	function button:getLabel()
-		return self._view:getLabel()
+		return self._view:_getLabel()
 	end
 	
+	-- Function to set a button as active
+	function button:setEnabled( isEnabled )
+		self._view._isEnabled = isEnabled
+	end
 	
 	function view:touch( event )
 		local phase = event.phase
@@ -390,6 +405,11 @@ local function createUsingImageSheet( button, options )
 		-- If the button is inside a scrollView, set it as so then return true
 		if self._insertedIntoScrollView then	
 			return true
+		end
+		
+		-- If the button isn't active, just return
+		if not self._isEnabled then
+			return
 		end
 		
 		if "began" == phase then
@@ -475,7 +495,7 @@ local function createUsingImageSheet( button, options )
 	----------------------------------------------------------
 	
 	-- Function to set the button's label
-	function view:setLabel( newLabel )
+	function view:_setLabel( newLabel )
 		-- Update the label's text
 		self._label:setText( newLabel )
 		
@@ -493,7 +513,7 @@ local function createUsingImageSheet( button, options )
 	end
 	
 	-- Function to get the button's label
-	function view:getLabel()
+	function view:_getLabel()
 		return self._label.text
 	end
 	
@@ -824,6 +844,7 @@ local function createUsing9Slice( button, options )
 	-- Assign properties/objects to the view
 	-------------------------------------------------------
 	
+	view._isEnabled = opt.isEnabled
 	view._pressedState = "default"
 	view._width = opt.width
 	view._fontSize = opt.fontSize
@@ -858,6 +879,22 @@ local function createUsing9Slice( button, options )
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
 
+	-- Function to set the button's label
+	function button:setLabel( newLabel )
+		return self._view:_setLabel( newLabel )
+	end
+	
+	-- Function to get the button's label
+	function button:getLabel()
+		return self._view:_getLabel()
+	end
+	
+	-- Function to set a button as active
+	function button:setEnabled( isEnabled )
+		self._view._isEnabled = isEnabled
+	end
+
+	-- Handle touches on the view
 	function view:touch( event )
 		local phase = event.phase
 		
@@ -865,7 +902,12 @@ local function createUsing9Slice( button, options )
 		if self._insertedIntoScrollView then
 			self._isInScrollView = true	
 			return true
-		end	
+		end
+		
+		-- If the button isn't active, just return
+		if not self._isEnabled then
+			return
+		end
 
 		if "began" == phase then
 			-- Set the button to it's over image state
@@ -938,7 +980,7 @@ local function createUsing9Slice( button, options )
 	----------------------------------------------------------
 	
 	-- Function to set the button's label
-	function view:setLabel( newLabel )
+	function view:_setLabel( newLabel )
 		self._label:setText( newLabel )
 		
 		-- Labels position
@@ -953,7 +995,7 @@ local function createUsing9Slice( button, options )
 	end
 	
 	-- Function to get the button's label
-	function view:getLabel()
+	function view:_getLabel()
 		return self._label.text
 	end
 	
@@ -1066,6 +1108,13 @@ function M.new( options, theme )
 	opt.labelXOffset = customOptions.labelXOffset or 0
 	opt.labelYOffset = customOptions.labelYOffset or 0
 	opt.embossedLabel = customOptions.emboss or themeOptions.emboss or false
+	opt.isEnabled = customOptions.isEnabled
+	
+	-- If the user didn't pass in a isEnabled flag, set it to true
+	if nil == opt.isEnabled then
+		opt.isEnabled = true
+	end
+	
 	opt.onPress = customOptions.onPress
 	opt.onRelease = customOptions.onRelease
 	opt.onEvent = customOptions.onEvent

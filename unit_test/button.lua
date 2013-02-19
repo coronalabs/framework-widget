@@ -49,6 +49,7 @@ function scene:createScene( event )
 	
 	-- Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SET_LABEL = false
+	local TEST_SET_ENABLED = true
 		
 	-- Handle widget button events
 	local onButtonEvent = function (event )
@@ -89,6 +90,7 @@ function scene:createScene( event )
 			default = { 0, 0, 0 },
 			over = { 255, 255, 255 },
 		},
+		isEnabled = false,
 	    onEvent = onButtonEvent
 	}
 	buttonUsingFiles.x = display.contentCenterX
@@ -165,6 +167,12 @@ function scene:createScene( event )
 		end, 1 )		
 	end
 	
+	-- Test setting a button as enabled
+	if TEST_SET_ENABLED then
+		testTimer =	timer.performWithDelay( 400, function()
+			buttonUsingFiles:setEnabled( true )
+		end, 1)
+	end
 end
 
 function scene:didExitScene( event )
