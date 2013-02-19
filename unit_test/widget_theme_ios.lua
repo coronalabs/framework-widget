@@ -4,7 +4,7 @@
 local modname = ...
 local theme = {}
 package.loaded[modname] = themeTable
-local assetDir = "widget_android"
+local assetDir = "widget_ios"
 local imageSuffix = display.imageSuffix or ""
 
 -----------------------------------------------------------------------------------------
@@ -13,8 +13,8 @@ local imageSuffix = display.imageSuffix or ""
 
 theme.button = 
 {
-	sheet = assetDir .. "/assets.png",
-	data = assetDir .. ".assets",
+	sheet = assetDir .. "/widget_theme_ios.png",
+	data = assetDir .. ".widget_theme_ios",
 	
 	topLeftFrame = "button_topLeft",
 	topLeftOverFrame =  "button_topLeftOver",
@@ -56,8 +56,8 @@ theme.button =
 
 theme.slider = 
 {
-	sheet = assetDir .. "/assets.png",
-    data = assetDir .. ".assets",
+	sheet = assetDir .. "/widget_theme_ios.png",
+    data = assetDir .. ".widget_theme_ios",
 
 	leftFrame = "slider_leftFrame",
 	rightFrame = "slider_rightFrame",
@@ -82,8 +82,8 @@ theme.slider =
 
 theme.pickerWheel = 
 {
-	sheet = assetDir .. "/assets.png",
-    data = assetDir .. ".assets",
+	sheet = assetDir .. "/widget_theme_ios.png",
+    data = assetDir .. ".widget_theme_ios",
 	backgroundFrame = "picker_bg",
 	backgroundFrameWidth = 1,
 	backgroundFrameHeight = 222,
@@ -97,34 +97,13 @@ theme.pickerWheel =
 }
 
 -----------------------------------------------------------------------------------------
--- tabBar
------------------------------------------------------------------------------------------
-
-theme.tabBar =
-{
-	sheet = assetDir .. "/assets.png",
-    data = assetDir .. ".assets",
-	backgroundFrame = "tabBar_background",
-	backgroundFrameWidth = 25,
-	backgroundFrameHeight = 50,
-	tabSelectedLeftFrame = "tabBar_tabSelectedLeftEdge",
-	tabSelectedRightFrame = "tabBar_tabSelectedRightEdge",
-	tabSelectedMiddleFrame = "tabBar_tabSelectedMiddle",
-	tabSelectedFrameWidth = 10,
-	tabSelectedFrameHeight = 50,
-	tabSelectedFrame = "tabBar_tabSelected",
-	iconInActiveFrame = "tabBar_iconInactive",
-	iconActiveFrame = "tabBar_iconActive",
-}
-
------------------------------------------------------------------------------------------
 -- spinner
 -----------------------------------------------------------------------------------------
 
 theme.spinner = 
 {
-	sheet = assetDir .. "/assets.png",
-	data = assetDir .. ".assets",
+	sheet = assetDir .. "/widget_theme_ios.png",
+	data = assetDir .. ".widget_theme_ios",
 	startFrame = "spinner_spinner",
 	width = 40,
 	height = 40,
@@ -139,8 +118,8 @@ theme.spinner =
 theme.switch = 
 {
 	-- Default (on/off switch)
-	sheet = assetDir .. "/assets.png",
-	data = assetDir .. ".assets",
+	sheet = assetDir .. "/widget_theme_ios.png",
+	data = assetDir .. ".widget_theme_ios",
 	backgroundFrame = "switch_background",
 	backgroundWidth = 165,
 	backgroundHeight = 31,
@@ -153,8 +132,8 @@ theme.switch =
 	
 	radio =
 	{
-		sheet = assetDir .. "/assets.png",
-		data = assetDir .. ".assets",
+		sheet = assetDir .. "/widget_theme_ios.png",
+		data = assetDir .. ".widget_theme_ios",
 		width = 33,
 		height = 34,
 		frameOff = "switch_radioButtonDefault",
@@ -162,8 +141,8 @@ theme.switch =
 	},
 	checkbox = 
 	{
-		sheet = assetDir .. "/assets.png",
-		data = assetDir .. ".assets",
+		sheet = assetDir .. "/widget_theme_ios.png",
+		data = assetDir .. ".widget_theme_ios",
 		width = 33,
 		height = 33,
 		frameOff = "switch_checkboxDefault",
@@ -177,8 +156,8 @@ theme.switch =
 
 theme.stepper = 
 {
-	sheet = assetDir .. "/assets.png",
-	data = assetDir .. ".assets",
+	sheet = assetDir .. "/widget_theme_ios.png",
+	data = assetDir .. ".widget_theme_ios",
 	defaultFrame = "stepper_nonActive",
 	noMinusFrame = "stepper_noMinus",
 	noPlusFrame = "stepper_noPlus",
@@ -194,9 +173,9 @@ theme.stepper =
 
 theme.progressView = 
 {
-	sheet = assetDir .. "/assets.png",
-	data = assetDir .. ".assets",
-	fillXOffset = 4,
+	sheet = assetDir .. "/widget_theme_ios.png",
+	data = assetDir .. ".widget_theme_ios",
+	fillXOffset = 4.5,
 	fillYOffset = 4,
 	fillOuterWidth = 12,
 	fillOuterHeight = 18,
@@ -218,8 +197,8 @@ theme.progressView =
 
 theme.segmentedControl = 
 {
-	sheet = assetDir .. "/assets.png",
-	data = assetDir .. ".assets",
+	sheet = assetDir .. "/widget_theme_ios.png",
+	data = assetDir .. ".widget_theme_ios",
 	width = 12,
 	height = 29,
 	leftSegmentFrame = "segmentedControl_left",
@@ -237,8 +216,8 @@ theme.segmentedControl =
 
 theme.searchField = 
 {
-    sheet = assetDir .. "/assets.png",
-    data = assetDir .. ".assets",
+    sheet = assetDir .. "/widget_theme_ios.png",
+    data = assetDir .. ".widget_theme_ios",
     leftFrame = "searchField_leftEdge",
 	rightFrame = "searchField_rightEdge",
 	middleFrame = "searchField_middle",

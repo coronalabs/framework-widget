@@ -17,9 +17,9 @@ function scene:createScene( event )
 	-- Set a theme
 	if USE_THEME then
 		if USE_ANDROID_THEME then
-			widget.setTheme( "theme_android" )
+			widget.setTheme( "widget_theme_android" )
 		else
-			widget.setTheme( "theme_ios" )
+			widget.setTheme( "widget_theme_ios" )
 		end
 	end
 	
@@ -67,8 +67,8 @@ function scene:createScene( event )
 	group:insert( spinnerText )
 	
 	
-	local sheetOptions = require( "widget_ios.assets" )
-	local imageSheet = graphics.newImageSheet( "widget_ios/assets.png", sheetOptions:getSheet() )
+	local sheetOptions = require( "assets.customSpinner" )
+	local imageSheet = graphics.newImageSheet( "assets/customSpinner.png", sheetOptions:getSheet() )
 
 
 	-- Create a custom spinner (Animating sprite from imagesheet)
@@ -79,7 +79,7 @@ function scene:createScene( event )
 		width = 35, 
 		height = 35,
 		sheet = imageSheet,
-		startFrame = sheetOptions:getFrameIndex( "spinner_spinner" ),
+		startFrame = 1,
 		count = 30,
 		time = 1000,
 	}
