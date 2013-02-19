@@ -165,7 +165,7 @@ end
 -----------------------------------------------------------------------------------------
 
 function widget.newScrollView( options )	
-	return require( "widget_scrollView" ).new( options )
+	return require( "widget_scrollview" ).new( options )
 end
 
 -----------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ end
 -----------------------------------------------------------------------------------------
 
 function widget.newTableView( options )
-	return require( "widget_tableView" ).new( options )
+	return require( "widget_tableview" ).new( options )
 end
 
 -----------------------------------------------------------------------------------------

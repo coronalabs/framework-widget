@@ -292,7 +292,7 @@ local function createScrollView( scrollView, options )
 	Runtime:addEventListener( "enterFrame", view )
 	
 	-- Create the scrollBar
-	if not opt.hideScrollbar then
+	if not opt.hideScrollBar then
 		view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
 	end
 		
