@@ -120,25 +120,7 @@ function M._touch( view, event )
 				
 					-- Move the scrollBar
 					if view._scrollBar then						
-						local moveFactor = ( view.y * 100 ) / ( view._scrollBar._viewContentHeight - view._scrollBar._viewHeight )
-						local moveQuantity = ( moveFactor * view._scrollBar._viewHeight ) / 100
-						
-						if view.y < 0 then
-							if view._delta < 0 then
-								view._scrollBar.y = view._top + ( view._scrollBar.contentHeight * 0.5 ) - moveQuantity 
-							elseif view._delta > 0 then
-								view._scrollBar.y = view._top - ( view._scrollBar.contentHeight * 0.5 ) - moveQuantity
-							end
-							
-							-- Limit movement
-							if view._scrollBar.y - view._scrollBar.contentHeight * 0.5 < view._top  then
-								view._scrollBar.y = view._top + view._scrollBar.contentHeight * 0.5
-							end
-
-							if view._scrollBar.y + view._scrollBar.contentHeight * 0.5 > view._top + view._scrollBar._viewHeight then
-								view._scrollBar.y = view._top + view._scrollBar._viewHeight - view._scrollBar.contentHeight * 0.5
-							end
-						end
+						view._scrollBar:move()
 					end
 				end
 			end
@@ -342,25 +324,7 @@ function M._runtime( view, event )
 				else
 					-- Move the scrollBar
 					if view._scrollBar then						
-						local moveFactor = ( view.y * 100 ) / ( view._scrollBar._viewContentHeight - view._scrollBar._viewHeight )
-						local moveQuantity = ( moveFactor * view._scrollBar._viewHeight ) / 100
-						
-						if view.y < 0 then
-							if view._delta < 0 then
-								view._scrollBar.y = view._top + ( view._scrollBar.contentHeight * 0.5 ) - moveQuantity 
-							elseif view._delta > 0 then
-								view._scrollBar.y = view._top - ( view._scrollBar.contentHeight * 0.5 ) - moveQuantity
-							end 
-							
-							-- Limit movement
-							if view._scrollBar.y - view._scrollBar.contentHeight * 0.5 < view._top  then
-								view._scrollBar.y = view._top + view._scrollBar.contentHeight * 0.5
-							end
-							
-							if view._scrollBar.y + view._scrollBar.contentHeight * 0.5 > view._top + view._scrollBar._viewHeight then
-								view._scrollBar.y = view._top + view._scrollBar._viewHeight - view._scrollBar.contentHeight * 0.5
-							end
-						end
+						view._scrollBar:move()
 					end
 				end
 			end
@@ -449,6 +413,30 @@ function M.createScrollBar( view, options )
 	function scrollBar:resetInitialPosition()
 		if self.y - self.contentHeight * 0.5 < view._top  then
 			self.y = view._top + self.contentHeight * 0.5
+		end
+	end
+	
+	-- Function to move the scrollBar
+	function scrollBar:move()
+		local moveFactor = ( view.y * 100 ) / ( self._viewContentHeight - self._viewHeight )
+		local moveQuantity = ( moveFactor * self._viewHeight ) / 100
+		
+		if view.y < 0 then
+			-- Move the scrollBar
+			if view._delta < 0 then
+				self.y = view._top + ( self.contentHeight * 0.5 ) - moveQuantity 
+			elseif view._delta > 0 then
+				self.y = view._top - ( self.contentHeight * 0.5 ) - moveQuantity
+			end 
+			
+			-- Limit movement
+			if self.y - self.contentHeight * 0.5 < view._top  then
+				self.y = view._top + self.contentHeight * 0.5
+			end
+			
+			if self.y + self.contentHeight * 0.5 > view._top + self._viewHeight then
+				self.y = view._top + self._viewHeight - self.contentHeight * 0.5
+			end
 		end
 	end
 	
