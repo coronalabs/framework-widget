@@ -406,7 +406,7 @@ local function createTableView( tableView, options )
 		if not self._categories then
 			self._categories = self:_gatherCategories()
 		end
-				
+								
 		-- Set the upper and lower category limits
 		local upperLimit = self._background.y - ( self._background.contentHeight * 0.5 )
 		local lowerLimit = self._background.y + ( self._background.contentHeight * 0.5 )
@@ -416,28 +416,31 @@ local function createTableView( tableView, options )
 			-- Is this row on screen?
 			local isRowOnScreen = ( self._rows[k].y + self.y ) + self._rows[k].contentHeight > upperLimit and ( self._rows[k].y + self.y ) - self._rows[k].contentHeight < lowerLimit
 			
-			-- If this row is a category
-			if self._rows[k].isCategory then				
-				-- If a category has gone up to the top threshold.
-				if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight * 0.5 <= upperLimit then						
-					-- Insert all category group rows back into the view
-					for i = self._categoryGroup.numChildren, 1, -1 do
-						self:insert( self._categoryGroup[i] )
-					end
+			-- If there are any categories
+			if #self._categories > 0 then
+				-- If this row is a category
+				if self._rows[k].isCategory then				
+					-- If a category has gone up to the top threshold.
+					if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight * 0.5 <= upperLimit then						
+						-- Insert all category group rows back into the view
+						for i = self._categoryGroup.numChildren, 1, -1 do
+							self:insert( self._categoryGroup[i] )
+						end
 					
-					-- Insert the current category into the category group
-					self._categoryGroup:insert( self._rows[k] )
-					-- Set the category groups reference point
-					self._categoryGroup:setReferencePoint( display.CenterReferencePoint )
-					-- Set the category groups position
-					self._categoryGroup.y = self._top + self._rows[k].contentHeight * 0.5		
-				end
+						-- Insert the current category into the category group
+						self._categoryGroup:insert( self._rows[k] )
+						-- Set the category groups reference point
+						self._categoryGroup:setReferencePoint( display.CenterReferencePoint )
+						-- Set the category groups position
+						self._categoryGroup.y = self._top + self._rows[k].contentHeight * 0.5		
+					end
 				
-				-- If the first row isn't past or equal to the top threshold, scroll it
-				if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight > upperLimit - ( self._rows[k].contentHeight * 0.5 ) then
-					-- If we are back to the first category
-					if self._rows[k]._categoryIndex == 1 then
-						self:insert( self._rows[k] )
+					-- If the first row isn't past or equal to the top threshold, scroll it
+					if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight > upperLimit - ( self._rows[k].contentHeight * 0.5 ) then
+						-- If we are back to the first category
+						if self._rows[k]._categoryIndex == 1 then
+							self:insert( self._rows[k] )
+						end
 					end
 				end
 			end
@@ -464,7 +467,6 @@ local function createTableView( tableView, options )
 					self._onRowUpdate( rowEvent )
 				end
 			end
-			
 		end
 	end
 	
