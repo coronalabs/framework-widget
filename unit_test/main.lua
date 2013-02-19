@@ -13,12 +13,14 @@ local onDeviceTest = false -- Change this to false if you wish to run this on de
 
 if "simulator" == system.getInfo( "environment" ) and not onDeviceTest then	
 	local path = package.path
-
+	
 	-- Get index of first semicolon
-	local i = string.find( path, ';', 1, true )
-	if i > 0 then
-		-- First path (before semicolon) is project dir
-		local projDir = string.sub( path, 1, i )
+	local firstPath = string.find( path, ';', 1, true ) -- This is now the plugin path.
+	local nextPath = string.find( path, ";", firstPath + 1, true ) -- This is now the correct path
+	
+	if nextPath > 0 then
+		-- Second path (after first semicolon) is project dir
+		local projDir = string.sub( path, 1, nextPath )
 
 		-- Assume widget dir is parent to projDir
 		local widgetDir = string.gsub( projDir, '(.*)/([^/]?/\?\.lua)', '%1/../%2' )
