@@ -203,7 +203,7 @@ end
 function widget.newTabBar( options )
 	local theme = _getTheme( "tabBar", options )
 	
-	return require( "widget_tabBar" ).new( options, theme )
+	return require( "widget_tabbar" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------

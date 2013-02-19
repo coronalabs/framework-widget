@@ -88,7 +88,6 @@ function scene:createScene( event )
 	}
 	group:insert( pickerWheel )
 	
-	transition.to( pickerWheel, { y = display.contentHeight - 444 } )
 	
 	local function showValues( event )
 		local values = pickerWheel:getValues()
