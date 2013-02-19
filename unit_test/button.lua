@@ -21,9 +21,9 @@ function scene:createScene( event )
 	-- Set a theme
 	if USE_THEME then
 		if USE_ANDROID_THEME then
-			widget.setTheme( "theme_android" )
+			widget.setTheme( "widget_theme_android" )
 		else
-			widget.setTheme( "theme_ios" )
+			widget.setTheme( "widget_theme_ios" )
 		end
 	end
 	
