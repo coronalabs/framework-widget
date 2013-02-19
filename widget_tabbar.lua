@@ -192,7 +192,7 @@ local function initWithImageFiles( tabBar, options )
 				if pressedWithinRange then
 					-- Activate the tab
 					if not currentTab._isPressed then
-						self:_setTabActive( i, true )
+						self:_setSelected( i, true )
 					end
 					
 					break
@@ -206,8 +206,8 @@ local function initWithImageFiles( tabBar, options )
 	view:addEventListener( "touch" )
 	
 	-- Function to programatically set a tab button as active
-	function tabBar:setTabActive( selectedTab )
-		return self._view:_setTabActive( selectedTab )
+	function tabBar:setSelected( selectedTab )
+		return self._view:_setSelected( selectedTab )
 	end
 		
 	----------------------------------------------------------
@@ -215,7 +215,7 @@ local function initWithImageFiles( tabBar, options )
 	----------------------------------------------------------
 	
 	-- Function to set a tab as active
-	function view:_setTabActive( selectedTab, invokeListener )
+	function view:_setSelected( selectedTab, invokeListener )
 		for i = 1, #self._tabs do
 			-- The pressed tab
 			if selectedTab == i then
@@ -456,7 +456,7 @@ local function initWithImageSheet( tabBar, options )
 				if pressedWithinRange then
 					-- Activate the tab
 					if not currentTab._isPressed then
-						self:_setTabActive( i, true )
+						self:_setSelected( i, true )
 					end
 					
 					break
@@ -470,8 +470,8 @@ local function initWithImageSheet( tabBar, options )
 	view:addEventListener( "touch" )
 	
 	-- Function to programatically set a tab button as active
-	function tabBar:setTabActive( selectedTab )
-		return self._view:_setTabActive( selectedTab )
+	function tabBar:setSelected( selectedTab )
+		return self._view:_setSelected( selectedTab )
 	end
 		
 	----------------------------------------------------------
@@ -479,7 +479,7 @@ local function initWithImageSheet( tabBar, options )
 	----------------------------------------------------------
 	
 	-- Function to set a tab as active
-	function view:_setTabActive( selectedTab, invokeListener )
+	function view:_setSelected( selectedTab, invokeListener )
 		for i = 1, #self._tabs do
 			-- The pressed tab
 			if selectedTab == i then
