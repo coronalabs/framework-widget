@@ -30,10 +30,14 @@ function scene:createScene( event )
 	
 	local newScrollView = widget.newScrollView
 	{
+		left = 8,
 		top = 40,
+		topPadding = 40,
+		bottomPadding = 40,
 		width = display.contentWidth,
 		height = display.contentHeight - 50,
 		scrollHeight = 700,
+		maskFile = "assets/scrollViewMask-350.png",
 		horizontalScrollDisabled = true,
 		hideScrollBar = true,
 		hideBackground = true,
