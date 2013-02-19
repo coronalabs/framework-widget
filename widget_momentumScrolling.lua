@@ -26,7 +26,6 @@ function M._touch( view, event )
 		view._prevX = 0
 		view._prevY = 0
 		view._delta = 0
-		view._delta = 0
 		view._velocity = 0
 		view._prevTime = 0
 		view._moveDirection = nil

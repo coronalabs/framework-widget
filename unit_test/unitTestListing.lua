@@ -35,7 +35,8 @@ function scene:createScene( event )
 		height = display.contentHeight - 50,
 		scrollHeight = 700,
 		horizontalScrollDisabled = true,
-		hideBackground = false,
+		hideScrollBar = true,
+		hideBackground = true,
 	}
 	group:insert( newScrollView )
 	

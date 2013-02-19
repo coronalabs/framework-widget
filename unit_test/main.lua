@@ -15,8 +15,10 @@ if "simulator" == system.getInfo( "environment" ) and not onDeviceTest then
 	local path = package.path
 	
 	-- Get index of first semicolon
-	local firstPath = string.find( path, ';', 1, true ) -- This is now the plugin path.
-	local nextPath = string.find( path, ";", firstPath + 1, true ) -- This is now the correct path
+	local firstPath = string.find( path, ";", 1, true ) -- This is now the plugin path.
+	local nextPath = string.find( path, ";", firstPath, true ) -- This is now the correct path
+	
+	print( firstPath )
 	
 	if nextPath > 0 then
 		-- Second path (after first semicolon) is project dir
@@ -35,7 +37,7 @@ package.preload.widget = nil
 package.preload.widget_button = nil
 package.preload.widget_picker = nil
 package.preload.widget_progressView = nil
-package.preload.widget_scrollView = nil
+package.preload.widget_scrollview = nil
 package.preload.widget_searchField = nil
 package.preload.widget_segmentedControl = nil
 package.preload.widget_slider = nil
