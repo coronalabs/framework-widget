@@ -278,14 +278,8 @@ end
 
 
 -- Get platform
-local isSimulator = "simulator" == system.getInfo( "environment" )
-local isIos = "iPhone OS" == system.getInfo( "platformName" )
 local isAndroid = "Android" == system.getInfo( "platformName" )
-local defaultTheme = nil
-
-if isIos or isSimulator then
-	defaultTheme = "widget_theme_ios"
-end
+local defaultTheme = "widget_theme_ios"
 
 if isAndroid then
 	defaultTheme = "widget_theme_android"
