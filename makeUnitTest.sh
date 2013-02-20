@@ -11,5 +11,10 @@ for i in *.lua ; do
 	cp $i $folderPath
 done
 
+## Copy all needed asset files to the folder
+for i in *.png ; do
+	cp $i $folderPath
+done
+
 ## Copy the unit test files into the folder
 cp -a unit_test/. $folderPath

@@ -127,7 +127,7 @@
             <enum type="AndEngine::MagFilter">MagLinear</enum>
         </struct>
         <key>dataFileName</key>
-        <filename>export/iOS/widget_theme_ios@2x.lua</filename>
+        <filename>export/iOS/widget_theme_ios_sheet@2x.lua</filename>
         <key>mainExtension</key>
         <string>@2x</string>
         <key>forceIdenticalLayout</key>

@@ -276,4 +276,22 @@ function widget.newSegmentedControl( options )
 	return require( "widget_segmentedControl" ).new( options, theme )
 end
 
+
+-- Get platform
+local isSimulator = "simulator" == system.getInfo( "environment" )
+local isIos = "iPhone OS" == system.getInfo( "platformName" )
+local isAndroid = "Android" == system.getInfo( "platformName" )
+local defaultTheme = nil
+
+if isIos or isSimulator then
+	defaultTheme = "widget_theme_ios"
+end
+
+if isAndroid then
+	defaultTheme = "widget_theme_android"
+end
+
+-- Set the default theme
+widget.setTheme( defaultTheme )
+
 return widget

@@ -5,19 +5,14 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local USE_THEME = true
 local USE_ANDROID_THEME = false
 
 function scene:createScene( event )
 	local group = self.view
 	
-	-- Set a theme
-	if USE_THEME then
-		if USE_ANDROID_THEME then
-			widget.setTheme( "widget_theme_android" )
-		else
-			widget.setTheme( "widget_theme_ios" )
-		end
+	-- Test android theme
+	if USE_ANDROID_THEME then
+		widget.setTheme( "widget_theme_android" )
 	end
 	
 	--Display an iOS style background

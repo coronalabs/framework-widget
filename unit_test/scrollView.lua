@@ -8,7 +8,6 @@ local scene = storyboard.newScene()
 --Forward reference for test function timer
 local testTimer = nil
 
-local USE_THEME = true
 local USE_ANDROID_THEME = false
 
 function scene:createScene( event )
@@ -18,13 +17,9 @@ function scene:createScene( event )
 	local background = display.newImage( "assets/background.png" )
 	group:insert( background )
 	
-	-- Set a theme
-	if USE_THEME then
-		if USE_ANDROID_THEME then
-			widget.setTheme( "widget_theme_android" )
-		else
-			widget.setTheme( "widget_theme_ios" )
-		end
+	-- Test android theme
+	if USE_ANDROID_THEME then
+		widget.setTheme( "widget_theme_android" )
 	end
 
 	-- Button to return to unit test listing

@@ -9,7 +9,9 @@
 -------------------------------------------------------------------------------------------------
 -- Change the package.path and make it so we can require the "widget.lua" file from the root directory
 -------------------------------------------------------------------------------------------------
-local onDeviceTest = false -- Change this to false if you wish to run this on device
+--[[
+local onDeviceTest = true -- Change this to false if you wish to run this on device
+
 
 if "simulator" == system.getInfo( "environment" ) and not onDeviceTest then	
 	local path = package.path
@@ -27,10 +29,12 @@ if "simulator" == system.getInfo( "environment" ) and not onDeviceTest then
 		package.path = widgetDir .. path
 	end
 end
+--]]
 
 -------------------------------------------------------------------------------------------------
 -- Nil out the widgets loaded from the core so we use the local versions of the files.
 -------------------------------------------------------------------------------------------------
+
 package.preload.widget = nil
 package.preload.widget_button = nil
 package.preload.widget_picker = nil
@@ -49,10 +53,7 @@ package.preload.widget_tableview = nil
 io.output():setvbuf( "no" )
 
 -- Hide the status bar
-display.setStatusBar(display.HiddenStatusBar)
+display.setStatusBar( display.HiddenStatusBar )
 
-local storyboard = require( "storyboard" ); 
-
----[[
+local storyboard = require( "storyboard" )
 storyboard.gotoScene( "unitTestListing" )
---]]
