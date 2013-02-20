@@ -4,7 +4,7 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local USE_THEME = true
+local USE_THEME = false
 local USE_ANDROID_THEME = false
 
 function scene:createScene( event )	

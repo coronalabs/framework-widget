@@ -38,7 +38,7 @@
         <key>dataFormat</key>
         <string>corona-imagesheet</string>
         <key>textureFileName</key>
-        <filename>export/Android/assets@2x.png</filename>
+        <filename>export/Android/widget_theme_android@2x.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>ditherType</key>
@@ -127,7 +127,7 @@
             <enum type="AndEngine::MagFilter">MagLinear</enum>
         </struct>
         <key>dataFileName</key>
-        <filename>export/Android/assets@2x.lua</filename>
+        <filename>export/Android/widget_theme_android_sheet@2x.lua</filename>
         <key>mainExtension</key>
         <string>@2x</string>
         <key>forceIdenticalLayout</key>

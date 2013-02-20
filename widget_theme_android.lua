@@ -4,7 +4,6 @@
 local modname = ...
 local theme = {}
 package.loaded[modname] = themeTable
-local assetDir = "widget_android"
 local imageSuffix = display.imageSuffix or ""
 
 -----------------------------------------------------------------------------------------
@@ -13,8 +12,8 @@ local imageSuffix = display.imageSuffix or ""
 
 theme.button = 
 {
-	sheet = assetDir .. "/widget_theme_android.png",
-	data = assetDir .. ".widget_theme_android",
+	sheet = "widget_theme_android.png",
+	data = "widget_theme_android_sheet",
 	
 	topLeftFrame = "button_topLeft",
 	topLeftOverFrame =  "button_topLeftOver",
@@ -56,8 +55,8 @@ theme.button =
 
 theme.slider = 
 {
-	sheet = assetDir .. "/widget_theme_android.png",
-    data = assetDir .. ".widget_theme_android",
+	sheet = "widget_theme_android.png",
+    data = "widget_theme_android_sheet",
 
 	leftFrame = "slider_leftFrame",
 	rightFrame = "slider_rightFrame",
@@ -82,8 +81,8 @@ theme.slider =
 
 theme.pickerWheel = 
 {
-	sheet = assetDir .. "/widget_theme_android.png",
-    data = assetDir .. ".widget_theme_android",
+	sheet = "widget_theme_android.png",
+    data = "widget_theme_android_sheet",
 	backgroundFrame = "picker_bg",
 	backgroundFrameWidth = 1,
 	backgroundFrameHeight = 222,
@@ -93,7 +92,7 @@ theme.pickerWheel =
 	seperatorFrame = "picker_separator",
 	seperatorFrameWidth = 2,
 	seperatorFrameHeight = 8,
-	maskFile = assetDir .. "/masks/pickerWheel/pickerWheelMask.png",
+	maskFile = "widget_theme_pickerWheel_mask.png",
 }
 
 -----------------------------------------------------------------------------------------
@@ -102,8 +101,8 @@ theme.pickerWheel =
 
 theme.tabBar =
 {
-	sheet = assetDir .. "/widget_theme_android.png",
-    data = assetDir .. ".widget_theme_android",
+	sheet = "widget_theme_android.png",
+    data = "widget_theme_android_sheet",
 	backgroundFrame = "tabBar_background",
 	backgroundFrameWidth = 25,
 	backgroundFrameHeight = 50,
@@ -123,8 +122,8 @@ theme.tabBar =
 
 theme.spinner = 
 {
-	sheet = assetDir .. "/widget_theme_android.png",
-	data = assetDir .. ".widget_theme_android",
+	sheet = "widget_theme_android.png",
+	data = "widget_theme_android_sheet",
 	startFrame = "spinner_spinner",
 	width = 40,
 	height = 40,
@@ -139,8 +138,8 @@ theme.spinner =
 theme.switch = 
 {
 	-- Default (on/off switch)
-	sheet = assetDir .. "/widget_theme_android.png",
-	data = assetDir .. ".widget_theme_android",
+	sheet = "widget_theme_android.png",
+	data = "widget_theme_android_sheet",
 	backgroundFrame = "switch_background",
 	backgroundWidth = 165,
 	backgroundHeight = 31,
@@ -149,12 +148,12 @@ theme.switch =
 	overlayHeight = 31,
 	handleDefaultFrame = "switch_handle",
 	handleOverFrame = "switch_handleOver",
-	mask = assetDir .. "/masks/switch/onOffMask.png",
+	mask = "widget_theme_onOff_mask.png",
 	
 	radio =
 	{
-		sheet = assetDir .. "/widget_theme_android.png",
-		data = assetDir .. ".widget_theme_android",
+		sheet = "widget_theme_android.png",
+		data = "widget_theme_android_sheet",
 		width = 33,
 		height = 34,
 		frameOff = "switch_radioButtonDefault",
@@ -162,8 +161,8 @@ theme.switch =
 	},
 	checkbox = 
 	{
-		sheet = assetDir .. "/widget_theme_android.png",
-		data = assetDir .. ".widget_theme_android",
+		sheet = "widget_theme_android.png",
+		data = "widget_theme_android_sheet",
 		width = 33,
 		height = 33,
 		frameOff = "switch_checkboxDefault",
@@ -177,8 +176,8 @@ theme.switch =
 
 theme.stepper = 
 {
-	sheet = assetDir .. "/widget_theme_android.png",
-	data = assetDir .. ".widget_theme_android",
+	sheet = "widget_theme_android.png",
+	data = "widget_theme_android_sheet",
 	defaultFrame = "stepper_nonActive",
 	noMinusFrame = "stepper_noMinus",
 	noPlusFrame = "stepper_noPlus",
@@ -194,8 +193,8 @@ theme.stepper =
 
 theme.progressView = 
 {
-	sheet = assetDir .. "/widget_theme_android.png",
-	data = assetDir .. ".widget_theme_android",
+	sheet = "widget_theme_android.png",
+	data = "widget_theme_android_sheet",
 	fillXOffset = 4,
 	fillYOffset = 4,
 	fillOuterWidth = 12,
@@ -218,8 +217,8 @@ theme.progressView =
 
 theme.segmentedControl = 
 {
-	sheet = assetDir .. "/widget_theme_android.png",
-	data = assetDir .. ".widget_theme_android",
+	sheet = "widget_theme_android.png",
+	data = "widget_theme_android_sheet",
 	width = 12,
 	height = 29,
 	leftSegmentFrame = "segmentedControl_left",
@@ -237,8 +236,8 @@ theme.segmentedControl =
 
 theme.searchField = 
 {
-    sheet = assetDir .. "/widget_theme_android.png",
-    data = assetDir .. ".widget_theme_android",
+    sheet = "widget_theme_android.png",
+    data = "widget_theme_android_sheet",
     leftFrame = "searchField_leftEdge",
 	rightFrame = "searchField_rightEdge",
 	middleFrame = "searchField_middle",
