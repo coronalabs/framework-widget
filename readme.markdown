@@ -17,11 +17,7 @@ From there you simply need to:
 
 1) Navigate to the "widget_unit_test" folder we previously generated. 
 
-2) Open main.lua and change line 12 to true so it reads:
-
-	local onDeviceTest = true
-	
-3) Proceed to build for your device.
+2) Proceed to build for your device.
 
 
 # Notes
