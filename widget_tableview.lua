@@ -110,6 +110,7 @@ local function createTableView( tableView, options )
 	-- Assign objects to the tableView
 	tableView._view = view
 	tableView:insert( view )
+	tableView:insert( categoryGroup )
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -432,7 +433,7 @@ local function createTableView( tableView, options )
 						-- Set the category groups reference point
 						self._categoryGroup:setReferencePoint( display.CenterReferencePoint )
 						-- Set the category groups position
-						self._categoryGroup.y = self._top + self._rows[k].contentHeight * 0.5		
+						self._categoryGroup.y = ( self._rows[k].contentHeight * 0.5 ) + self._topPadding
 					end
 				
 					-- If the first row isn't past or equal to the top threshold, scroll it
@@ -604,10 +605,8 @@ local function createTableView( tableView, options )
 		Runtime:removeEventListener( "enterFrame", self._view )
 		
 		display.remove( self._view._categoryGroup )
-	    display.remove( self._view._scategoryGroup )
 	
 		self._view._categoryGroup = nil
-		self._view._scategoryGroup = nil
 	
 		-- Remove scrollBar if it exists
 		if self._view._scrollBar then
@@ -653,7 +652,7 @@ function M.new( options )
 	opt.friction = customOptions.friction
 	opt.maxVelocity = customOptions.maxVelocity
 	opt.noLines = customOptions.noLines or false
-	opt.hideScrollBar = customOptions.hideScrollBar or false
+	opt.hideScrollBar = true --customOptions.hideScrollBar or false
 	opt.rowWidth = opt.width
 	opt.rowHeight = customOptions.rowHeight or 40
 	opt.onRowRender = customOptions.onRowRender
