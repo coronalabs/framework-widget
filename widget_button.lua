@@ -1125,20 +1125,13 @@ function M.new( options, theme )
 	opt.themeData = themeOptions.data
 	
 	-- Single image files
-	opt.defaultFile = customOptions.defaultFile or require( "widget" )._getFrameIndex( themeOptions, themeOptions.defaultFile ) 
-	opt.overFile = customOptions.overFile or opt.defaultFile or require( "widget" )._getFrameIndex( themeOptions, themeOptions.overFile )
+	opt.defaultFile = customOptions.defaultFile
+	opt.overFile = customOptions.overFile
 	
 	if opt.defaultFile or opt.overFile then
-		if not customOptions.width then
-			error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
-		end
-		
-		if not customOptions.height then
-			error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
-		end
-	end
-	
-	-- Handle width/height 
+		opt.width = customOptions.width
+		opt.height = customOptions.height
+	end 
 	
 	-- ImageSheet ( 2 frame button )
 	opt.defaultFrame = customOptions.defaultFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.defaultFrame )
