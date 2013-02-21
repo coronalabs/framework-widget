@@ -355,7 +355,7 @@ function M.new( options )
 		opt.scrollWidth = opt.width
 	end
 	
-	opt.hideScrollBar = customOptions.hideScrollBar or false
+	opt.hideScrollBar = true --customOptions.hideScrollBar or false
 	
 	-- If horizontal scrolling isn't disabled and a scrollWidth hasn't been defined, throw an error
 	if not opt.isHorizontalScrollingDisabled and not opt.scrollWidth then
