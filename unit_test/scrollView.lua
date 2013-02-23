@@ -108,6 +108,20 @@ function scene:createScene( event )
 	group:insert( scrollView )	
 
 
+	-- Test set focus
+	local function rectTouch( event )
+		if "moved" == event.phase then
+			scrollView:takeFocus( event )
+		end
+		
+		return true
+	end
+
+	local rect = display.newRect( 50, 200, 200, 59 )
+	rect:addEventListener( "touch", rectTouch )
+	scrollView:insert( rect )
+	
+
 	if TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER then
 		-- Create scrollView2
 		local scrollView2 = widget.newScrollView
