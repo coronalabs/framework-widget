@@ -541,6 +541,9 @@ local function createTableView( tableView, options )
 		-- Add event listener to the row
 		if not isRowCategory then
 			self._rows[#self._rows]:addEventListener( "touch", _handleRowTouch )
+		else
+			-- If the row is a category, add a listener that ensures the event doesn't propogate down to the row below it
+			self._rows[#self._rows]:addEventListener( "touch", function() return true end )
 		end
 		
 		-- Insert the row into the view
