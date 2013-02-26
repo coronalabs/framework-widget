@@ -71,6 +71,7 @@ local function createScrollView( scrollView, options )
 	view._velocity = 0
 	view._prevTime = 0
 	view._lastTime = 0
+	view._tween = nil
 	view._left = opt.left
 	view._top = opt.top
 	view._width = opt.width
