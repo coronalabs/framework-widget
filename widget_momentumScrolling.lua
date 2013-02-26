@@ -33,6 +33,12 @@ function M._touch( view, event )
 		view._updateRuntime = false
 		view._timeHeld = time
 		
+		-- Cancel any active tween on the view
+		if view._tween then
+			transition.cancel( view._tween )
+			view._tween = nil
+		end
+		
 		-- If there is a scrollBar
 		if view._scrollBar then
 			-- Reset scrollbar position (if scrollView was moved)
@@ -56,9 +62,53 @@ function M._touch( view, event )
 				
 	            if dx > moveThresh or dy > moveThresh then
 	                if dx > dy then
+						-- The move was horizontal
 	                    view._moveDirection = "horizontal"
+
+						local bottomLimit = view._topPadding
+						local upperLimit = nil
+
+						-- Set the upper limit
+						if view._scrollHeight then
+							upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
+						else
+							upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
+						end
+						
+						-- Put the view back to the top if it isn't already there ( and should be )
+						if view.y >= bottomLimit then
+							-- Transition the view back to it's maximum position
+							view._tween = transition.to( view, { time = 400, y = bottomLimit, transition = easing.outQuad } )						
+						
+						-- Put the view back to the bottom if it isn't already there ( and should be )
+						elseif view.y <= upperLimit then					
+							-- Transition the view back to it's maximum position
+							view._tween = transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
+						end
 	                else
+						-- The move was vertical
 	                    view._moveDirection = "vertical"
+	
+						-- Set the right limit
+						local rightLimit = view._leftPadding
+						local leftLimit = nil
+
+						-- Set the left limit
+						if view._scrollWidth then
+							leftLimit = -view._scrollWidth
+						else
+							leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 ) - view._rightPadding
+						end
+						
+						-- Put the view back to the left if it isn't already there ( and should be )
+						if view.x <= leftLimit then
+							-- Transition the view back to it's maximum position
+							view._tween = transition.to( view, { time = 400, x = leftLimit, transition = easing.outQuad } )
+						-- Put the view back to the right if it isn't already there ( and should be )
+						elseif view.x >= rightLimit then
+							-- Transition the view back to it's maximum position
+							view._tween = transition.to( view, { time = 400, x = rightLimit, transition = easing.outQuad } )
+						end
 	                end
 				end
 			end
@@ -127,7 +177,7 @@ function M._touch( view, event )
 		elseif "ended" == phase or "cancelled" == phase then
 			-- Reset values				
 			view._lastTime = event.time
-			view._trackVelocity = false
+			view._trackVelocity = false			
 			view._updateRuntime = true
 			view._timeHeld = 0
 						
@@ -189,8 +239,9 @@ function M._runtime( view, event )
 				-- Move the view
 				view.x = view.x + view._velocity * timePassed
 			
-				local leftLimit = nil
+				-- Set the right limit
 				local rightLimit = view._leftPadding
+				local leftLimit = nil
 				
 				-- Set the left limit
 				if view._scrollWidth then
@@ -202,7 +253,9 @@ function M._runtime( view, event )
 				-- Left
 				if view.x < leftLimit then
 					-- Transition the view back to it's maximum position
-					transition.to( view, { time = 400, x = leftLimit, transition = easing.outQuad } )
+					view._tween = transition.to( view, { time = 400, x = leftLimit, transition = easing.outQuad } )
+					
+					-- Stop updating the runtime now
 					view._updateRuntime = false
 					
 					-- If there is a listener specified, dispatch the event
@@ -223,7 +276,8 @@ function M._runtime( view, event )
 				-- Right
 				elseif view.x > rightLimit then
 					-- Transition the view back to it's maximum position
-					transition.to( view, { time = 400, x = rightLimit, transition = easing.outQuad } )
+					view._tween = transition.to( view, { time = 400, x = rightLimit, transition = easing.outQuad } )
+					
 					-- Stop updating the runtime now
 					view._updateRuntime = false
 					
@@ -255,8 +309,9 @@ function M._runtime( view, event )
 				-- Move the view
 				view.y = view.y + view._velocity * timePassed
 	
-				local upperLimit = nil
+				-- Set the bottom limit
 				local bottomLimit = view._topPadding
+				local upperLimit = nil
 				
 				-- Set the upper limit
 				if view._scrollHeight then
@@ -268,7 +323,7 @@ function M._runtime( view, event )
 				-- Top
 				if view.y <= upperLimit then					
 					-- Transition the view back to it's maximum position
-					transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
+					view._tween = transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
 					
 					-- Hide the scrollBar
 					if view._scrollBar then
@@ -280,7 +335,7 @@ function M._runtime( view, event )
 										
 					-- Stop updating the runtime now
 					view._updateRuntime = false
-					
+										
 					-- If there is a listener specified, dispatch the event
 					if view._listener then
 						local newEvent = 
@@ -295,8 +350,11 @@ function M._runtime( view, event )
 							
 				-- Bottom
 				elseif view.y >= bottomLimit then
+					-- Stop updating the runtime now
+					view._updateRuntime = false
+										
 					-- Transition the view back to it's maximum position
-					transition.to( view, { time = 400, y = bottomLimit, transition = easing.outQuad } )
+					view._tween = transition.to( view, { time = 400, y = bottomLimit, transition = easing.outQuad } )					
 					
 					-- Hide the scrollBar
 					if view._scrollBar then

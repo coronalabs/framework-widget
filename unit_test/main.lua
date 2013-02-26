@@ -48,6 +48,7 @@ package.preload.widget_stepper = nil
 package.preload.widget_switch = nil
 package.preload.widget_tabbar = nil
 package.preload.widget_tableview = nil
+package.preload.widget_momentumScrolling = nil
 
 -- For xcode console output
 io.output():setvbuf( "no" )
