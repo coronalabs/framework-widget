@@ -496,7 +496,7 @@ local function createTableView( tableView, options )
 		self._rows[#self._rows].index = #self._rows
 		
 		-- Retrieve passed in row customization variables
-		local rowId = options.id
+		local rowId = options.id or #self._rows
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
 		local rowColor = options.rowColor or { 255, 255, 255 }
