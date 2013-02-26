@@ -231,7 +231,11 @@ local function createUsingImageFiles( button, options )
 	-- Function to set the button's label
 	function view:_setLabel( newLabel )
 		-- Update the label's text
-		self._label:setText( newLabel )
+		if self._label.setText then
+			self._label:setText( newLabel )
+		else
+			self._label.text = newLabel
+		end
 		
 		-- Labels position
 		if "center" == self._labelAlign then
@@ -497,7 +501,11 @@ local function createUsingImageSheet( button, options )
 	-- Function to set the button's label
 	function view:_setLabel( newLabel )
 		-- Update the label's text
-		self._label:setText( newLabel )
+		if self._label.setText then
+			self._label:setText( newLabel )
+		else
+			self._label.text = newLabel
+		end
 		
 		-- Labels position
 		if "center" == self._labelAlign then
@@ -981,7 +989,11 @@ local function createUsing9Slice( button, options )
 	
 	-- Function to set the button's label
 	function view:_setLabel( newLabel )
-		self._label:setText( newLabel )
+		if self._label.setText then
+			self._label:setText( newLabel )
+		else
+			self._label.text = newLabel
+		end
 		
 		-- Labels position
 		if "left" == self._labelAlign then
@@ -1190,17 +1202,22 @@ function M.new( options, theme )
 	
 	-- Ensure the user passed in both a default and over frame index.
 	if not using9PieceButton and opt.defaultFrame and not opt.overFrame then
-		error( "ERROR: " .. M._widgetName .. ": overFrame definition expected, got nil", 3 )
+		opt.overFrame = opt.defaultFrame -- Fall back to defaultFrame if overFile is not specified
 	elseif not using9PieceButton and opt.overFrame and not opt.defaultFrame then
 		error( "ERROR: " .. M._widgetName .. ": defaultFrame definition expected, got nil", 3 )
 	end
 	
 	-- If we are using single images, ensure BOTH files are specified
 	if not using9PieceButton and not using2FrameButton and opt.defaultFile and not opt.overFile then
-		error( "ERROR: " .. M._widgetName .. ": overFile definition expected, got nil", 3 )
+		opt.overFile = opt.defaultFile -- Fall back to defaultFile if overFile is not specified
 	end
 	if not using9PieceButton and not using2FrameButton and opt.overFile and not opt.defaultFile then
 		error( "ERROR: " .. M._widgetName .. ": defaultFile definition expected, got nil", 3 )
+	end
+	
+	-- Turn off theme setting for text emboss if the user isn't using a theme
+	if using9PieceButton or using2FrameButton or opt.defaultFile then
+		opt.embossedLabel = customOptions.emboss or false
 	end
 	
 	--[[

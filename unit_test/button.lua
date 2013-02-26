@@ -85,6 +85,7 @@ function scene:createScene( event )
 			default = { 0, 0, 0 },
 			over = { 255, 255, 255 },
 		},
+		emboss = false,
 		isEnabled = false,
 	    onEvent = onButtonEvent
 	}
