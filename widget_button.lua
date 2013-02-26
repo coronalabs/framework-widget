@@ -229,7 +229,7 @@ local function createUsingImageFiles( button, options )
 	-- Function to set the button's label
 	function view:_setLabel( newLabel )
 		-- Update the label's text
-		if self._label.setText then
+		if "function" == type( self._label.setText ) then
 			self._label:setText( newLabel )
 		else
 			self._label.text = newLabel
@@ -497,7 +497,7 @@ local function createUsingImageSheet( button, options )
 	-- Function to set the button's label
 	function view:_setLabel( newLabel )
 		-- Update the label's text
-		if self._label.setText then
+		if "function" == type( self._label.setText ) then
 			self._label:setText( newLabel )
 		else
 			self._label.text = newLabel
@@ -983,7 +983,7 @@ local function createUsing9Slice( button, options )
 	
 	-- Function to set the button's label
 	function view:_setLabel( newLabel )
-		if self._label.setText then
+		if "function" == type( self._label.setText ) then
 			self._label:setText( newLabel )
 		else
 			self._label.text = newLabel
@@ -1210,8 +1210,8 @@ function M.new( options, theme )
 	end
 	
 	-- Turn off theme setting for text emboss if the user isn't using a theme
-	if using9PieceButton or using2FrameButton or opt.defaultFile then
-		opt.embossedLabel = customOptions.emboss or false
+	if "boolean" == type( customOptions.emboss ) then
+		opt.embossedLabel = customOptions.emboss
 	end
 	
 	--[[
