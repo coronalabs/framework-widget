@@ -81,6 +81,8 @@ function scene:createScene( event )
 		local phase = event.phase
 		local row = event.row
 		
+		print( row.id )
+		
 		local rowTitle = display.newText( row, "Row " .. row.index, 0, 0, nil, 14 )
 		rowTitle.x = row.x - ( row.contentWidth * 0.5 ) + ( rowTitle.contentWidth * 0.5 )
 		rowTitle.y = row.contentHeight * 0.5
@@ -135,6 +137,7 @@ function scene:createScene( event )
 		-- Insert the row into the tableView
 		tableView:insertRow
 		{
+			id = "row:" .. i,
 			isCategory = isCategory,
 			rowHeight = rowHeight,
 			rowColor = rowColor,
