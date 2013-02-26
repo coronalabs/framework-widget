@@ -496,6 +496,7 @@ local function createTableView( tableView, options )
 		self._rows[#self._rows].index = #self._rows
 		
 		-- Retrieve passed in row customization variables
+		local rowId = options.id
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
 		local rowColor = options.rowColor or { 255, 255, 255 }
@@ -513,6 +514,9 @@ local function createTableView( tableView, options )
 		if not opt.noLines then
 			border:setStrokeColor( unpack( lineColor ) )
 		end
+		
+		-- Set the row's id
+		self._rows[#self._rows].id = rowId
 
 		-- Set the row's reference point to it's center point (just incase)
 		self._rows[#self._rows]:setReferencePoint( display.CenterReferencePoint )
