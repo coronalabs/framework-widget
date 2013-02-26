@@ -47,7 +47,7 @@ function scene:createScene( event )
 	local TEST_SET_ENABLED = true
 		
 	-- Handle widget button events
-	local onButtonEvent = function (event )
+	local function onButtonEvent( event )
 		local phase = event.phase
 		local target = event.target
 		
@@ -87,7 +87,7 @@ function scene:createScene( event )
 		},
 		emboss = false,
 		isEnabled = false,
-	    onEvent = onButtonEvent
+	    onEvent = onButtonEvent,
 	}
 	buttonUsingFiles.x = display.contentCenterX
 	buttonUsingFiles.oldLabel = "Files"	

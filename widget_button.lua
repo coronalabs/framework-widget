@@ -216,7 +216,13 @@ local function createUsingImageFiles( button, options )
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
 		if self._onEvent and not self._onPress and not self._onRelease then
-			self._onEvent( event )
+			local bounds = self.contentBounds
+	        local x, y = event.x, event.y
+			local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
+			
+			if isWithinBounds then
+				self._onEvent( event )
+			end
 		end
 		
 		return true
@@ -486,7 +492,13 @@ local function createUsingImageSheet( button, options )
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
 		if self._onEvent and not self._onPress and not self._onRelease then
-			self._onEvent( event )
+			local bounds = self.contentBounds
+	        local x, y = event.x, event.y
+			local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
+			
+			if isWithinBounds then
+				self._onEvent( event )
+			end
 		end
 		
 		return true
@@ -975,7 +987,13 @@ local function createUsing9Slice( button, options )
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
 		if self._onEvent and not self._onPress and not self._onRelease then
-			self._onEvent( event )
+			local bounds = self.contentBounds
+	        local x, y = event.x, event.y
+			local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
+			
+			if isWithinBounds then
+				self._onEvent( event )
+			end
 		end
 		
 		return true
