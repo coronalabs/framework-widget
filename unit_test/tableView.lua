@@ -47,6 +47,8 @@ function scene:createScene( event )
 	local TEST_SCROLL_TO_INDEX = false
 	local TEST_DELETE_ALL_ROWS = false
 	local TEST_DELETE_SINGLE_ROW = false
+	local TEST_REMOVE_AND_RECREATE = false
+	local tableView = nil
 	
 	-- Listen for tableView events
 	local function tableViewListener( event )
@@ -81,7 +83,7 @@ function scene:createScene( event )
 		local phase = event.phase
 		local row = event.row
 		
-		print( row.id )
+		--print( "Row id:", row.id )
 		
 		local rowTitle = display.newText( row, "Row " .. row.index, 0, 0, nil, 14 )
 		rowTitle.x = row.x - ( row.contentWidth * 0.5 ) + ( rowTitle.contentWidth * 0.5 )
@@ -101,13 +103,45 @@ function scene:createScene( event )
 	local function onRowTouch( event )
 		local phase = event.phase
 				
-		if "press" == phase then
+		if "release" == phase then
 			print( "Touched row:", event.target.index )
+			
+			-- Test removing all rows and re-adding 20 more
+			if TEST_REMOVE_AND_RECREATE then
+				timer.performWithDelay( 500, function()
+					tableView:deleteAllRows()
+				
+					-- Create 100 rows
+					for i = 1, 20 do
+						local isCategory = false
+						local rowHeight = 40
+						local rowColor = { 255, 255, 255 }
+						local lineColor = { 220, 220, 220 }
+
+						-- Make some rows categories
+						if i == 8 or i == 25 or i == 50 or i == 75 then
+							isCategory = true
+							rowHeight = 24
+							rowColor = { 150, 160, 180, 200 }
+						end
+
+						-- Insert the row into the tableView
+						tableView:insertRow
+						{
+							id = "row:" .. i,
+							isCategory = isCategory,
+							rowHeight = rowHeight,
+							rowColor = rowColor,
+							lineColor = lineColor,
+						}
+					end
+				end)
+			end
 		end
 	end
 	
 	-- Create a tableView
-	local tableView = widget.newTableView
+	 tableView = widget.newTableView
 	{
 		top = 100,
 		width = 320, 

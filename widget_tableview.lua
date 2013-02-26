@@ -581,15 +581,35 @@ local function createTableView( tableView, options )
 				transition.to( self._rows[i], { y = self._rows[i].y - ( self._rows[i]._border.contentHeight ), transition = easing.outQuad } )
 			end
 		end
+		
+		-- Re calculate the scrollHeight
+		self._scrollHeight = self._scrollHeight - self._rows[i].height
 	end
 	
 	-- Function to deleta all rows from the tableView
 	function view:_deleteAllRows()
+		local _tableView = self.parent
+		
 		-- Loop through all rows and delete each one
 		for k, v in pairs( self._rows ) do
 			display.remove( self._rows[k] )
 			self._rows[k] = nil
 		end
+		
+		-- Delete any category rows
+		for k, v in pairs( self._categories ) do
+			display.remove( self._categories[k] )
+			self._categories[k] = nil
+		end
+		
+		-- Nil out the categories table
+		self._categories = nil
+		
+		-- Reset the view's y position
+		self.y = _tableView.y - self._top + self._topPadding
+		
+		-- Reset the scrollHeight
+		self._scrollHeight = 0
 	end
 	
 	-- Function to scroll to a specific row
