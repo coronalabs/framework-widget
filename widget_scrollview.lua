@@ -212,24 +212,6 @@ local function createScrollView( scrollView, options )
 	
 	viewBackground:addEventListener( "touch" )
 	
-	-- Function to transfer touch from user display object back to the view's content
-	function scrollView:takeFocus( event )
-		-- Remove focus from target
-		display.getCurrentStage():setFocus( event.target, nil )
-		event.target.isFocus = false
-
-		-- Set the target to the scrollView's view
-		event.target = self._view
-		-- Set the phase to "began"
-		event.phase = "began"
-	
-		-- Execute a touch event on the view
-		self._view:touch( event )
-		
-		return true
-	end
-	
-	
 	-- Handle touches on the scrollview
 	function view:touch( event )
 		local phase = event.phase 
