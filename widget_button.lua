@@ -164,12 +164,8 @@ local function createUsingImageFiles( button, options )
 			end
 			
 		elseif self._isFocus then
-			local bounds = self.contentBounds
-	        local x, y = event.x, event.y
-	        local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
-			
 			if "moved" == phase then
-				if not isWithinBounds then
+				if not require( "widget" )._isWithinBounds( self, event ) then
 					-- Set the button to it's default image state
 					self.isVisible = true
 					self._over.isVisible = false
@@ -188,7 +184,7 @@ local function createUsingImageFiles( button, options )
 				end
 			
 			elseif "ended" == phase or "cancelled" == phase then
-				if isWithinBounds then
+				if require( "widget" )._isWithinBounds( self, event ) then
 					-- If there is a onRelease method ( and not a onEvent method )
 					if self._onRelease and not self._onEvent then
 						self._onRelease( event )
@@ -215,12 +211,8 @@ local function createUsingImageFiles( button, options )
 		end
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
-		if self._onEvent and not self._onPress and not self._onRelease then
-			local bounds = self.contentBounds
-	        local x, y = event.x, event.y
-			local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
-			
-			if isWithinBounds then
+		if self._onEvent and not self._onPress and not self._onRelease then			
+			if require( "widget" )._isWithinBounds( self, event ) then
 				self._onEvent( event )
 			end
 		end
@@ -443,12 +435,8 @@ local function createUsingImageSheet( button, options )
 			end
 			
 		elseif self._isFocus then
-			local bounds = self.contentBounds
-	        local x, y = event.x, event.y
-	        local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
-			
 			if "moved" == phase then
-				if not isWithinBounds then
+				if not require( "widget" )._isWithinBounds( self, event ) then
 					-- Set the button to it's default image state
 					self:_setState( "default" )
 					
@@ -465,7 +453,7 @@ local function createUsingImageSheet( button, options )
 				end
 			
 			elseif "ended" == phase or "cancelled" == phase then
-				if isWithinBounds then
+				if require( "widget" )._isWithinBounds( self, event ) then
 					-- If there is a onRelease method ( and not a onEvent method )
 					if self._onRelease and not self._onEvent then
 						self._onRelease( event )
@@ -492,11 +480,7 @@ local function createUsingImageSheet( button, options )
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
 		if self._onEvent and not self._onPress and not self._onRelease then
-			local bounds = self.contentBounds
-	        local x, y = event.x, event.y
-			local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
-			
-			if isWithinBounds then
+			if require( "widget" )._isWithinBounds( self, event ) then
 				self._onEvent( event )
 			end
 		end
@@ -947,12 +931,8 @@ local function createUsing9Slice( button, options )
 			end
 			
 		elseif self._isFocus then
-			local bounds = self.contentBounds
-	        local x, y = event.x, event.y
-	        local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
-			
 			if "moved" == phase then
-				if not isWithinBounds then
+				if not require( "widget" )._isWithinBounds( self, event ) then
 					-- Set the button to it's default image state
 					self:_setState( "default" )
 				else					
@@ -963,7 +943,7 @@ local function createUsing9Slice( button, options )
 				end
 			
 			elseif "ended" == phase or "cancelled" == phase then
-				if isWithinBounds then
+				if require( "widget" )._isWithinBounds( self, event ) then
 					-- If there is a onRelease method ( and not a onEvent method )
 					if self._onRelease and not self._onEvent then
 						self._onRelease( event )
@@ -987,11 +967,7 @@ local function createUsing9Slice( button, options )
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
 		if self._onEvent and not self._onPress and not self._onRelease then
-			local bounds = self.contentBounds
-	        local x, y = event.x, event.y
-			local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
-			
-			if isWithinBounds then
+			if require( "widget" )._isWithinBounds( self, event ) then
 				self._onEvent( event )
 			end
 		end
