@@ -95,7 +95,7 @@ function M._touch( view, event )
 
 						-- Set the left limit
 						if view._scrollWidth then
-							leftLimit = -view._scrollWidth
+							leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
 						else
 							leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 ) - view._rightPadding
 						end
@@ -126,7 +126,7 @@ function M._touch( view, event )
 					
 					-- Set the left limit
 					if view._scrollWidth then
-						leftLimit = -view._scrollWidth
+						leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
 					else
 						leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 )
 					end
@@ -245,7 +245,7 @@ function M._runtime( view, event )
 				
 				-- Set the left limit
 				if view._scrollWidth then
-					leftLimit = -view._scrollWidth
+					leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
 				else
 					leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 ) - view._rightPadding
 				end
