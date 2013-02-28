@@ -283,12 +283,16 @@ local function initWithImageSheet( tabBar, options )
 	-- Forward references
 	local imageSheet, view, viewSelected, viewSelectedLeft, viewSelectedRight, viewSelectedMiddle, viewButtons
 	
-	-- Assign the imageSheet
-	imageSheet = opt.sheet
-		
+	-- Create the imageSheet
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
+			
 	-- Create the tab bar's background
 	view = display.newImageRect( tabBar, imageSheet, opt.backgroundFrame, opt.width, opt.height )
-	
+		
 	-- We need to assign the view some properties here.
 	view._defaultTab = 1
 	view._totalTabWidth = 0
@@ -296,10 +300,10 @@ local function initWithImageSheet( tabBar, options )
 	-- Create the tab selected group
 	viewSelected = display.newGroup()
 	tabBar:insert( viewSelected )
-	
+			
 	-- Create the tab selected's left frame
 	viewSelectedLeft = display.newImageRect( viewSelected, imageSheet, opt.tabSelectedLeftFrame, opt.tabSelectedFrameWidth, opt.tabSelectedFrameHeight )
-	
+		
 	-- Create the tab selected's middle frame
 	viewSelectedMiddle = display.newImageRect( viewSelected, imageSheet, opt.tabSelectedMiddleFrame, opt.tabSelectedFrameWidth, opt.tabSelectedFrameHeight )
 		
@@ -311,9 +315,11 @@ local function initWithImageSheet( tabBar, options )
 	
 	-- Create the tab buttons
 	for i = 1, #opt.tabButtons do		
-		local defaultFrame = opt.tabButtons[i].defaultFrame or error( "ERROR: " .. M._widgetName .. ": defaultFrame expected, got nil", 3 )
-		local overFrame = opt.tabButtons[i].overFrame or error( "ERROR: " .. M._widgetName .. ": overFrame expected, got nil", 3 )
-		
+		local defaultFrame = opt.tabButtons[i].defaultFrame --or error( "ERROR: " .. M._widgetName .. ": defaultFrame expected, got nil", 3 )
+		local overFrame = opt.tabButtons[i].overFrame --or error( "ERROR: " .. M._widgetName .. ": overFrame expected, got nil", 3 )
+		local defaultFile = opt.tabButtons[i].defaultFile
+		local overFile = opt.tabButtons[i].overFile
+				
 		local spriteOptions = 
 		{
 			{
@@ -329,7 +335,22 @@ local function initWithImageSheet( tabBar, options )
 		}
 		
 		-- Create the tab button
-		viewButtons[i] = display.newSprite( tabBar, imageSheet, spriteOptions )
+		if opt.tabButtons[i].defaultFrame then
+			viewButtons[i] = display.newSprite( tabBar, imageSheet, spriteOptions )
+		else
+			-- If there isn't a default frame, look for default/over files
+			if not opt.tabButtons[i].defaultFile then
+				error( "ERROR: " .. M._widgetName .. ": tab button default file expected, got nil" )
+			end
+			
+			if not opt.tabButtons[i].overFile then
+				error( "ERROR: " .. M._widgetName .. ": tab button default file expected, got nil" )
+			end
+			
+			viewButtons[i] = display.newImageRect( tabBar, opt.tabButtons[i].defaultFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
+			viewButtons[i].over = display.newImageRect( tabBar, opt.tabButtons[i].overFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
+			viewButtons[i].over.isVisible = false
+		end
 		
 		-- Get the passed in properties if any	
 		local labelFont = opt.tabButtons[i].font or opt.defaultLabelFont
@@ -375,11 +396,11 @@ local function initWithImageSheet( tabBar, options )
 		
 	-- Set the tab selected's middle frame width & position
 	viewSelectedMiddle.width = ( opt.width / #opt.tabButtons ) - ( viewSelectedLeft.contentWidth + viewSelectedRight.contentWidth )
-	viewSelectedMiddle.x = viewSelectedLeft.x + ( viewSelectedLeft.contentWidth * 0.5 ) + ( viewSelectedMiddle.contentWidth * 0.5 ) - 1
+	viewSelectedMiddle.x = viewSelectedLeft.x + ( viewSelectedLeft.contentWidth * 0.5 ) + ( viewSelectedMiddle.contentWidth * 0.5 ) 
 	viewSelectedMiddle.y = viewSelectedLeft.y
 	
 	-- Set the tab selected's right frame position
-	viewSelectedRight.x = viewSelectedMiddle.x + ( viewSelectedLeft.contentWidth * 0.5 ) + ( viewSelectedMiddle.contentWidth * 0.5 ) - 1
+	viewSelectedRight.x = viewSelectedMiddle.x + ( viewSelectedLeft.contentWidth * 0.5 ) + ( viewSelectedMiddle.contentWidth * 0.5 )
 	viewSelectedRight.y = viewSelectedLeft.y
 
 	-- Loop through the view's buttons and set their positions
@@ -387,6 +408,11 @@ local function initWithImageSheet( tabBar, options )
 		-- Set the buttons position
 		viewButtons[i].x = tabBar.x + ( ( opt.width / #viewButtons ) * i ) - ( opt.width / #viewButtons ) / 2
 		viewButtons[i].y = tabBar.y + ( view.contentHeight * 0.5 ) - ( view.contentHeight * 0.1 )
+		
+		if viewButtons[i].over then
+			viewButtons[i].over.x = viewButtons[i].x
+			viewButtons[i].over.y = viewButtons[i].y
+		end
 		
 		-- Set the button label position
 		viewButtons[i].label.x = viewButtons[i].x + viewButtons[i].label._xOffset
@@ -406,10 +432,16 @@ local function initWithImageSheet( tabBar, options )
 	end
 	
 	-- Set the default tab to active
-	viewButtons[view._defaultTab]:setSequence( "active" )
+	if viewButtons[view._defaultTab].over then
+		viewButtons[view._defaultTab].isVisible = false
+		viewButtons[view._defaultTab].over.isVisible = true
+	else
+		viewButtons[view._defaultTab]:setSequence( "active" )
+	end
 	
 	-- Position the tab selected group
 	viewSelected.x = viewButtons[view._defaultTab].x - ( viewSelected.contentWidth * 0.5 ) - tabBar.x
+	--viewSelected.y = tabBar.y - viewSelected.contentHeight * 0.5
 	
 	-- Throw error if tabBar width is too small to hold all passed in tab items
 	if ( view._totalTabWidth + 4 ) > opt.width then
@@ -503,7 +535,12 @@ local function initWithImageSheet( tabBar, options )
 				end
 				
 				-- Set the tab to it's over state
-				self._tabs[i]:setSequence( "over" )
+				if self._tabs[i].over then
+					self._tabs[i].isVisible = false
+					self._tabs[i].over.isVisible = true
+				else
+					self._tabs[i]:setSequence( "over" )
+				end
 				
 				-- Set the tab as pressed
 				self._tabs[i]._isPressed = true
@@ -514,7 +551,12 @@ local function initWithImageSheet( tabBar, options )
 			-- Turn off all other tabs
 			else
 				-- Set the tab to it's default state
-				self._tabs[i]:setSequence( "default" )
+				if self._tabs[i].over then
+					self._tabs[i].isVisible = true
+					self._tabs[i].over.isVisible = false
+				else
+					self._tabs[i]:setSequence( "default" )
+				end
 				
 				-- Set the label's color to 'default'
 				self._tabs[i].label:setTextColor( unpack( self._tabs[i].label._color.default ) )
@@ -542,6 +584,9 @@ function M.new( options, theme )
 	-- Create a local reference to our options table
 	local opt = M._options
 	
+	-- Check if the requirements for creating a widget has been met (throws an error if not)
+	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	
 	-------------------------------------------------------
 	-- Properties
 	-------------------------------------------------------
@@ -561,7 +606,9 @@ function M.new( options, theme )
 	
 	-- Frames & Images
 	opt.sheet = customOptions.sheet
-	
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
+		
 	-- Using single images
 	opt.backgroundFile = customOptions.backgroundFile
 	opt.tabSelectedLeftFile = customOptions.tabSelectedLeftFile
@@ -571,17 +618,17 @@ function M.new( options, theme )
 	opt.tabSelectedFrameHeight = customOptions.tabSelectedFrameHeight
 	
 	-- If we are using a sheet
-	if not opt.backgroundFile and opt.sheet then
-		opt.backgroundFrame = customOptions.backgroundFrame
-		opt.backgroundFrameWidth = customOptions.backgroundFrameWidth
-		opt.backgroundFrameHeight = customOptions.backgroundFrameHeight
-		opt.tabSelectedLeftFrame = customOptions.tabSelectedLeftFrame
-		opt.tabSelectedRightFrame = customOptions.tabSelectedRightFrame
-		opt.tabSelectedMiddleFrame = customOptions.tabSelectedMiddleFrame
-		opt.tabSelectedFrameWidth = customOptions.tabSelectedFrameWidth
-		opt.tabSelectedFrameHeight = customOptions.tabSelectedFrameHeight
+	if not opt.backgroundFile and opt.sheet or not opt.backgroundFile and opt.themeSheetFile then
+		opt.backgroundFrame = customOptions.backgroundFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.backgroundFrame )
+		opt.backgroundFrameWidth = customOptions.backgroundFrameWidth or themeOptions.backgroundFrameWidth
+		opt.backgroundFrameHeight = customOptions.backgroundFrameHeight or themeOptions.backgroundFrameHeight
+		opt.tabSelectedLeftFrame = customOptions.tabSelectedLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.tabSelectedLeftFrame )
+		opt.tabSelectedRightFrame = customOptions.tabSelectedRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.tabSelectedRightFrame )
+		opt.tabSelectedMiddleFrame = customOptions.tabSelectedMiddleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.tabSelectedMiddleFrame )
+		opt.tabSelectedFrameWidth = customOptions.tabSelectedFrameWidth or themeOptions.tabSelectedFrameWidth
+		opt.tabSelectedFrameHeight = customOptions.tabSelectedFrameHeight or themeOptions.tabSelectedFrameHeight
 	end
-	
+		
 	-------------------------------------------------------
 	-- Create the tabBar
 	-------------------------------------------------------
@@ -596,7 +643,7 @@ function M.new( options, theme )
 	}
 
 	-- Create the tabBar
-	if opt.sheet then
+	if opt.sheet or opt.themeSheetFile then
 		initWithImageSheet( tabBar, opt )
 	else
 		initWithImageFiles( tabBar, opt )
