@@ -316,6 +316,12 @@ local function createTableView( tableView, options )
 					self._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
 				end
 			end
+			
+			-- If the calculated scrollHeight is less than the height of the tableView, set it to that.
+			if self._scrollHeight < self._height then
+				self._scrollHeight = self._height
+			end
+			
 			self._hasRenderedRows = false
 		end
 		
