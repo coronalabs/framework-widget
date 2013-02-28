@@ -394,6 +394,7 @@ function M.new( options )
 		view not the parent group itself.
 	--]]
 	
+	--[[
 	-- Function to get a scrollView property
 	function scrollView:getProperty( property )
 		local retrievedProperty = nil
@@ -434,6 +435,7 @@ function M.new( options )
 			return print( "Error: ", M._widgetName, ": ", "does not contain a property named: ", property )
 		end
 	end
+	--]]
 	
 	return scrollView
 end
