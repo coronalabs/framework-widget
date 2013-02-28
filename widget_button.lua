@@ -114,8 +114,7 @@ local function createUsingImageFiles( button, options )
 	
 	-- Function to set the buttons fill color
 	function button:setFillColor( ... )
-		local arg = { ... }
-		self._view:setFillColor( unpack( arg ) )
+		self._view:setFillColor( ... )
 	end
 	
 	-- Function to set the button's label
@@ -392,8 +391,7 @@ local function createUsingImageSheet( button, options )
 	
 	-- Function to set the buttons fill color
 	function button:setFillColor( ... )
-		local arg = { ... }
-		self._view:setFillColor( unpack( arg ) )
+		self._view:setFillColor( ... )
 	end
 	
 	-- Function to set the button's label
@@ -896,12 +894,10 @@ local function createUsing9Slice( button, options )
 	----------------------------------------------------------
 
 	-- Function to set the buttons fill color
-	function button:setFillColor( ... )
-		local arg = { ... }
-		
+	function button:setFillColor( ... )		
 		for i = self.numChildren, 1, -1 do
 			if "function" == type( self[i].setFillColor ) then
-				self[i]:setFillColor( unpack( arg ) )
+				self[i]:setFillColor( ... )
 			end
 		end
 	end
