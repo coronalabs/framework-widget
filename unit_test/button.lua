@@ -92,7 +92,7 @@ function scene:createScene( event )
 	buttonUsingFiles.x = display.contentCenterX
 	buttonUsingFiles.oldLabel = "Files"	
 	group:insert( buttonUsingFiles )
-
+	
 	-- Set up sheet parameters for imagesheet button
 	local sheetInfo =
 	{
