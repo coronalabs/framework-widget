@@ -49,6 +49,10 @@ package.preload.widget_switch = nil
 package.preload.widget_tabbar = nil
 package.preload.widget_tableview = nil
 package.preload.widget_momentumScrolling = nil
+package.preload.widget_theme_ios = nil
+package.preload.widget_theme_ios_sheet = nil
+package.preload.widget_theme_android = nil
+package.preload.widget_theme_android_sheet = nil
 
 -- For xcode console output
 io.output():setvbuf( "no" )
@@ -57,4 +61,4 @@ io.output():setvbuf( "no" )
 display.setStatusBar( display.HiddenStatusBar )
 
 local storyboard = require( "storyboard" )
-storyboard.gotoScene( "unitTestListing" )
+storyboard.gotoScene( "tabBar" )

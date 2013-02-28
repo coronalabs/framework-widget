@@ -38,7 +38,7 @@
         <key>dataFormat</key>
         <string>corona-imagesheet</string>
         <key>textureFileName</key>
-        <filename>export/iOS/widget_theme_ios@2x.png</filename>
+        <filename>../../../widget_theme_ios@2x.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>ditherType</key>
@@ -127,7 +127,7 @@
             <enum type="AndEngine::MagFilter">MagLinear</enum>
         </struct>
         <key>dataFileName</key>
-        <filename>export/iOS/widget_theme_ios_sheet@2x.lua</filename>
+        <filename>../../../widget_theme_ios_sheet@2x.lua</filename>
         <key>mainExtension</key>
         <string>@2x</string>
         <key>forceIdenticalLayout</key>

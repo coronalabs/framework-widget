@@ -6,14 +6,17 @@ local theme = {}
 package.loaded[modname] = themeTable
 local imageSuffix = display.imageSuffix or ""
 
+local sheetFile = "widget_theme_ios.png"
+local sheetData = "widget_theme_ios_sheet"
+
 -----------------------------------------------------------------------------------------
 -- button
 -----------------------------------------------------------------------------------------
 
 theme.button = 
 {
-	sheet = "widget_theme_ios.png",
-	data = "widget_theme_ios_sheet",
+	sheet = sheetFile,
+	data = sheetData,
 	
 	topLeftFrame = "button_topLeft",
 	topLeftOverFrame =  "button_topLeftOver",
@@ -38,7 +41,7 @@ theme.button =
 	
 	width = 180, 
 	height = 50,
-	font = "Helvetica-Bold",
+	font = "Helvetica-Bold" or native.systemFontBold,
 	fontSize = 20,
 	labelColor = 
 	{ 
@@ -55,8 +58,8 @@ theme.button =
 
 theme.slider = 
 {
-	sheet = "widget_theme_ios.png",
-    data = "widget_theme_ios_sheet",
+	sheet = sheetFile,
+    data = sheetData,
 
 	leftFrame = "slider_leftFrame",
 	rightFrame = "slider_rightFrame",
@@ -81,8 +84,8 @@ theme.slider =
 
 theme.pickerWheel = 
 {
-	sheet = "widget_theme_ios.png",
-    data = "widget_theme_ios_sheet",
+	sheet = sheetFile,
+    data = sheetData,
 	backgroundFrame = "picker_bg",
 	backgroundFrameWidth = 1,
 	backgroundFrameHeight = 222,
@@ -96,13 +99,31 @@ theme.pickerWheel =
 }
 
 -----------------------------------------------------------------------------------------
+-- tabBar
+-----------------------------------------------------------------------------------------
+
+theme.tabBar = 
+{
+	sheet = sheetFile,
+	data = sheetData,
+	backgroundFrame = "tabBar_background",
+	backgroundFrameWidth = 100,
+	backgroundFrameHeight = 52,
+	tabSelectedLeftFrame = "tabBar_tabSelectedLeft",
+	tabSelectedRightFrame = "tabBar_tabSelectedRight",
+	tabSelectedMiddleFrame = "tabBar_tabSelectedMiddle",
+	tabSelectedFrameWidth = 20,
+	tabSelectedFrameHeight = 52,
+}
+
+-----------------------------------------------------------------------------------------
 -- spinner
 -----------------------------------------------------------------------------------------
 
 theme.spinner = 
 {
-	sheet = "widget_theme_ios.png",
-	data = "widget_theme_ios_sheet",
+	sheet = sheetFile,
+	data = sheetData,
 	startFrame = "spinner_spinner",
 	width = 40,
 	height = 40,
@@ -117,8 +138,8 @@ theme.spinner =
 theme.switch = 
 {
 	-- Default (on/off switch)
-	sheet = "widget_theme_ios.png",
-	data = "widget_theme_ios_sheet",
+	sheet = sheetFile,
+	data = sheetData,
 	backgroundFrame = "switch_background",
 	backgroundWidth = 165,
 	backgroundHeight = 31,
@@ -131,8 +152,8 @@ theme.switch =
 	
 	radio =
 	{
-		sheet = "widget_theme_ios.png",
-		data = "widget_theme_ios_sheet",
+		sheet = sheetFile,
+		data = sheetData,
 		width = 33,
 		height = 34,
 		frameOff = "switch_radioButtonDefault",
@@ -140,8 +161,8 @@ theme.switch =
 	},
 	checkbox = 
 	{
-		sheet = "widget_theme_ios.png",
-		data = "widget_theme_ios_sheet",
+		sheet = sheetFile,
+		data = sheetData,
 		width = 33,
 		height = 33,
 		frameOff = "switch_checkboxDefault",
@@ -155,8 +176,8 @@ theme.switch =
 
 theme.stepper = 
 {
-	sheet = "widget_theme_ios.png",
-	data = "widget_theme_ios_sheet",
+	sheet = sheetFile,
+	data = sheetData,
 	defaultFrame = "stepper_nonActive",
 	noMinusFrame = "stepper_noMinus",
 	noPlusFrame = "stepper_noPlus",
@@ -172,8 +193,8 @@ theme.stepper =
 
 theme.progressView = 
 {
-	sheet = "widget_theme_ios.png",
-	data = "widget_theme_ios_sheet",
+	sheet = sheetFile,
+	data = sheetData,
 	fillXOffset = 4.5,
 	fillYOffset = 4,
 	fillOuterWidth = 12,
@@ -196,8 +217,8 @@ theme.progressView =
 
 theme.segmentedControl = 
 {
-	sheet = "widget_theme_ios.png",
-	data = "widget_theme_ios_sheet",
+	sheet = sheetFile,
+	data = sheetData,
 	width = 12,
 	height = 29,
 	leftSegmentFrame = "segmentedControl_left",
@@ -215,8 +236,8 @@ theme.segmentedControl =
 
 theme.searchField = 
 {
-    sheet = "widget_theme_ios.png",
-    data = "widget_theme_ios_sheet",
+    sheet = sheetFile,
+    data = sheetData,
     leftFrame = "searchField_leftEdge",
 	rightFrame = "searchField_rightEdge",
 	middleFrame = "searchField_middle",
