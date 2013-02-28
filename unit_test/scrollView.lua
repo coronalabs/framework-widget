@@ -128,7 +128,7 @@ function scene:createScene( event )
 	
 	
 	local function testListener( event )
-		if "began" == phase then
+		if "began" == event.phase then
 			print( "Listening!" )
 		end
 		
