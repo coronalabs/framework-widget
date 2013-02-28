@@ -507,6 +507,17 @@ local function createTableView( tableView, options )
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
 		local rowColor = options.rowColor or { default = { 255, 255, 255 }, over = { 30, 144, 255 } }
+		
+		-- Set defaults for row color
+		if not rowColor.default then
+			rowColor.default = { 255, 255, 255 }
+		end
+		
+		-- Set defaults for row color
+		if not rowColor.over then
+			rowColor.over = { 30, 144, 255 }
+		end
+		
 		local lineColor = options.lineColor or { 220, 220, 220 }
 				
 		-- Create the row's touch rectangle (ie it's border)
