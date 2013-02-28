@@ -86,8 +86,8 @@ function scene:createScene( event )
 		left = 10,
 		width = 300,
 		height = 350,
-		scrollWidth = 465,
-		scrollHeight = 1024,
+		--scrollWidth = 465,
+		--scrollHeight = 1024,
 		id = "onBottom",
 		--topPadding = 80,
 		--bottomPadding = 40,
@@ -99,29 +99,46 @@ function scene:createScene( event )
 		maskFile = "assets/scrollViewMask-350.png",
 		listener = scrollListener,
 	}
+	group:insert( scrollView )	
 	
 	-- insert image into scrollView widget
 	local background = display.newImageRect( "assets/scrollimage.jpg", 768, 1024 )
 	background.x = background.contentWidth * 0.5
 	background.y = background.contentHeight * 0.5
 	scrollView:insert( background )
-	group:insert( scrollView )	
 
-
-	-- Test set focus
-	local function rectTouch( event )
-		if "moved" == event.phase then
-			scrollView:takeFocus( event )
+	--[[
+		Below is a idea I had to be able to retrieve & set private properties from any widget object,
+		for now this is just done in scrollViews to illustrate the idea. The idea behind having these two 
+		functions is that it does the following:
+		
+		A) Allows a user to get or set any property contained in an object.
+		B) Saves extra code in exposing properties to the parent group. As 99.9% of properties are assigned to the parent groups
+		view not the parent group itself.
+	--]]
+	
+	-- Set a scrollView property
+	--scrollView:setProperty( "scrollHeight", 2048 )
+	
+	-- Get a scrollView property
+	--local scrollHeight = scrollView:getProperty( "scrollHeight" )
+	
+	-- Print the property to see if it has been updated
+	--print( "scrollHeight is:", scrollHeight )
+	
+	
+	local function testListener( event )
+		if "began" == phase then
+			print( "Listening!" )
 		end
 		
 		return true
 	end
-
-	local rect = display.newRect( 50, 200, 200, 59 )
-	rect:addEventListener( "touch", rectTouch )
-	scrollView:insert( rect )
 	
-
+	-- Set changing the scrollView listener from the one defined in the constructor
+	scrollView:setProperty( "listener", testListener )
+	
+	
 	if TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER then
 		-- Create scrollView2
 		local scrollView2 = widget.newScrollView

@@ -97,7 +97,7 @@ local function createScrollView( scrollView, options )
 	-------------------------------------------------------
 	
 	-- Assign objects to the scrollView
-	scrollView._view = view
+	scrollView._view = view	
 	scrollView:insert( view )
 	
 	----------------------------------------------------------
@@ -190,6 +190,12 @@ local function createScrollView( scrollView, options )
             self._view:insert( obj )
         end
 
+		-- Update the scrollWidth
+		self._view._scrollWidth = self._view.width
+			
+		-- Update the scrollHeight
+		self._view._scrollHeight = self._view.height
+
 		-- If the inserted object is a button, set it as inserted and add a touch listener to it 
 		if "button" == obj._widgetType then
  			obj._view:addEventListener( "touch", _handleButtonTouch )
@@ -200,7 +206,7 @@ local function createScrollView( scrollView, options )
 		-- Push scrollBar to the front
 		if view._scrollBar then
 			view._scrollBar:toFront()
-		end
+		end		
     end
 
 	-- Transfer touch from the view's background to the view's content
@@ -347,26 +353,21 @@ function M.new( options )
 	opt.scrollHeight = customOptions.scrollHeight or opt.height
 	
 	-- Ensure scroll width/height values are at a minimum, equal to the scroll window width/height
-	if opt.scrollHeight < opt.height then
-		opt.scrollHeight = opt.height
+	if opt.scrollHeight then
+		if opt.scrollHeight < opt.height then
+			opt.scrollHeight = opt.height
+		end
 	end
 	
-	if opt.scrollWidth < opt.width then
-		opt.scrollWidth = opt.width
+	if opt.scrollWidth then
+		if opt.scrollWidth < opt.width then
+			opt.scrollWidth = opt.width
+		end
 	end
 	
+	-- Disabled until scrollBar's work properly
 	opt.hideScrollBar = true --customOptions.hideScrollBar or false
-	
-	-- If horizontal scrolling isn't disabled and a scrollWidth hasn't been defined, throw an error
-	if not opt.isHorizontalScrollingDisabled and not opt.scrollWidth then
-		error( "ERROR: " .. M._widgetName .. ": scrollWidth expected, got nil", 3 )
-	end
-	
-	-- If vertical scrolling isn't disabled and a scrollWidth hasn't been defined, throw an error
-	if not opt.isVerticalScrollingDisabled and not opt.scrollHeight then
-		error( "ERROR: " .. M._widgetName .. ": scrollHeight expected, got nil", 3 )
-	end
-	
+		
 	-------------------------------------------------------
 	-- Create the scrollView
 	-------------------------------------------------------
@@ -381,7 +382,58 @@ function M.new( options )
 	}
 
 	-- Create the scrollView
-	createScrollView( scrollView, opt )
+	createScrollView( scrollView, opt )	
+	
+	--[[
+		Below is a idea I had to be able to retrieve & set private properties from any widget object,
+		for now this is just done in scrollViews to illustrate the idea. The idea behind having these two 
+		functions is that it does the following:
+		
+		A) Allows a user to get or set any property contained in an object.
+		B) Saves extra code in exposing properties to the parent group. As 99.9% of properties are assigned to the parent groups
+		view not the parent group itself.
+	--]]
+	
+	-- Function to get a scrollView property
+	function scrollView:getProperty( property )
+		local retrievedProperty = nil
+		
+		-- Retrieve the property
+		for k, v in pairs( self._view ) do
+			if string.find( k, property ) then
+				-- Return the found property
+				return self._view[k]
+			end
+		end
+		
+		-- If the property the user requested doesn't exist, print a warning to the terminal
+		if nil == retrievedProperty then
+			return print( "Error: ", M._widgetName, ": ", "does not contain a property named: ", property )
+		end
+	end
+	
+	-- Function to set a scrollView property
+	function scrollView:setProperty( property, value )
+		local retrievedProperty = nil
+		
+		-- Retrieve the property
+		for k, v in pairs( self._view ) do
+			if string.find( k, property ) then
+				retrievedProperty = v
+				
+				-- Set the property
+				self._view[k] = value
+						
+				-- Return the found property
+				return self._view[k]
+			end
+		end
+			
+		-- If the property the user requested doesn't exist, print a warning to the terminal
+		if nil == retrievedProperty then
+			return print( "Error: ", M._widgetName, ": ", "does not contain a property named: ", property )
+		end
+	end
 	
 	return scrollView
 end
