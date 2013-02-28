@@ -159,7 +159,7 @@ function scene:createScene( event )
 	group:insert( tableView )
 	
 	-- Create 100 rows
-	for i = 1, 100 do
+	for i = 1, 5 do
 		local isCategory = false
 		local rowHeight = 40
 		local rowColor = { 255, 255, 255 }
