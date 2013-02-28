@@ -281,12 +281,11 @@ local function createTableView( tableView, options )
 				{
 					phase = "release",
 					target = event.target,
-					background = self._targetRow._border,
 					row = self._targetRow,
 				}
 				
 				-- Set the row's border's fill color
-				self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor ) )
+				self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor.default ) )
 				
 				-- Execute the row's touch event 
 				self._onRowTouch( newEvent )
@@ -347,12 +346,11 @@ local function createTableView( tableView, options )
 						{
 							phase = "press",
 							target = self._targetRow,
-							background = self._targetRow._border,
 							row = self._targetRow,
 						}
 					
 						-- Set the row's border fill color
-						self._targetRow._border:setFillColor( 30, 144, 255 )
+						self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor.over ) )
 					
 						-- Execute the row's onRowTouch listener
 						self._onRowTouch( newEvent )
@@ -508,7 +506,7 @@ local function createTableView( tableView, options )
 		local rowId = options.id or #self._rows
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
-		local rowColor = options.rowColor or { 255, 255, 255 }
+		local rowColor = options.rowColor or { default = { 255, 255, 255 }, over = { 30, 144, 255 } }
 		local lineColor = options.lineColor or { 220, 220, 220 }
 				
 		-- Create the row's touch rectangle (ie it's border)
@@ -516,8 +514,8 @@ local function createTableView( tableView, options )
 		border.x = border.contentWidth * 0.5
 		border.y = border.contentHeight * 0.5
 		border.strokeWidth = 1
-		border:setFillColor( unpack( rowColor ) )
-		border:setStrokeColor( unpack( rowColor ) )
+		border:setFillColor( unpack( rowColor.default ) )
+		border:setStrokeColor( unpack( rowColor.default ) )
 				
 		-- If the user want's lines between rows, set the stroke color accordingly
 		if not opt.noLines then

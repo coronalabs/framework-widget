@@ -104,8 +104,6 @@ function scene:createScene( event )
 		local phase = event.phase
 				
 		if "press" == phase then
-			-- Set the row's color
-			event.background:setFillColor( 255, 0, 255 )
 				
 		elseif "release" == phase then
 			print( "Touched row:", event.target.index )
@@ -162,7 +160,11 @@ function scene:createScene( event )
 	for i = 1, 5 do
 		local isCategory = false
 		local rowHeight = 40
-		local rowColor = { 255, 255, 255 }
+		local rowColor = 
+		{ 
+			default = { 255, 255, 255 },
+			over = { 255, 0, 255 },
+		}
 		local lineColor = { 220, 220, 220 }
 		
 		-- Make some rows categories
