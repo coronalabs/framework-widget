@@ -103,7 +103,11 @@ function scene:createScene( event )
 	local function onRowTouch( event )
 		local phase = event.phase
 				
-		if "release" == phase then
+		if "press" == phase then
+			-- Set the row's color
+			event.background:setFillColor( 255, 0, 255 )
+				
+		elseif "release" == phase then
 			print( "Touched row:", event.target.index )
 			
 			-- Test removing all rows and re-adding 20 more

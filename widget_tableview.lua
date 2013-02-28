@@ -281,6 +281,7 @@ local function createTableView( tableView, options )
 				{
 					phase = "release",
 					target = event.target,
+					background = self._targetRow._border,
 					row = self._targetRow,
 				}
 				
@@ -340,6 +341,7 @@ local function createTableView( tableView, options )
 						{
 							phase = "press",
 							target = self._targetRow,
+							background = self._targetRow._border,
 							row = self._targetRow,
 						}
 					
