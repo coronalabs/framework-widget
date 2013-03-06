@@ -94,8 +94,8 @@ function scene:createScene( event )
 		--leftPadding = 40,
 		--rightPadding = 80,
 		--hideBackground = true,
-		horizontalScrollingDisabled = false,
-		verticalScrollingDisabled = false,
+		horizontalScrollDisabled = false,
+		verticalScrollDisabled = false,
 		maskFile = "assets/scrollViewMask-350.png",
 		listener = scrollListener,
 	}
@@ -107,37 +107,6 @@ function scene:createScene( event )
 	background.y = background.contentHeight * 0.5
 	scrollView:insert( background )
 
-	--[[
-		Below is a idea I had to be able to retrieve & set private properties from any widget object,
-		for now this is just done in scrollViews to illustrate the idea. The idea behind having these two 
-		functions is that it does the following:
-		
-		A) Allows a user to get or set any property contained in an object.
-		B) Saves extra code in exposing properties to the parent group. As 99.9% of properties are assigned to the parent groups
-		view not the parent group itself.
-	--]]
-	
-	-- Set a scrollView property
-	--scrollView:setProperty( "scrollHeight", 2048 )
-	
-	-- Get a scrollView property
-	--local scrollHeight = scrollView:getProperty( "scrollHeight" )
-	
-	-- Print the property to see if it has been updated
-	--print( "scrollHeight is:", scrollHeight )
-	
-	
-	local function testListener( event )
-		if "began" == event.phase then
-			print( "Listening!" )
-		end
-		
-		return true
-	end
-	
-	-- Set changing the scrollView listener from the one defined in the constructor
-	scrollView:setProperty( "listener", testListener )
-	
 	
 	if TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER then
 		-- Create scrollView2

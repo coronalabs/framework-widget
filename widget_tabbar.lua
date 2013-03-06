@@ -628,6 +628,20 @@ function M.new( options, theme )
 		opt.tabSelectedFrameWidth = customOptions.tabSelectedFrameWidth or themeOptions.tabSelectedFrameWidth
 		opt.tabSelectedFrameHeight = customOptions.tabSelectedFrameHeight or themeOptions.tabSelectedFrameHeight
 	end
+	
+	if opt.backgroundFile then
+		if not opt.tabSelectedLeftFile then
+			error( "ERROR: " .. M._widgetName .. ": tabSelectedLeftFile expected, got nil", 3 ) 
+		end
+		
+		if not opt.tabSelectedRightFile then
+			error( "ERROR: " .. M._widgetName .. ": tabSelectedRightFile expected, got nil", 3 )
+		end
+		
+		if not opt.tabSelectedMiddleFile then
+			error( "ERROR: " .. M._widgetName .. ": tabSelectedMiddleFile expected, got nil", 3 ) 
+		end
+	end
 		
 	-------------------------------------------------------
 	-- Create the tabBar
@@ -643,7 +657,7 @@ function M.new( options, theme )
 	}
 
 	-- Create the tabBar
-	if opt.sheet or opt.themeSheetFile then
+	if opt.sheet and not opt.backgroundFile or opt.themeSheetFile and not opt.backgroundFile then
 		initWithImageSheet( tabBar, opt )
 	else
 		initWithImageFiles( tabBar, opt )

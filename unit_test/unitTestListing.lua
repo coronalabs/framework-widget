@@ -30,7 +30,7 @@ function scene:createScene( event )
 	
 	local newScrollView = widget.newScrollView
 	{
-		left = 20,
+		left = 0,
 		top = 40,
 		width = display.contentWidth * 0.5,
 		height = display.contentHeight - 50,
@@ -53,7 +53,7 @@ function scene:createScene( event )
 	local spinnerButton = widget.newButton
 	{
 	    id = "spinner",
-	    left = 50,
+	    left = 60,
 	    top = 10,
 	    label = "Spinner",
 	    width = 200, height = 52,
@@ -67,7 +67,7 @@ function scene:createScene( event )
 	local switchButton = widget.newButton
 	{
 	    id = "switch",
-	    left = 50,
+	    left = 60,
 	    top = spinnerButton.y + 30,
 	    label = "Switch",
 	    width = 200, height = 52,
@@ -81,7 +81,7 @@ function scene:createScene( event )
 	local stepperButton = widget.newButton
 	{
 	    id = "stepper",
-	    left = 50,
+	    left = 60,
 	    top = switchButton.y + 30,
 	    label = "Stepper",
 	    width = 200, height = 52,
@@ -95,7 +95,7 @@ function scene:createScene( event )
 	local searchFieldButton = widget.newButton
 	{
 	    id = "searchField",
-	    left = 50,
+	    left = 60,
 	    top = stepperButton.y + 30,
 	    label = "Search Field",
 	    width = 200, height = 52,
@@ -108,7 +108,7 @@ function scene:createScene( event )
 	local progressViewButton = widget.newButton
 	{
 	    id = "progressView",
-	    left = 50,
+	    left = 60,
 	    top = searchFieldButton.y + 30,
 	    label = "Progress View",
 	    width = 200, height = 52,
@@ -121,7 +121,7 @@ function scene:createScene( event )
 	local segmentedControlButton = widget.newButton
 	{
 	    id = "segmentedControl",
-	    left = 50,
+	    left = 60,
 	    top = progressViewButton.y + 30,
 	    label = "Segmented Control",
 	    width = 200, height = 52,
@@ -134,7 +134,7 @@ function scene:createScene( event )
 	local buttonButton = widget.newButton
 	{
 	    id = "button",
-	    left = 50,
+	    left = 60,
 	    top = segmentedControlButton.y + 30,
 	    label = "Button",
 	    width = 200, height = 52,
@@ -147,7 +147,7 @@ function scene:createScene( event )
 	local tabBarButton = widget.newButton
 	{
 	    id = "tabBar",
-	    left = 50,
+	    left = 60,
 	    top = buttonButton.y + 30,
 	    label = "TabBar",
 	    width = 200, height = 52,
@@ -160,7 +160,7 @@ function scene:createScene( event )
 	local sliderButton = widget.newButton
 	{
 	    id = "slider",
-	    left = 50,
+	    left = 60,
 	    top = tabBarButton.y + 30,
 	    label = "Slider",
 	    width = 200, height = 52,
@@ -173,7 +173,7 @@ function scene:createScene( event )
 	local pickerButton = widget.newButton
 	{
 	    id = "picker",
-	    left = 50,
+	    left = 60,
 	    top = sliderButton.y + 30,
 	    label = "Picker",
 	    width = 200, height = 52,
@@ -186,7 +186,7 @@ function scene:createScene( event )
 	local tableViewButton = widget.newButton
 	{
 	    id = "tableView",
-	    left = 50,
+	    left = 60,
 	    top = pickerButton.y + 30,
 	    label = "TableView",
 	    width = 200, height = 52,
@@ -199,7 +199,7 @@ function scene:createScene( event )
 	local scrollViewButton = widget.newButton
 	{
 	    id = "scrollView",
-	    left = 50,
+	    left = 60,
 	    top = tableViewButton.y + 30,
 	    label = "ScrollView",
 	    width = 200, height = 52,

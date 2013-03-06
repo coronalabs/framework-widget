@@ -25,7 +25,7 @@ local function createScrollView( scrollView, options )
 	
 	-- Create the view
 	view = display.newGroup()
-	
+		
 	-- Create the view's background
 	viewBackground = display.newRect( scrollView, 0, 0, opt.width, opt.height )
 	
@@ -95,7 +95,7 @@ local function createScrollView( scrollView, options )
 	-------------------------------------------------------
 	-- Assign properties/objects to the scrollView
 	-------------------------------------------------------
-	
+		
 	-- Assign objects to the scrollView
 	scrollView._view = view	
 	scrollView:insert( view )
@@ -195,6 +195,16 @@ local function createScrollView( scrollView, options )
 			
 		-- Update the scrollHeight
 		self._view._scrollHeight = self._view.height
+		
+		-- Override the scroll height if it is less than the height of the window
+		if self._view._scrollHeight < self._view._height then
+			self._view._scrollHeight = self._view._height
+		end
+		
+		-- Override the scroll width if it is less than the width of the window
+		if self._view._scrollWidth < self._view._width then
+			self._view._scrollWidth = self._view._width
+		end
 
 		-- If the inserted object is a button, set it as inserted and add a touch listener to it 
 		if "button" == obj._widgetType then
@@ -203,9 +213,19 @@ local function createScrollView( scrollView, options )
 			obj._view._isActive = false
 		end
 		
+		-- Create the scrollBar
+		if not opt.hideScrollBar then
+			if self._view._scrollBar then
+				display.remove( self._view._scrollBar )
+				self._view._scrollBar = nil
+			end
+			
+			self._view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, opt.scrollBarOptions )
+		end
+		
 		-- Push scrollBar to the front
-		if view._scrollBar then
-			view._scrollBar:toFront()
+		if self._view._scrollBar then
+			self._view._scrollBar:toFront()
 		end		
     end
 
@@ -296,11 +316,6 @@ local function createScrollView( scrollView, options )
 	end
 	
 	Runtime:addEventListener( "enterFrame", view )
-	
-	-- Create the scrollBar
-	if not opt.hideScrollBar then
-		view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
-	end
 		
 	-- Finalize function for the scrollView
 	function scrollView:_finalize()
@@ -351,6 +366,7 @@ function M.new( options )
 	opt.maxVelocity = customOptions.maxVelocity
 	opt.scrollWidth = customOptions.scrollWidth or opt.width
 	opt.scrollHeight = customOptions.scrollHeight or opt.height
+	opt.hideScrollBar = customOptions.hideScrollBar or false
 	
 	-- Ensure scroll width/height values are at a minimum, equal to the scroll window width/height
 	if opt.scrollHeight then
@@ -365,9 +381,14 @@ function M.new( options )
 		end
 	end
 	
-	-- Disabled until scrollBar's work properly
-	opt.hideScrollBar = true --customOptions.hideScrollBar or false
-		
+	-- ScrollBar options
+	opt.scrollBarOptions =
+	{
+		topFrame = customOptions.topFrame,
+		middleFrame = customOptions.middleFrame,
+		bottomFrame = customOptions.bottomFrame,
+	}
+			
 	-------------------------------------------------------
 	-- Create the scrollView
 	-------------------------------------------------------
@@ -383,60 +404,7 @@ function M.new( options )
 
 	-- Create the scrollView
 	createScrollView( scrollView, opt )	
-	
-	--[[
-		Below is a idea I had to be able to retrieve & set private properties from any widget object,
-		for now this is just done in scrollViews to illustrate the idea. The idea behind having these two 
-		functions is that it does the following:
-		
-		A) Allows a user to get or set any property contained in an object.
-		B) Saves extra code in exposing properties to the parent group. As 99.9% of properties are assigned to the parent groups
-		view not the parent group itself.
-	--]]
-	
-	--[[
-	-- Function to get a scrollView property
-	function scrollView:getProperty( property )
-		local retrievedProperty = nil
-		
-		-- Retrieve the property
-		for k, v in pairs( self._view ) do
-			if string.find( k, property ) then
-				-- Return the found property
-				return self._view[k]
-			end
-		end
-		
-		-- If the property the user requested doesn't exist, print a warning to the terminal
-		if nil == retrievedProperty then
-			return print( "Error: ", M._widgetName, ": ", "does not contain a property named: ", property )
-		end
-	end
-	
-	-- Function to set a scrollView property
-	function scrollView:setProperty( property, value )
-		local retrievedProperty = nil
-		
-		-- Retrieve the property
-		for k, v in pairs( self._view ) do
-			if string.find( k, property ) then
-				retrievedProperty = v
-				
-				-- Set the property
-				self._view[k] = value
-						
-				-- Return the found property
-				return self._view[k]
-			end
-		end
-			
-		-- If the property the user requested doesn't exist, print a warning to the terminal
-		if nil == retrievedProperty then
-			return print( "Error: ", M._widgetName, ": ", "does not contain a property named: ", property )
-		end
-	end
-	--]]
-	
+
 	return scrollView
 end
 

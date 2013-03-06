@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:f8e723caa3704c40710201b810ae93f2$
+-- $TexturePacker:SmartUpdate:b4bf35073910cc98b049b77318277ca0$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -16,32 +16,32 @@ SheetInfo.sheet =
     
         {
             -- button_bottomLeft
-            x=562,
-            y=184,
-            width=15,
-            height=15,
-
-        },
-        {
-            -- button_bottomLeftOver
-            x=543,
+            x=546,
             y=203,
             width=15,
             height=15,
 
         },
         {
-            -- button_bottomMiddle
-            x=543,
+            -- button_bottomLeftOver
+            x=546,
             y=184,
             width=15,
             height=15,
 
         },
         {
-            -- button_bottomMiddleOver
-            x=524,
+            -- button_bottomMiddle
+            x=527,
             y=190,
+            width=15,
+            height=15,
+
+        },
+        {
+            -- button_bottomMiddleOver
+            x=508,
+            y=196,
             width=15,
             height=15,
 
@@ -184,16 +184,16 @@ SheetInfo.sheet =
         },
         {
             -- progressView_leftFill
-            x=521,
-            y=215,
+            x=565,
+            y=114,
             width=12,
             height=10,
 
         },
         {
             -- progressView_leftFillBorder
-            x=508,
-            y=201,
+            x=521,
+            y=215,
             width=12,
             height=10,
 
@@ -228,6 +228,30 @@ SheetInfo.sheet =
             y=168,
             width=12,
             height=10,
+
+        },
+        {
+            -- scrollBar_bottom
+            x=537,
+            y=209,
+            width=5,
+            height=5,
+
+        },
+        {
+            -- scrollBar_middle
+            x=512,
+            y=187,
+            width=5,
+            height=5,
+
+        },
+        {
+            -- scrollBar_top
+            x=503,
+            y=187,
+            width=5,
+            height=5,
 
         },
         {
@@ -329,7 +353,7 @@ SheetInfo.sheet =
         {
             -- silder_middleFrame
             x=565,
-            y=156,
+            y=198,
             width=10,
             height=10,
 
@@ -337,7 +361,7 @@ SheetInfo.sheet =
         {
             -- silder_middleFrameVertical
             x=565,
-            y=142,
+            y=184,
             width=10,
             height=10,
 
@@ -345,7 +369,7 @@ SheetInfo.sheet =
         {
             -- slider_bottomFrameVertical
             x=565,
-            y=128,
+            y=170,
             width=10,
             height=10,
 
@@ -353,15 +377,15 @@ SheetInfo.sheet =
         {
             -- slider_fill
             x=565,
-            y=114,
+            y=156,
             width=10,
             height=10,
 
         },
         {
             -- slider_fillVertical
-            x=562,
-            y=203,
+            x=565,
+            y=142,
             width=10,
             height=10,
 
@@ -376,8 +400,8 @@ SheetInfo.sheet =
         },
         {
             -- slider_leftFrame
-            x=508,
-            y=187,
+            x=565,
+            y=128,
             width=10,
             height=10,
 
@@ -578,45 +602,48 @@ SheetInfo.frameIndex =
     ["progressView_middleFillBorder"] = 25,
     ["progressView_rightFill"] = 26,
     ["progressView_rightFillBorder"] = 27,
-    ["searchField_leftEdge"] = 28,
-    ["searchField_magnifyingGlass"] = 29,
-    ["searchField_middle"] = 30,
-    ["searchField_remove"] = 31,
-    ["searchField_rightEdge"] = 32,
-    ["segmentedControl_divider"] = 33,
-    ["segmentedControl_left"] = 34,
-    ["segmentedControl_leftOn"] = 35,
-    ["segmentedControl_middle"] = 36,
-    ["segmentedControl_middleOn"] = 37,
-    ["segmentedControl_right"] = 38,
-    ["segmentedControl_rightOn"] = 39,
-    ["silder_middleFrame"] = 40,
-    ["silder_middleFrameVertical"] = 41,
-    ["slider_bottomFrameVertical"] = 42,
-    ["slider_fill"] = 43,
-    ["slider_fillVertical"] = 44,
-    ["slider_handle"] = 45,
-    ["slider_leftFrame"] = 46,
-    ["slider_rightFrame"] = 47,
-    ["slider_topFrameVertical"] = 48,
-    ["spinner_spinner"] = 49,
-    ["stepper_minusActive"] = 50,
-    ["stepper_noMinus"] = 51,
-    ["stepper_noPlus"] = 52,
-    ["stepper_nonActive"] = 53,
-    ["stepper_plusActive"] = 54,
-    ["switch_background"] = 55,
-    ["switch_checkboxDefault"] = 56,
-    ["switch_checkboxSelected"] = 57,
-    ["switch_handle"] = 58,
-    ["switch_handleOver"] = 59,
-    ["switch_overlay"] = 60,
-    ["switch_radioButtonDefault"] = 61,
-    ["switch_radioButtonSelected"] = 62,
-    ["tabBar_background"] = 63,
-    ["tabBar_tabSelectedLeft"] = 64,
-    ["tabBar_tabSelectedMiddle"] = 65,
-    ["tabBar_tabSelectedRight"] = 66,
+    ["scrollBar_bottom"] = 28,
+    ["scrollBar_middle"] = 29,
+    ["scrollBar_top"] = 30,
+    ["searchField_leftEdge"] = 31,
+    ["searchField_magnifyingGlass"] = 32,
+    ["searchField_middle"] = 33,
+    ["searchField_remove"] = 34,
+    ["searchField_rightEdge"] = 35,
+    ["segmentedControl_divider"] = 36,
+    ["segmentedControl_left"] = 37,
+    ["segmentedControl_leftOn"] = 38,
+    ["segmentedControl_middle"] = 39,
+    ["segmentedControl_middleOn"] = 40,
+    ["segmentedControl_right"] = 41,
+    ["segmentedControl_rightOn"] = 42,
+    ["silder_middleFrame"] = 43,
+    ["silder_middleFrameVertical"] = 44,
+    ["slider_bottomFrameVertical"] = 45,
+    ["slider_fill"] = 46,
+    ["slider_fillVertical"] = 47,
+    ["slider_handle"] = 48,
+    ["slider_leftFrame"] = 49,
+    ["slider_rightFrame"] = 50,
+    ["slider_topFrameVertical"] = 51,
+    ["spinner_spinner"] = 52,
+    ["stepper_minusActive"] = 53,
+    ["stepper_noMinus"] = 54,
+    ["stepper_noPlus"] = 55,
+    ["stepper_nonActive"] = 56,
+    ["stepper_plusActive"] = 57,
+    ["switch_background"] = 58,
+    ["switch_checkboxDefault"] = 59,
+    ["switch_checkboxSelected"] = 60,
+    ["switch_handle"] = 61,
+    ["switch_handleOver"] = 62,
+    ["switch_overlay"] = 63,
+    ["switch_radioButtonDefault"] = 64,
+    ["switch_radioButtonSelected"] = 65,
+    ["tabBar_background"] = 66,
+    ["tabBar_tabSelectedLeft"] = 67,
+    ["tabBar_tabSelectedMiddle"] = 68,
+    ["tabBar_tabSelectedRight"] = 69,
 }
 
 function SheetInfo:getSheet()

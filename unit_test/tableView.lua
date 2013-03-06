@@ -96,7 +96,7 @@ function scene:createScene( event )
 		local phase = event.phase
 		local row = event.row
 		
-		print( row.index, ": is now visible" )
+		--print( row.index, ": is now visible" )
 	end
 	
 	-- Handle touches on the row
@@ -143,7 +143,7 @@ function scene:createScene( event )
 	end
 	
 	-- Create a tableView
-	 tableView = widget.newTableView
+	tableView = widget.newTableView
 	{
 		top = 100,
 		width = 320, 
@@ -157,9 +157,9 @@ function scene:createScene( event )
 	group:insert( tableView )
 	
 	-- Create 100 rows
-	for i = 1, 5 do
+	for i = 1, 50 do
 		local isCategory = false
-		local rowHeight = 40
+		local rowHeight = 30
 		local rowColor = 
 		{ 
 			default = { 255, 255, 255 },
@@ -170,8 +170,11 @@ function scene:createScene( event )
 		-- Make some rows categories
 		if i == 8 or i == 25 or i == 50 or i == 75 then
 			isCategory = true
-			rowHeight = 24
-			rowColor = { 150, 160, 180, 200 }
+			--rowHeight = 24
+			rowColor = 
+			{ 
+				default = { 150, 160, 180, 200 },
+			}
 		end
 		
 		-- Insert the row into the tableView
