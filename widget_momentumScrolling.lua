@@ -446,6 +446,7 @@ function M.createScrollBar( view, options )
 	-- Get the theme sheet file and data
 	opt.themeSheetFile = require( "widget" ).theme.scrollBar.sheet
 	opt.themeData = require( "widget" ).theme.scrollBar.data
+	opt.sheet = customOptions.sheet
 	opt.width = require( "widget" ).theme.scrollBar.width
 	opt.height = require( "widget" ).theme.scrollBar.height
 	
@@ -455,7 +456,13 @@ function M.createScrollBar( view, options )
 	opt.bottomFrame = options.bottomFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomFrame )
 	
 	-- Create the scrollBar imageSheet
-	local imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	local imageSheet
+	
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+	 	imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	end
 	
 	-- The scrollBar is a display group
 	local scrollBar = display.newGroup()
