@@ -65,49 +65,53 @@ function M._touch( view, event )
 						-- The move was horizontal
 	                    view._moveDirection = "horizontal"
 
-						local bottomLimit = view._topPadding
-						local upperLimit = nil
+						if not view._isVerticalScrollingDisabled then
+							local bottomLimit = view._topPadding
+							local upperLimit = nil
 
-						-- Set the upper limit
-						if view._scrollHeight then
-							upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
-						else
-							upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
-						end
+							-- Set the upper limit
+							if view._scrollHeight then
+								upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
+							else
+								upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
+							end
 						
-						-- Put the view back to the top if it isn't already there ( and should be )
-						if view.y >= bottomLimit then
-							-- Transition the view back to it's maximum position
-							view._tween = transition.to( view, { time = 400, y = bottomLimit, transition = easing.outQuad } )						
+							-- Put the view back to the top if it isn't already there ( and should be )
+							if view.y > bottomLimit then
+								-- Transition the view back to it's maximum position
+								view._tween = transition.to( view, { time = 400, y = bottomLimit, transition = easing.outQuad } )						
 						
-						-- Put the view back to the bottom if it isn't already there ( and should be )
-						elseif view.y <= upperLimit then					
-							-- Transition the view back to it's maximum position
-							view._tween = transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
+							-- Put the view back to the bottom if it isn't already there ( and should be )
+							elseif view.y < upperLimit then					
+								-- Transition the view back to it's maximum position
+								view._tween = transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
+							end
 						end
 	                else
 						-- The move was vertical
 	                    view._moveDirection = "vertical"
 	
-						-- Set the right limit
-						local rightLimit = view._leftPadding
-						local leftLimit = nil
+						if not view._isHorizontalScrollingDisabled then
+							-- Set the right limit
+							local rightLimit = view._leftPadding
+							local leftLimit = nil
 
-						-- Set the left limit
-						if view._scrollWidth then
-							leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
-						else
-							leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 ) - view._rightPadding
-						end
+							-- Set the left limit
+							if view._scrollWidth then
+								leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
+							else
+								leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 ) - view._rightPadding
+							end
 						
-						-- Put the view back to the left if it isn't already there ( and should be )
-						if view.x <= leftLimit then
-							-- Transition the view back to it's maximum position
-							view._tween = transition.to( view, { time = 400, x = leftLimit, transition = easing.outQuad } )
-						-- Put the view back to the right if it isn't already there ( and should be )
-						elseif view.x >= rightLimit then
-							-- Transition the view back to it's maximum position
-							view._tween = transition.to( view, { time = 400, x = rightLimit, transition = easing.outQuad } )
+							-- Put the view back to the left if it isn't already there ( and should be )
+							if view.x < leftLimit then
+								-- Transition the view back to it's maximum position
+								view._tween = transition.to( view, { time = 400, x = leftLimit, transition = easing.outQuad } )
+							-- Put the view back to the right if it isn't already there ( and should be )
+							elseif view.x > rightLimit then
+								-- Transition the view back to it's maximum position
+								view._tween = transition.to( view, { time = 400, x = rightLimit, transition = easing.outQuad } )
+							end
 						end
 	                end
 				end
@@ -204,17 +208,6 @@ function M._runtime( view, event )
 			-- Hide the scrollBar
 			if view._scrollBar then
 				view._scrollBar:hide()
-			end
-						
-			-- Dispatch a event.direction event
-			if view._listener then
-				local newEvent = 
-				{
-					direction = "right",
-					target = view,
-				}
-			
-				view._listener( newEvent )
 			end
 		end
 		
@@ -321,7 +314,7 @@ function M._runtime( view, event )
 				end
 	
 				-- Top
-				if view.y <= upperLimit then					
+				if view.y < upperLimit then					
 					-- Transition the view back to it's maximum position
 					view._tween = transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
 					
@@ -342,6 +335,7 @@ function M._runtime( view, event )
 						{
 							direction = "up",
 							limitReached = true,
+							phase = event.phase,
 							target = view,
 						}
 						
@@ -349,7 +343,7 @@ function M._runtime( view, event )
 					end
 							
 				-- Bottom
-				elseif view.y >= bottomLimit then
+				elseif view.y > bottomLimit then
 					-- Stop updating the runtime now
 					view._updateRuntime = false
 										
@@ -428,21 +422,11 @@ end
 
 -- Function to create a scrollBar
 function M.createScrollBar( view, options )
-	-- Set up the scrollBar color. - TODO: (change to use 3 slice image)
-	local scrollBarColor = { r = 0, g = 0, b = 0, a = 120 }
-	
-	-- If the user has passed in a color
-	if options.color then
-		scrollBarColor = 
-		{
-			r = options.color[1] or 0,
-			g = options.color[2] or 0,
-			b = options.color[3] or 0,
-			a = options.color[4] or 120,
-		}
-	end
+	local opt = {}
+	local customOptions = options or {}
 	
 	-- Setup the scrollBar's width/height
+	local parentGroup = view.parent.parent
 	local scrollBarWidth = options.width or 5
 	local viewHeight = view._height -- The height of the windows visible area
 	local viewContentHeight = view._scrollHeight -- The height of the total content height
@@ -456,19 +440,50 @@ function M.createScrollBar( view, options )
 		scrollBarHeight = minimumScrollBarHeight
 	end
 	
-	-- Create the scrollBar. - TODO: (change to use 3 slice image)
-	local scrollBar = display.newRoundedRect( display.contentWidth - 8, 0, scrollBarWidth, scrollBarHeight, 2 ) 
+	-- Grab the theme options for the scrollBar
+	local themeOptions = require( "widget" ).theme.scrollBar
+	
+	-- Get the theme sheet file and data
+	opt.themeSheetFile = require( "widget" ).theme.scrollBar.sheet
+	opt.themeData = require( "widget" ).theme.scrollBar.data
+	opt.width = require( "widget" ).theme.scrollBar.width
+	opt.height = require( "widget" ).theme.scrollBar.height
+	
+	-- Grab the frames
+	opt.topFrame = options.topFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topFrame )
+	opt.middleFrame = options.middleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleFrame )
+	opt.bottomFrame = options.bottomFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomFrame )
+	
+	-- Create the scrollBar imageSheet
+	local imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+	
+	-- The scrollBar is a display group
+	local scrollBar = display.newGroup()
+	
+	-- Create the scrollBar frames ( 3 slice )
+	local topFrame = display.newImageRect( scrollBar, imageSheet, opt.topFrame, opt.width, opt.height )
+	local middleFrame = display.newImageRect( scrollBar, imageSheet, opt.middleFrame, opt.width, opt.height )
+	local bottomFrame = display.newImageRect( scrollBar, imageSheet, opt.bottomFrame, opt.width, opt.height )
+	
+	-- Set the middle frame's width
+	middleFrame.height = scrollBarHeight - ( topFrame.contentHeight + bottomFrame.contentHeight )
+	
+	-- Positioning
+	middleFrame.y = topFrame.y + topFrame.contentHeight * 0.5 + middleFrame.contentHeight * 0.5
+	bottomFrame.y = middleFrame.y + middleFrame.contentHeight * 0.5 + bottomFrame.contentHeight * 0.5
+	
+	-- Setup the scrollBar's position and properties
 	scrollBar:setReferencePoint( display.CenterReferencePoint )
+	scrollBar.x = view.parent.x + view._width - scrollBarWidth * 0.5
 	scrollBar.y = ( scrollBar.contentHeight * 0.5 ) + view._top
 	scrollBar._viewHeight = viewHeight
 	scrollBar._viewContentHeight = viewContentHeight
-	scrollBar:setFillColor( unpack( scrollBarColor ) )
 	scrollBar.alpha = 0 -- The scrollBar is invisible initally
 	scrollBar._tween = nil
 	
 	-- Function to reset the scrollBar position
 	function scrollBar:resetInitialPosition()
-		if self.y - self.contentHeight * 0.5 < view._top  then
+		if self.y - self.contentHeight * 0.5 < view._top then
 			self.y = view._top + self.contentHeight * 0.5
 		end
 	end

@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:ac79a779199d174d07e4eab459ca04a9$
+-- $TexturePacker:SmartUpdate:4eec9b066a99ffa7755baf9cdf2a220f$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -16,15 +16,15 @@ SheetInfo.sheet =
     
         {
             -- button_bottomLeft
-            x=293,
-            y=229,
+            x=464,
+            y=145,
             width=5,
             height=5,
 
         },
         {
             -- button_bottomLeftOver
-            x=284,
+            x=328,
             y=229,
             width=5,
             height=5,
@@ -32,7 +32,7 @@ SheetInfo.sheet =
         },
         {
             -- button_bottomMiddle
-            x=275,
+            x=319,
             y=229,
             width=5,
             height=5,
@@ -40,7 +40,7 @@ SheetInfo.sheet =
         },
         {
             -- button_bottomMiddleOver
-            x=266,
+            x=310,
             y=229,
             width=5,
             height=5,
@@ -48,7 +48,7 @@ SheetInfo.sheet =
         },
         {
             -- button_bottomRight
-            x=257,
+            x=301,
             y=229,
             width=5,
             height=5,
@@ -56,7 +56,7 @@ SheetInfo.sheet =
         },
         {
             -- button_bottomRightOver
-            x=248,
+            x=292,
             y=229,
             width=5,
             height=5,
@@ -64,7 +64,7 @@ SheetInfo.sheet =
         },
         {
             -- button_middle
-            x=239,
+            x=283,
             y=229,
             width=5,
             height=5,
@@ -72,7 +72,7 @@ SheetInfo.sheet =
         },
         {
             -- button_middleLeft
-            x=230,
+            x=274,
             y=229,
             width=5,
             height=5,
@@ -80,7 +80,7 @@ SheetInfo.sheet =
         },
         {
             -- button_middleLeftOver
-            x=221,
+            x=265,
             y=229,
             width=5,
             height=5,
@@ -88,7 +88,7 @@ SheetInfo.sheet =
         },
         {
             -- button_middleOver
-            x=212,
+            x=256,
             y=229,
             width=5,
             height=5,
@@ -96,7 +96,7 @@ SheetInfo.sheet =
         },
         {
             -- button_middleRight
-            x=203,
+            x=247,
             y=229,
             width=5,
             height=5,
@@ -104,7 +104,7 @@ SheetInfo.sheet =
         },
         {
             -- button_middleRightOver
-            x=194,
+            x=238,
             y=229,
             width=5,
             height=5,
@@ -112,7 +112,7 @@ SheetInfo.sheet =
         },
         {
             -- button_topLeft
-            x=185,
+            x=229,
             y=229,
             width=5,
             height=5,
@@ -120,7 +120,7 @@ SheetInfo.sheet =
         },
         {
             -- button_topLeftOver
-            x=176,
+            x=220,
             y=229,
             width=5,
             height=5,
@@ -128,7 +128,7 @@ SheetInfo.sheet =
         },
         {
             -- button_topMiddle
-            x=167,
+            x=211,
             y=229,
             width=5,
             height=5,
@@ -136,7 +136,7 @@ SheetInfo.sheet =
         },
         {
             -- button_topMiddleOver
-            x=158,
+            x=202,
             y=229,
             width=5,
             height=5,
@@ -144,7 +144,7 @@ SheetInfo.sheet =
         },
         {
             -- button_topRight
-            x=149,
+            x=193,
             y=229,
             width=5,
             height=5,
@@ -152,8 +152,8 @@ SheetInfo.sheet =
         },
         {
             -- button_topRightOver
-            x=489,
-            y=102,
+            x=184,
+            y=229,
             width=5,
             height=5,
 
@@ -176,15 +176,15 @@ SheetInfo.sheet =
         },
         {
             -- picker_separator
-            x=468,
-            y=69,
+            x=157,
+            y=238,
             width=8,
             height=1,
 
         },
         {
             -- progressView_leftFill
-            x=141,
+            x=51,
             y=229,
             width=4,
             height=12,
@@ -192,7 +192,7 @@ SheetInfo.sheet =
         },
         {
             -- progressView_leftFillBorder
-            x=133,
+            x=43,
             y=229,
             width=4,
             height=12,
@@ -200,7 +200,7 @@ SheetInfo.sheet =
         },
         {
             -- progressView_middleFill
-            x=125,
+            x=35,
             y=229,
             width=4,
             height=12,
@@ -208,7 +208,7 @@ SheetInfo.sheet =
         },
         {
             -- progressView_middleFillBorder
-            x=117,
+            x=27,
             y=229,
             width=4,
             height=12,
@@ -216,7 +216,7 @@ SheetInfo.sheet =
         },
         {
             -- progressView_rightFill
-            x=109,
+            x=19,
             y=229,
             width=4,
             height=12,
@@ -224,23 +224,47 @@ SheetInfo.sheet =
         },
         {
             -- progressView_rightFillBorder
-            x=101,
+            x=11,
             y=229,
             width=4,
             height=12,
 
         },
         {
+            -- scrollBar_bottom
+            x=175,
+            y=229,
+            width=5,
+            height=5,
+
+        },
+        {
+            -- scrollBar_middle
+            x=166,
+            y=229,
+            width=5,
+            height=5,
+
+        },
+        {
+            -- scrollBar_top
+            x=157,
+            y=229,
+            width=5,
+            height=5,
+
+        },
+        {
             -- searchField_leftEdge
-            x=498,
-            y=136,
+            x=424,
+            y=202,
             width=4,
             height=30,
 
         },
         {
             -- searchField_magnifyingGlass
-            x=388,
+            x=393,
             y=218,
             width=24,
             height=24,
@@ -248,15 +272,15 @@ SheetInfo.sheet =
         },
         {
             -- searchField_middle
-            x=498,
-            y=102,
+            x=465,
+            y=111,
             width=4,
             height=30,
 
         },
         {
             -- searchField_remove
-            x=360,
+            x=365,
             y=218,
             width=24,
             height=24,
@@ -264,71 +288,71 @@ SheetInfo.sheet =
         },
         {
             -- searchField_rightEdge
-            x=490,
-            y=148,
+            x=465,
+            y=77,
             width=4,
             height=30,
 
         },
         {
             -- segmentedControl_divider
-            x=419,
-            y=183,
+            x=332,
+            y=3,
             width=1,
             height=27,
 
         },
         {
             -- segmentedControl_left
-            x=490,
-            y=182,
+            x=462,
+            y=212,
             width=11,
             height=29,
 
         },
         {
             -- segmentedControl_leftOn
-            x=475,
-            y=181,
+            x=473,
+            y=179,
             width=11,
             height=29,
 
         },
         {
             -- segmentedControl_middle
-            x=460,
-            y=181,
+            x=447,
+            y=202,
             width=11,
             height=29,
 
         },
         {
             -- segmentedControl_middleOn
-            x=489,
-            y=69,
+            x=432,
+            y=202,
             width=11,
             height=29,
 
         },
         {
             -- segmentedControl_right
-            x=475,
-            y=148,
+            x=458,
+            y=154,
             width=11,
             height=29,
 
         },
         {
             -- segmentedControl_rightOn
-            x=460,
-            y=148,
+            x=491,
+            y=3,
             width=11,
             height=29,
 
         },
         {
             -- slider_bottomFrameVertical
-            x=87,
+            x=143,
             y=229,
             width=10,
             height=10,
@@ -336,7 +360,7 @@ SheetInfo.sheet =
         },
         {
             -- slider_fill
-            x=73,
+            x=129,
             y=229,
             width=10,
             height=10,
@@ -344,7 +368,7 @@ SheetInfo.sheet =
         },
         {
             -- slider_fillVertical
-            x=59,
+            x=115,
             y=229,
             width=10,
             height=10,
@@ -352,7 +376,7 @@ SheetInfo.sheet =
         },
         {
             -- slider_handle
-            x=332,
+            x=337,
             y=218,
             width=24,
             height=24,
@@ -360,7 +384,7 @@ SheetInfo.sheet =
         },
         {
             -- slider_leftFrame
-            x=45,
+            x=101,
             y=229,
             width=10,
             height=10,
@@ -368,15 +392,15 @@ SheetInfo.sheet =
         },
         {
             -- slider_middleFrame
-            x=416,
-            y=218,
+            x=3,
+            y=229,
             width=4,
             height=12,
 
         },
         {
             -- slider_middleFrameVertical
-            x=31,
+            x=87,
             y=229,
             width=10,
             height=10,
@@ -384,7 +408,7 @@ SheetInfo.sheet =
         },
         {
             -- slider_rightFrame
-            x=17,
+            x=73,
             y=229,
             width=10,
             height=10,
@@ -392,7 +416,7 @@ SheetInfo.sheet =
         },
         {
             -- slider_topFrameVertical
-            x=3,
+            x=59,
             y=229,
             width=10,
             height=10,
@@ -400,7 +424,7 @@ SheetInfo.sheet =
         },
         {
             -- spinner_spinner
-            x=424,
+            x=429,
             y=33,
             width=40,
             height=40,
@@ -408,7 +432,7 @@ SheetInfo.sheet =
         },
         {
             -- stepper_minusActive
-            x=332,
+            x=337,
             y=153,
             width=88,
             height=26,
@@ -416,7 +440,7 @@ SheetInfo.sheet =
         },
         {
             -- stepper_noMinus
-            x=332,
+            x=337,
             y=123,
             width=88,
             height=26,
@@ -424,7 +448,7 @@ SheetInfo.sheet =
         },
         {
             -- stepper_noPlus
-            x=332,
+            x=337,
             y=93,
             width=88,
             height=26,
@@ -432,7 +456,7 @@ SheetInfo.sheet =
         },
         {
             -- stepper_nonActive
-            x=332,
+            x=337,
             y=63,
             width=88,
             height=26,
@@ -440,7 +464,7 @@ SheetInfo.sheet =
         },
         {
             -- stepper_plusActive
-            x=332,
+            x=337,
             y=33,
             width=88,
             height=26,
@@ -448,7 +472,7 @@ SheetInfo.sheet =
         },
         {
             -- switch_background
-            x=332,
+            x=337,
             y=3,
             width=150,
             height=26,
@@ -456,23 +480,23 @@ SheetInfo.sheet =
         },
         {
             -- switch_checkboxDefault
-            x=453,
-            y=77,
+            x=473,
+            y=108,
             width=32,
             height=32,
 
         },
         {
             -- switch_checkboxSelected
-            x=424,
-            y=167,
+            x=429,
+            y=77,
             width=32,
             height=32,
 
         },
         {
             -- switch_handle
-            x=460,
+            x=429,
             y=113,
             width=31,
             height=31,
@@ -480,15 +504,15 @@ SheetInfo.sheet =
         },
         {
             -- switch_handleOver
-            x=424,
-            y=203,
+            x=473,
+            y=144,
             width=31,
             height=31,
 
         },
         {
             -- switch_overlay
-            x=332,
+            x=337,
             y=183,
             width=83,
             height=31,
@@ -496,55 +520,55 @@ SheetInfo.sheet =
         },
         {
             -- switch_radioButtonDefault
-            x=468,
-            y=33,
+            x=473,
+            y=72,
             width=32,
             height=32,
 
         },
         {
             -- switch_radioButtonSelected
-            x=424,
-            y=131,
+            x=473,
+            y=36,
             width=32,
             height=32,
 
         },
         {
             -- tabBar_background
-            x=424,
-            y=77,
+            x=429,
+            y=148,
             width=25,
             height=50,
 
         },
         {
             -- tabBar_tabSelectedLeft
-            x=473,
-            y=214,
+            x=491,
+            y=209,
             width=10,
             height=26,
 
         },
         {
             -- tabBar_tabSelectedMiddle
-            x=459,
-            y=214,
+            x=488,
+            y=179,
             width=10,
             height=26,
 
         },
         {
             -- tabBar_tabSelectedRight
-            x=486,
-            y=3,
+            x=477,
+            y=212,
             width=10,
             height=26,
 
         },
     },
     
-    sheetContentWidth = 505,
+    sheetContentWidth = 508,
     sheetContentHeight = 245
 }
 
@@ -578,45 +602,48 @@ SheetInfo.frameIndex =
     ["progressView_middleFillBorder"] = 25,
     ["progressView_rightFill"] = 26,
     ["progressView_rightFillBorder"] = 27,
-    ["searchField_leftEdge"] = 28,
-    ["searchField_magnifyingGlass"] = 29,
-    ["searchField_middle"] = 30,
-    ["searchField_remove"] = 31,
-    ["searchField_rightEdge"] = 32,
-    ["segmentedControl_divider"] = 33,
-    ["segmentedControl_left"] = 34,
-    ["segmentedControl_leftOn"] = 35,
-    ["segmentedControl_middle"] = 36,
-    ["segmentedControl_middleOn"] = 37,
-    ["segmentedControl_right"] = 38,
-    ["segmentedControl_rightOn"] = 39,
-    ["slider_bottomFrameVertical"] = 40,
-    ["slider_fill"] = 41,
-    ["slider_fillVertical"] = 42,
-    ["slider_handle"] = 43,
-    ["slider_leftFrame"] = 44,
-    ["slider_middleFrame"] = 45,
-    ["slider_middleFrameVertical"] = 46,
-    ["slider_rightFrame"] = 47,
-    ["slider_topFrameVertical"] = 48,
-    ["spinner_spinner"] = 49,
-    ["stepper_minusActive"] = 50,
-    ["stepper_noMinus"] = 51,
-    ["stepper_noPlus"] = 52,
-    ["stepper_nonActive"] = 53,
-    ["stepper_plusActive"] = 54,
-    ["switch_background"] = 55,
-    ["switch_checkboxDefault"] = 56,
-    ["switch_checkboxSelected"] = 57,
-    ["switch_handle"] = 58,
-    ["switch_handleOver"] = 59,
-    ["switch_overlay"] = 60,
-    ["switch_radioButtonDefault"] = 61,
-    ["switch_radioButtonSelected"] = 62,
-    ["tabBar_background"] = 63,
-    ["tabBar_tabSelectedLeft"] = 64,
-    ["tabBar_tabSelectedMiddle"] = 65,
-    ["tabBar_tabSelectedRight"] = 66,
+    ["scrollBar_bottom"] = 28,
+    ["scrollBar_middle"] = 29,
+    ["scrollBar_top"] = 30,
+    ["searchField_leftEdge"] = 31,
+    ["searchField_magnifyingGlass"] = 32,
+    ["searchField_middle"] = 33,
+    ["searchField_remove"] = 34,
+    ["searchField_rightEdge"] = 35,
+    ["segmentedControl_divider"] = 36,
+    ["segmentedControl_left"] = 37,
+    ["segmentedControl_leftOn"] = 38,
+    ["segmentedControl_middle"] = 39,
+    ["segmentedControl_middleOn"] = 40,
+    ["segmentedControl_right"] = 41,
+    ["segmentedControl_rightOn"] = 42,
+    ["slider_bottomFrameVertical"] = 43,
+    ["slider_fill"] = 44,
+    ["slider_fillVertical"] = 45,
+    ["slider_handle"] = 46,
+    ["slider_leftFrame"] = 47,
+    ["slider_middleFrame"] = 48,
+    ["slider_middleFrameVertical"] = 49,
+    ["slider_rightFrame"] = 50,
+    ["slider_topFrameVertical"] = 51,
+    ["spinner_spinner"] = 52,
+    ["stepper_minusActive"] = 53,
+    ["stepper_noMinus"] = 54,
+    ["stepper_noPlus"] = 55,
+    ["stepper_nonActive"] = 56,
+    ["stepper_plusActive"] = 57,
+    ["switch_background"] = 58,
+    ["switch_checkboxDefault"] = 59,
+    ["switch_checkboxSelected"] = 60,
+    ["switch_handle"] = 61,
+    ["switch_handleOver"] = 62,
+    ["switch_overlay"] = 63,
+    ["switch_radioButtonDefault"] = 64,
+    ["switch_radioButtonSelected"] = 65,
+    ["tabBar_background"] = 66,
+    ["tabBar_tabSelectedLeft"] = 67,
+    ["tabBar_tabSelectedMiddle"] = 68,
+    ["tabBar_tabSelectedRight"] = 69,
 }
 
 function SheetInfo:getSheet()

@@ -225,7 +225,7 @@ local function createTableView( tableView, options )
 		require( "widget_momentumScrolling" )._touch( self, event )
 
 		-- Execute the listener if one is specified
-		if self._listener then
+		if "function" == type( self._listener ) then
 			self._listener( event )
 		end
 		
@@ -308,17 +308,19 @@ local function createTableView( tableView, options )
 		if self._hasRenderedRows then
 			-- Create the scrollBar
 			if not opt.hideScrollBar then
-				if not self._scrollBar then
-					self._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
-				else
+				if self._scrollBar then
 					display.remove( self._scrollBar )
-					self._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, {} )
+					self._scrollBar = nil
+				else
+					self._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, opt.scrollBarOptions )
 				end
 			end
 			
 			-- If the calculated scrollHeight is less than the height of the tableView, set it to that.
-			if self._scrollHeight < self._height then
-				self._scrollHeight = self._height
+			if "number" == type( self._scrollHeight ) then
+				if self._scrollHeight < self._height then
+					self._scrollHeight = self._height
+				end
 			end
 			
 			self._hasRenderedRows = false
@@ -421,55 +423,58 @@ local function createTableView( tableView, options )
 				
 		-- Loop through the rows and set any off screen ones to invisible, and on screen ones to visible
 		for k, v in pairs( self._rows ) do
+			local currentRow = self._rows[k]
+			
 			-- Is this row on screen?
-			local isRowOnScreen = ( self._rows[k].y + self.y ) + self._rows[k].contentHeight > upperLimit and ( self._rows[k].y + self.y ) - self._rows[k].contentHeight < lowerLimit
+			local isRowOnScreen = ( currentRow.y + self.y ) + currentRow.contentHeight > upperLimit and ( currentRow.y + self.y ) - currentRow.contentHeight < lowerLimit
 			
 			-- If there are any categories
 			if #self._categories > 0 then
 				-- If this row is a category
-				if self._rows[k].isCategory then				
+				if currentRow.isCategory then				
 					-- If a category has gone up to the top threshold.
-					if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight * 0.5 <= upperLimit then						
+					if ( currentRow.y + self.y ) - currentRow.contentHeight * 0.5 <= upperLimit then						
 						-- Insert all category group rows back into the view
 						for i = self._categoryGroup.numChildren, 1, -1 do
 							self:insert( self._categoryGroup[i] )
 						end
 					
 						-- Insert the current category into the category group
-						self._categoryGroup:insert( self._rows[k] )
+						self._categoryGroup:insert( currentRow )
+																		
 						-- Set the category groups reference point
 						self._categoryGroup:setReferencePoint( display.CenterReferencePoint )
 						-- Set the category groups position
-						self._categoryGroup.y = ( self._rows[k].contentHeight * 0.5 ) + self._topPadding
+						self._categoryGroup.y = ( currentRow.contentHeight * 0.5 ) + self._topPadding
 					end
 				
 					-- If the first row isn't past or equal to the top threshold, scroll it
-					if ( self._rows[k].y + self.y ) - self._rows[k].contentHeight > upperLimit - ( self._rows[k].contentHeight * 0.5 ) then
+					if ( currentRow.y + self.y ) - currentRow.contentHeight > upperLimit - ( currentRow.contentHeight * 0.5 ) then
 						-- If we are back to the first category
-						if self._rows[k]._categoryIndex == 1 then
-							self:insert( self._rows[k] )
+						if currentRow._categoryIndex == 1 then
+							self:insert( currentRow )
 						end
 					end
 				end
 			end
-					
+								
 			-- Cull rows that are are currently not within our tableView's visible bounds
 			if not isRowOnScreen then
-				if not self._rows[k].isCategory then
+				if not currentRow.isCategory then
 					-- Set the row to invisible
-					self._rows[k].isVisible = false
+					currentRow.isVisible = false
 				end
 			-- Show rows that are within our tableView's bounds
 			else
 				-- If the row isn't already visible
-				if not self._rows[k].isVisible then
-					self._rows[k].isVisible = true
-				
+				if not currentRow.isVisible then
+					currentRow.isVisible = true
+									
 					-- Create the rowRender event
 					local rowEvent = 
 					{
 						name = "rowUpdate",
-						row = self._rows[k],
+						row = currentRow,
 						target = tableView,
 					}
 				
@@ -697,12 +702,20 @@ function M.new( options )
 	opt.friction = customOptions.friction
 	opt.maxVelocity = customOptions.maxVelocity
 	opt.noLines = customOptions.noLines or false
-	opt.hideScrollBar = true --customOptions.hideScrollBar or false
+	opt.hideScrollBar = customOptions.hideScrollBar or false
 	opt.rowWidth = opt.width
 	opt.rowHeight = customOptions.rowHeight or 40
 	opt.onRowRender = customOptions.onRowRender
 	opt.onRowUpdate = customOptions.onRowUpdate
 	opt.onRowTouch = customOptions.onRowTouch
+	
+	-- ScrollBar options
+	opt.scrollBarOptions =
+	{
+		topFrame = customOptions.topFrame,
+		middleFrame = customOptions.middleFrame,
+		bottomFrame = customOptions.bottomFrame,
+	}
 
 	-------------------------------------------------------
 	-- Create the tableView
