@@ -102,9 +102,10 @@ function scene:createScene( event )
 	-- Handle touches on the row
 	local function onRowTouch( event )
 		local phase = event.phase
-				
+		local row = event.target
+		
 		if "press" == phase then
-				
+				print( row.id )
 		elseif "release" == phase then
 			print( "Touched row:", event.target.index )
 			
