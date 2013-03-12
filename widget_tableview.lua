@@ -594,6 +594,14 @@ local function createTableView( tableView, options )
 	
 	-- Function to delete a row from the tableView
 	function view:_deleteRow( rowIndex )
+		if type( self._rows[rowIndex] ) ~= "table" then
+			print( "WARNING: deleteRow( " .. rowIndex .. " ) - Row does not exist" )
+			return
+		end
+		
+		-- Re calculate the scrollHeight
+		self._scrollHeight = self._scrollHeight - self._rows[rowIndex].height
+		
 		-- Transition out the row in question
 		transition.to( self._rows[rowIndex], { x = - ( self._rows[rowIndex].contentWidth * 0.5 ), transition = easing.inQuad, onComplete = function() self._rows[rowIndex] = nil end } )
 
@@ -603,9 +611,6 @@ local function createTableView( tableView, options )
 				transition.to( self._rows[i], { y = self._rows[i].y - ( self._rows[i]._border.contentHeight ), transition = easing.outQuad } )
 			end
 		end
-		
-		-- Re calculate the scrollHeight
-		self._scrollHeight = self._scrollHeight - self._rows[i].height
 	end
 	
 	-- Function to deleta all rows from the tableView
