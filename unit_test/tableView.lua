@@ -47,7 +47,7 @@ function scene:createScene( event )
 	local TEST_SCROLL_TO_INDEX = false
 	local TEST_DELETE_ALL_ROWS = false
 	local TEST_DELETE_SINGLE_ROW = false
-	local TEST_REMOVE_AND_RECREATE = false
+	local TEST_REMOVE_AND_RECREATE = true
 	local tableView = nil
 	
 	-- Listen for tableView events
@@ -105,15 +105,17 @@ function scene:createScene( event )
 		local row = event.target
 		
 		if "press" == phase then
-				print( row.id )
+			print( row.id )
 		elseif "release" == phase then
 			print( "Touched row:", event.target.index )
 			
 			-- Test removing all rows and re-adding 20 more
 			if TEST_REMOVE_AND_RECREATE then
 				timer.performWithDelay( 500, function()
-					tableView:deleteAllRows()
-				
+					--tableView:deleteAllRows()
+					tableView:deleteRow( 2 )
+					
+					--[[
 					-- Create 100 rows
 					for i = 1, 20 do
 						local isCategory = false
@@ -137,7 +139,7 @@ function scene:createScene( event )
 							rowColor = rowColor,
 							lineColor = lineColor,
 						}
-					end
+					end--]]
 				end)
 			end
 		end
