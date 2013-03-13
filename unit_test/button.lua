@@ -111,7 +111,7 @@ function scene:createScene( event )
 	{
 		sheet = buttonSheet,
 		defaultFrame = 1,
-		overFrame = 2,
+		--overFrame = 2,
 	    id = "Centered Label Button",
 	    left = 60,
 	    top = 200,

@@ -83,7 +83,10 @@ end
 function widget._getFrameIndex( theme, frame )
 	if theme then
 		if theme.data then
-			return require( theme.data ):getFrameIndex( frame )
+			-- Currently we only support texturepacker. Zwoptex hasn't been updated to export to imageSheets so ..
+			if "function" == type( require( theme.data ).getFrameIndex ) then
+				return require( theme.data ):getFrameIndex( frame )
+			end
 		end
 	end
 end
@@ -160,7 +163,13 @@ end
 function widget._isWithinBounds( object, event )
 	local bounds = object.contentBounds
     local x, y = event.x, event.y
-	local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
+	local isWithinBounds = true
+		
+	if "table" == type( bounds ) then
+		if "number" == type( x ) and "number" == type( y ) then
+			isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
+		end
+	end
 	
 	return isWithinBounds
 end
