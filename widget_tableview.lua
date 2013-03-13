@@ -229,6 +229,9 @@ local function createTableView( tableView, options )
 			self._listener( event )
 		end
 		
+		-- Set the view's target row (the row we touched) so we can access it in the enterFrame listener below
+		self._targetRow = event.target
+		
 		-- Handle swipe events on the tableView
 		if "ended" == phase or "cancelled" == phase and math.abs( self._velocity ) < 0.01 then
 			local xStart = event.xStart
@@ -248,6 +251,7 @@ local function createTableView( tableView, options )
 						{
 							phase = "swipeLeft",
 							target = event.target,
+							row = self._targetRow,
 						}
 						if self._onRowTouch then
 							self._onRowTouch( newEvent )
@@ -259,6 +263,7 @@ local function createTableView( tableView, options )
 						{
 							phase = "swipeRight",
 							target = event.target,
+							row = self._targetRow,
 						}
 						if self._onRowTouch then
 							self._onRowTouch( newEvent )
@@ -270,9 +275,6 @@ local function createTableView( tableView, options )
 		
 		-- Set the view's phase so we can access it in the enterFrame listener below
 		self._phase = phase
-		
-		-- Set the view's target row (the row we touched) so we can access it in the enterFrame listener below
-		self._targetRow = event.target
 	
 		-- If the previous phase was a press event, dispatch a release event
 		if "press" == self._newPhase then
