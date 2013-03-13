@@ -117,13 +117,13 @@ local function createHorizontalSlider( slider, options )
 
 	function view:touch( event )
 		local phase = event.phase
-		local _slider = event.parent
+		local _slider = event.target.parent
 		-- Set the target to the handle
 		event.target = self._handle
 	
 		if "began" == phase then
 			-- Did the touch begin on the Handle?
-			local touchBeganOnHandle = event.x >= self._handle.x - ( self._handle.contentWidth * 0.5 ) and event.x <= self._handle.x + ( self._handle.contentWidth * 0.5 )
+			local touchBeganOnHandle = event.x >= _slider.x + self._handle.x - ( self._handle.contentWidth * 0.5 ) and event.x <= _slider.x + self._handle.x + ( self._handle.contentWidth * 0.5 )
 			
 			-- If the touch began on the handle
 			if touchBeganOnHandle then
@@ -314,12 +314,13 @@ local function createVerticalSlider( slider, options )
 
 	function view:touch( event )
 		local phase = event.phase
+		local _slider = event.target.parent
 		-- Set the target to the handle
 		event.target = self._handle
 	
 		if "began" == phase then
 			-- Did the touch begin on the Handle?
-			local touchBeganOnHandle = event.y >= self._handle.y - ( self._handle.contentHeight * 0.5 ) and event.y <= self._handle.y + ( self._handle.contentHeight * 0.5 )
+			local touchBeganOnHandle = event.y >= _slider.y + self._handle.y - ( self._handle.contentHeight * 0.5 ) and event.y <= _slider.y + self._handle.y + ( self._handle.contentHeight * 0.5 )
 			
 			-- If the touch began on the handle
 			if touchBeganOnHandle then
