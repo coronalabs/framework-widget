@@ -47,7 +47,8 @@ function scene:createScene( event )
 	local TEST_SCROLL_TO_INDEX = false
 	local TEST_DELETE_ALL_ROWS = false
 	local TEST_DELETE_SINGLE_ROW = false
-	local TEST_REMOVE_AND_RECREATE = true
+	local TEST_REMOVE_AND_RECREATE = false
+	local TEST_GET_CONTENT_POSITION = false
 	local tableView = nil
 	
 	-- Listen for tableView events
@@ -112,10 +113,8 @@ function scene:createScene( event )
 			-- Test removing all rows and re-adding 20 more
 			if TEST_REMOVE_AND_RECREATE then
 				timer.performWithDelay( 500, function()
-					--tableView:deleteAllRows()
-					tableView:deleteRow( 2 )
+					tableView:deleteAllRows()
 					
-					--[[
 					-- Create 100 rows
 					for i = 1, 20 do
 						local isCategory = false
@@ -139,7 +138,7 @@ function scene:createScene( event )
 							rowColor = rowColor,
 							lineColor = lineColor,
 						}
-					end--]]
+					end
 				end)
 			end
 		end
@@ -158,6 +157,7 @@ function scene:createScene( event )
 		onRowTouch = onRowTouch,
 	}
 	group:insert( tableView )
+
 	
 	-- Create 100 rows
 	for i = 1, 50 do
@@ -191,6 +191,7 @@ function scene:createScene( event )
 		}
 	end
 
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------			
@@ -198,35 +199,37 @@ function scene:createScene( event )
 	-- Test to scroll list to Y position
 	if TEST_SCROLL_TO_Y then
 		testTimer = timer.performWithDelay( 1000, function()
-			list:scrollToY( -3755, 6000 ) -- y = -3755
+			tableView:scrollToY{ y = -300, time = 6000 }
 		end, 1 )
+	end
+	
+	-- Test getting the content position
+	if TEST_GET_CONTENT_POSITION then
+		local function getPosition()
+			print( "tableView content position is: ", tableView:getContentPosition() )
+		end
+		
+		tableView:scrollToY{ y = - 300, time = 600, onComplete = getPosition }
 	end
 	
 	-- Test to scroll list to index
 	if TEST_SCROLL_TO_INDEX then
 		testTimer = timer.performWithDelay( 1000, function()
-			list:scrollToIndex( 68, 6000 )	-- y = -3755
+			tableView:scrollToIndex( 30, 6000 )
 		end, 1 )
 	end
 	
 	-- Test deleting single row
 	if TEST_DELETE_SINGLE_ROW then
 		testTimer = timer.performWithDelay( 1000, function()			
-			list:deleteRow( 5 ) --Delete Row 5
+			tableView:deleteRow( 5 ) --Delete Row 5
 		end, 1 )
 	end
 	
 	-- Test delete all rows
 	if TEST_DELETE_ALL_ROWS then
 		testTimer = timer.performWithDelay( 1000, function()			
-			list:deleteAllRows() --No rows after execution
-		end, 1 )
-	end
-	
-	-- Test deleting a specific row
-	if TEST_DELETE_SINGLE_ROW then
-		testTimer = timer.performWithDelay( 1000, function()			
-			list:deleteRow( 4 )
+			tableView:deleteAllRows() --No rows after execution
 		end, 1 )
 	end
 end

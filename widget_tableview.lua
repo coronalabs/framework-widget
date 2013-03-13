@@ -144,7 +144,7 @@ local function createTableView( tableView, options )
 	
 	-- Function to retrieve the x/y position of the tableView's content
 	function tableView:getContentPosition()
-		return self._view.x, self._view.y
+		return self._view.y
 	end
 
 	----------------------------------------------------------
