@@ -105,10 +105,14 @@ function scene:createScene( event )
 		local phase = event.phase
 		local row = event.target
 		
-		if "press" == phase then
-			print( row.id )
+		if "swipeRight" == phase then
+			print( "Swiped right on row with index: ", row.index )
+		elseif "swipeLeft" == phase then
+			print( "Swiped left on row with id: ", row.id )
+		elseif "press" == phase then
+			print( "Pressed row with id: ", row.id )
 		elseif "release" == phase then
-			print( "Touched row:", event.target.index )
+			print( "Released row with index: ", row.index )
 			
 			-- Test removing all rows and re-adding 20 more
 			if TEST_REMOVE_AND_RECREATE then
