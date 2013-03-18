@@ -40,10 +40,10 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	-- Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_SET_BUTTON_ACTIVE = false
+	local TEST_SET_BUTTON_ACTIVE = true
 	local TEST_IMAGESHEET_TAB_BAR = false
 	local TEST_THEME_TAB_BAR = true
-	
+	local tabBar = nil
 	
 	-- Create the tabBar's buttons
 	local tabButtons = 
@@ -118,7 +118,7 @@ function scene:createScene( event )
 	
 	-- Create a tab bar
 	if TEST_THEME_TAB_BAR then
-		local tabBar = widget.newTabBar
+		tabBar = widget.newTabBar
 		{
 			left = 0,
 			top = display.contentHeight - 52,
@@ -130,7 +130,7 @@ function scene:createScene( event )
 	
 	-- Create a tabBar
 	if TEST_IMAGE_FILE_TAB_BAR then
-		local tabBar = widget.newTabBar
+		tabBar = widget.newTabBar
 		{
 			left = 0,
 			top = display.contentHeight - 52,
@@ -197,7 +197,7 @@ function scene:createScene( event )
 		}
 	
 		-- Create a tabBar
-		local tabBarImageSheet = widget.newTabBar
+		tabBar = widget.newTabBar
 		{
 			left = 0,
 			top = display.contentHeight - 52,
@@ -220,11 +220,7 @@ function scene:createScene( event )
 	
 	if TEST_SET_BUTTON_ACTIVE then
 		testTimer = timer.performWithDelay( 2000, function()
-			if TEST_IMAGESHEET_TAB_BAR then
-				tabBarImageSheet:setTabActive( 4 )
-			else
-				tabBar:setTabActive( 4 )
-			end
+			tabBar:setSelected( 4, true )
 		end, 1 )
 	end
 	
