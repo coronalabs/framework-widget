@@ -156,6 +156,7 @@ function scene:createScene( event )
 		height = 366,
 		maskFile = "assets/mask-320x366.png",
 		--listener = tableViewListener,
+		--isLocked = true,
 		onRowRender = onRowRender,
 		onRowUpdate = onRowUpdate,
 		onRowTouch = onRowTouch,
