@@ -498,22 +498,12 @@ local function createStandardSwitch( switch, options )
 	view.isHitTestable = true
 	view.x = switch.x + ( view.contentWidth * 0.5 )
 	view.y = switch.y + ( view.contentHeight * 0.5 )
+	view._switchType = opt.switchType
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
 	-------------------------------------------------------
-	
-	-- If this switch is a radio button, add it to the set
-	--[[
-	if "radio" == opt.switchType then
-		if opt.radioSet then
-			opt.radioSet[#opt.radioSet + 1] = view
-			view._radioSet = opt.radioSet
-			view._isRadioButton = true
-		end
-	end
-	--]]
-	
+
 	-- Assign properties/methods to the view.
 	view._onPress = opt.onPress
 	view._onRelease = opt.onRelease
@@ -544,21 +534,25 @@ local function createStandardSwitch( switch, options )
 			_switch.isOn = not _switch.isOn
 			
 			-- If this is a radio button
-			--[[
-			if self._isRadioButton then
-				-- Loop through the buttons in this set
-				for k, v in pairs( self._radioSet ) do
-					if self._radioSet[k].id == self.id then
-						-- Turn all the radio buttons off
-						self._radioSet[k]:_setState( { isOn = false } )
+			if "radio" == self._switchType then
+				-- Loop through all objects contained in the switches parent group
+				for i = 1, _switch.parent.numChildren do
+					local child = _switch.parent[i]
+					
+					-- Turn off all radio buttons in this group
+					if "table" == type( child._view ) then
+						if "string" == type( child._view._switchType ) then
+							if "radio" == child._view._switchType then
+								child._view:_setState( { isOn = false } )
+							end
+						end
 					end
 				end
 				
-				-- Turn the selected radio button on
+				-- Set the pressed/selected radio switch to on
 				self:_setState( { isOn = true } )
 			end
-			--]]
-					
+				
 			-- Toggle the displayed sprite sequence
 			if usingSprite then
 				if _switch.isOn then
@@ -682,7 +676,6 @@ function M.new( options, theme )
 	opt.onPress = customOptions.onPress
 	opt.onRelease = customOptions.onRelease
 	opt.onEvent = customOptions.onEvent
-	--opt.radioSet = customOptions.radioSet
 	
 	-- Frames & Images	
 	opt.sheet = customOptions.sheet
@@ -731,7 +724,7 @@ function M.new( options, theme )
 		id = opt.id or "widget_switch",
 		baseDirectory = opt.baseDir,
 	}
-	
+		
 	-- Create the switch based on the given type
  	if "onOff" == opt.switchType then
  		createOnOffSwitch( switch, opt )
