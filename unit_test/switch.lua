@@ -77,6 +77,7 @@ function scene:createScene( event )
 	end
 		
 	
+	local radioGroup = display.newGroup()
 	
 	-- Create a radio switch
 	local radioButton = widget.newSwitch
@@ -86,11 +87,10 @@ function scene:createScene( event )
 		style = "radio",
 		id = "Radio button1",
 		initialSwitchState = true,
-		radioSet = radioGroup,
 		onPress = onRadioPress,
 	}
 	radioButton.x = display.contentCenterX
-	group:insert( radioButton )
+	radioGroup:insert( radioButton )
 	
 	-- Create a radio switch
 	local radioButton2 = widget.newSwitch
@@ -100,13 +100,9 @@ function scene:createScene( event )
 		style = "radio",
 		id = "Radio button2",
 		initialSwitchState = false,
-		radioSet = radioGroup,
 		onPress = onRadioPress,
 	}
-	--radioButton2.x = display.contentCenterX + 80
-	group:insert( radioButton2 )
-	
-	
+	radioGroup:insert( radioButton2 )	
 	
 	-- Create a radio switch
 	local radioButton3 = widget.newSwitch
@@ -116,18 +112,20 @@ function scene:createScene( event )
 		style = "radio",
 		id = "Radio button3",
 		initialSwitchState = false,
-		radioSet = radioGroup,
 		onPress = onRadioPress,
 	}
-	--radioButton2.x = display.contentCenterX + 80
-	group:insert( radioButton3 )
+	radioGroup:insert( radioButton3 )
+	group:insert( radioGroup )
 	
-	
-	
-	
+	--
+	local radioButtonText1 = display.newText( "< Set 1", 0, 0, native.systemFontBold, 18 )
+	radioButtonText1.x = 40 + radioButton.x + radioButtonText1.contentWidth * 0.5
+	radioButtonText1.y = radioButton.y
+	radioButtonText1:setTextColor( 0 )
+	group:insert( radioButtonText1 )
 	
 	---- other
-	local otherRadioGroup = {}
+	local otherRadioGroup = display.newGroup()
 	
 	-- Create a radio switch
 	local radioButtonOther = widget.newSwitch
@@ -137,11 +135,9 @@ function scene:createScene( event )
 		style = "radio",
 		id = "Radio button4",
 		initialSwitchState = false,
-		radioSet = otherRadioGroup,
 		onPress = onRadioPress,
 	}
-	--radioButton2.x = display.contentCenterX + 80
-	group:insert( radioButtonOther )
+	otherRadioGroup:insert( radioButtonOther )
 	
 	-- Create a radio switch
 	local radioButtonOther2 = widget.newSwitch
@@ -151,13 +147,17 @@ function scene:createScene( event )
 		style = "radio",
 		id = "Radio button4",
 		initialSwitchState = false,
-		radioSet = otherRadioGroup,
 		onPress = onRadioPress,
 	}
-	--radioButton2.x = display.contentCenterX + 80
-	group:insert( radioButtonOther2 )
+	otherRadioGroup:insert( radioButtonOther2 )
+	group:insert( otherRadioGroup )
 	
-	
+	--
+	local radioButtonText2 = display.newText( "< Set 2", 0, 0, native.systemFontBold, 18 )
+	radioButtonText2.x = 40 + radioButtonOther2.x + radioButtonText2.contentWidth * 0.5
+	radioButtonText2.y = radioButtonOther2.y
+	radioButtonText2:setTextColor( 0 )
+	group:insert( radioButtonText2 )
 	
 	
 	-- Create a checkbox switch
