@@ -206,8 +206,8 @@ local function initWithImageFiles( tabBar, options )
 	view:addEventListener( "touch" )
 	
 	-- Function to programatically set a tab button as active
-	function tabBar:setSelected( selectedTab )
-		return self._view:_setSelected( selectedTab )
+	function tabBar:setSelected( selectedTab, simulatePress )
+		return self._view:_setSelected( selectedTab, simulatePress )
 	end
 		
 	----------------------------------------------------------
@@ -502,8 +502,8 @@ local function initWithImageSheet( tabBar, options )
 	view:addEventListener( "touch" )
 	
 	-- Function to programatically set a tab button as active
-	function tabBar:setSelected( selectedTab )
-		return self._view:_setSelected( selectedTab )
+	function tabBar:setSelected( selectedTab, simulatePress )
+		return self._view:_setSelected( selectedTab, simulatePress )
 	end
 		
 	----------------------------------------------------------
