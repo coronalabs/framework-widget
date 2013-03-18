@@ -90,6 +90,7 @@ local function createTableView( tableView, options )
 	view._friction = opt.friction or 0.972
 	view._maxVelocity = opt.maxVelocity or 2
 	view._timeHeld = 0
+	view._isLocked = opt.isLocked
 	view._rows = {}
 	view._rowWidth = opt.rowWidth
 	view._rowHeight = opt.rowHeight
@@ -221,9 +222,11 @@ local function createTableView( tableView, options )
 	function view:touch( event )
 		local phase = event.phase 
 		
-		-- Handle momentum scrolling
-		require( "widget_momentumScrolling" )._touch( self, event )
-
+		-- Handle momentum scrolling (if the view isn't locked)
+		if not self._isLocked then
+			require( "widget_momentumScrolling" )._touch( self, event )
+		end
+		
 		-- Execute the listener if one is specified
 		if "function" == type( self._listener ) then
 			self._listener( event )
@@ -314,7 +317,9 @@ local function createTableView( tableView, options )
 					display.remove( self._scrollBar )
 					self._scrollBar = nil
 				else
-					self._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, opt.scrollBarOptions )
+					if not self._isLocked then
+						self._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, opt.scrollBarOptions )
+					end
 				end
 			end
 			
@@ -710,6 +715,7 @@ function M.new( options )
 	opt.maxVelocity = customOptions.maxVelocity
 	opt.noLines = customOptions.noLines or false
 	opt.hideScrollBar = customOptions.hideScrollBar or false
+	opt.isLocked = customOptions.isLocked or false
 	opt.rowWidth = opt.width
 	opt.rowHeight = customOptions.rowHeight or 40
 	opt.onRowRender = customOptions.onRowRender

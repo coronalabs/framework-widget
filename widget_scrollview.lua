@@ -87,6 +87,7 @@ local function createScrollView( scrollView, options )
 	view._friction = opt.friction or 0.972
 	view._maxVelocity = opt.maxVelocity or 2
 	view._timeHeld = 0
+	view._isLocked = opt.isLocked
 	view._scrollWidth = opt.scrollWidth
 	view._scrollHeight = opt.scrollHeight
 	view._trackVelocity = false	
@@ -220,7 +221,9 @@ local function createScrollView( scrollView, options )
 				self._view._scrollBar = nil
 			end
 			
-			self._view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, opt.scrollBarOptions )
+			if not self._view._isLocked then
+				self._view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, opt.scrollBarOptions )
+			end
 		end
 		
 		-- Push scrollBar to the front
@@ -243,8 +246,10 @@ local function createScrollView( scrollView, options )
 		local phase = event.phase 
 		local time = event.time
 						
-		-- Handle momentum scrolling
-		require( "widget_momentumScrolling" )._touch( self, event )
+		-- Handle momentum scrolling (and the view isn't locked)
+		if not self._isLocked then
+			require( "widget_momentumScrolling" )._touch( self, event )
+		end
 		
 		-- Execute the listener if one is specified
 		if self._listener then
@@ -367,6 +372,12 @@ function M.new( options )
 	opt.scrollWidth = customOptions.scrollWidth or opt.width
 	opt.scrollHeight = customOptions.scrollHeight or opt.height
 	opt.hideScrollBar = customOptions.hideScrollBar or false
+	opt.isLocked = customOptions.isLocked or false
+	
+	-- Set the scrollView to locked if both horizontal and vertical scrolling are disabled
+	if opt.isHorizontalScrollingDisabled and opt.isVerticalScrollingDisabled then
+		opt.isLocked = true
+	end
 	
 	-- Ensure scroll width/height values are at a minimum, equal to the scroll window width/height
 	if opt.scrollHeight then

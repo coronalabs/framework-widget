@@ -12,6 +12,82 @@
 
 local M = {}
 
+-- Function to set the view's limits
+local function setLimits( self, view )
+	-- Set the bottom limit
+	self.bottomLimit = view._topPadding
+	
+	-- Set the upper limit
+	if view._scrollHeight then
+		self.upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
+	else
+		self.upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
+	end
+	
+	-- Set the right limit
+	self.rightLimit = view._leftPadding
+
+	-- Set the left limit
+	if view._scrollWidth then
+		self.leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
+	else
+		self.leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 ) - view._rightPadding
+	end	
+end
+
+-- Function to handle vertical "snap back" on the view
+local function handleSnapBackVertical( self, view )
+	local limitHit = "none"
+	
+	-- Snap back vertically
+	if not view._isVerticalScrollingDisabled then
+		-- Put the view back to the top if it isn't already there ( and should be )
+		if view.y > self.bottomLimit then
+			-- Set the hit limit
+			limitHit = "bottom"
+			
+			-- Transition the view back to it's maximum position
+			view._tween = transition.to( view, { time = 400, y = self.bottomLimit, transition = easing.outQuad } )						
+	
+		-- Put the view back to the bottom if it isn't already there ( and should be )
+		elseif view.y < self.upperLimit then		
+			-- Set the hit limit
+			limitHit = "top"
+						
+			-- Transition the view back to it's maximum position
+			view._tween = transition.to( view, { time = 400, y = self.upperLimit, transition = easing.outQuad } )
+		end
+	end
+	
+	return limitHit
+end
+	
+-- Function to handle horizontal "snap back" on the view
+local function handleSnapBackHorizontal( self, view )
+	local limitHit = "none"
+	
+	-- Snap back horizontally
+	if not view._isHorizontalScrollingDisabled then
+		-- Put the view back to the left if it isn't already there ( and should be )
+		if view.x < self.leftLimit then
+			-- Set the hit limit
+			limitHit = "left"
+			
+			-- Transition the view back to it's maximum position
+			view._tween = transition.to( view, { time = 400, x = self.leftLimit, transition = easing.outQuad } )
+		-- Put the view back to the right if it isn't already there ( and should be )
+		elseif view.x > self.rightLimit then
+			-- Set the hit limit
+			limitHit = "right"
+			
+			-- Transition the view back to it's maximum position
+			view._tween = transition.to( view, { time = 400, x = self.rightLimit, transition = easing.outQuad } )
+		end
+	end
+	
+	return limitHit
+end
+
 -- Handle momentum scrolling touch
 function M._touch( view, event )
 	local phase = event.phase
@@ -32,6 +108,9 @@ function M._touch( view, event )
 		view._trackVelocity = true
 		view._updateRuntime = false
 		view._timeHeld = time
+		
+		-- Set the limits now
+		setLimits( M, view )
 		
 		-- Cancel any active tween on the view
 		if view._tween then
@@ -65,54 +144,14 @@ function M._touch( view, event )
 						-- The move was horizontal
 	                    view._moveDirection = "horizontal"
 
-						if not view._isVerticalScrollingDisabled then
-							local bottomLimit = view._topPadding
-							local upperLimit = nil
-
-							-- Set the upper limit
-							if view._scrollHeight then
-								upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
-							else
-								upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
-							end
-						
-							-- Put the view back to the top if it isn't already there ( and should be )
-							if view.y > bottomLimit then
-								-- Transition the view back to it's maximum position
-								view._tween = transition.to( view, { time = 400, y = bottomLimit, transition = easing.outQuad } )						
-						
-							-- Put the view back to the bottom if it isn't already there ( and should be )
-							elseif view.y < upperLimit then					
-								-- Transition the view back to it's maximum position
-								view._tween = transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
-							end
-						end
+						-- Handle vertical snap back
+						handleSnapBackVertical( M, view )
 	                else
 						-- The move was vertical
 	                    view._moveDirection = "vertical"
 	
-						if not view._isHorizontalScrollingDisabled then
-							-- Set the right limit
-							local rightLimit = view._leftPadding
-							local leftLimit = nil
-
-							-- Set the left limit
-							if view._scrollWidth then
-								leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
-							else
-								leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 ) - view._rightPadding
-							end
-						
-							-- Put the view back to the left if it isn't already there ( and should be )
-							if view.x < leftLimit then
-								-- Transition the view back to it's maximum position
-								view._tween = transition.to( view, { time = 400, x = leftLimit, transition = easing.outQuad } )
-							-- Put the view back to the right if it isn't already there ( and should be )
-							elseif view.x > rightLimit then
-								-- Transition the view back to it's maximum position
-								view._tween = transition.to( view, { time = 400, x = rightLimit, transition = easing.outQuad } )
-							end
-						end
+						-- Handle horizontal snap back
+						handleSnapBackHorizontal( M, view )
 	                end
 				end
 			end
@@ -124,19 +163,8 @@ function M._touch( view, event )
 					view._delta = event.x - view._prevXPos
 					view._prevXPos = event.x
 				
-					-- Limit movement
-					local leftLimit = nil
-					local rightLimit = 0
-					
-					-- Set the left limit
-					if view._scrollWidth then
-						leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
-					else
-						leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 )
-					end
-		
 					-- If the view is more than the limits
-					if view.x < leftLimit or view.x > rightLimit then
+					if view.x < M.leftLimit or view.x > M.rightLimit then
 						view.x = view.x + ( view._delta * 0.5 )
 					else
 						view.x = view.x + view._delta
@@ -149,20 +177,9 @@ function M._touch( view, event )
 				if not view._isVerticalScrollingDisabled then
 					view._delta = event.y - view._prevYPos
 					view._prevYPos = event.y
-							
-					-- Limit movement
-					local upperLimit = nil
-					local bottomLimit = view._topPadding
-
-					-- Set the upper limit
-					if view._scrollHeight then
-						upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
-					else
-						upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
-					end
 					
 					-- If the view is more than the limits
-					if view.y < upperLimit or view.y > bottomLimit then
+					if view.y < M.upperLimit or view.y > M.bottomLimit then
 						view.y = view.y + ( view._delta * 0.5 )
 					else
 						view.y = view.y + view._delta  
@@ -232,22 +249,11 @@ function M._runtime( view, event )
 				-- Move the view
 				view.x = view.x + view._velocity * timePassed
 			
-				-- Set the right limit
-				local rightLimit = view._leftPadding
-				local leftLimit = nil
-				
-				-- Set the left limit
-				if view._scrollWidth then
-					leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
-				else
-					leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 ) - view._rightPadding
-				end
+				-- Handle limits
+				local limit = handleSnapBackHorizontal( M, view )
 			
 				-- Left
-				if view.x < leftLimit then
-					-- Transition the view back to it's maximum position
-					view._tween = transition.to( view, { time = 400, x = leftLimit, transition = easing.outQuad } )
-					
+				if "left" == limit then					
 					-- Stop updating the runtime now
 					view._updateRuntime = false
 					
@@ -267,10 +273,7 @@ function M._runtime( view, event )
 					end
 			
 				-- Right
-				elseif view.x > rightLimit then
-					-- Transition the view back to it's maximum position
-					view._tween = transition.to( view, { time = 400, x = rightLimit, transition = easing.outQuad } )
-					
+				elseif "right" == limit then					
 					-- Stop updating the runtime now
 					view._updateRuntime = false
 					
@@ -302,22 +305,11 @@ function M._runtime( view, event )
 				-- Move the view
 				view.y = view.y + view._velocity * timePassed
 	
-				-- Set the bottom limit
-				local bottomLimit = view._topPadding
-				local upperLimit = nil
-				
-				-- Set the upper limit
-				if view._scrollHeight then
-					upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
-				else
-					upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
-				end
+				-- Handle limits
+				local limit = handleSnapBackVertical( M, view )
 	
 				-- Top
-				if view.y < upperLimit then					
-					-- Transition the view back to it's maximum position
-					view._tween = transition.to( view, { time = 400, y = upperLimit, transition = easing.outQuad } )
-					
+				if "top" == limit then					
 					-- Hide the scrollBar
 					if view._scrollBar then
 						view._scrollBar:hide()
@@ -343,13 +335,7 @@ function M._runtime( view, event )
 					end
 							
 				-- Bottom
-				elseif view.y > bottomLimit then
-					-- Stop updating the runtime now
-					view._updateRuntime = false
-										
-					-- Transition the view back to it's maximum position
-					view._tween = transition.to( view, { time = 400, y = bottomLimit, transition = easing.outQuad } )					
-					
+				elseif "bottom" == limit then				
 					-- Hide the scrollBar
 					if view._scrollBar then
 						view._scrollBar:hide()
@@ -407,8 +393,8 @@ function M._runtime( view, event )
 			if not view._isVerticalScrollingDisabled then
 				if view._prevY then
 					local possibleVelocity = ( view.y - view._prevY ) / newTimePassed
-
-                    if possibleVelocity ~= 0 then
+                    
+					if possibleVelocity ~= 0 then
                         view._velocity = possibleVelocity
                     end
 				end

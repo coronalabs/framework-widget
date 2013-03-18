@@ -50,7 +50,7 @@ function scene:createScene( event )
 	local TEST_SCROLL_TO_LEFT = false
 	local TEST_SCROLL_TO_RIGHT = false
 	local TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER = false
-		
+	
 	-- Our ScrollView listener
 	local function scrollListener( event )
 		local phase = event.phase
@@ -94,6 +94,7 @@ function scene:createScene( event )
 		--leftPadding = 40,
 		--rightPadding = 80,
 		--hideBackground = true,
+		--isLocked = true,
 		horizontalScrollDisabled = false,
 		verticalScrollDisabled = false,
 		maskFile = "assets/scrollViewMask-350.png",
