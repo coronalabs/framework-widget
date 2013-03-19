@@ -12,6 +12,9 @@
 
 local M = {}
 
+-- Localize math functions
+local mAbs = math.abs
+
 -- Function to set the view's limits
 local function setLimits( self, view )
 	-- Set the bottom limit
@@ -88,6 +91,7 @@ local function handleSnapBackHorizontal( self, view )
 	return limitHit
 end
 
+
 -- Handle momentum scrolling touch
 function M._touch( view, event )
 	local phase = event.phase
@@ -107,8 +111,7 @@ function M._touch( view, event )
 		view._moveDirection = nil
 		view._trackVelocity = true
 		view._updateRuntime = false
-		view._timeHeld = time
-		
+
 		-- Set the limits now
 		setLimits( M, view )
 		
@@ -135,24 +138,30 @@ function M._touch( view, event )
 		if "moved" == phase then
 			-- Set the move direction		
 			if not view._moveDirection then
-		        local dx = math.abs( event.x - event.xStart )
-	            local dy = math.abs( event.y - event.yStart )
+		        local dx = mAbs( event.x - event.xStart )
+	            local dy = mAbs( event.y - event.yStart )
 	            local moveThresh = 12
 				
 	            if dx > moveThresh or dy > moveThresh then
 	                if dx > dy then
-						-- The move was horizontal
-	                    view._moveDirection = "horizontal"
-
-						-- Handle vertical snap back
-						handleSnapBackVertical( M, view )
+						-- If horizontal scrolling is enabled
+						if not view._isHorizontalScrollingDisabled then
+							-- The move was horizontal
+	                    	view._moveDirection = "horizontal"
+						
+							-- Handle vertical snap back
+							handleSnapBackVertical( M, view )						
+						end
 	                else
-						-- The move was vertical
-	                    view._moveDirection = "vertical"
+						-- If vertical scrolling is enabled
+						if not view._isVerticalScrollingDisabled then
+							-- The move was vertical
+		                    view._moveDirection = "vertical"
 	
-						-- Handle horizontal snap back
-						handleSnapBackHorizontal( M, view )
-	                end
+							-- Handle horizontal snap back
+							handleSnapBackHorizontal( M, view )						
+	                	end
+					end
 				end
 			end
 			
@@ -177,7 +186,7 @@ function M._touch( view, event )
 				if not view._isVerticalScrollingDisabled then
 					view._delta = event.y - view._prevYPos
 					view._prevYPos = event.y
-					
+
 					-- If the view is more than the limits
 					if view.y < M.upperLimit or view.y > M.bottomLimit then
 						view.y = view.y + ( view._delta * 0.5 )
@@ -186,12 +195,13 @@ function M._touch( view, event )
 					end
 					
 					-- Set the time held
-					view._timeHeld = time
+					--view._timeHeld = time
 				
 					-- Move the scrollBar
 					if view._scrollBar then						
 						view._scrollBar:move()
 					end
+					
 				end
 			end
 			
@@ -218,7 +228,7 @@ function M._runtime( view, event )
 		view._lastTime = view._lastTime + timePassed
 		
 		-- Stop scrolling if velocity is near zero
-		if math.abs( view._velocity ) < 0.01 then
+		if mAbs( view._velocity ) < 0.01 then
 			view._velocity = 0
 			view._updateRuntime = false
 			
@@ -373,22 +383,24 @@ function M._runtime( view, event )
 		-- Calculate the time passed
 		local newTimePassed = event.time - view._prevTime
 		view._prevTime = view._prevTime + newTimePassed
-		
+
 		-- Horizontal movement
 		if "horizontal" == view._moveDirection then
 			-- If horizontal scrolling is enabled
 			if not view._isHorizontalScrollingDisabled then
-				local possibleVelocity = ( view.x - view._prevX ) / newTimePassed
+				if view._prevX then
+					local possibleVelocity = ( view.x - view._prevX ) / newTimePassed
 
-                if possibleVelocity ~= 0 then
-                    view._velocity = possibleVelocity
-                end
+	                if possibleVelocity ~= 0 then
+	                    view._velocity = possibleVelocity
+	                end
+				end
 		
 				view._prevX = view.x
 			end
 		
 		-- Vertical movement
-		else
+		elseif "vertical" == view._moveDirection then
 			-- If vertical scrolling is enabled
 			if not view._isVerticalScrollingDisabled then
 				if view._prevY then

@@ -15,6 +15,9 @@ local M =
 	_widgetName = "widget.newtableView",
 }
 
+-- Localize math functions
+local mAbs = math.abs
+
 -- Creates a new tableView
 local function createTableView( tableView, options )
 	-- Create a local reference to our options table
@@ -220,13 +223,43 @@ local function createTableView( tableView, options )
 
 	-- Handle touches on the tableView
 	function view:touch( event )
-		local phase = event.phase 
+		local phase = event.phase
+		
+		-- Set the time held
+		if "began" == phase then
+			self._timeHeld = event.time
+			
+			-- Set the initial touch
+			if not self._initalTouch then
+				self._initialTouch = true
+			end
+		end	
+		
+		-- Distance moved
+        local dy = mAbs( event.y - event.yStart )
+		local moveThresh = 20
+		
+		-- If the finger has moved less than the desired range, set the phase back to began
+        if "moved" == phase then
+	  		if dy < moveThresh and self._initialTouch then
+				if event.phase ~= "ended" and event.phase ~= "cancelled" then
+					event.phase = "began"
+				end
+			else
+				-- This wasn't the initial touch
+				self._initialTouch = false
+			end
+		end
+		
+		
+		-- Set the view's phase so we can access it in the enterFrame listener below
+		self._phase = event.phase
 		
 		-- Handle momentum scrolling (if the view isn't locked)
 		if not self._isLocked then
 			require( "widget_momentumScrolling" )._touch( self, event )
 		end
-		
+				
 		-- Execute the listener if one is specified
 		if "function" == type( self._listener ) then
 			self._listener( event )
@@ -236,51 +269,53 @@ local function createTableView( tableView, options )
 		self._targetRow = event.target
 		
 		-- Handle swipe events on the tableView
-		if "ended" == phase or "cancelled" == phase and math.abs( self._velocity ) < 0.01 then
-			local xStart = event.xStart
-			local xEnd = event.x
-			local yStart = event.yStart
-			local yEnd = event.y
-			local minSwipeDistance = 50
+		if "ended" == phase or "cancelled" == phase then
+			-- This wasn't the initial touch
+			self._initialTouch = false
+			
+	 		if mAbs( self._velocity ) < 0.01 then
+				local xStart = event.xStart
+				local xEnd = event.x
+				local yStart = event.yStart
+				local yEnd = event.y
+				local minSwipeDistance = 50
 
-			local xDistance = math.abs( xEnd - xStart )
-            local yDistance = math.abs( yEnd - yStart )
+				local xDistance = mAbs( xEnd - xStart )
+	            local yDistance = mAbs( yEnd - yStart )
 
-			-- Horizontal Swipes
-			if xDistance > yDistance then
-				if xStart > xEnd then
-					if ( xStart - xEnd ) > minSwipeDistance then
-						local newEvent =
-						{
-							phase = "swipeLeft",
-							target = event.target,
-							row = self._targetRow,
-						}
-						if self._onRowTouch then
-							self._onRowTouch( newEvent )
+				-- Horizontal Swipes
+				if xDistance > yDistance then
+					if xStart > xEnd then
+						if ( xStart - xEnd ) > minSwipeDistance then
+							local newEvent =
+							{
+								phase = "swipeLeft",
+								target = event.target,
+								row = self._targetRow,
+							}
+							if self._onRowTouch then
+								self._onRowTouch( newEvent )
+							end
 						end
-					end
-				else
-					if ( xEnd - xStart ) > minSwipeDistance then
-						local newEvent =
-						{
-							phase = "swipeRight",
-							target = event.target,
-							row = self._targetRow,
-						}
-						if self._onRowTouch then
-							self._onRowTouch( newEvent )
+					else
+						if ( xEnd - xStart ) > minSwipeDistance then
+							local newEvent =
+							{
+								phase = "swipeRight",
+								target = event.target,
+								row = self._targetRow,
+							}
+							if self._onRowTouch then
+								self._onRowTouch( newEvent )
+							end
 						end
 					end
 				end
 			end
 		end
-		
-		-- Set the view's phase so we can access it in the enterFrame listener below
-		self._phase = phase
-	
+			
 		-- If the previous phase was a press event, dispatch a release event
-		if "press" == self._newPhase then
+		if "press" == self._newPhase and not self._initialTouch then
 			if self._onRowTouch then
 				local newEvent =
 				{
@@ -297,6 +332,12 @@ local function createTableView( tableView, options )
 				
 				-- Set the phase to none
 				self._newPhase = "none"
+				
+				-- This wasn't the initial touch
+				self._initialTouch = false
+				
+				-- This row was touched
+				self._targetRow._wasTouched = false
 			end
 		end
 			
@@ -338,14 +379,14 @@ local function createTableView( tableView, options )
 		
 		-- Calculate the time the touch was held
 		local timeHeld = event.time - self._timeHeld
-		
+				
 		-- Dispatch the "press" phase
-		if "began" == self._phase then
+		if "began" == self._phase and self._initialTouch and not self._targetRow._wasTouched then
 			-- Reset any velocity
 			self._velocity = 0
 			
 			-- If a finger was held down
-			if timeHeld >= 110 then
+			if timeHeld >= 110 then				
 				-- If there is a onRowTouch listener
 				if self._onRowTouch then
 					-- If the row isn't a category
@@ -357,17 +398,19 @@ local function createTableView( tableView, options )
 							target = self._targetRow,
 							row = self._targetRow,
 						}
-					
+				
 						-- Set the row's border fill color
 						self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor.over ) )
-					
+				
 						-- Execute the row's onRowTouch listener
 						self._onRowTouch( newEvent )
+						
+						self._targetRow._wasTouched = true							
 					end
 				
 					-- Set the phase to nil
 					self._phase = nil
-					
+									
 					-- Reset the time held
 					timeHeld = 0
 				end
