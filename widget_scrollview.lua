@@ -15,6 +15,9 @@ local M =
 	_widgetName = "widget.newScrollView",
 }
 
+-- Localize math functions
+local mAbs = math.abs
+
 -- Creates a new scrollView
 local function createScrollView( scrollView, options )
 	-- Create a local reference to our options table
@@ -244,7 +247,23 @@ local function createScrollView( scrollView, options )
 	-- Handle touches on the scrollview
 	function view:touch( event )
 		local phase = event.phase 
-		local time = event.time
+		local time = event.time	
+		
+		-- Set the time held
+		if "began" == phase then
+			self._timeHeld = event.time
+		end	
+		
+		-- Distance moved
+        local dy = mAbs( event.y - event.yStart )
+		local moveThresh = 20
+
+		-- If the finger has moved less than the desired range, set the phase back to began
+		if dy < moveThresh then
+			if phase ~= "ended" and phase ~= "cancelled" then
+				event.phase = "began"
+			end
+		end
 						
 		-- Handle momentum scrolling (and the view isn't locked)
 		if not self._isLocked then
@@ -257,7 +276,7 @@ local function createScrollView( scrollView, options )
 		end
 				
 		-- Set the view's phase so we can access it in the enterFrame listener below
-		self._phase = phase
+		self._phase = event.phase
 		
 		-- Set the view's target object (the object we touched) so we can access it in the enterFrame listener below
 		self._target = event.target
@@ -279,7 +298,7 @@ local function createScrollView( scrollView, options )
 		local timeHeld = event.time - self._timeHeld
 			
 		-- Fire a touch event to a object inside a scrollview.
-		if "began" == self._phase then
+		if "began" == self._phase then			
 			if not self._target._isActive then
 				-- If a finger is held
 				if timeHeld > 60 then
