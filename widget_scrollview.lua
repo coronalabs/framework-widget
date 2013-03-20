@@ -256,12 +256,15 @@ local function createScrollView( scrollView, options )
 		
 		-- Distance moved
         local dy = mAbs( event.y - event.yStart )
+		local dx = mAbs( event.x - event.xStart )
 		local moveThresh = 20
 
-		-- If the finger has moved less than the desired range, set the phase back to began
+		-- If the finger has moved less than the desired range, set the phase back to began		
 		if dy < moveThresh then
-			if phase ~= "ended" and phase ~= "cancelled" then
-				event.phase = "began"
+			if dx < moveThresh then
+				if phase ~= "ended" and phase ~= "cancelled" then
+					event.phase = "began"
+				end
 			end
 		end
 						
