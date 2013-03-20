@@ -693,7 +693,15 @@ local function createTableView( tableView, options )
 	function view:_scrollToIndex( rowIndex, time )
 		local scrollTime = time or 400
 		
+		if self._lastRowIndex == rowIndex then
+			return
+		end
+			
+		-- Transition the view to the row index	
 		transition.to( self, { y = self.y - self._rows[rowIndex].y + ( self._rows[rowIndex].contentHeight * 0.5 ), time = scrollTime, transition = easing.outQuad } )
+
+		-- Update the last row index
+		self._lastRowIndex = rowIndex
 	end
 	
 	-- Function to scroll to a specific y position
