@@ -61,6 +61,12 @@ function scene:createScene( event )
 						
 			-- Reset the label
 			target:setLabel( target.oldLabel )
+			
+		elseif "cancelled" == phase then
+			print( target.id .. " cancelled" )
+						
+			-- Reset the label
+			target:setLabel( target.oldLabel )
     	end
     	
     	return true

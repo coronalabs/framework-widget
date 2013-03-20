@@ -217,9 +217,11 @@ local function createUsingImageFiles( button, options )
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
 		if self._onEvent and not self._onPress and not self._onRelease then			
-			if require( "widget" )._isWithinBounds( self, event ) then
-				self._onEvent( event )
+			if not require( "widget" )._isWithinBounds( self, event ) and "ended" == phase then
+				event.phase = "cancelled"
 			end
+			
+			self._onEvent( event )
 		end
 		
 		return true
@@ -490,9 +492,11 @@ local function createUsingImageSheet( button, options )
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
 		if self._onEvent and not self._onPress and not self._onRelease then
-			if require( "widget" )._isWithinBounds( self, event ) then
-				self._onEvent( event )
+			if not require( "widget" )._isWithinBounds( self, event ) and "ended" == phase then
+				event.phase = "cancelled"
 			end
+			
+			self._onEvent( event )
 		end
 		
 		return true
@@ -986,9 +990,11 @@ local function createUsing9Slice( button, options )
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
 		if self._onEvent and not self._onPress and not self._onRelease then
-			if require( "widget" )._isWithinBounds( self, event ) then
-				self._onEvent( event )
+			if not require( "widget" )._isWithinBounds( self, event ) and "ended" == phase then
+				event.phase = "cancelled"
 			end
+			
+			self._onEvent( event )
 		end
 		
 		return true
@@ -1206,7 +1212,7 @@ function M.new( options, theme )
 	end
 	
 	-- Are we using a 2 frame button?
-	local using2FrameButton = not using9PieceButton and opt.defaultFrame and opt.overFrame
+	local using2FrameButton = not using9PieceButton and opt.defaultFrame
 	
 	-- If we are using a 2 frame button and have not passed in an imageSheet, throw an error
 	if using2FrameButton and not opt.sheet then
@@ -1232,7 +1238,7 @@ function M.new( options, theme )
 	if "boolean" == type( customOptions.emboss ) then
 		opt.embossedLabel = customOptions.emboss
 	end
-	
+		
 	--[[
 	Notes: 
 		*) A 9-piece/slice button is favored over a 2 frame button.
@@ -1250,7 +1256,7 @@ function M.new( options, theme )
 		opt.defaultFile = nil
 		opt.overFile = nil
 	end
-
+	
 	-------------------------------------------------------
 	-- Create the button
 	-------------------------------------------------------
