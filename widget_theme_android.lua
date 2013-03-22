@@ -41,7 +41,7 @@ theme.button =
 	
 	width = 180, 
 	height = 50,
-	font = "Helvetica-Bold" or native.systemFontBold,
+	font = native.systemFontBold,
 	fontSize = 20,
 	labelColor = 
 	{ 
