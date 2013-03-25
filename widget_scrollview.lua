@@ -24,10 +24,12 @@ local function createScrollView( scrollView, options )
 	local opt = options
 		
 	-- Forward references
-	local view, viewBackground, viewMask
+	local view, viewFixed, viewBackground, viewMask
 	
 	-- Create the view
 	view = display.newGroup()
+	
+	viewFixed = display.newGroup()
 		
 	-- Create the view's background
 	viewBackground = display.newRect( scrollView, 0, 0, opt.width, opt.height )
@@ -56,6 +58,9 @@ local function createScrollView( scrollView, options )
 	
 	-- Set the view's initial position ( to account for top padding )
 	view.y = view.y + opt.topPadding
+	
+	-- Set the platform
+	view._isPlatformAndroid = "Android" == system.getInfo( "platformName" )
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -99,10 +104,14 @@ local function createScrollView( scrollView, options )
 	-------------------------------------------------------
 	-- Assign properties/objects to the scrollView
 	-------------------------------------------------------
-		
+
+	-- Assign objects to the view
+	view._fixedGroup = viewFixed
+
 	-- Assign objects to the scrollView
 	scrollView._view = view	
 	scrollView:insert( view )
+	scrollView:insert( viewFixed )
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -194,21 +203,44 @@ local function createScrollView( scrollView, options )
             self._view:insert( obj )
         end
 
-		-- Update the scrollWidth
-		self._view._scrollWidth = self._view.width
+		local function updateScrollAreaSize()
+			-- Update the scroll content area size (NOTE: Seems to need a 1ms delay for the group to reflect it's new content size? ) odd ...
+			timer.performWithDelay( 1, function()
+				-- Update the scrollWidth
+				self._view._scrollWidth = self._view.width
+
+				-- Update the scrollHeight
+				self._view._scrollHeight = self._view.height
+				
+				-- Override the scroll height if it is less than the height of the window
+				if "number" == type( self._view._scrollHeight ) and "number" == type( self._view._height ) then
+					if self._view._scrollHeight < self._view._height then
+						self._view._scrollHeight = self._view._height
+					end
+				end
+
+				-- Override the scroll width if it is less than the width of the window
+				if "number" == type( self._view._scrollWidth ) and "number" == type( self._view._width ) then
+					if self._view._scrollWidth < self._view._width then
+						self._view._scrollWidth = self._view._width
+					end
+				end
+			end)
+		end
+
+		-- Override the removeself method for this object (so we can recalculate the content size after it is removed)
+		obj._cachedRemoveSelf = obj.removeSelf
+		
+		function obj:removeSelf()
+			obj._cachedRemoveSelf( obj )
+			obj = nil
 			
-		-- Update the scrollHeight
-		self._view._scrollHeight = self._view.height
-		
-		-- Override the scroll height if it is less than the height of the window
-		if self._view._scrollHeight < self._view._height then
-			self._view._scrollHeight = self._view._height
+			-- Update the scroll area size
+			updateScrollAreaSize()
 		end
-		
-		-- Override the scroll width if it is less than the width of the window
-		if self._view._scrollWidth < self._view._width then
-			self._view._scrollWidth = self._view._width
-		end
+
+		-- Update the scroll area size
+		updateScrollAreaSize()
 
 		-- If the inserted object is a button, set it as inserted and add a touch listener to it 
 		if "button" == obj._widgetType then
@@ -225,14 +257,18 @@ local function createScrollView( scrollView, options )
 			end
 			
 			if not self._view._isLocked then
-				self._view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, opt.scrollBarOptions )
+				-- Need a delay here also..
+				timer.performWithDelay( 2, function()
+					--[[
+					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
+					--]]
+															
+					if not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
+						self._view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( self._view, opt.scrollBarOptions )
+					end
+				end)
 			end
-		end
-		
-		-- Push scrollBar to the front
-		if self._view._scrollBar then
-			self._view._scrollBar:toFront()
-		end		
+		end	
     end
 
 	-- Transfer touch from the view's background to the view's content
@@ -254,16 +290,19 @@ local function createScrollView( scrollView, options )
 			self._timeHeld = event.time
 		end	
 		
-		-- Distance moved
-        local dy = mAbs( event.y - event.yStart )
-		local dx = mAbs( event.x - event.xStart )
-		local moveThresh = 20
+		-- Android fix for objects inserted into scrollView's
+		if self._isPlatformAndroid then
+			-- Distance moved
+	        local dy = mAbs( event.y - event.yStart )
+			local dx = mAbs( event.x - event.xStart )
+			local moveThresh = 20
 
-		-- If the finger has moved less than the desired range, set the phase back to began		
-		if dy < moveThresh then
-			if dx < moveThresh then
-				if phase ~= "ended" and phase ~= "cancelled" then
-					event.phase = "began"
+			-- If the finger has moved less than the desired range, set the phase back to began	(Android only fix, iOS doesn't exhibit this touch behavior..)
+			if dy < moveThresh then
+				if dx < moveThresh then
+					if phase ~= "ended" and phase ~= "cancelled" then
+						event.phase = "began"
+					end
 				end
 			end
 		end
@@ -293,7 +332,7 @@ local function createScrollView( scrollView, options )
   	-- EnterFrame
 	function view:enterFrame( event )
 		local _scrollView = self.parent
-		
+
 		-- Handle momentum @ runtime
 		require( "widget_momentumScrolling" )._runtime( self, event )		
 		
@@ -345,7 +384,8 @@ local function createScrollView( scrollView, options )
 	Runtime:addEventListener( "enterFrame", view )
 		
 	-- Finalize function for the scrollView
-	function scrollView:_finalize()
+	function scrollView:_finalize()		
+		-- Remove the runtime listener
 		Runtime:removeEventListener( "enterFrame", self._view )
 				
 		-- Remove scrollBar if it exists
@@ -390,7 +430,7 @@ function M.new( options )
 	opt.isHorizontalScrollingDisabled = customOptions.horizontalScrollDisabled or false
 	opt.isVerticalScrollingDisabled = customOptions.verticalScrollDisabled or false
 	opt.friction = customOptions.friction
-	opt.maxVelocity = customOptions.maxVelocity
+	opt.maxVelocity = customOptions.maxVelocity or 1.5
 	opt.scrollWidth = customOptions.scrollWidth or opt.width
 	opt.scrollHeight = customOptions.scrollHeight or opt.height
 	opt.hideScrollBar = customOptions.hideScrollBar or false

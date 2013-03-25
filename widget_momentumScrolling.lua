@@ -14,6 +14,7 @@ local M = {}
 
 -- Localize math functions
 local mAbs = math.abs
+local mFloor = math.floor
 
 -- Function to set the view's limits
 local function setLimits( self, view )
@@ -39,7 +40,7 @@ local function setLimits( self, view )
 end
 
 -- Function to handle vertical "snap back" on the view
-local function handleSnapBackVertical( self, view )
+local function handleSnapBackVertical( self, view, snapBack )
 	local limitHit = "none"
 	
 	-- Snap back vertically
@@ -50,15 +51,35 @@ local function handleSnapBackVertical( self, view )
 			limitHit = "bottom"
 			
 			-- Transition the view back to it's maximum position
-			view._tween = transition.to( view, { time = 400, y = self.bottomLimit, transition = easing.outQuad } )						
-	
+			if "boolean" == type( snapBack ) then
+				if snapBack == true then
+					-- Ensure the scrollBar is at the bottom of the view
+					if view._scrollBar then
+						view._scrollBar:setPositionTo( "top" )
+					end
+					
+					-- Put the view back to the top
+					view._tween = transition.to( view, { time = 400, y = self.bottomLimit, transition = easing.outQuad } )						
+				end
+			end
+			
 		-- Put the view back to the bottom if it isn't already there ( and should be )
 		elseif view.y < self.upperLimit then		
 			-- Set the hit limit
 			limitHit = "top"
-						
+			
 			-- Transition the view back to it's maximum position
-			view._tween = transition.to( view, { time = 400, y = self.upperLimit, transition = easing.outQuad } )
+			if "boolean" == type( snapBack ) then
+				if snapBack == true then
+					-- Ensure the scrollBar is at the bottom of the view
+					if view._scrollBar then
+						view._scrollBar:setPositionTo( "bottom" )			
+					end
+					
+					-- Put the view back to the bottom
+					view._tween = transition.to( view, { time = 400, y = self.upperLimit, transition = easing.outQuad } )
+				end
+			end
 		end
 	end
 	
@@ -91,6 +112,16 @@ local function handleSnapBackHorizontal( self, view )
 	return limitHit
 end
 
+-- Function to clamp velocity to the maximum value
+local function clampVelocity( view )
+	-- Throttle the velocity if it goes over the max range
+	if view._velocity < -view._maxVelocity then
+		view._velocity = -view._maxVelocity
+	elseif view._velocity > view._maxVelocity then
+		view._velocity = view._maxVelocity
+	end
+end
+
 
 -- Handle momentum scrolling touch
 function M._touch( view, event )
@@ -111,7 +142,7 @@ function M._touch( view, event )
 		view._moveDirection = nil
 		view._trackVelocity = true
 		view._updateRuntime = false
-
+		
 		-- Set the limits now
 		setLimits( M, view )
 		
@@ -123,9 +154,6 @@ function M._touch( view, event )
 		
 		-- If there is a scrollBar
 		if view._scrollBar then
-			-- Reset scrollbar position (if scrollView was moved)
-			view._scrollBar:resetInitialPosition()
-					
 			-- Show the scrollBar
 			view._scrollBar:show()
 		end				
@@ -150,7 +178,7 @@ function M._touch( view, event )
 	                    	view._moveDirection = "horizontal"
 						
 							-- Handle vertical snap back
-							handleSnapBackVertical( M, view )						
+							handleSnapBackVertical( M, view, true )						
 						end
 	                else
 						-- If vertical scrolling is enabled
@@ -159,7 +187,7 @@ function M._touch( view, event )
 		                    view._moveDirection = "vertical"
 	
 							-- Handle horizontal snap back
-							handleSnapBackHorizontal( M, view )						
+							handleSnapBackHorizontal( M, view, true )						
 	                	end
 					end
 				end
@@ -186,22 +214,26 @@ function M._touch( view, event )
 				if not view._isVerticalScrollingDisabled then
 					view._delta = event.y - view._prevYPos
 					view._prevYPos = event.y
-
+					
 					-- If the view is more than the limits
 					if view.y < M.upperLimit or view.y > M.bottomLimit then
 						view.y = view.y + ( view._delta * 0.5 )
 					else
-						view.y = view.y + view._delta  
+						view.y = view.y + view._delta 
+					end
+					
+					-- Handle limits
+					local limit = handleSnapBackVertical( M, view, false )
+					
+					-- Move the scrollBar
+					if limit ~= "top" and limit ~= "bottom" then
+						if view._scrollBar then						
+							view._scrollBar:move()
+						end
 					end
 					
 					-- Set the time held
-					--view._timeHeld = time
-				
-					-- Move the scrollBar
-					if view._scrollBar then						
-						view._scrollBar:move()
-					end
-					
+					--view._timeHeld = time				
 				end
 			end
 			
@@ -223,7 +255,7 @@ end
 -- Handle runtime momentum scrolling events.
 function M._runtime( view, event )
 	-- If we are tracking runtime
-	if view._updateRuntime then
+	if view._updateRuntime then		
 		local timePassed = event.time - view._lastTime
 		view._lastTime = view._lastTime + timePassed
 		
@@ -241,12 +273,8 @@ function M._runtime( view, event )
 		-- Set the velocity
 		view._velocity = view._velocity * view._friction
 		
-		-- Throttle the velocity if it goes over the max range
-		if view._velocity < -view._maxVelocity then
-			view._velocity = -view._maxVelocity
-		elseif view._velocity > view._maxVelocity then
-			view._velocity = view._maxVelocity
-		end
+		-- Clamp the velocity if it goes over the max range
+		clampVelocity( view )
 	
 		-- Horizontal movement
 		if "horizontal" == view._moveDirection then
@@ -314,9 +342,14 @@ function M._runtime( view, event )
 				
 				-- Move the view
 				view.y = view.y + view._velocity * timePassed
+				
+				-- Move the scrollBar
+				if view._scrollBar then						
+					view._scrollBar:move()
+				end
 	
 				-- Handle limits
-				local limit = handleSnapBackVertical( M, view )
+				local limit = handleSnapBackVertical( M, view, true )
 	
 				-- Top
 				if "top" == limit then					
@@ -350,7 +383,7 @@ function M._runtime( view, event )
 					if view._scrollBar then
 						view._scrollBar:hide()
 					end
-					
+										
 					-- We have hit the bottom limit
 					view._hasHitBottomLimit = true
 					
@@ -368,18 +401,13 @@ function M._runtime( view, event )
 						
 						view._listener( newEvent )
 					end
-				else
-					-- Move the scrollBar
-					if view._scrollBar then						
-						view._scrollBar:move()
-					end
 				end
 			end
 		end
 	end
 	
 	-- If we are tracking velocity
-	if view._trackVelocity then
+	if view._trackVelocity then		
 		-- Calculate the time passed
 		local newTimePassed = event.time - view._prevTime
 		view._prevTime = view._prevTime + newTimePassed
@@ -393,6 +421,9 @@ function M._runtime( view, event )
 
 	                if possibleVelocity ~= 0 then
 	                    view._velocity = possibleVelocity
+	
+						-- Clamp the velocity if it goes over the max range
+						clampVelocity( view )
 	                end
 				end
 		
@@ -408,6 +439,9 @@ function M._runtime( view, event )
                     
 					if possibleVelocity ~= 0 then
                         view._velocity = possibleVelocity
+
+						-- Clamp the velocity if it goes over the max range
+						clampVelocity( view )
                     end
 				end
 		
@@ -442,10 +476,10 @@ function M.createScrollBar( view, options )
 	local themeOptions = require( "widget" ).theme.scrollBar
 	
 	-- Get the theme sheet file and data
-	opt.themeSheetFile = require( "widget" ).theme.scrollBar.sheet
-	opt.themeData = require( "widget" ).theme.scrollBar.data
-	opt.width = require( "widget" ).theme.scrollBar.width
-	opt.height = require( "widget" ).theme.scrollBar.height
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
+	opt.width = options.width or themeOptions.width
+	opt.height = options.height or themeOptions.height
 	
 	-- Grab the frames
 	opt.topFrame = options.topFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topFrame )
@@ -476,43 +510,30 @@ function M.createScrollBar( view, options )
 	middleFrame.y = topFrame.y + topFrame.contentHeight * 0.5 + middleFrame.contentHeight * 0.5
 	bottomFrame.y = middleFrame.y + middleFrame.contentHeight * 0.5 + bottomFrame.contentHeight * 0.5
 	
-	-- Setup the scrollBar's position and properties
-	scrollBar:setReferencePoint( display.CenterReferencePoint )
-	scrollBar.x = view.parent.x + view._width - scrollBarWidth * 0.5
-	scrollBar.y = ( scrollBar.contentHeight * 0.5 ) + view._top
+	-- Setup the scrollBar's properties
 	scrollBar._viewHeight = viewHeight
 	scrollBar._viewContentHeight = viewContentHeight
 	scrollBar.alpha = 0 -- The scrollBar is invisible initally
 	scrollBar._tween = nil
 	
-	-- Function to reset the scrollBar position
-	function scrollBar:resetInitialPosition()
-		if self.y - self.contentHeight * 0.5 < view._top then
-			self.y = view._top + self.contentHeight * 0.5
-		end
-	end
-	
 	-- Function to move the scrollBar
 	function scrollBar:move()
-		local moveFactor = ( view.y * 100 ) / ( self._viewContentHeight - self._viewHeight )
-		local moveQuantity = ( moveFactor * self._viewHeight ) / 100
-		
+		local moveFactor = ( view.y * 100 ) / ( self._viewContentHeight - self._viewHeight )		
+		local moveQuantity = ( moveFactor * ( self._viewHeight - self.contentHeight ) ) / 100
+				
 		if view.y < 0 then
-			-- Move the scrollBar
-			if view._delta < 0 then
-				self.y = view._top + ( self.contentHeight * 0.5 ) - moveQuantity 
-			elseif view._delta > 0 then
-				self.y = view._top - ( self.contentHeight * 0.5 ) - moveQuantity
-			end 
-			
-			-- Limit movement
-			if self.y - self.contentHeight * 0.5 < view._top  then
-				self.y = view._top + self.contentHeight * 0.5
+			-- Only move if not over the bottom limit
+			if mAbs( view.y ) < ( self._viewContentHeight - self._viewHeight ) then
+				self.y = view.parent.y - view._top - moveQuantity
 			end
-			
-			if self.y + self.contentHeight * 0.5 > view._top + self._viewHeight then
-				self.y = view._top + self._viewHeight - self.contentHeight * 0.5
-			end
+		end		
+	end
+	
+	function scrollBar:setPositionTo( position )
+		if "top" == position then
+			self.y = view.parent.y - view._top
+		elseif "bottom" == position then
+			self.y = self._viewHeight - self.contentHeight
 		end
 	end
 	
@@ -535,6 +556,12 @@ function M.createScrollBar( view, options )
 			self._tween = transition.to( self, { time = 400, alpha = 0, transition = easing.outQuad } )
 		end
 	end
+		
+	-- Insert the scrollBar into the fixed group and position it
+	view._fixedGroup:insert( scrollBar )
+	view._fixedGroup:setReferencePoint( display.CenterReferencePoint )
+	view._fixedGroup.x = view._width - scrollBarWidth * 0.5
+	view._fixedGroup.y = view.parent.y - view._top + ( scrollBar.contentHeight * 0.5 )
 	
 	return scrollBar
 end
