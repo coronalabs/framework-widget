@@ -147,9 +147,7 @@ local function createUsingImageFiles( button, options )
 			return
 		end
 		
-		if "began" == phase then
-			print( "HULA" )
-			
+		if "began" == phase then			
 			-- Set the button to it's over image state
 			self.isVisible = false
 			self._over.isVisible = true
