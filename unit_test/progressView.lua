@@ -41,7 +41,10 @@ function scene:createScene( event )
 	
 	--Toggle these defines to execute automated tests.
 	local TEST_REMOVE_PROGRESS_VIEW = false
+	local TEST_RESET_PROGRESS_VIEW = true
 	local TEST_DELAY = 1000
+	
+	local grp = display.newGroup()
 	
 	-- Create a new progress view object
 	local newProgressView = widget.newProgressView
@@ -53,13 +56,22 @@ function scene:createScene( event )
 	}
 	newProgressView.x = display.contentCenterX
 	newProgressView.y = display.contentCenterY
-	group:insert( newProgressView )
+	grp:insert( newProgressView )
+	grp.x = 80
 		
 	local currentProgress = 0.0
 
-	testTimer = timer.performWithDelay( 50, function( event )
+	testTimer = timer.performWithDelay( 100, function( event )
 		currentProgress = currentProgress + 0.01
 		newProgressView:setProgress( currentProgress )
+		
+		if TEST_RESET_PROGRESS_VIEW then
+			if newProgressView:getProgress() >= 0.5 then
+				newProgressView:setProgress( 0 )
+				currentProgress = 0.0
+			end
+		end
+		
 		--print( newProgressView:getProgress() )
 	end, 0 )
 	
