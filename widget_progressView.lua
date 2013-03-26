@@ -65,6 +65,7 @@ local function initWithImage( progressView, options )
 	-- Properties
 	view._isAnimated = opt.isAnimated
 	view._currentProgress = 0.00
+	view._currentPercent = currentPercent
 	
 	-- Set the left fills position
 	viewFillLeft.x = progressView.x + ( viewFillLeft.contentWidth * 0.5 ) + opt.fillXOffset
@@ -121,7 +122,7 @@ local function initWithImage( progressView, options )
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
-	
+
 	-- Function to set the progressView's current progress (ie fill)
 	function progressView:setProgress( progress )
 		-- Create a local reference to the view
@@ -131,45 +132,67 @@ local function initWithImage( progressView, options )
 		if progress > 1.01 then
 			return
 		end
-
-		-- Reset the bar if requested
-		if progress <= 0 then
-			view._fillLeft.isVisible = false
-			view._fillMiddle.width = 1
-			view._fillMiddle.isVisible = false
-			view._fillRight.isVisible = false
-			return
-		elseif progress >= 0.1 then
-			view._fillLeft.isVisible = true
-			view._fillMiddle.isVisible = true
-			view._fillRight.isVisible = true
-		end
 		
 		-- Only execute this if the progressView's view hasn't been removed
-		if view then
+		if "table" == type( view ) then
+			-- Reset the bar if requested
+			if progress <= 0 then
+				view._fillLeft.isVisible = false
+				view._fillMiddle.isVisible = false
+				view._fillRight.isVisible = false
+				view._currentProgress = 0
+
+				-- If the view is animated, reset the current percent
+				if view._isAnimated then
+					view._currentPercent = 0
+				end
+				return
+			elseif progress < 0.01 then			
+				view._fillMiddle.width = 1
+				view._fillMiddle.isVisible = false
+				view._fillMiddle.x = view._fillLeft.x + view._fillMiddle.width * 0.5
+				view._fillRight.x = view._fillLeft.x + view._fillMiddle.width + ( view._fillRight.contentWidth * 0.5 )
+				return
+			elseif progress >= 0.01 then
+				view._fillLeft.isVisible = true
+				view._fillMiddle.isVisible = true
+				view._fillRight.isVisible = true
+			end
+			
+			-- If the current percent is 0 or less, reset the bar
+			if view._currentPercent <= 0 then
+				view._fillLeft.isVisible = false
+				view._fillMiddle.isVisible = false
+				view._fillRight.isVisible = false
+				view._fillMiddle.width = 1
+				view._fillMiddle.x = view._fillLeft.x + view._fillMiddle.width * 0.5
+				view._fillRight.x = view._fillLeft.x + view._fillMiddle.width + ( view._fillRight.contentWidth * 0.5 )
+			end
+			
 			-- While the progress is less than the user specified progress, increase by 0.01
 			while view._currentProgress < progress do
-				local hasReachedLimit = view._currentProgress > 1.01
-				
+				local hasReachedLimit = view._currentProgress > 1.01  and view._currentPercent >0
+				local noLimit = view._currentProgress < 0.01
+			
 				-- Increment the current progress
 				view._currentProgress = view._currentProgress + 0.01
-				
+			
 				-- If we haven't reached the limit yet (1.0) increase the fill
 				if not hasReachedLimit then
 					-- Set the current fill %
-					currentPercent = ( availableMoveSpace / rangeFactor ) * ( view._currentProgress * rangeFactor ) -- - ( view._fillXOffset * 2 )
-				end	
+					view._currentPercent = ( availableMoveSpace / rangeFactor ) * ( view._currentProgress * rangeFactor )
+				end
 			end
 			
 			-- If the fill is animated
 			if view._isAnimated then
-				transition.to( view._fillMiddle, { width = currentPercent, x = view._fillLeft.x + currentPercent * 0.5 } )
-				transition.to( view._fillRight, { x = math.floor( view._fillLeft.x + currentPercent + view._fillRight.contentWidth * 0.5  ) } )
+				transition.to( view._fillMiddle, { width = view._currentPercent, x = view._fillLeft.x + view._currentPercent * 0.5 } )
+				transition.to( view._fillRight, { x = math.floor( view._fillLeft.x + view._currentPercent + view._fillRight.contentWidth * 0.5  ) } )
 			else
 			-- The fill isn't animated
-				view._fillMiddle.width = currentPercent
-				view._fillMiddle.x = view._fillLeft.x + currentPercent * 0.5
-				view._fillRight.x = math.floor( view._fillLeft.x + currentPercent + view._fillRight.contentWidth * 0.5  )
+				view._fillMiddle.width = view._currentPercent
+				view._fillMiddle.x = view._fillLeft.x + view._currentPercent * 0.5
+				view._fillRight.x = math.floor( view._fillLeft.x + view._currentPercent + view._fillRight.contentWidth * 0.5  )
 			end
 		end
  	end
