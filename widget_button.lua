@@ -473,7 +473,6 @@ local function createUsingImageSheet( button, options )
 				end
 			
 			elseif "ended" == phase or "cancelled" == phase then
-				if "table" == type( self ) then
 				if require( "widget" )._isWithinBounds( self, event ) then
 					-- If there is a onRelease method ( and not a onEvent method )
 					if self._onRelease and not self._onEvent then
@@ -496,7 +495,6 @@ local function createUsingImageSheet( button, options )
 					self._insertedIntoScrollView = true
 					self._isActive = false
 				end
-			end
 			end
 		end
 		
@@ -979,7 +977,6 @@ local function createUsing9Slice( button, options )
 				end
 			
 			elseif "ended" == phase or "cancelled" == phase then
-				if "table" == type( self ) then
 				if require( "widget" )._isWithinBounds( self, event ) then
 					-- If there is a onRelease method ( and not a onEvent method )
 					if self._onRelease and not self._onEvent then
@@ -1000,7 +997,6 @@ local function createUsing9Slice( button, options )
 					self._isActive = false
 				end
 			end
-		end
 		end
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
