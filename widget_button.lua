@@ -148,6 +148,8 @@ local function createUsingImageFiles( button, options )
 		end
 		
 		if "began" == phase then
+			print( "HULA" )
+			
 			-- Set the button to it's over image state
 			self.isVisible = false
 			self._over.isVisible = true
@@ -160,16 +162,19 @@ local function createUsingImageFiles( button, options )
 				self._onPress( event )
 			end
 			
-			-- Set focus on the button
-			self._isFocus = true
+			-- If the parent group still exists
+			if "table" == type( self.parent ) then
+				-- Set focus on the button
+				self._isFocus = true
 						
-			-- Don't set focus to a button inside a scrollView
-			if not event._insideScrollView then
-				display.getCurrentStage():setFocus( self, event.id )
+				-- Don't set focus to a button inside a scrollView
+				if not event._insideScrollView then
+					display.getCurrentStage():setFocus( self, event.id )
+				end
 			end
 			
 		elseif self._isFocus then
-			if "moved" == phase then
+			if "moved" == phase then				
 				if not require( "widget" )._isWithinBounds( self, event ) then
 					-- Set the button to it's default image state
 					self.isVisible = true
@@ -438,12 +443,15 @@ local function createUsingImageSheet( button, options )
 				self._onPress( event )
 			end
 			
-			-- Set focus on the button
-			self._isFocus = true
+			-- If the parent group still exists
+			if "table" == type( self.parent ) then
+				-- Set focus on the button
+				self._isFocus = true
 						
-			-- Don't set focus to a button inside a scrollView
-			if not event._insideScrollView then
-				display.getCurrentStage():setFocus( self, event.id )
+				-- Don't set focus to a button inside a scrollView
+				if not event._insideScrollView then
+					display.getCurrentStage():setFocus( self, event.id )
+				end
 			end
 			
 		elseif self._isFocus then
@@ -465,6 +473,7 @@ local function createUsingImageSheet( button, options )
 				end
 			
 			elseif "ended" == phase or "cancelled" == phase then
+				if "table" == type( self ) then
 				if require( "widget" )._isWithinBounds( self, event ) then
 					-- If there is a onRelease method ( and not a onEvent method )
 					if self._onRelease and not self._onEvent then
@@ -487,6 +496,7 @@ local function createUsingImageSheet( button, options )
 					self._insertedIntoScrollView = true
 					self._isActive = false
 				end
+			end
 			end
 		end
 		
@@ -945,12 +955,15 @@ local function createUsing9Slice( button, options )
 				self._onPress( event )
 			end
 			
-			-- Set focus on the button
-			self._isFocus = true
+			-- If the parent group still exists
+			if "table" == type( self.parent ) then
+				-- Set focus on the button
+				self._isFocus = true
 			
-			-- Don't set focus to a button inside a scrollView
-			if not event._insideScrollView then
-				display.getCurrentStage():setFocus( self, event.id )
+				-- Don't set focus to a button inside a scrollView
+				if not event._insideScrollView then
+					display.getCurrentStage():setFocus( self, event.id )
+				end
 			end
 			
 		elseif self._isFocus then
@@ -966,6 +979,7 @@ local function createUsing9Slice( button, options )
 				end
 			
 			elseif "ended" == phase or "cancelled" == phase then
+				if "table" == type( self ) then
 				if require( "widget" )._isWithinBounds( self, event ) then
 					-- If there is a onRelease method ( and not a onEvent method )
 					if self._onRelease and not self._onEvent then
@@ -986,6 +1000,7 @@ local function createUsing9Slice( button, options )
 					self._isActive = false
 				end
 			end
+		end
 		end
 		
 		-- If there is a onEvent method ( and not a onPress or onRelease method )
