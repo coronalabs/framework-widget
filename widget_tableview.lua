@@ -24,10 +24,13 @@ local function createTableView( tableView, options )
 	local opt = options
 	
 	-- Forward references
-	local view, viewBackground, viewMask, categoryGroup
+	local view, viewBackground, viewMask, viewFixed, categoryGroup
 	
 	-- Create the view
 	view = display.newGroup()
+	
+	-- Create the fixed view
+	viewFixed = display.newGroup()
 		
 	-- Create the view's background
 	viewBackground = display.newRect( tableView, 0, 0, opt.width, opt.height )
@@ -94,6 +97,7 @@ local function createTableView( tableView, options )
 	view._maxVelocity = opt.maxVelocity or 2
 	view._timeHeld = 0
 	view._isLocked = opt.isLocked
+	view._hideScrollBar = opt.hideScrollBar
 	view._rows = {}
 	view._rowWidth = opt.rowWidth
 	view._rowHeight = opt.rowHeight
@@ -111,11 +115,13 @@ local function createTableView( tableView, options )
 	
 	-- Assign objects to the view
 	view._categoryGroup = categoryGroup
+	view._fixedGroup = viewFixed
 	
 	-- Assign objects to the tableView
 	tableView._view = view
 	tableView:insert( view )
 	tableView:insert( categoryGroup )
+	tableView:insert( viewFixed )
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -239,8 +245,7 @@ local function createTableView( tableView, options )
         local dy = mAbs( event.y - event.yStart )
 		local moveThresh = 20
 		
-		-- If the finger has moved less than the desired range, set the phase back to began
-        if "moved" == phase then
+		if "moved" == phase and not self._isUsedInPickerWheel then
 	  		if dy < moveThresh and self._initialTouch then
 				if event.phase ~= "ended" and event.phase ~= "cancelled" then
 					event.phase = "began"
@@ -248,9 +253,19 @@ local function createTableView( tableView, options )
 			else
 				-- This wasn't the initial touch
 				self._initialTouch = false
+				-- New phase is now nil, since it was moved
+				self._newPhase = nil
+				
+				if "table" == type( self._targetRow ) then
+					if "table" == type( self._targetRow._border ) then
+						-- Set the row's border's fill color
+						self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor.default ) )
+						-- The row was no longer touched
+						self._targetRow._wasTouched = false
+					end
+				end
 			end
 		end
-		
 		
 		-- Set the view's phase so we can access it in the enterFrame listener below
 		self._phase = event.phase
@@ -353,7 +368,7 @@ local function createTableView( tableView, options )
 		-- If we have finished rendering all rows
 		if self._hasRenderedRows then
 			-- Create the scrollBar
-			if not opt.hideScrollBar then
+			if not self._hideScrollBar then
 				if self._scrollBar then
 					display.remove( self._scrollBar )
 					self._scrollBar = nil
@@ -698,7 +713,7 @@ local function createTableView( tableView, options )
 		end
 			
 		-- Transition the view to the row index	
-		transition.to( self, { y = self.y - self._rows[rowIndex].y + ( self._rows[rowIndex].contentHeight * 0.5 ), time = scrollTime, transition = easing.outQuad } )
+		transition.to( self, { y = -self._rows[rowIndex].y + ( self._rows[rowIndex].contentHeight * 0.5 ), time = scrollTime, transition = easing.outQuad } )
 
 		-- Update the last row index
 		self._lastRowIndex = rowIndex

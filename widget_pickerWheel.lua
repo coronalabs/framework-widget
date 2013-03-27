@@ -125,6 +125,7 @@ local function createPickerWheel( pickerWheel, options )
 			maskFile = opt.maskFile,
 			listener = nil,
 		}
+		viewColumns[i]._view._isUsedInPickerWheel = true
 		 		
 		-- Position the columns
 		if i > 1 then
