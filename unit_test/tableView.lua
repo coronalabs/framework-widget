@@ -50,7 +50,7 @@ function scene:createScene( event )
 	local TEST_REMOVE_AND_RECREATE = false
 	local TEST_GET_CONTENT_POSITION = false
 	local tableView = nil
-	
+		
 	-- Listen for tableView events
 	local function tableViewListener( event )
 		local phase = event.phase
@@ -79,14 +79,22 @@ function scene:createScene( event )
 		return true
 	end
 
+	local noCategories = 0
+
 	-- Handle row rendering
 	local function onRowRender( event )
 		local phase = event.phase
 		local row = event.row
 		
 		--print( "Row id:", row.id )
+		local rowTitle = "Row " .. row.index
 		
-		local rowTitle = display.newText( row, "Row " .. row.index, 0, 0, nil, 14 )
+		if row.isCategory then
+			noCategories = noCategories + 1
+			--rowTitle = "Category "  .. noCategories
+		end
+		
+		local rowTitle = display.newText( row, rowTitle, 0, 0, nil, 14 )
 		rowTitle.x = row.x - ( row.contentWidth * 0.5 ) + ( rowTitle.contentWidth * 0.5 )
 		rowTitle.y = row.contentHeight * 0.5
 		rowTitle:setTextColor( 0, 0, 0 )
@@ -165,9 +173,9 @@ function scene:createScene( event )
 
 	
 	-- Create 100 rows
-	for i = 1, 50 do
+	for i = 1, 65 do
 		local isCategory = false
-		local rowHeight = 30
+		local rowHeight = 40
 		local rowColor = 
 		{ 
 			default = { 255, 255, 255 },
@@ -176,9 +184,10 @@ function scene:createScene( event )
 		local lineColor = { 220, 220, 220 }
 		
 		-- Make some rows categories
-		if i == 8 or i == 25 or i == 50 or i == 75 then
+		if i == 1 or i == 4 or i == 8 or i == 18 or i == 28 or i == 35 or i == 45 then
 			isCategory = true
-			--rowHeight = 24
+			rowHeight = 24
+			--rowHeight = 47
 			rowColor = 
 			{ 
 				default = { 150, 160, 180, 200 },
@@ -220,7 +229,13 @@ function scene:createScene( event )
 	-- Test to scroll list to index
 	if TEST_SCROLL_TO_INDEX then
 		testTimer = timer.performWithDelay( 1000, function()
-			tableView:scrollToIndex( 30, 6000 )
+			tableView:scrollToIndex( 30, 1000 )
+			timer.performWithDelay( 3000, function()
+			tableView:scrollToIndex( 31, 2000 )end)
+			timer.performWithDelay( 6000, function()
+			tableView:scrollToIndex( 1, 2000 )end)
+			timer.performWithDelay( 9000, function()
+			tableView:scrollToIndex( 7, 2000 )end)
 		end, 1 )
 	end
 	
