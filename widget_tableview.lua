@@ -456,98 +456,225 @@ local function createTableView( tableView, options )
 	
 	Runtime:addEventListener( "enterFrame", view )
 	
-	
-	-- Private function to gather all tableView categories
-	function view:_gatherCategories()
-		local _categories = {}
-		local index = 0
 		
-		-- Loop through all rows, and add each category to the local table
-		for k, v in pairs( self._rows ) do
-			if self._rows[k].isCategory then
-				index = index + 1
-				self._rows[k]._categoryIndex = index
-				_categories[#_categories + 1] = self._rows[k]
+	-- Function to set all tableView categories (if any)
+	function view:_gatherCategories()
+		local categories = {}
+		local numCategories = 0
+		local firstCategory = 0
+		local previousCategory = 0
+		
+		-- Loop through all rows and set categories
+		for i = 1, #self._rows do
+			local currentRow = self._rows[i]
+			
+			if currentRow.isCategory then
+				if not previousCategory then
+					categories["cat-" .. i] = "first"
+					previousCategory = i
+					numCategories = numCategories + 1
+				else
+					categories["cat-" .. i] = previousCategory
+					previousCategory = i
+					numCategories = numCategories + 1
+				end
+				
+				-- Store reference to first category index
+				if not firstCategory then
+					firstCategory = i
+				end
 			end
 		end
 		
-		return _categories
+		-- Assign some category variables to the view
+		self._firstCategoryIndex = firstCategory
+		
+		-- Return the gathered categories table
+		return categories, numCategories
 	end
+
+
+	-- Function to render a category
+	function view:_renderCategory( row )
+		-- Create a reference to the row
+		local currentRow = row
+		
+		-- Function to create a new category
+		local function newCategory()
+			local category = display.newGroup()
+			
+			-- Create the row's touch rectangle (ie it's border)
+			local border = display.newRect( category, 0, 0, currentRow._width, currentRow._height )
+			border.x = border.contentWidth * 0.5
+			border.y = border.contentHeight * 0.5
+			border.strokeWidth = 1
+			border:setFillColor( unpack( currentRow._rowColor.default ) )
+			border:setStrokeColor( unpack( currentRow._rowColor.default ) )
+
+			-- If the user want's lines between rows, set the stroke color accordingly
+			if not currentRow._noLines then
+				border:setStrokeColor( unpack( currentRow._lineColor ) )
+			end
+
+			-- Set the row's id
+			category.id = currentRow.id
+			
+			-- Set the categories index
+			category.index = currentRow.index
+			
+			-- Insert the category into the group
+			self._categoryGroup.y = 0
+			self._categoryGroup:insert( category )
+			
+			return category
+		end
+					
+		-- Function to create a new category
+		local function initNewCategory()			
+			-- If there is already a category rendered, remove it
+			if self._currentCategory then
+				display.remove( self._currentCategory )
+				self._currentCategory = nil
+			end
+						
+			-- Create the category
+			self._currentCategory = newCategory()
+			self._currentCategory:setReferencePoint( display.CenterReferencePoint )
+			self._currentCategory.x = self._currentCategory.contentWidth * 0.5
+			self._currentCategory.y = self._currentCategory.contentHeight * 0.5
+			
+			-- Create the rowRender event
+			local rowEvent = 
+			{
+				name = "rowRender",
+				row = self._currentCategory,
+				target = self.parent,
+			}
+
+			-- If an onRowRender event exists, execute it
+			if self._onRowRender and "function" == type( self._onRowRender ) then
+				self._onRowRender( rowEvent )
+			end
+		end
+		
+		-- If there is currently no category rendered
+		if not self._currentCategory then 
+			initNewCategory()
+		else
+			if self._currentCategory.index ~= currentRow.index then
+				initNewCategory()
+			end
+		end
+	end
+	
+	-- Current Category index
+	view._currentCategoryIndex = 0
 	
 	
 	-- Function to manage all row's lifeCycle
 	function view:_manageRowLifeCycle()
 		-- Gather all tableView categories
 		if not self._categories then
-			self._categories = self:_gatherCategories()
+			self._categories, self._numCategories = self:_gatherCategories()
 		end
-								
+		
+		-- Ensure that the category is stuck in the correct position
+		if self._currentCategory and self._currentCategory.y ~= self._currentCategory.contentHeight * 0.5 then
+			self._currentCategory.y = self._currentCategory.contentHeight * 0.5
+		end
+										
 		-- Set the upper and lower category limits
 		local upperLimit = self._background.y - ( self._background.contentHeight * 0.5 )
 		local lowerLimit = self._background.y + ( self._background.contentHeight * 0.5 )
-				
-		-- Loop through the rows and set any off screen ones to invisible, and on screen ones to visible
-		for k, v in pairs( self._rows ) do
-			local currentRow = self._rows[k]
+		
+		-- Create a local reference to our categories
+		local categories = self._categories
+		
+		-- Loop through all of the rows contained in the tableView 
+		for i = 1, #self._rows do
+			local currentRow = self._rows[i]
+			local currentRowExists = nil ~= currentRow
 			
-			-- Is this row on screen?
-			local isRowOnScreen = ( currentRow.y + self.y ) + currentRow.contentHeight > upperLimit and ( currentRow.y + self.y ) - currentRow.contentHeight < lowerLimit
-			
-			-- If there are any categories
-			if #self._categories > 0 then
-				-- If this row is a category
-				if currentRow.isCategory then				
-					-- If a category has gone up to the top threshold.
-					if ( currentRow.y + self.y ) - currentRow.contentHeight * 0.5 <= upperLimit then						
-						-- Insert all category group rows back into the view
-						for i = self._categoryGroup.numChildren, 1, -1 do
-							self:insert( self._categoryGroup[i] )
+			-- Manage tableView categories (if there are any)
+			if self._numCategories > 0 then
+				-- If the row still exists
+				if currentRowExists then
+					-- Set the rows top position
+					currentRow._top = self.y + currentRow.y - currentRow.contentHeight * 0.5
+							
+					-- Category "pushing" effect
+					if self._currentCategory and currentRow.isCategory and currentRow.index ~= self._currentCategory.index then
+						if currentRow._top < self._currentCategory.contentHeight and currentRow._top >= 0 then
+							-- Push the category upward
+							if self._currentCategory then
+								self._currentCategory.y = currentRow._top - ( self._currentCategory.contentHeight * 0.5  )
+							end
 						end
-					
-						-- Insert the current category into the category group
-						self._categoryGroup:insert( currentRow )
-																		
-						-- Set the category groups reference point
-						self._categoryGroup:setReferencePoint( display.CenterReferencePoint )
-						-- Set the category groups position
-						self._categoryGroup.y = ( currentRow.contentHeight * 0.5 ) + self._topPadding
 					end
-				
-					-- If the first row isn't past or equal to the top threshold, scroll it
-					if ( currentRow.y + self.y ) - currentRow.contentHeight > upperLimit - ( currentRow.contentHeight * 0.5 ) then
-						-- If we are back to the first category
-						if currentRow._categoryIndex == 1 then
-							self:insert( currentRow )
+					
+					-- Determine which category should be rendered (Sticky category at top)
+					if currentRow.isCategory and currentRow._top <= 0 then
+						self._currentCategoryIndex = i
+					elseif currentRow.isCategory and currentRow._top >= 0 and self._currentCategory and currentRow.index == self._currentCategory.index then
+						-- Category moved below top of tableView, render previous category
+						currentRow.isVisible = true
+						
+						-- Remove current category if the first category moved below the top of the tableView
+						display.remove( self._currentCategory )
+						self._currentCategory = nil
+						self._currentCategoryIndex = nil
+					end
+					
+					-- Hide the row if it is the current category (category item will be rendered at top of the tableView)
+					if currentRow.index == self._currentCategoryIndex and currentRow.isVisible then
+						currentRow.isVisible = false
+					end
+				end	
+			end 
+			
+			-------------------------
+			-- Handle row culling
+			-- Notes: Currently we just set off screen rows to invisible.
+			-- TODO (After next public release): Remove off screen rows from the stage.
+			-------------------------
+			
+			-- Is this row currently within the tableView bounds ? Or above or below it.
+			if currentRowExists then
+				local isRowWithinBounds = ( currentRow.y + self.y ) + currentRow.contentHeight > upperLimit and ( currentRow.y + self.y ) - currentRow.contentHeight < lowerLimit
+			
+				-- Hide rows that are are currently not within our tableView's visible bounds
+				if not isRowWithinBounds then
+					if not currentRow.isCategory then
+						-- Set the row to invisible
+						currentRow.isVisible = false
+					end
+				-- Show rows that are within our tableView's bounds
+				else
+					-- If the row isn't already visible
+					if not currentRow.isVisible and not currentRow.isCategory then
+						currentRow.isVisible = true
+
+						-- Create the rowRender event
+						local rowEvent = 
+						{
+							name = "rowUpdate",
+							row = currentRow,
+							target = tableView,
+						}
+
+						-- If an onRowRender event exists, execute it
+						if self._onRowUpdate and "function" == type( self._onRowUpdate ) then
+							self._onRowUpdate( rowEvent )
 						end
 					end
 				end
 			end
-								
-			-- Cull rows that are are currently not within our tableView's visible bounds
-			if not isRowOnScreen then
-				if not currentRow.isCategory then
-					-- Set the row to invisible
-					currentRow.isVisible = false
-				end
-			-- Show rows that are within our tableView's bounds
-			else
-				-- If the row isn't already visible
-				if not currentRow.isVisible then
-					currentRow.isVisible = true
-									
-					-- Create the rowRender event
-					local rowEvent = 
-					{
-						name = "rowUpdate",
-						row = currentRow,
-						target = tableView,
-					}
-				
-					-- If an onRowRender event exists, execute it
-					if self._onRowUpdate and "function" == type( self._onRowUpdate ) then
-						self._onRowUpdate( rowEvent )
-					end
-				end
+		end
+		
+		-- Render current category (if there are any categories)
+		if self._numCategories > 0 then
+			if self._currentCategoryIndex and self._currentCategoryIndex > 0 then
+				self:_renderCategory( self._rows[self._currentCategoryIndex] )
 			end
 		end
 	end
@@ -574,9 +701,11 @@ local function createTableView( tableView, options )
 		
 		-- Retrieve passed in row customization variables
 		local rowId = options.id or #self._rows
+		local rowWidth = opt.width
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
 		local rowColor = options.rowColor or { default = { 255, 255, 255 }, over = { 30, 144, 255 } }
+		local noLines = opt.noLines or false
 		
 		-- Set defaults for row color
 		if not rowColor.default then
@@ -591,7 +720,7 @@ local function createTableView( tableView, options )
 		local lineColor = options.lineColor or { 220, 220, 220 }
 				
 		-- Create the row's touch rectangle (ie it's border)
-		local border = display.newRect( self._rows[#self._rows], 0, 0, opt.width, rowHeight )
+		local border = display.newRect( self._rows[#self._rows], 0, 0, rowWidth, rowHeight )
 		border.x = border.contentWidth * 0.5
 		border.y = border.contentHeight * 0.5
 		border.strokeWidth = 1
@@ -599,7 +728,7 @@ local function createTableView( tableView, options )
 		border:setStrokeColor( unpack( rowColor.default ) )
 				
 		-- If the user want's lines between rows, set the stroke color accordingly
-		if not opt.noLines then
+		if not noLines then
 			border:setStrokeColor( unpack( lineColor ) )
 		end
 		
@@ -622,6 +751,10 @@ local function createTableView( tableView, options )
 		-- Assign private properties to the row
 		self._rows[#self._rows]._border = border
 		self._rows[#self._rows]._rowColor = rowColor
+		self._rows[#self._rows]._lineColor = lineColor
+		self._rows[#self._rows]._noLines = noLines
+		self._rows[#self._rows]._width = rowWidth
+		self._rows[#self._rows]._height = rowHeight
 		
 		-- Assign public properties to the row
 		self._rows[#self._rows].isCategory = isRowCategory
@@ -664,6 +797,12 @@ local function createTableView( tableView, options )
 			return
 		end
 		
+		-- Deleting categories isn't currently supported
+		if self._rows[rowIndex].isCategory then
+			print( "Warning: deleting categories is not supported" )
+			return
+		end
+		
 		-- Re calculate the scrollHeight
 		self._scrollHeight = self._scrollHeight - self._rows[rowIndex].height
 		
@@ -673,7 +812,13 @@ local function createTableView( tableView, options )
 		-- Loop through the remaining rows, starting at the next row after the deleted one
 		for i = rowIndex + 1, #self._rows do
 			if self._rows[i].y then
-				transition.to( self._rows[i], { y = self._rows[i].y - ( self._rows[i]._border.contentHeight ), transition = easing.outQuad } )
+				if self._rows[i].isCategory then
+					if nil ~= self._rows[i-1] then
+						transition.to( self._rows[i], { y = self._rows[i].y - ( self._rows[i-1].contentHeight ), transition = easing.outQuad } )
+					end
+				else
+					transition.to( self._rows[i], { y = self._rows[i].y - ( self._rows[i].contentHeight ), transition = easing.outQuad } )
+				end
 			end
 		end
 	end
@@ -688,12 +833,13 @@ local function createTableView( tableView, options )
 			self._rows[k] = nil
 		end
 		
-		-- Delete any category rows
-		for k, v in pairs( self._categories ) do
-			display.remove( self._categories[k] )
-			self._categories[k] = nil
+		-- Delete any stuck categories
+		if self._currentCategory then
+			display.remove( self._currentCategory )
+			self._currentCategory = nil
+			self._currentCategoryIndex = nil
 		end
-		
+	
 		-- Nil out the categories table
 		self._categories = nil
 		
@@ -711,10 +857,17 @@ local function createTableView( tableView, options )
 		if self._lastRowIndex == rowIndex then
 			return
 		end
+		
+		local newPosition = -self._rows[rowIndex].y + ( self._rows[rowIndex].contentHeight * 0.5 )
+					
+		-- The calculation needs altering for pickerWheels
+		if self._isUsedInPickerWheel then
+			newPosition = self.y - self._rows[rowIndex].y + ( self._rows[rowIndex].contentHeight * 0.5 )
+		end
 			
 		-- Transition the view to the row index	
-		transition.to( self, { y = -self._rows[rowIndex].y + ( self._rows[rowIndex].contentHeight * 0.5 ), time = scrollTime, transition = easing.outQuad } )
-
+		transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad } )
+		
 		-- Update the last row index
 		self._lastRowIndex = rowIndex
 	end
