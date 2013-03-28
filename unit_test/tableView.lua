@@ -85,7 +85,7 @@ function scene:createScene( event )
 	local function onRowRender( event )
 		local phase = event.phase
 		local row = event.row
-		
+				
 		--print( "Row id:", row.id )
 		local rowTitle = "Row " .. row.index
 		
@@ -131,14 +131,20 @@ function scene:createScene( event )
 					for i = 1, 20 do
 						local isCategory = false
 						local rowHeight = 40
-						local rowColor = { 255, 255, 255 }
+						local rowColor = 
+						{ 
+							default = { 255, 255, 255 }
+						}
 						local lineColor = { 220, 220, 220 }
 
 						-- Make some rows categories
 						if i == 8 or i == 25 or i == 50 or i == 75 then
 							isCategory = true
 							rowHeight = 24
-							rowColor = { 150, 160, 180, 200 }
+							rowColor = 
+							{
+								default = { 150, 160, 180, 200 },
+							}
 						end
 
 						-- Insert the row into the tableView
@@ -186,8 +192,10 @@ function scene:createScene( event )
 		-- Make some rows categories
 		if i == 1 or i == 4 or i == 8 or i == 18 or i == 28 or i == 35 or i == 45 then
 			isCategory = true
+			
 			rowHeight = 24
 			--rowHeight = 47
+			
 			rowColor = 
 			{ 
 				default = { 150, 160, 180, 200 },
@@ -229,7 +237,7 @@ function scene:createScene( event )
 	-- Test to scroll list to index
 	if TEST_SCROLL_TO_INDEX then
 		testTimer = timer.performWithDelay( 1000, function()
-			tableView:scrollToIndex( 30, 1000 )
+			tableView:scrollToIndex( 50, 1000 )
 			timer.performWithDelay( 3000, function()
 			tableView:scrollToIndex( 31, 2000 )end)
 			timer.performWithDelay( 6000, function()
