@@ -9,7 +9,7 @@
 -------------------------------------------------------------------------------------------------
 -- Change the package.path and make it so we can require the "widget.lua" file from the root directory
 -------------------------------------------------------------------------------------------------
---[[
+---[[
 local onDeviceTest = true -- Change this to false if you wish to run this on device
 
 
@@ -37,7 +37,7 @@ end
 
 package.preload.widget = nil
 package.preload.widget_button = nil
-package.preload.widget_picker = nil
+package.preload.widget_pickerWheel = nil
 package.preload.widget_progressView = nil
 package.preload.widget_scrollview = nil
 package.preload.widget_searchField = nil
@@ -61,4 +61,5 @@ io.output():setvbuf( "no" )
 display.setStatusBar( display.HiddenStatusBar )
 
 local storyboard = require( "storyboard" )
+--storyboard.gotoScene( "tableView" )
 storyboard.gotoScene( "unitTestListing" )
