@@ -68,7 +68,7 @@ local function createScrollView( scrollView, options )
 	
 	-- We need to assign these properties to the object
 	view._background = viewBackground
-	view._mask = mask
+	view._mask = viewMask
 	view._startXPos = 0
 	view._startYPos = 0
 	view._prevXPos = 0

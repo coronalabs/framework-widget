@@ -584,7 +584,7 @@ local function createUsing9Slice( button, options )
 	local opt = options
 	
 	-- Forward references
-	local imageSheet, view
+	local imageSheet, view, viewLabel
 	
 	local viewTopLeft, viewMiddleLeft, viewBottomLeft
 	local viewTopMiddle, viewMiddle, viewBottomMiddle
