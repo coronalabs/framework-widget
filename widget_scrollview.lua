@@ -283,7 +283,7 @@ local function createScrollView( scrollView, options )
 	-- Handle touches on the scrollview
 	function view:touch( event )
 		local phase = event.phase 
-		local time = event.time	
+		local time = event.time
 		
 		-- Set the time held
 		if "began" == phase then
@@ -314,7 +314,12 @@ local function createScrollView( scrollView, options )
 		
 		-- Execute the listener if one is specified
 		if self._listener then
-			self._listener( event )
+			local newEvent = 
+			{
+				target = self.parent, -- Set event.target to the scrollView object, not the view
+				phase = event.phase,
+			}
+			self._listener( newEvent )
 		end
 				
 		-- Set the view's phase so we can access it in the enterFrame listener below
