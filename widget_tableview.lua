@@ -687,6 +687,27 @@ local function createTableView( tableView, options )
 
 		return true
 	end
+	
+	-- Handle tap events on the row
+	local function _handleRowTap( event )
+		local newEvent =
+		{
+			phase = "tap",
+			target = event.target,
+		}
+
+		-- Set the row's border fill color
+		event.target._border:setFillColor( unpack( event.target._rowColor.over ) )
+		
+		-- After a little delay, set the row's fill color back to default
+		timer.performWithDelay( 100, function()
+			-- Set the row's border fill color
+			event.target._border:setFillColor( unpack( event.target._rowColor.default ) )
+		end)
+
+		-- Execute the row's onRowTouch listener
+		view._onRowTouch( newEvent )
+	end
 
 					
 	-- Function to insert a row into a tableView
@@ -762,6 +783,7 @@ local function createTableView( tableView, options )
 		-- Add event listener to the row
 		if not isRowCategory then
 			self._rows[#self._rows]:addEventListener( "touch", _handleRowTouch )
+			self._rows[#self._rows]:addEventListener( "tap", _handleRowTap )
 		else
 			-- If the row is a category, add a listener that ensures the event doesn't propogate down to the row below it
 			self._rows[#self._rows]:addEventListener( "touch", function() return true end )

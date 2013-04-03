@@ -150,12 +150,6 @@ function M._touch( view, event )
 		if view._tween then
 			transition.cancel( view._tween )
 			view._tween = nil
-		end
-		
-		-- If there is a scrollBar
-		if view._scrollBar then
-			-- Show the scrollBar
-			view._scrollBar:show()
 		end				
 		
 		-- Set focus
@@ -171,6 +165,12 @@ function M._touch( view, event )
 	            local moveThresh = 12
 				
 	            if dx > moveThresh or dy > moveThresh then
+					-- If there is a scrollBar, show it
+					if view._scrollBar then
+						-- Show the scrollBar
+						view._scrollBar:show()
+					end
+		
 	                if dx > dy then
 						-- If horizontal scrolling is enabled
 						if not view._isHorizontalScrollingDisabled then

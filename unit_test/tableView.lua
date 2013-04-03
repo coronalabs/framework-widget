@@ -117,6 +117,8 @@ function scene:createScene( event )
 			print( "Swiped right on row with index: ", row.index )
 		elseif "swipeLeft" == phase then
 			print( "Swiped left on row with id: ", row.id )
+		elseif "tap" == phase then
+			print( "Tapped on row with id:", row.id )
 		elseif "press" == phase then
 			print( "Pressed row with id: ", row.id )
 		elseif "release" == phase then
