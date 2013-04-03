@@ -43,7 +43,7 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_GET_CONTENT_POSITION = false
+	local TEST_GET_CONTENT_POSITION = true
 	local TEST_SCROLL_TO_POSITION = false
 	local TEST_SCROLL_TO_TOP = false
 	local TEST_SCROLL_TO_BOTTOM = false
@@ -56,12 +56,12 @@ function scene:createScene( event )
 		local phase = event.phase
 		local direction = event.direction
 		
-		if "began" == phase then
-			--print( "Began" )
+		if "began" == phase then			
+			print( "Began" )
 		elseif "moved" == phase then
-			--print( "Moved" )
+			print( "Moved" )
 		elseif "ended" == phase then
-			--print( "Ended" )
+			print( "Ended" )
 		end
 		
 		if event.limitReached then
