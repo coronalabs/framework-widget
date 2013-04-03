@@ -3,7 +3,7 @@
 -----------------------------------------------------------------------------------------
 local modname = ...
 local theme = {}
-package.loaded[modname] = themeTable
+package.loaded[modname] = theme
 local imageSuffix = display.imageSuffix or ""
 
 local sheetFile = "widget_theme_ios.png"
