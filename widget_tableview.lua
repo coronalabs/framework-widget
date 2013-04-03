@@ -346,10 +346,13 @@ local function createTableView( tableView, options )
 				self._onRowTouch( newEvent )
 				
 				-- Set the phase to none
-				self._newPhase = "none"
+				self._newPhase = nil
 				
 				-- This wasn't the initial touch
 				self._initialTouch = false
+				
+				-- The row shouldn't allow a tap event at this time
+				self._targetRow._cannotTap = true
 				
 				-- This row was touched
 				self._targetRow._wasTouched = false
@@ -360,6 +363,7 @@ local function createTableView( tableView, options )
 	end
 	
 	view:addEventListener( "touch" )
+	
 		
   	-- EnterFrame
 	function view:enterFrame( event )
@@ -399,6 +403,15 @@ local function createTableView( tableView, options )
 		if "began" == self._phase and self._initialTouch and not self._targetRow._wasTouched then
 			-- Reset any velocity
 			self._velocity = 0
+			
+			-- If there is a onRowTouch listener
+			if self._onRowTouch then
+				-- If the row isn't a category
+				if nil ~= self._targetRow.isCategory then
+					-- The row can allow tap's again
+					self._targetRow._cannotTap = false
+				end
+			end
 			
 			-- If a finger was held down
 			if timeHeld >= 110 then				
@@ -688,25 +701,31 @@ local function createTableView( tableView, options )
 		return true
 	end
 	
+	
 	-- Handle tap events on the row
 	local function _handleRowTap( event )
-		local newEvent =
-		{
-			phase = "tap",
-			target = event.target,
-		}
-
-		-- Set the row's border fill color
-		event.target._border:setFillColor( unpack( event.target._rowColor.over ) )
+		local row = event.target
 		
-		-- After a little delay, set the row's fill color back to default
-		timer.performWithDelay( 100, function()
-			-- Set the row's border fill color
-			event.target._border:setFillColor( unpack( event.target._rowColor.default ) )
-		end)
+		-- If tap's are allowed on the row at this time
+		if not row._cannotTap then
+			local newEvent =
+			{
+				phase = "tap",
+				target = row,
+			}
 
-		-- Execute the row's onRowTouch listener
-		view._onRowTouch( newEvent )
+			-- Set the row's border fill color
+			row._border:setFillColor( unpack( row._rowColor.over ) )
+		
+			-- After a little delay, set the row's fill color back to default
+			timer.performWithDelay( 100, function()
+				-- Set the row's border fill color
+				row._border:setFillColor( unpack( row._rowColor.default ) )
+			end)
+
+			-- Execute the row's onRowTouch listener
+			view._onRowTouch( newEvent )
+		end
 	end
 
 					
