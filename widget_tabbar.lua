@@ -66,6 +66,7 @@ local function initWithImageFiles( tabBar, options )
 		viewButtons[i]._over.isVisible = false
 		
 		-- Get the passed in properties if any
+		local label = opt.tabButtons[i].label or ""
 		local labelFont = opt.tabButtons[i].font or opt.defaultLabelFont
 		local labelSize = opt.tabButtons[i].size or opt.defaultLabelSize
 		local labelColor = opt.tabButtons[i].labelColor or opt.defaultLabelColor
@@ -73,7 +74,7 @@ local function initWithImageFiles( tabBar, options )
 		local labelYOffset = opt.tabButtons[i].labelYOffset or 0
 		
 		-- Create the tab button's label
-		viewButtons[i].label = display.newText( tabBar, opt.tabButtons[i].label, 0, 0, labelFont, labelSize )
+		viewButtons[i].label = display.newText( tabBar, label, 0, 0, labelFont, labelSize )
 		viewButtons[i].label:setTextColor( unpack( labelColor.default ) )
 		
 		-- Set the label offsets
@@ -352,7 +353,8 @@ local function initWithImageSheet( tabBar, options )
 			viewButtons[i].over.isVisible = false
 		end
 		
-		-- Get the passed in properties if any	
+		-- Get the passed in properties if any
+		local label = opt.tabButtons[i].label or ""
 		local labelFont = opt.tabButtons[i].font or opt.defaultLabelFont
 		local labelSize = opt.tabButtons[i].size or opt.defaultLabelSize
 		local labelColor = opt.tabButtons[i].labelColor or opt.defaultLabelColor
@@ -360,7 +362,7 @@ local function initWithImageSheet( tabBar, options )
 		local labelYOffset = opt.tabButtons[i].labelYOffset or 0
 		
 		-- Create the tab button's label
-		viewButtons[i].label = display.newText( tabBar, opt.tabButtons[i].label, 0, 0, labelFont, labelSize )
+		viewButtons[i].label = display.newText( tabBar, label, 0, 0, labelFont, labelSize )
 		viewButtons[i].label:setTextColor( unpack( labelColor.default ) )
 		
 		-- Set the label offsets
