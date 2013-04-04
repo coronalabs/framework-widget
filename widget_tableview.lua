@@ -143,8 +143,8 @@ local function createTableView( tableView, options )
 	end
 	
 	-- Function to scroll the tableView to a specific row
-	function tableView:scrollToIndex( rowIndex, time )
-		return self._view:_scrollToIndex( rowIndex, time )
+	function tableView:scrollToIndex( ... )
+		return self._view:_scrollToIndex( ... )
 	end
 	
 	-- Function to scroll the tableView to a specific y position
@@ -892,7 +892,26 @@ local function createTableView( tableView, options )
 	end
 	
 	-- Function to scroll to a specific row
-	function view:_scrollToIndex( rowIndex, time )
+	function view:_scrollToIndex( ... )
+		local arg = { ... }
+		local rowIndex = nil
+		local time = nil
+		local executeOnComplete = nil
+		
+		if "number" == type( arg[1] ) then
+			rowIndex = arg[1]
+		end
+		
+		if "number" == type( arg[2] ) then
+			time = arg[2]
+		elseif "function" == type( arg[2] ) then
+			executeOnComplete = arg[2]
+		end
+		
+		if "function" == type( arg[3] ) then
+			executeOnComplete = arg[3]
+		end
+		
 		local scrollTime = time or 400
 		
 		if self._lastRowIndex == rowIndex then
@@ -907,7 +926,7 @@ local function createTableView( tableView, options )
 		end
 			
 		-- Transition the view to the row index	
-		transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad } )
+		transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad, onComplete = executeOnComplete } )
 		
 		-- Update the last row index
 		self._lastRowIndex = rowIndex
