@@ -239,7 +239,7 @@ function scene:createScene( event )
 	-- Test to scroll list to index
 	if TEST_SCROLL_TO_INDEX then
 		testTimer = timer.performWithDelay( 1000, function()
-			tableView:scrollToIndex( 50, 1000 )
+			tableView:scrollToIndex( 50, 1000, function() print( "scrolled to row 50" ) end )
 			timer.performWithDelay( 3000, function()
 			tableView:scrollToIndex( 31, 2000 )end)
 			timer.performWithDelay( 6000, function()
