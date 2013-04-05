@@ -708,23 +708,25 @@ local function createTableView( tableView, options )
 		
 		-- If tap's are allowed on the row at this time
 		if not row._cannotTap then
-			local newEvent =
-			{
-				phase = "tap",
-				target = row,
-			}
+			if "function" == type( view._onRowTouch ) then
+				local newEvent =
+				{
+					phase = "tap",
+					target = row,
+				}
 
-			-- Set the row's border fill color
-			row._border:setFillColor( unpack( row._rowColor.over ) )
-		
-			-- After a little delay, set the row's fill color back to default
-			timer.performWithDelay( 100, function()
 				-- Set the row's border fill color
-				row._border:setFillColor( unpack( row._rowColor.default ) )
-			end)
+				row._border:setFillColor( unpack( row._rowColor.over ) )
+		
+				-- After a little delay, set the row's fill color back to default
+				timer.performWithDelay( 100, function()
+					-- Set the row's border fill color
+					row._border:setFillColor( unpack( row._rowColor.default ) )
+				end)
 
-			-- Execute the row's onRowTouch listener
-			view._onRowTouch( newEvent )
+				-- Execute the row's onRowTouch listener
+				view._onRowTouch( newEvent )
+			end
 		end
 	end
 
@@ -907,9 +909,11 @@ local function createTableView( tableView, options )
 		elseif "function" == type( arg[2] ) then
 			executeOnComplete = arg[2]
 		end
-		
+				
 		if "function" == type( arg[3] ) then
 			executeOnComplete = arg[3]
+		elseif "function" == type( arg[4] ) then
+			executeOnComplete = arg[4]
 		end
 		
 		local scrollTime = time or 400
