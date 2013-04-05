@@ -179,6 +179,24 @@ local function createPickerWheel( pickerWheel, options )
 		return self._view:_getValues()
 	end	
 	
+	-- Function to scroll to a specific pickerWheel column row
+	function pickerWheel:scrollToIndex( ... )
+		local arg = { ... }
+
+		local column = nil
+		
+		-- If the first arg is a number, set the column to that
+		if "number" == type( arg[1] ) then
+			column = arg[1]
+			
+			-- We have retrieved the column, now set arg1 to arg2 (which is the index to scroll to) so scrollTo index gets called as expected
+			arg[1] = arg[2]
+		end
+		
+		-- Scroll to the specified column index
+		return self._view._columns[column]:scrollToIndex( unpack( arg ) )
+	end
+	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -187,7 +205,7 @@ local function createPickerWheel( pickerWheel, options )
 	function pickerWheel:scale()
 		print( M._widgetName, "Does not support scaling" )
 	end
-	
+
 
 	function view:enterFrame( event )
 		local _pickerWheel = self.parent
