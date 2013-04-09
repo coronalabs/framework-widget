@@ -15,6 +15,222 @@ local M =
 	_widgetName = "widget.newButton",
 }
 
+-- Function to handle touches on a widget button, function is common to all widget button creation types (ie image files, imagesheet, and 9 slice button creation)
+local function manageButtonTouch( view, event )
+	local phase = event.phase
+	
+	-- If the button isn't active, just return
+	if not view._isEnabled then
+		return
+	end
+		
+	if "began" == phase then		
+		-- Set the button to it's over image state
+		view:_setState( "over" )
+		
+		-- If there is a onPress method ( and not a onEvent method )
+		if view._onPress and not view._onEvent then
+			view._onPress( event )
+		end
+		
+		-- If the parent group still exists
+		if "table" == type( view.parent ) then
+			-- Set focus on the button
+			view._isFocus = true
+					
+			-- Don't set focus to a button inside a scrollView
+			--if not event._insideScrollView then
+				display.getCurrentStage():setFocus( view, event.id )
+			--end
+		end
+		
+	elseif view._isFocus then
+		if "moved" == phase then
+			if not require( "widget" )._isWithinBounds( view, event ) then
+				-- Set the button to it's default image state
+				view:_setState( "default" )
+			else
+				if view:_getState() ~= "over" then
+					-- Set the button to it's over image state
+					view:_setState( "over" )
+				end
+			end
+		
+		elseif "ended" == phase or "cancelled" == phase then
+			if require( "widget" )._isWithinBounds( view, event ) then
+				-- If there is a onRelease method ( and not a onEvent method )
+				if view._onRelease and not view._onEvent then
+					view._onRelease( event )
+				end
+			end
+			
+			-- Set the button to it's default image state
+			view:_setState( "default" )
+			
+			-- Remove focus from the button
+			view._isFocus = false
+			display.getCurrentStage():setFocus( nil )
+		end
+	end
+	
+	-- If there is a onEvent method ( and not a onPress or onRelease method )
+	if view._onEvent and not view._onPress and not view._onRelease then
+		if not require( "widget" )._isWithinBounds( view, event ) and "ended" == phase then
+			event.phase = "cancelled"
+		end
+		
+		view._onEvent( event )
+	end
+end
+
+
+------------------------------------------------------------------------
+-- Text only button
+------------------------------------------------------------------------
+local function createUsingText( button, options )
+	-- Create a local reference to our options table
+	local opt = options
+	
+	-- Forward references
+	local view
+	
+	-- Create the label (either embossed or standard)
+	if opt.embossedLabel then
+		view = display.newEmbossedText( button, opt.label, 0, 0, opt.font, opt.fontSize )
+	else
+		view = display.newText( button, opt.label, 0, 0, opt.font, opt.fontSize )
+	end
+	
+	-- Set the view's color
+	view:setTextColor( unpack( opt.labelColor.default ) )
+	view._labelColor = opt.labelColor
+	
+	----------------------------------
+	-- Positioning
+	----------------------------------
+	
+	-- The view
+	view.x = button.x + ( view.contentWidth * 0.5 )
+	view.y = button.y + ( view.contentHeight * 0.5 )
+
+	-------------------------------------------------------
+	-- Assign properties/objects to the view
+	-------------------------------------------------------
+	
+	view._isEnabled = opt.isEnabled
+	view._pressedState = "default"
+	view._fontSize = opt.fontSize
+	view._labelColor = view._labelColor
+	
+	-- Methods
+	view._onPress = opt.onPress
+	view._onRelease = opt.onRelease
+	view._onEvent = opt.onEvent
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the button
+	-------------------------------------------------------
+	
+	-- Assign objects to the button
+	button._view = view
+	
+	----------------------------------------------------------
+	--	PUBLIC METHODS	
+	----------------------------------------------------------
+	
+	-- Function to set the buttons fill color
+	function button:setFillColor( ... )
+		self._view:setFillColor( ... )
+	end
+	
+	-- Function to set the button's label
+	function button:setLabel( newLabel )
+		return self._view:_setLabel( newLabel )
+	end
+	
+	-- Function to get the button's label
+	function button:getLabel()
+		return self._view:_getLabel()
+	end
+	
+	-- Function to set a button as active
+	function button:setEnabled( isEnabled )
+		self._view._isEnabled = isEnabled
+	end
+	
+	function view:touch( event )
+		-- Set the target to the view's parent group (the button object)
+		event.target = self.parent
+		
+		-- Manage touch events on the button
+		manageButtonTouch( self, event )
+		
+		return true
+	end
+	
+	view:addEventListener( "touch" )
+	
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
+	
+	-- Function to set the button's label
+	function view:_setLabel( newLabel )
+		-- Update the label's text
+		if "function" == type( self.setText ) then
+			self:setText( newLabel )
+		else
+			self.text = newLabel
+		end
+	end
+	
+	-- Function to get the button's label
+	function view:_getLabel()
+		return self._label.text
+	end
+	
+	-- Function to set the buttons current state
+	function view:_setState( state )
+		local newState = state
+		
+		if "over" == newState then
+			-- Set the label to it's over color
+			if "table" == type( self ) then
+				self:setTextColor( unpack( self._labelColor.over ) )
+			end
+			
+			-- The pressedState is now "over"
+			self._pressedState = "over"
+		
+		elseif "default" == newState then
+			-- Set the label back to it's default color
+			if "table" == type( self ) then
+				self:setTextColor( unpack( self._labelColor.default ) )
+			end
+			
+			-- The pressedState is now "default"
+			self._pressedState = "default"
+		end
+	end
+	
+	-- Function to get the buttons current state
+	function view:_getState()
+		return self._pressedState
+	end
+	
+	-- Lose focus function
+	function button:_loseFocus()
+		self._view:_setState( "default" )
+	end
+	
+	-- Finalize function
+	function button:_finalize()
+	end
+	
+	return button
+end
+	
+	
 ------------------------------------------------------------------------
 -- Image Files Button
 ------------------------------------------------------------------------
@@ -133,99 +349,11 @@ local function createUsingImageFiles( button, options )
 	end
 	
 	function view:touch( event )
-		local phase = event.phase
-		local _button = self.parent
-		event.target = _button
+		-- Set the target to the view's parent group (the button object)
+		event.target = self.parent
 		
-		-- If the button is inside a scrollView, set it as so then return true
-		if self._insertedIntoScrollView then	
-			return true
-		end
-		
-		-- If the button isn't active, just return
-		if not self._isEnabled then
-			return
-		end
-		
-		if "began" == phase then			
-			-- Set the button to it's over image state
-			self.isVisible = false
-			self._over.isVisible = true
-			
-			-- Set the buttons label to it's over color
-			self._label:setTextColor( unpack( self._labelColor.over ) )
-			
-			-- If there is a onPress method ( and not a onEvent method )
-			if self._onPress and not self._onEvent then
-				self._onPress( event )
-			end
-			
-			-- If the parent group still exists
-			if "table" == type( self.parent ) then
-				-- Set focus on the button
-				self._isFocus = true
-						
-				-- Don't set focus to a button inside a scrollView
-				if not event._insideScrollView then
-					display.getCurrentStage():setFocus( self, event.id )
-				end
-			end
-			
-		elseif self._isFocus then
-			if "moved" == phase then				
-				if not require( "widget" )._isWithinBounds( self, event ) then
-					-- Set the button to it's default image state
-					self.isVisible = true
-					self._over.isVisible = false
-					
-					-- Set the buttons label to it's default color
-					self._label:setTextColor( unpack( self._labelColor.default ) )
-				else
-					if self:_getState() ~= "over" then
-						-- Set the button to it's over image state
-						self.isVisible = false
-						self._over.isVisible = true
-						
-						-- Set the buttons label to it's over color
-						self._label:setTextColor( unpack( self._labelColor.over ) )
-					end
-				end
-			
-			elseif "ended" == phase or "cancelled" == phase then
-				if require( "widget" )._isWithinBounds( self, event ) then
-					-- If there is a onRelease method ( and not a onEvent method )
-					if self._onRelease and not self._onEvent then
-						self._onRelease( event )
-					end
-				end
-				
-				-- Set the button to it's default image state
-				self.isVisible = true
-				self._over.isVisible = false
-				
-				-- Set the buttons label to it's default color
-				self._label:setTextColor( unpack( self._labelColor.default ) )
-				
-				-- Remove focus from the button
-				self._isFocus = false
-				display.getCurrentStage():setFocus( nil )
-							
-				-- Reset ScrollView properties	(if this button is in a scrollView)
-				if self._isInScrollView then
-					self._insertedIntoScrollView = true
-					self._isActive = false
-				end
-			end
-		end
-		
-		-- If there is a onEvent method ( and not a onPress or onRelease method )
-		if self._onEvent and not self._onPress and not self._onRelease then			
-			if not require( "widget" )._isWithinBounds( self, event ) and "ended" == phase then
-				event.phase = "cancelled"
-			end
-			
-			self._onEvent( event )
-		end
+		-- Manage touch events on the button
+		manageButtonTouch( self, event )
 		
 		return true
 	end
@@ -255,7 +383,7 @@ local function createUsingImageFiles( button, options )
 		end		
 			
 		-- Update the label's y position
-		self._label.y = self._label.y + self._labelYOffset
+		self._label.y = self._label.y
 	end
 	
 	-- Function to get the button's label
@@ -272,6 +400,11 @@ local function createUsingImageFiles( button, options )
 			self.isVisible = false
 			self._over.isVisible = true
 			
+			-- Set the label to it's over color
+			if "table" == type( self._label ) then
+				self._label:setTextColor( unpack( self._label._labelColor.over ) )
+			end
+			
 			-- The pressedState is now "over"
 			self._pressedState = "over"
 		
@@ -279,6 +412,11 @@ local function createUsingImageFiles( button, options )
 			-- Set the piece to the default image state
 			self.isVisible = true
 			self._over.isVisible = false
+			
+			-- Set the label back to it's default color
+			if "table" == type( self._label ) then
+				self._label:setTextColor( unpack( self._label._labelColor.default ) )
+			end
 			
 			-- The pressedState is now "default"
 			self._pressedState = "default"
@@ -288,6 +426,11 @@ local function createUsingImageFiles( button, options )
 	-- Function to get the buttons current state
 	function view:_getState()
 		return self._pressedState
+	end
+	
+	-- Lose focus function
+	function button:_loseFocus()
+		self._view:_setState( "default" )
 	end
 	
 	-- Finalize function
@@ -415,96 +558,12 @@ local function createUsingImageSheet( button, options )
 	end
 	
 	function view:touch( event )
-		local phase = event.phase
-		local _button = self.parent
-		event.target = _button
+		-- Set the target to the view's parent group (the button object)
+		event.target = self.parent
 		
-		-- If the button is inside a scrollView, set it as so then return true
-		if self._insertedIntoScrollView then	
-			return true
-		end
-		
-		-- If the button isn't active, just return
-		if not self._isEnabled then
-			return
-		end
-		
-		if "began" == phase then
-			-- Set the button to it's over image state
-			self:_setState( "over" )
-			
-			-- Set the buttons label to it's over color
-			self._label:setTextColor( unpack( self._labelColor.over ) )
-			
-			-- If there is a onPress method ( and not a onEvent method )
-			if self._onPress and not self._onEvent then
-				self._onPress( event )
-			end
-			
-			-- If the parent group still exists
-			if "table" == type( self.parent ) then
-				-- Set focus on the button
-				self._isFocus = true
-						
-				-- Don't set focus to a button inside a scrollView
-				if not event._insideScrollView then
-					display.getCurrentStage():setFocus( self, event.id )
-				end
-			end
-			
-		elseif self._isFocus then
-			if "moved" == phase then
-				if not require( "widget" )._isWithinBounds( self, event ) then
-					-- Set the button to it's default image state
-					self:_setState( "default" )
-					
-					-- Set the buttons label to it's default color
-					self._label:setTextColor( unpack( self._labelColor.default ) )
-				else
-					if self:_getState() ~= "over" then
-						-- Set the button to it's over image state
-						self:_setState( "over" )
-						
-						-- Set the buttons label to it's over color
-						self._label:setTextColor( unpack( self._labelColor.over ) )
-					end
-				end
-			
-			elseif "ended" == phase or "cancelled" == phase then
-				if require( "widget" )._isWithinBounds( self, event ) then
-					-- If there is a onRelease method ( and not a onEvent method )
-					if self._onRelease and not self._onEvent then
-						self._onRelease( event )
-					end
-				end
+		-- Manage touch events on the button
+		manageButtonTouch( self, event )
 				
-				-- Set the button to it's default image state
-				self:_setState( "default" )
-				
-				-- Set the buttons label to it's default color
-				self._label:setTextColor( unpack( self._labelColor.default ) )
-				
-				-- Remove focus from the button
-				self._isFocus = false
-				display.getCurrentStage():setFocus( nil )
-							
-				-- Reset ScrollView properties	(if this button is in a scrollView)
-				if self._isInScrollView then
-					self._insertedIntoScrollView = true
-					self._isActive = false
-				end
-			end
-		end
-		
-		-- If there is a onEvent method ( and not a onPress or onRelease method )
-		if self._onEvent and not self._onPress and not self._onRelease then
-			if not require( "widget" )._isWithinBounds( self, event ) and "ended" == phase then
-				event.phase = "cancelled"
-			end
-			
-			self._onEvent( event )
-		end
-		
 		return true
 	end
 	
@@ -533,7 +592,7 @@ local function createUsingImageSheet( button, options )
 		end
 				
 		-- Update the label's y position
-		self._label.y = self._label.y + self._labelYOffset
+		self._label.y = self._label.y
 	end
 	
 	-- Function to get the button's label
@@ -549,12 +608,22 @@ local function createUsingImageSheet( button, options )
 			-- Set the button to the over image state
 			self:setSequence( "over" )
 			
+			-- Set the label to it's over color
+			if "table" == type( self._label ) then
+				self._label:setTextColor( unpack( self._label._labelColor.over ) )
+			end
+			
 			-- The pressedState is now "over"
 			self._pressedState = "over"
 		
 		elseif "default" == newState then
 			-- Set the piece to the default image state
 			self:setSequence( "default" )
+			
+			-- Set the label back to it's default color
+			if "table" == type( self._label ) then
+				self._label:setTextColor( unpack( self._label._labelColor.default ) )
+			end
 			
 			-- The pressedState is now "default"
 			self._pressedState = "default"
@@ -564,6 +633,11 @@ local function createUsingImageSheet( button, options )
 	-- Function to get the buttons current state
 	function view:_getState()
 		return self._pressedState
+	end
+	
+	-- Lose focus function
+	function button:_loseFocus()
+		self._view:_setState( "default" )
 	end
 	
 	-- Finalize function
@@ -614,7 +688,7 @@ local function createUsing9Slice( button, options )
 
 			{
 				name = "over",
-				start = opt.topLeftFrameOver,
+				start = opt.topLeftOverFrame,
 				count = 1,
 			}
 		},
@@ -630,7 +704,7 @@ local function createUsing9Slice( button, options )
 
 			{
 				name = "over",
-				start = opt.middleLeftFrameOver,
+				start = opt.middleLeftOverFrame,
 				count = 1,
 			}
 		},
@@ -646,7 +720,7 @@ local function createUsing9Slice( button, options )
 
 			{
 				name = "over",
-				start = opt.bottomLeftFrameOver,
+				start = opt.bottomLeftOverFrame,
 				count = 1,
 			}
 		},
@@ -711,7 +785,7 @@ local function createUsing9Slice( button, options )
 
 			{
 				name = "over",
-				start = opt.topRightFrameOver,
+				start = opt.topRightOverFrame,
 				count = 1,
 			}
 		},
@@ -929,82 +1003,8 @@ local function createUsing9Slice( button, options )
 
 	-- Handle touches on the view
 	function view:touch( event )
-		local phase = event.phase
-		
-		-- If the button is inside a scrollView, set it as so then return true
-		if self._insertedIntoScrollView then
-			self._isInScrollView = true	
-			return true
-		end
-		
-		-- If the button isn't active, just return
-		if not self._isEnabled then
-			return
-		end
-
-		if "began" == phase then
-			-- Set the button to it's over image state
-			self:_setState( "over" )
-			
-			-- If there is a onPress method ( and not a onEvent method )
-			if self._onPress and not self._onEvent then
-				self._onPress( event )
-			end
-			
-			-- If the parent group still exists
-			if "table" == type( self.parent ) then
-				-- Set focus on the button
-				self._isFocus = true
-			
-				-- Don't set focus to a button inside a scrollView
-				if not event._insideScrollView then
-					display.getCurrentStage():setFocus( self, event.id )
-				end
-			end
-			
-		elseif self._isFocus then
-			if "moved" == phase then
-				if not require( "widget" )._isWithinBounds( self, event ) then
-					-- Set the button to it's default image state
-					self:_setState( "default" )
-				else					
-					if self:_getState() ~= "over" then
-						-- Set the button to it's over image state
-						self:_setState( "over" )
-					end
-				end
-			
-			elseif "ended" == phase or "cancelled" == phase then
-				if require( "widget" )._isWithinBounds( self, event ) then
-					-- If there is a onRelease method ( and not a onEvent method )
-					if self._onRelease and not self._onEvent then
-						self._onRelease( event )
-					end
-				end
-				
-				-- Set the button to it's default image state
-				self:_setState( "default" )
-				
-				-- Remove focus from the button
-				self._isFocus = false
-				display.getCurrentStage():setFocus( nil )
-				
-				-- Reset ScrollView properties(if this button is in a scrollView)
-				if self._isInScrollView then
-					self._insertedIntoScrollView = true
-					self._isActive = false
-				end
-			end
-		end
-		
-		-- If there is a onEvent method ( and not a onPress or onRelease method )
-		if self._onEvent and not self._onPress and not self._onRelease then
-			if not require( "widget" )._isWithinBounds( self, event ) and "ended" == phase then
-				event.phase = "cancelled"
-			end
-			
-			self._onEvent( event )
-		end
+		-- Manage touch events on the button
+		manageButtonTouch( self, event )
 		
 		return true
 	end
@@ -1031,7 +1031,7 @@ local function createUsing9Slice( button, options )
 		end
 
 		-- Update the label's y position
-		self._label.y = self._label.y + self._labelYOffset
+		self._label.y = self._label.y
 	end
 	
 	-- Function to get the button's label
@@ -1107,6 +1107,11 @@ local function createUsing9Slice( button, options )
 	function view:_getState()
 		return self._pressedState
 	end
+	
+	-- Lose focus function
+	function button:_loseFocus()
+		self._view:_setState( "default" )
+	end
 		
 	-- Finalize function
 	function button:_finalize()
@@ -1149,6 +1154,7 @@ function M.new( options, theme )
 	opt.labelYOffset = customOptions.labelYOffset or 0
 	opt.embossedLabel = customOptions.emboss or themeOptions.emboss or false
 	opt.isEnabled = customOptions.isEnabled
+	opt.textOnlyButton = customOptions.textOnly or false
 	
 	-- If the user didn't pass in a isEnabled flag, set it to true
 	if nil == opt.isEnabled then
@@ -1179,15 +1185,15 @@ function M.new( options, theme )
 	
 	-- Left ( 9 piece set )
 	opt.topLeftFrame = customOptions.topLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topLeftFrame )
-	opt.topLeftFrameOver = customOptions.topLeftOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topLeftOverFrame )
+	opt.topLeftOverFrame = customOptions.topLeftOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topLeftOverFrame )
 	opt.middleLeftFrame = customOptions.middleLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleLeftFrame )
-	opt.middleLeftFrameOver = customOptions.middleLeftOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleLeftOverFrame )
+	opt.middleLeftOverFrame = customOptions.middleLeftOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleLeftOverFrame )
 	opt.bottomLeftFrame = customOptions.bottomLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomLeftFrame )
-	opt.bottomLeftFrameOver = customOptions.bottomLeftOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomLeftOverFrame )
+	opt.bottomLeftOverFrame = customOptions.bottomLeftOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomLeftOverFrame )
 	
 	-- Right ( 9 piece set )
 	opt.topRightFrame = customOptions.topRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topRightFrame )
-	opt.topRightFrameOver = customOptions.topRightOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topRightOverFrame )
+	opt.topRightOverFrame = customOptions.topRightOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topRightOverFrame )
 	opt.middleRightFrame = customOptions.middleRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleRightFrame )
 	opt.middleRightOverFrame = customOptions.middleRightOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleRightOverFrame )
 	opt.bottomRightFrame = customOptions.bottomRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomRightFrame )
@@ -1202,8 +1208,8 @@ function M.new( options, theme )
 	opt.bottomMiddleOverFrame = customOptions.bottomMiddleOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomMiddleOverFrame )
 
 	-- Are we using a nine piece button?
-	local using9PieceButton = not opt.defaultFrame and not opt.overFrame and not opt.defaultFile and not opt.overFile and opt.topLeftFrame and opt.topLeftFrameOver and opt.middleLeftFrame and opt.middleLeftFrameOver and opt.bottomLeftFrame and opt.bottomLeftFrameOver and 
-							opt.topRightFrame and opt.topRightFrameOver and opt.middleRightFrame and opt.middleRightOverFrame and opt.bottomRightFrame and opt.bottomRightOverFrame and
+	local using9PieceButton = not opt.defaultFrame and not opt.overFrame and not opt.defaultFile and not opt.overFile and not opt.textOnlyButton and opt.topLeftFrame and opt.topLeftOverFrame and opt.middleLeftFrame and opt.middleLeftOverFrame and opt.bottomLeftFrame and opt.bottomLeftOverFrame and 
+							opt.topRightFrame and opt.topRightOverFrame and opt.middleRightFrame and opt.middleRightOverFrame and opt.bottomRightFrame and opt.bottomRightOverFrame and
 							opt.topMiddleFrame and opt.topMiddleOverFrame and opt.middleFrame and opt.middleOverFrame and opt.bottomMiddleFrame and opt.bottomMiddleOverFrame
 	
 	-- If we are using a 9-piece button and have not passed in an imageSheet, throw an error
@@ -1293,6 +1299,11 @@ function M.new( options, theme )
 		-- If using 2 images
 		if opt.defaultFile and opt.overFile then
 			createUsingImageFiles( button, opt )
+		end
+		
+		-- Text only button
+		if opt.textOnlyButton then
+			createUsingText( button, opt )
 		end
 	end
 	

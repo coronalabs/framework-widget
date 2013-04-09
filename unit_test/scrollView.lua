@@ -43,13 +43,14 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_GET_CONTENT_POSITION = true
+	local TEST_GET_CONTENT_POSITION = false
 	local TEST_SCROLL_TO_POSITION = false
 	local TEST_SCROLL_TO_TOP = false
 	local TEST_SCROLL_TO_BOTTOM = false
 	local TEST_SCROLL_TO_LEFT = false
 	local TEST_SCROLL_TO_RIGHT = false
 	local TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER = false
+	local TEST_REMOVE_SCROLLVIEW = false
 	
 	-- Our ScrollView listener
 	local function scrollListener( event )
@@ -98,7 +99,7 @@ function scene:createScene( event )
 		horizontalScrollDisabled = false,
 		verticalScrollDisabled = false,
 		maskFile = "assets/scrollViewMask-350.png",
-		listener = scrollListener,
+		--listener = scrollListener,
 	}
 	group:insert( scrollView )	
 	
@@ -107,7 +108,126 @@ function scene:createScene( event )
 	background.x = background.contentWidth * 0.5
 	background.y = background.contentHeight * 0.5
 	scrollView:insert( background )
+	
+	local function test( event )
+		local phase = event.phase
+		
+		if "began" == phase then
+			print( "began" )
+		elseif "moved" == phase then
+			local dy = math.abs( event.y - event.yStart )
+			
+			if dy > 10 then
+				scrollView:takeFocus( event )
+			end
+			
+			print( "moved" )
+		elseif "ended" == phase then
+			print( "ended" )
+		elseif "cancelled" == phase then
+			print( "cancelled" )
+		end
+		
+		return true
+	end
 
+
+	-- Standard button 
+	local buttonUsingFiles = widget.newButton
+	{
+		width = 278,
+		height = 46,
+		defaultFile = "assets/default.png",
+		overFile = "assets/over.png",
+	    id = "Left Label Button",
+	    left = 0,
+	    top = 120,
+	    label = "Files",
+		labelAlign = "left",
+		fontSize = 18,
+		labelColor =
+		{ 
+			default = { 0, 0, 0 },
+			over = { 255, 255, 255 },
+		},
+		emboss = false,
+		isEnabled = true,
+	    onEvent = test,
+	}
+	buttonUsingFiles.x = display.contentCenterX
+	buttonUsingFiles.oldLabel = "Files"	
+	scrollView:insert( buttonUsingFiles )
+	
+	-- Set up sheet parameters for imagesheet button
+	local sheetInfo =
+	{
+		width = 200,
+		height = 60,
+		numFrames = 2,
+		sheetContentWidth = 200,
+		sheetContentHeight = 120,
+	}
+	
+	-- Create the button sheet
+	local buttonSheet = graphics.newImageSheet( "assets/btnBlueSheet.png", sheetInfo )
+	
+	-- ImageSheet button 
+	local buttonUsingImageSheet = widget.newButton
+	{
+		sheet = buttonSheet,
+		defaultFrame = 1,
+		overFrame = 2,
+	    id = "Centered Label Button",
+	    left = 60,
+	    top = 200,
+	    label = "ImageSheet",
+		labelAlign = "center",
+		fontSize = 18,
+		labelColor =
+		{ 
+			default = { 255, 255, 255 },
+			over = { 255, 0, 0 },
+		},
+	    onEvent = test
+	}
+	buttonUsingImageSheet.x = display.contentCenterX
+	buttonUsingImageSheet.oldLabel = "ImageSheet"	
+	scrollView:insert( buttonUsingImageSheet )
+		
+
+	-- Theme button 
+	local buttonUsingTheme = widget.newButton
+	{
+	    id = "Right Label Button",
+	    left = 0,
+	    top = 280,
+	    label = "Theme",
+		labelAlign = "right",
+	    width = 140, 
+		height = 50,
+		fontSize = 18,
+		labelColor =
+		{ 
+			default = { 0, 0, 0 },
+			--over = { 255, 255, 255 },
+		},
+	    onEvent = test
+	}
+	buttonUsingTheme.oldLabel = "Theme"
+	buttonUsingTheme.x = display.contentCenterX
+	scrollView:insert( buttonUsingTheme )
+
+
+	----------------------------------------------------------------------------------------------------------------
+	--											TESTS
+	----------------------------------------------------------------------------------------------------------------
+	if TEST_REMOVE_SCROLLVIEW then
+		timer.performWithDelay( 1000, function()
+			scrollView:removeSelf()
+			scrollView = nil
+		end)
+	end
+	
 	
 	if TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER then
 		-- Create scrollView2
@@ -129,10 +249,7 @@ function scene:createScene( event )
 		scrollView2:insert( bg2 )
 		group:insert( scrollView2 )
 	end
-
-	----------------------------------------------------------------------------------------------------------------
-	--											TESTS
-	----------------------------------------------------------------------------------------------------------------
+	
 	
 	-- Test getContentPosition()
 	if TEST_GET_CONTENT_POSITION then

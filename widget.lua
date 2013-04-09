@@ -64,6 +64,12 @@ local function _removeSelf( self )
 	self = nil
 end
 
+
+-- Dummy function to remove focus from a widget, any widget can override this function to remove focus if needed.
+function widget._loseFocus()
+	return
+end
+
 -- Widget constructor. Every widget object is created from this method
 function widget._new( options )
 	local newWidget = display.newGroup() -- All Widget* objects are display groups
@@ -75,9 +81,11 @@ function widget._new( options )
 	newWidget._widgetType = options.widgetType
 	newWidget._removeSelf = newWidget.removeSelf
 	newWidget.removeSelf = _removeSelf
+	newWidget._loseFocus = widget._loseFocus
 	
 	return newWidget
 end
+	
 
 -- Function to retrieve a frame index from an imageSheet data file
 function widget._getFrameIndex( theme, frame )

@@ -156,6 +156,37 @@ local function createScrollView( scrollView, options )
 		transition.to( self._view, { x = newX, y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
 	end
 	
+	function scrollView:takeFocus( event )
+		local target = event.target
+		
+		-- Remove focus from the object
+		display.getCurrentStage():setFocus( target, nil )
+		
+		-- Handle turning widget buttons back to their default state (visually, ie their default button images & labels)
+		if "table" == type( target ) then
+			if "string" == type( target._widgetType ) then
+				-- Remove focus from the widget
+				target:_loseFocus()
+			end
+		end
+		
+		-- Create our new event table
+		local newEvent = {}
+		
+		-- Copy the event table's keys/values into our newEvent table
+		for k, v in pairs( event ) do
+			newEvent[k] = v
+		end
+
+		-- Set our new event's phase to began, and it's target to the view
+		newEvent.phase = "began"
+		newEvent.target = self._view
+		
+		-- Send a touch event to the view
+		self._view:touch( newEvent )
+	end
+	
+	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------	
@@ -241,13 +272,6 @@ local function createScrollView( scrollView, options )
 
 		-- Update the scroll area size
 		updateScrollAreaSize()
-
-		-- If the inserted object is a button, set it as inserted and add a touch listener to it 
-		if "button" == obj._widgetType then
- 			obj._view:addEventListener( "touch", _handleButtonTouch )
-			obj._view._insertedIntoScrollView = true
-			obj._view._isActive = false
-		end
 		
 		-- Create the scrollBar
 		if not opt.hideScrollBar then
@@ -343,29 +367,6 @@ local function createScrollView( scrollView, options )
 		
 		-- Calculate the time the touch has been held
 		local timeHeld = event.time - self._timeHeld
-			
-		-- Fire a touch event to a object inside a scrollview.
-		if "began" == self._phase then			
-			if not self._target._isActive then
-				-- If a finger is held
-				if timeHeld > 60 then
-					-- If the object has been inserted into the scrollView
-					if self._target._insertedIntoScrollView then
-						-- Remove it's flag from the scrollView temporally
-						self._target._insertedIntoScrollView = false
-						
-						-- The object is now active
-						self._target._isActive = true
-						
-						-- Dispatch a touch event to the object
-						self._target:dispatchEvent( { name = "touch", phase = "began", _insideScrollView = true } )
-						
-						-- The phase is now none (we don't want the touch event to fire more than once)	
-						self._phase = "none"
-					end
-				end
-			end
-		end
 		
 		-- Constrain x/y scale values to 1.0
 		if _scrollView.xScale ~= 1.0 then
