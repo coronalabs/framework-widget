@@ -260,14 +260,18 @@ local function createScrollView( scrollView, options )
 		end
 
 		-- Override the removeself method for this object (so we can recalculate the content size after it is removed)
-		obj._cachedRemoveSelf = obj.removeSelf
-		
-		function obj:removeSelf()
-			obj._cachedRemoveSelf( obj )
-			obj = nil
+		-- If we haven't already over-ridden it
+		if nil == obj._cachedRemoveSelf then
+			obj._cachedRemoveSelf = obj.removeSelf
 			
-			-- Update the scroll area size
-			updateScrollAreaSize()
+			local function removeSelf( self )
+				self:_cachedRemoveSelf()
+				
+				-- Update the scroll area size
+				updateScrollAreaSize()
+			end
+			
+			obj.removeSelf = removeSelf
 		end
 
 		-- Update the scroll area size
@@ -364,9 +368,6 @@ local function createScrollView( scrollView, options )
 
 		-- Handle momentum @ runtime
 		require( "widget_momentumScrolling" )._runtime( self, event )		
-		
-		-- Calculate the time the touch has been held
-		local timeHeld = event.time - self._timeHeld
 		
 		-- Constrain x/y scale values to 1.0
 		if _scrollView.xScale ~= 1.0 then
