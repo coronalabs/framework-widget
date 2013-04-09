@@ -158,6 +158,26 @@ function scene:createScene( event )
 	buttonUsingTheme.x = display.contentCenterX
 	group:insert( buttonUsingTheme )
 	
+	-- Text only button
+	local buttonUsingTextOnly = widget.newButton
+	{
+		id = "Text only button",
+		left = 0,
+		top = 340,
+		label = "Text Only Button",
+		labelColor = 
+		{
+			default = { 0, 0, 0 },
+			over = { 255, 0, 0 },
+		},
+		textOnly = true,
+		--emboss = false,
+		onEvent = onButtonEvent
+	}
+	buttonUsingTextOnly.oldLabel = "Text only button"
+	buttonUsingTextOnly.x = display.contentCenterX
+	group:insert( buttonUsingTextOnly )
+	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --
 	----------------------------------------------------------------------------------------------------------------
