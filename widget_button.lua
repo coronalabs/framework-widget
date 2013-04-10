@@ -471,10 +471,13 @@ local function createUsingImageSheet( button, options )
 	}
 	
 	-- Forward references
-	local view, viewLabel
+	local view, viewLabel, imageSheet
+	
+	-- Create a reference to the imageSheet
+	imageSheet = opt.sheet
 		
 	-- Create the view
-	view = display.newSprite( button, opt.sheet, sheetOptions )
+	view = display.newSprite( button, imageSheet, sheetOptions )
 
 	-- Create the label (either embossed or standard)
 	if opt.embossedLabel then
@@ -536,6 +539,7 @@ local function createUsingImageSheet( button, options )
 	-------------------------------------------------------
 	
 	-- Assign objects to the button
+	button._imageSheet = imageSheet
 	button._view = view
 	
 	----------------------------------------------------------
@@ -647,6 +651,8 @@ local function createUsingImageSheet( button, options )
 	
 	-- Finalize function
 	function button:_finalize()
+		-- Set the ImageSheet to nil
+		self._imageSheet = nil
 	end
 	
 	return button
