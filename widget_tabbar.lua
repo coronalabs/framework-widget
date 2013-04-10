@@ -15,6 +15,9 @@ local M =
 	_widgetName = "widget.newTabBar",
 }
 
+-- Require needed widget files
+local _widget = require( "widget" )
+
 ------------------------------------------------------------------------
 -- Image Files TabBar
 ------------------------------------------------------------------------
@@ -288,7 +291,8 @@ local function initWithImageSheet( tabBar, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 			
 	-- Create the tab bar's background
@@ -587,7 +591,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -621,12 +625,12 @@ function M.new( options, theme )
 	
 	-- If we are using a sheet
 	if not opt.backgroundFile and opt.sheet or not opt.backgroundFile and opt.themeSheetFile then
-		opt.backgroundFrame = customOptions.backgroundFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.backgroundFrame )
+		opt.backgroundFrame = customOptions.backgroundFrame or _widget._getFrameIndex( themeOptions, themeOptions.backgroundFrame )
 		opt.backgroundFrameWidth = customOptions.backgroundFrameWidth or themeOptions.backgroundFrameWidth
 		opt.backgroundFrameHeight = customOptions.backgroundFrameHeight or themeOptions.backgroundFrameHeight
-		opt.tabSelectedLeftFrame = customOptions.tabSelectedLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.tabSelectedLeftFrame )
-		opt.tabSelectedRightFrame = customOptions.tabSelectedRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.tabSelectedRightFrame )
-		opt.tabSelectedMiddleFrame = customOptions.tabSelectedMiddleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.tabSelectedMiddleFrame )
+		opt.tabSelectedLeftFrame = customOptions.tabSelectedLeftFrame or _widget._getFrameIndex( themeOptions, themeOptions.tabSelectedLeftFrame )
+		opt.tabSelectedRightFrame = customOptions.tabSelectedRightFrame or _widget._getFrameIndex( themeOptions, themeOptions.tabSelectedRightFrame )
+		opt.tabSelectedMiddleFrame = customOptions.tabSelectedMiddleFrame or _widget._getFrameIndex( themeOptions, themeOptions.tabSelectedMiddleFrame )
 		opt.tabSelectedFrameWidth = customOptions.tabSelectedFrameWidth or themeOptions.tabSelectedFrameWidth
 		opt.tabSelectedFrameHeight = customOptions.tabSelectedFrameHeight or themeOptions.tabSelectedFrameHeight
 	end
@@ -650,7 +654,7 @@ function M.new( options, theme )
 	-------------------------------------------------------
 		
 	-- Create the tabBar object
-	local tabBar = require( "widget" )._new
+	local tabBar = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,

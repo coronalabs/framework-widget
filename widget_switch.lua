@@ -18,6 +18,10 @@ local M =
 	_widgetName = "widget.newSwitch",
 }
 
+-- Require needed widget files
+local _widget = require( "widget" )
+
+
 -- Initialize a switch with images
 local function initWithImage( switch, options )
 	-- Create a local reference to our options table
@@ -30,7 +34,8 @@ local function initWithImage( switch, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- Create the view
@@ -99,7 +104,8 @@ local function initWithSprite( switch, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- Create the view
@@ -148,10 +154,11 @@ local function createOnOffSwitch( switch, options )
 	
 	-- Setup which frames to use for the on/off images
 	if opt.themeData then
-		offFrame = require( opt.themeData ):getFrameIndex( opt.onOffHandleDefaultFrame )
-		onFrame = require( opt.themeData ):getFrameIndex( opt.onOffHandleOverFrame )
-		backgroundFrame = require( opt.themeData ):getFrameIndex( opt.onOffBackgroundFrame )
-		overlayFrame = require( opt.themeData ):getFrameIndex( opt.onOffOverlayFrame )
+		local themeData = require( opt.themeData )
+		offFrame = themeData:getFrameIndex( opt.onOffHandleDefaultFrame )
+		onFrame = themeData:getFrameIndex( opt.onOffHandleOverFrame )
+		backgroundFrame = themeData:getFrameIndex( opt.onOffBackgroundFrame )
+		overlayFrame = themeData:getFrameIndex( opt.onOffOverlayFrame )
 	else
 		offFrame = opt.onOffHandleDefaultFrame
 		onFrame = opt.onOffHandleOverFrame
@@ -182,7 +189,8 @@ local function createOnOffSwitch( switch, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- The view is the switches background image
@@ -658,7 +666,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -687,8 +695,8 @@ function M.new( options, theme )
 		
 	-- If the user hasn't set a on/off frame but a theme has been set and it includes a data property then grab the required start/end frames
 	if not opt.frameOff and not opt.frameOn and theme and themeOptions.data then
-		opt.frameOff = require( "widget" )._getFrameIndex( themeOptions, themeOptions.frameOff )
-		opt.frameOn = require( "widget" )._getFrameIndex( themeOptions, themeOptions.frameOn )
+		opt.frameOff = _widget._getFrameIndex( themeOptions, themeOptions.frameOff )
+		opt.frameOn = _widget._getFrameIndex( themeOptions, themeOptions.frameOn )
 	end	
 			
 	-- Options for the on/off switch only
@@ -717,7 +725,7 @@ function M.new( options, theme )
 	-------------------------------------------------------
 	
 	-- The switch object is a group
-	local switch = require( "widget" )._new
+	local switch = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,

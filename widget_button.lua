@@ -6,7 +6,7 @@
 		widget_button.lua
 		
 	What is it?: 
-		A widget object that can be used to create button.
+		A widget object that can be used to create a button.
 --]]
 
 local M = 
@@ -14,6 +14,10 @@ local M =
 	_options = {},
 	_widgetName = "widget.newButton",
 }
+
+-- Require needed widget files
+local _widget = require( "widget" )
+
 
 -- Function to handle touches on a widget button, function is common to all widget button creation types (ie image files, imagesheet, and 9 slice button creation)
 local function manageButtonTouch( view, event )
@@ -46,7 +50,7 @@ local function manageButtonTouch( view, event )
 		
 	elseif view._isFocus then
 		if "moved" == phase then
-			if not require( "widget" )._isWithinBounds( view, event ) then
+			if not _widget._isWithinBounds( view, event ) then
 				-- Set the button to it's default image state
 				view:_setState( "default" )
 			else
@@ -57,7 +61,7 @@ local function manageButtonTouch( view, event )
 			end
 		
 		elseif "ended" == phase or "cancelled" == phase then
-			if require( "widget" )._isWithinBounds( view, event ) then
+			if _widget._isWithinBounds( view, event ) then
 				-- If there is a onRelease method ( and not a onEvent method )
 				if view._onRelease and not view._onEvent then
 					view._onRelease( event )
@@ -75,7 +79,7 @@ local function manageButtonTouch( view, event )
 	
 	-- If there is a onEvent method ( and not a onPress or onRelease method )
 	if view._onEvent and not view._onPress and not view._onRelease then
-		if not require( "widget" )._isWithinBounds( view, event ) and "ended" == phase then
+		if not _widget._isWithinBounds( view, event ) and "ended" == phase then
 			event.phase = "cancelled"
 		end
 		
@@ -668,7 +672,8 @@ local function createUsing9Slice( button, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- The view is the button (group)
@@ -1132,7 +1137,7 @@ function M.new( options, theme )
 	local opt = M._options
 		
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -1180,32 +1185,32 @@ function M.new( options, theme )
 	end 
 	
 	-- ImageSheet ( 2 frame button )
-	opt.defaultFrame = customOptions.defaultFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.defaultFrame )
-	opt.overFrame = customOptions.overFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.overFrame )
+	opt.defaultFrame = customOptions.defaultFrame or _widget._getFrameIndex( themeOptions, themeOptions.defaultFrame )
+	opt.overFrame = customOptions.overFrame or _widget._getFrameIndex( themeOptions, themeOptions.overFrame )
 	
 	-- Left ( 9 piece set )
-	opt.topLeftFrame = customOptions.topLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topLeftFrame )
-	opt.topLeftOverFrame = customOptions.topLeftOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topLeftOverFrame )
-	opt.middleLeftFrame = customOptions.middleLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleLeftFrame )
-	opt.middleLeftOverFrame = customOptions.middleLeftOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleLeftOverFrame )
-	opt.bottomLeftFrame = customOptions.bottomLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomLeftFrame )
-	opt.bottomLeftOverFrame = customOptions.bottomLeftOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomLeftOverFrame )
+	opt.topLeftFrame = customOptions.topLeftFrame or _widget._getFrameIndex( themeOptions, themeOptions.topLeftFrame )
+	opt.topLeftOverFrame = customOptions.topLeftOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.topLeftOverFrame )
+	opt.middleLeftFrame = customOptions.middleLeftFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleLeftFrame )
+	opt.middleLeftOverFrame = customOptions.middleLeftOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleLeftOverFrame )
+	opt.bottomLeftFrame = customOptions.bottomLeftFrame or _widget._getFrameIndex( themeOptions, themeOptions.bottomLeftFrame )
+	opt.bottomLeftOverFrame = customOptions.bottomLeftOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.bottomLeftOverFrame )
 	
 	-- Right ( 9 piece set )
-	opt.topRightFrame = customOptions.topRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topRightFrame )
-	opt.topRightOverFrame = customOptions.topRightOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topRightOverFrame )
-	opt.middleRightFrame = customOptions.middleRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleRightFrame )
-	opt.middleRightOverFrame = customOptions.middleRightOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleRightOverFrame )
-	opt.bottomRightFrame = customOptions.bottomRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomRightFrame )
-	opt.bottomRightOverFrame = customOptions.bottomRightOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomRightOverFrame )
+	opt.topRightFrame = customOptions.topRightFrame or _widget._getFrameIndex( themeOptions, themeOptions.topRightFrame )
+	opt.topRightOverFrame = customOptions.topRightOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.topRightOverFrame )
+	opt.middleRightFrame = customOptions.middleRightFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleRightFrame )
+	opt.middleRightOverFrame = customOptions.middleRightOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleRightOverFrame )
+	opt.bottomRightFrame = customOptions.bottomRightFrame or _widget._getFrameIndex( themeOptions, themeOptions.bottomRightFrame )
+	opt.bottomRightOverFrame = customOptions.bottomRightOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.bottomRightOverFrame )
 	
 	-- Middle ( 9 piece set )
-	opt.topMiddleFrame = customOptions.topMiddleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topMiddleFrame )
-	opt.topMiddleOverFrame = customOptions.topMiddleOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topMiddleOverFrame )
-	opt.middleFrame = customOptions.middleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleFrame )
-	opt.middleOverFrame = customOptions.middleOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleOverFrame )
-	opt.bottomMiddleFrame = customOptions.bottomMiddleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomMiddleFrame )
-	opt.bottomMiddleOverFrame = customOptions.bottomMiddleOverFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomMiddleOverFrame )
+	opt.topMiddleFrame = customOptions.topMiddleFrame or _widget._getFrameIndex( themeOptions, themeOptions.topMiddleFrame )
+	opt.topMiddleOverFrame = customOptions.topMiddleOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.topMiddleOverFrame )
+	opt.middleFrame = customOptions.middleFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleFrame )
+	opt.middleOverFrame = customOptions.middleOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleOverFrame )
+	opt.bottomMiddleFrame = customOptions.bottomMiddleFrame or _widget._getFrameIndex( themeOptions, themeOptions.bottomMiddleFrame )
+	opt.bottomMiddleOverFrame = customOptions.bottomMiddleOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.bottomMiddleOverFrame )
 
 	-- Are we using a nine piece button?
 	local using9PieceButton = not opt.defaultFrame and not opt.overFrame and not opt.defaultFile and not opt.overFile and not opt.textOnlyButton and opt.topLeftFrame and opt.topLeftOverFrame and opt.middleLeftFrame and opt.middleLeftOverFrame and opt.bottomLeftFrame and opt.bottomLeftOverFrame and 
@@ -1277,7 +1282,7 @@ function M.new( options, theme )
 	-------------------------------------------------------
 		
 	-- Create the button object
-	local button = require( "widget" )._new
+	local button = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,

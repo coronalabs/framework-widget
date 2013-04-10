@@ -18,6 +18,9 @@ local M =
 	_widgetName = "widget.newSearchField",
 }
 
+-- Require needed widget files
+local _widget = require( "widget" )
+
 -- Creates a new search field from an image
 local function initWithImage( searchField, options )
 	local opt = options
@@ -34,7 +37,8 @@ local function initWithImage( searchField, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- Create the view
@@ -220,7 +224,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -246,11 +250,11 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.leftFrame = customOptions.leftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.leftFrame )
-	opt.rightFrame = customOptions.rightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.rightFrame )
-	opt.middleFrame = customOptions.middleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleFrame )
-	opt.magnifyingGlassFrame = customOptions.magnifyingGlassFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.magnifyingGlassFrame )
-	opt.cancelFrame = customOptions.cancelFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.cancelFrame )
+	opt.leftFrame = customOptions.leftFrame or _widget._getFrameIndex( themeOptions, themeOptions.leftFrame )
+	opt.rightFrame = customOptions.rightFrame or _widget._getFrameIndex( themeOptions, themeOptions.rightFrame )
+	opt.middleFrame = customOptions.middleFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleFrame )
+	opt.magnifyingGlassFrame = customOptions.magnifyingGlassFrame or _widget._getFrameIndex( themeOptions, themeOptions.magnifyingGlassFrame )
+	opt.cancelFrame = customOptions.cancelFrame or _widget._getFrameIndex( themeOptions, themeOptions.cancelFrame )
 	opt.edgeWidth = customOptions.edgeWidth or themeOptions.edgeWidth or error( "ERROR: " .. M._widgetName .. ": edgeFrameWidth expected, got nil", 3 )
 	opt.edgeHeight = customOptions.edgeHeight or themeOptions.edgeHeight or error( "ERROR: " .. M._widgetName .. ": edgeFrameHeight expected, got nil", 3 )
 	opt.magnifyingGlassFrameWidth = customOptions.magnifyingGlassFrameWidth or themeOptions.magnifyingGlassFrameWidth or error( "ERROR: " .. M._widgetName .. ": magnifyingGlassFrameWidth expected, got nil", 3 )
@@ -263,7 +267,7 @@ function M.new( options, theme )
 	-------------------------------------------------------
 		
 	-- Create the searchField object
-	local searchField = require( "widget" )._new
+	local searchField = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,

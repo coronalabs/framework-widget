@@ -18,6 +18,11 @@ local M =
 -- Localize math functions
 local mAbs = math.abs
 
+-- Require needed widget files
+local _widget = require( "widget" )
+local _momentumScrolling = require( "widget_momentumScrolling" )
+
+
 -- Creates a new scrollView
 local function createScrollView( scrollView, options )
 	-- Create a local reference to our options table
@@ -292,7 +297,7 @@ local function createScrollView( scrollView, options )
 					--]]
 															
 					if not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
-						self._view._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( self._view, opt.scrollBarOptions )
+						self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
 					end
 				end)
 			end
@@ -337,7 +342,7 @@ local function createScrollView( scrollView, options )
 						
 		-- Handle momentum scrolling (and the view isn't locked)
 		if not self._isLocked then
-			require( "widget_momentumScrolling" )._touch( self, event )
+			_momentumScrolling._touch( self, event )
 		end
 		
 		-- Execute the listener if one is specified
@@ -367,7 +372,7 @@ local function createScrollView( scrollView, options )
 		local _scrollView = self.parent
 
 		-- Handle momentum @ runtime
-		require( "widget_momentumScrolling" )._runtime( self, event )		
+		_momentumScrolling._runtime( self, event )		
 		
 		-- Constrain x/y scale values to 1.0
 		if _scrollView.xScale ~= 1.0 then
@@ -475,7 +480,7 @@ function M.new( options )
 	-------------------------------------------------------
 		
 	-- Create the scrollView object
-	local scrollView = require( "widget" )._new
+	local scrollView = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,
