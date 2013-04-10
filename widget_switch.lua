@@ -16,10 +16,15 @@ local M =
 {
 	_options = {},
 	_widgetName = "widget.newSwitch",
+	_directoryPath = "",
 }
 
 -- Require needed widget files
-local _widget = require( "widget" )
+local _widget = require( M._directoryPath .. "widget" )
+
+-- Localize math functions
+local mAbs = math.abs
+local mRound = math.round
 
 
 -- Initialize a switch with images
@@ -143,8 +148,8 @@ local function createOnOffSwitch( switch, options )
 	local opt = options
 	
 	-- This is measured from the pixels in the switch overlay image.
-	local startRange = - math.round( opt.onOffOverlayWidth / 3.06 )
-	local endRange = math.abs( startRange )
+	local startRange = - mRound( opt.onOffOverlayWidth / 3.06 )
+	local endRange = mAbs( startRange )
 		
 	-- Forward references
 	local imageSheet, view, viewOverlay, viewHandle, viewMask
@@ -235,11 +240,11 @@ local function createOnOffSwitch( switch, options )
 	if switch.isOn then
 		view.x = view._endRange
 		view._handle.x = view._endRange
-		view.maskX = view._handle.x - math.abs( view._startRange ) - view._endRange
+		view.maskX = view._handle.x - mAbs( view._startRange ) - view._endRange
 	else
 		view.x = view._startRange
 		view._handle.x = view._startRange
-		view.maskX = view._handle.x + math.abs( view._startRange ) + view._endRange
+		view.maskX = view._handle.x + mAbs( view._startRange ) + view._endRange
 	end
 	
 	-- Assign objects to the switch

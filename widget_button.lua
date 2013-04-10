@@ -13,10 +13,11 @@ local M =
 {
 	_options = {},
 	_widgetName = "widget.newButton",
+	_directoryPath = "",
 }
 
 -- Require needed widget files
-local _widget = require( "widget" )
+local _widget = require( M._directoryPath .. "widget" )
 
 
 -- Function to handle touches on a widget button, function is common to all widget button creation types (ie image files, imagesheet, and 9 slice button creation)

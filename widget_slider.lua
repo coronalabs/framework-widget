@@ -13,10 +13,15 @@ local M =
 {
 	_options = {},
 	_widgetName = "widget.newSlider",
+	_directoryPath = "",
 }
 
 -- Require needed widget files
-local _widget = require( "widget" )
+local _widget = require( M._directoryPath .. "widget" )
+
+-- Localize math functions
+local mRound = math.round
+
 
 -- Creates a new horizontal slider from an imageSheet
 local function createHorizontalSlider( slider, options )
@@ -175,7 +180,7 @@ local function createHorizontalSlider( slider, options )
 				{ 
 					name = event.name,
 					phase = event.phase,
-					value = math.round( self._currentPercent ),
+					value = mRound( self._currentPercent ),
 					target = self,
 				}
 				self._listener( newEvent )
@@ -375,7 +380,7 @@ local function createVerticalSlider( slider, options )
 				{ 
 					name = event.name,
 					phase = event.phase,
-					value = math.round( self._currentPercent ),
+					value = mRound( self._currentPercent ),
 					target = self,
 				}
 				self._listener( newEvent )
