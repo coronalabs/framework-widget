@@ -52,7 +52,7 @@ function scene:createScene( event )
 		{ 
 			align = "right",
 			width = 150,
-			startIndex = 5,
+			startIndex = 1,
 			labels = 
 			{
 				"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" 
@@ -83,6 +83,9 @@ function scene:createScene( event )
 	}
 	group:insert( pickerWheel )
 	
+	-- Scroll the second column to it's 8'th row
+	--pickerWheel:scrollToIndex( 2, 8, 0 )
+		
 	
 	local function showValues( event )
 		local values = pickerWheel:getValues()

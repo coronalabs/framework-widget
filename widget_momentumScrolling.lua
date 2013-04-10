@@ -24,8 +24,6 @@ local function setLimits( self, view )
 	-- Set the upper limit
 	if view._scrollHeight then
 		self.upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
-	else
-		self.upperLimit = view._background.y - ( view.contentHeight ) + ( view._background.contentHeight * 0.5 ) - view._bottomPadding
 	end
 	
 	-- Set the right limit
@@ -34,9 +32,7 @@ local function setLimits( self, view )
 	-- Set the left limit
 	if view._scrollWidth then
 		self.leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
-	else
-		self.leftLimit = view._background.x - ( view.contentWidth ) + ( view._background.contentWidth * 0.5 ) - view._rightPadding
-	end	
+	end
 end
 
 -- Function to handle vertical "snap back" on the view

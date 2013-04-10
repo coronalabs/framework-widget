@@ -79,6 +79,7 @@ function scene:createScene( event )
 		return true
 	end
 
+
 	local noCategories = 0
 
 	-- Handle row rendering
@@ -98,6 +99,16 @@ function scene:createScene( event )
 		rowTitle.x = row.x - ( row.contentWidth * 0.5 ) + ( rowTitle.contentWidth * 0.5 )
 		rowTitle.y = row.contentHeight * 0.5
 		rowTitle:setTextColor( 0, 0, 0 )
+		
+		if not row.isCategory and row.index ~= 1 then
+			--print( row.index )
+			local spinner = widget.newSpinner{}
+			spinner.x = row.x + ( row.contentWidth * 0.5 ) - ( spinner.contentWidth * 0.5 )
+			spinner.y = row.contentHeight * 0.5
+			spinner:scale( 0.5, 0.5 )
+			row:insert( spinner ) 
+			spinner:start()
+		end
 	end
 	
 	-- Handle row's becoming visible on screen
@@ -169,6 +180,7 @@ function scene:createScene( event )
 	{
 		top = 100,
 		width = 320, 
+		--height = 300,
 		height = 366,
 		maskFile = "assets/mask-320x366.png",
 		--listener = tableViewListener,
@@ -181,7 +193,7 @@ function scene:createScene( event )
 
 	
 	-- Create 100 rows
-	for i = 1, 65 do
+	for i = 1, 565 do
 		local isCategory = false
 		local rowHeight = 40
 		local rowColor = 
@@ -238,15 +250,24 @@ function scene:createScene( event )
 	
 	-- Test to scroll list to index
 	if TEST_SCROLL_TO_INDEX then
+		local currentIndex = 1
+		local testIndexes = { 31, 1, 7, 168, 4, 14, 2, 8 }
+	
+		local function scrollToNextIndex()
+			print( "Scrolled to row index:", testIndexes[currentIndex] )
+			
+			if currentIndex < #testIndexes then
+				currentIndex = currentIndex + 1
+			end
+			
+			timer.performWithDelay( 1500, function()
+				tableView:scrollToIndex( testIndexes[currentIndex], 1000, scrollToNextIndex )
+			end)
+		end
+		
 		testTimer = timer.performWithDelay( 1000, function()
-			tableView:scrollToIndex( 50, 1000, function() print( "scrolled to row 50" ) end )
-			timer.performWithDelay( 3000, function()
-			tableView:scrollToIndex( 31, 2000 )end)
-			timer.performWithDelay( 6000, function()
-			tableView:scrollToIndex( 1, 2000 )end)
-			timer.performWithDelay( 9000, function()
-			tableView:scrollToIndex( 7, 2000 )end)
-		end, 1 )
+			tableView:scrollToIndex( testIndexes[currentIndex], 1000, scrollToNextIndex )
+		end)
 	end
 	
 	-- Test deleting single row
