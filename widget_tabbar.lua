@@ -182,6 +182,7 @@ local function initWithImageFiles( tabBar, options )
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
 	
+	-- Touch listener for our tabBar
 	function view:touch( event )
 		local phase = event.phase
 		local tabSize = ( self._width / #self._tabs ) 
@@ -480,6 +481,7 @@ local function initWithImageSheet( tabBar, options )
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
 	
+	-- Touch listener for our tabBar
 	function view:touch( event )
 		local phase = event.phase
 		local tabSize = ( self._width / #self._tabs ) 

@@ -211,7 +211,7 @@ local function createPickerWheel( pickerWheel, options )
 		print( M._widgetName, "Does not support scaling" )
 	end
 
-
+	-- EnterFrame listener for our pickerWheel
 	function view:enterFrame( event )
 		local _pickerWheel = self.parent
 		

@@ -382,7 +382,7 @@ local function createTableView( tableView, options )
 	view:addEventListener( "touch" )
 	
 		
-  	-- EnterFrame
+  	-- EnterFrame listener for our tableView
 	function view:enterFrame( event )
 		local _tableView = self.parent
 		

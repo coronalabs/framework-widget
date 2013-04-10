@@ -368,7 +368,7 @@ local function createScrollView( scrollView, options )
 	view:addEventListener( "touch" )
 	
 	
-  	-- EnterFrame
+  	-- EnterFrame listener for our scrollView
 	function view:enterFrame( event )
 		local _scrollView = self.parent
 

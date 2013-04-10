@@ -163,6 +163,7 @@ local function createUsingText( button, options )
 		self._view._isEnabled = isEnabled
 	end
 	
+	-- Touch listener for our button
 	function view:touch( event )
 		-- Set the target to the view's parent group (the button object)
 		event.target = self.parent
@@ -353,6 +354,7 @@ local function createUsingImageFiles( button, options )
 		self._view._isEnabled = isEnabled
 	end
 	
+	-- Touch listener for our button
 	function view:touch( event )
 		-- Set the target to the view's parent group (the button object)
 		event.target = self.parent
@@ -565,7 +567,8 @@ local function createUsingImageSheet( button, options )
 	function button:setEnabled( isEnabled )
 		self._view._isEnabled = isEnabled
 	end
-	
+
+	-- Touch listener for our button
 	function view:touch( event )
 		-- Set the target to the view's parent group (the button object)
 		event.target = self.parent
@@ -1013,7 +1016,7 @@ local function createUsing9Slice( button, options )
 		self._view._isEnabled = isEnabled
 	end
 
-	-- Handle touches on the view
+	-- Touch listener for our button
 	function view:touch( event )
 		-- Manage touch events on the button
 		manageButtonTouch( self, event )
