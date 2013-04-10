@@ -13,10 +13,11 @@ local M =
 {
 	_options = {},
 	_widgetName = "widget.newPickerWheel",
+	_directoryPath = "",
 }
 
 -- Require needed widget files
-local _widget = require( "widget" )
+local _widget = require( M._directoryPath .. "widget" )
 
 
 -- Creates a new pickerWheel

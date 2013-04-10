@@ -6,10 +6,11 @@
 		widget.lua
 --]]
 
-local modname = ...
-local widget = {}
-package.loaded[modname] = widget
-widget.version = "2.0"
+local widget = 
+{
+	version = "2.0",
+	_directoryPath = "",
+}
 
 ---------------------------------------------------------------------------------
 -- PRIVATE METHODS
@@ -18,48 +19,51 @@ widget.version = "2.0"
 -- Modify factory function to ensure widgets are properly cleaned on group removal
 local cached_displayNewGroup = display.newGroup
 function display.newGroup()
-	local g = cached_displayNewGroup()
+	local newGroup = cached_displayNewGroup()
 	
-	-- function to find/remove widgets within group
+	-- Function to find/remove widgets within group
 	local function removeWidgets( group )
 		if group.numChildren then
-			for i=group.numChildren,1,-1 do
+			for i = group.numChildren, 1, -1 do
 				if group[i]._isWidget then
 					group[i]:removeSelf()
 				
 				elseif not group[i]._isWidget and group[i].numChildren then
-					-- nested group (that is not a widget)
+					-- Nested group (that is not a widget)
 					removeWidgets( group[i] )
 				end
 			end
 		end
 	end
 	
-	-- store reference to original removeSelf method
-	local cached_removeSelf = g.removeSelf
+	-- Store a reference to the original removeSelf method
+	local cached_removeSelf = newGroup.removeSelf
 	
-	-- subclass removeSelf method
-	function g:removeSelf()
-		removeWidgets( self )	-- remove widgets first
+	-- Subclass the removeSelf method
+	function newGroup:removeSelf()
+		-- Remove widgets first
+		removeWidgets( self )
 		
-		-- continue removing group as usual
+		-- Continue removing the group as usual
 		if self.parent and self.parent.remove then
 			self.parent:remove( self )
 		end
 	end
 	
-	return g
+	return newGroup
 end
 
--- Override removeSelf() method
+-- Override removeSelf() method for new widgets
 local function _removeSelf( self )
 	-- All widget objects can add a finalize method for cleanup
 	local finalize = self._finalize
 	
+	-- If this widget has a finalize function
 	if type( finalize ) == "function" then
 		finalize( self )
 	end
 
+	-- Remove the object
 	self:_removeSelf()
 	self = nil
 end
@@ -85,13 +89,11 @@ function widget._new( options )
 	
 	return newWidget
 end
-	
 
 -- Function to retrieve a frame index from an imageSheet data file
 function widget._getFrameIndex( theme, frame )
 	if theme then
 		if theme.data then
-			-- Currently we only support texturepacker. Zwoptex hasn't been updated to export to imageSheets so ..
 			if "function" == type( require( theme.data ).getFrameIndex ) then
 				return require( theme.data ):getFrameIndex( frame )
 			end
@@ -99,7 +101,7 @@ function widget._getFrameIndex( theme, frame )
 	end
 end
 
--- Function to check if the requirements for creating a widget has been met.
+-- Function to check if the requirements for creating a widget have been met
 function widget._checkRequirements( options, theme, widgetName )
 	-- If we are using single images, just return
 	if options.defaultFile or options.overFile then
@@ -191,7 +193,7 @@ end
 -----------------------------------------------------------------------------------------
 
 function widget.newScrollView( options )	
-	return require( "widget_scrollview" ).new( options )
+	return require( widget._directoryPath .. "widget_scrollview" ).new( options )
 end
 
 -----------------------------------------------------------------------------------------
@@ -199,7 +201,7 @@ end
 -----------------------------------------------------------------------------------------
 
 function widget.newTableView( options )
-	return require( "widget_tableview" ).new( options )
+	return require( widget._directoryPath .. "widget_tableview" ).new( options )
 end
 
 -----------------------------------------------------------------------------------------
@@ -209,7 +211,7 @@ end
 function widget.newPickerWheel( options )
 	local theme = _getTheme( "pickerWheel", options )
 	
-	return require( "widget_pickerWheel" ).new( options, theme )
+	return require( widget._directoryPath .. "widget_pickerWheel" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -219,7 +221,7 @@ end
 function widget.newSlider( options )	
 	local theme = _getTheme( "slider", options )
 	
-	return require( "widget_slider" ).new( options, theme )
+	return require( widget._directoryPath .. "widget_slider" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -229,7 +231,7 @@ end
 function widget.newTabBar( options )
 	local theme = _getTheme( "tabBar", options )
 	
-	return require( "widget_tabbar" ).new( options, theme )
+	return require( widget._directoryPath .. "widget_tabbar" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -239,7 +241,7 @@ end
 function widget.newButton( options )
 	local theme = _getTheme( "button", options )
 	
-	return require( "widget_button" ).new( options, theme )
+	return require( widget._directoryPath .. "widget_button" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -249,7 +251,7 @@ end
 function widget.newSpinner( options )
 	local theme = _getTheme( "spinner", options )
 
-	return require( "widget_spinner" ).new( options, theme )
+	return require( widget._directoryPath .. "widget_spinner" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -259,7 +261,7 @@ end
 function widget.newSwitch( options )
 	local theme = _getTheme( "switch", options )
 	
-	return require( "widget_switch" ).new( options, theme )
+	return require( widget._directoryPath .. "widget_switch" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -269,7 +271,7 @@ end
 function widget.newStepper( options )
 	local theme = _getTheme( "stepper", options )
 	
-	return require( "widget_stepper" ).new( options, theme )
+	return require( widget._directoryPath .. "widget_stepper" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -279,7 +281,7 @@ end
 function widget.newSearchField( options )
 	local theme = _getTheme( "searchField", options )
 	
-	return require( "widget_searchField" ).new( options, theme )
+	return require( widget._directoryPath .. "widget_searchField" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -289,7 +291,7 @@ end
 function widget.newProgressView( options )
 	local theme = _getTheme( "progressView", options )
 	
-	return require( "widget_progressView" ).new( options, theme )
+	return require( widget._directoryPath .. "widget_progressView" ).new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -299,7 +301,7 @@ end
 function widget.newSegmentedControl( options )
 	local theme = _getTheme( "segmentedControl", options )
 	
-	return require( "widget_segmentedControl" ).new( options, theme )
+	return require( widget._directoryPath .. "widget_segmentedControl" ).new( options, theme )
 end
 
 

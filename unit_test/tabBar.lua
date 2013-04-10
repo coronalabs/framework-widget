@@ -40,7 +40,7 @@ function scene:createScene( event )
 	----------------------------------------------------------------------------------------------------------------
 	
 	-- Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_SET_BUTTON_ACTIVE = true
+	local TEST_SET_BUTTON_ACTIVE = false
 	local TEST_IMAGESHEET_TAB_BAR = false
 	local TEST_THEME_TAB_BAR = true
 	local tabBar = nil

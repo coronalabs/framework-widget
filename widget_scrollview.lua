@@ -13,14 +13,15 @@ local M =
 {
 	_options = {},
 	_widgetName = "widget.newScrollView",
+	_directoryPath = "",
 }
+
+-- Require needed widget files
+local _widget = require( M._directoryPath .. "widget" )
+local _momentumScrolling = require( M._directoryPath .. "widget_momentumScrolling" )
 
 -- Localize math functions
 local mAbs = math.abs
-
--- Require needed widget files
-local _widget = require( "widget" )
-local _momentumScrolling = require( "widget_momentumScrolling" )
 
 
 -- Creates a new scrollView

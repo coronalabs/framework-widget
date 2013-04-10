@@ -43,9 +43,7 @@ function scene:createScene( event )
 	local TEST_REMOVE_PROGRESS_VIEW = false
 	local TEST_RESET_PROGRESS_VIEW = true
 	local TEST_DELAY = 1000
-	
-	local grp = display.newGroup()
-	
+		
 	-- Create a new progress view object
 	local newProgressView = widget.newProgressView
 	{
@@ -56,8 +54,7 @@ function scene:createScene( event )
 	}
 	newProgressView.x = display.contentCenterX
 	newProgressView.y = display.contentCenterY
-	grp:insert( newProgressView )
-	grp.x = 80
+	group:insert( newProgressView )
 		
 	local currentProgress = 0.0
 

@@ -16,10 +16,14 @@ local M =
 {
 	_options = {},
 	_widgetName = "widget.newStepper",
+	_directoryPath = "",
 }
 
 -- Require needed widget files
-local _widget = require( "widget" )
+local _widget = require( M._directoryPath .. "widget" )
+
+-- Localize math functions
+local mHuge = math.huge
 
 -- Creates a new stepper from a sprite
 local function initWithSprite( stepper, options )
@@ -365,7 +369,7 @@ function M.new( options, theme )
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.initialValue = customOptions.initialValue or 0
 	opt.minimumValue = customOptions.minimumValue or 0
-	opt.maximumValue = customOptions.maximumValue or math.huge
+	opt.maximumValue = customOptions.maximumValue or mHuge
 	opt.onPress = customOptions.onPress
 	opt.onHold = customOptions.onHold
 	

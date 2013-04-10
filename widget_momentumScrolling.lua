@@ -10,7 +10,10 @@
 --]]
 
 
-local M = {}
+local M = 
+{
+	_directoryPath = "",
+}
 
 -- Localize math functions
 local mAbs = math.abs
@@ -451,7 +454,7 @@ end
 -- Function to create a scrollBar
 function M.createScrollBar( view, options )
 	-- Require needed widget files
-	local _widget = require( "widget" )
+	local _widget = require( M._directoryPath .. "widget" )
 	
 	local opt = {}
 	local customOptions = options or {}

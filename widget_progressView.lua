@@ -16,7 +16,15 @@ local M =
 {
 	_options = {},
 	_widgetName = "widget.newProgressView",
+	_directoryPath = "",
 }
+
+-- Require needed widget files
+local _widget = require( M._directoryPath .. "widget" )
+
+-- Localize math functions
+local mFloor = math.floor
+
 
 -- Creates a new progress bar from an image
 local function initWithImage( progressView, options )
@@ -32,7 +40,8 @@ local function initWithImage( progressView, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- The view is the segmentedControl (group)
@@ -187,12 +196,12 @@ local function initWithImage( progressView, options )
 			-- If the fill is animated
 			if view._isAnimated then
 				transition.to( view._fillMiddle, { width = view._currentPercent, x = view._fillLeft.x + view._currentPercent * 0.5 } )
-				transition.to( view._fillRight, { x = math.floor( view._fillLeft.x + view._currentPercent + view._fillRight.contentWidth * 0.5  ) } )
+				transition.to( view._fillRight, { x = mFloor( view._fillLeft.x + view._currentPercent + view._fillRight.contentWidth * 0.5  ) } )
 			else
 			-- The fill isn't animated
 				view._fillMiddle.width = view._currentPercent
 				view._fillMiddle.x = view._fillLeft.x + view._currentPercent * 0.5
-				view._fillRight.x = math.floor( view._fillLeft.x + view._currentPercent + view._fillRight.contentWidth * 0.5  )
+				view._fillRight.x = mFloor( view._fillLeft.x + view._currentPercent + view._fillRight.contentWidth * 0.5  )
 			end
 		end
  	end
@@ -230,7 +239,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -258,20 +267,20 @@ function M.new( options, theme )
 	opt.fillOuterWidth = customOptions.fillOuterWidth or themeOptions.fillOuterWidth or error( "ERROR: " .. M._widgetName .. ": outerWidth expected, got nil", 3 )
 	opt.fillOuterHeight = customOptions.fillOuterHeight or themeOptions.fillOuterHeight or error( "ERROR: " .. M._widgetName .. ": outerHeight expected, got nil", 3 )
 	
-	opt.fillOuterLeftFrame = customOptions.fillOuterLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillOuterLeftFrame )
-	opt.fillOuterMiddleFrame = customOptions.fillOuterMiddleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillOuterMiddleFrame )
-	opt.fillOuterRightFrame = customOptions.fillOuterRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillOuterRightFrame )
+	opt.fillOuterLeftFrame = customOptions.fillOuterLeftFrame or _widget._getFrameIndex( themeOptions, themeOptions.fillOuterLeftFrame )
+	opt.fillOuterMiddleFrame = customOptions.fillOuterMiddleFrame or _widget._getFrameIndex( themeOptions, themeOptions.fillOuterMiddleFrame )
+	opt.fillOuterRightFrame = customOptions.fillOuterRightFrame or _widget._getFrameIndex( themeOptions, themeOptions.fillOuterRightFrame )
 	
-	opt.fillInnerLeftFrame = customOptions.fillInnerLeftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillInnerLeftFrame )
-	opt.fillInnerMiddleFrame = customOptions.fillInnerMiddleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillInnerMiddleFrame )
-	opt.fillInnerRightFrame = customOptions.fillInnerRightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillInnerRightFrame )
+	opt.fillInnerLeftFrame = customOptions.fillInnerLeftFrame or _widget._getFrameIndex( themeOptions, themeOptions.fillInnerLeftFrame )
+	opt.fillInnerMiddleFrame = customOptions.fillInnerMiddleFrame or _widget._getFrameIndex( themeOptions, themeOptions.fillInnerMiddleFrame )
+	opt.fillInnerRightFrame = customOptions.fillInnerRightFrame or _widget._getFrameIndex( themeOptions, themeOptions.fillInnerRightFrame )
 	
 	-------------------------------------------------------
 	-- Create the progressView
 	-------------------------------------------------------
 		
 	-- Create the progressView object
-	local progressView = require( "widget" )._new
+	local progressView = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,

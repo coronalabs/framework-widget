@@ -16,10 +16,12 @@ local M =
 {
 	_options = {},
 	_widgetName = "widget.newSegmentedControl",
+	_directoryPath = "",
 }
 
 -- Require needed widget files
-local _widget = require( "widget" )
+local _widget = require( M._directoryPath .. "widget" )
+
 
 -- Creates a new segmentedControl from an image
 local function initWithImage( segmentedControl, options )
