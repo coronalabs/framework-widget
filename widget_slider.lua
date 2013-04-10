@@ -124,6 +124,7 @@ local function createHorizontalSlider( slider, options )
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
 
+	-- Touch listener for our slider
 	function view:touch( event )
 		local phase = event.phase
 		local _slider = event.target.parent
@@ -322,6 +323,7 @@ local function createVerticalSlider( slider, options )
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
 
+	-- Touch listener for our slider
 	function view:touch( event )
 		local phase = event.phase
 		local _slider = event.target.parent

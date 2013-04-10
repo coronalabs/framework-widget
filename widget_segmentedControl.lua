@@ -214,6 +214,7 @@ local function initWithImage( segmentedControl, options )
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
 	
+	-- Touch listener for our segmented control
 	function view:touch( event )
 		local phase = event.phase
 		local _segmentedControl = self.parent
