@@ -50,6 +50,7 @@ function scene:createScene( event )
 	local TEST_SCROLL_TO_LEFT = false
 	local TEST_SCROLL_TO_RIGHT = false
 	local TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER = false
+	local TEST_TABLEVIEW_INSIDE_SCROLLVIEW = false
 	local TEST_REMOVE_SCROLLVIEW = false
 	
 	-- Our ScrollView listener
@@ -248,6 +249,147 @@ function scene:createScene( event )
 		bg2.x, bg2.y = 0, 0
 		scrollView2:insert( bg2 )
 		group:insert( scrollView2 )
+	end
+	
+	
+	if TEST_TABLEVIEW_INSIDE_SCROLLVIEW then
+		-- Listen for tableView events
+		local function tableViewListener( event )
+			local phase = event.phase
+			local direction = event.direction
+
+			if "began" == phase then
+				--print( "Began" )
+			elseif "moved" == phase then
+				--print( "Moved" )
+			elseif "ended" == phase then
+				--print( "Ended" )
+			end
+
+			if event.limitReached then
+				if "up" == direction then
+					print( "Reached Top Limit" )
+				elseif "down" == direction then
+					print( "Reached Bottom Limit" )
+				elseif "left" == direction then
+					print( "Reached Left Limit" )
+				elseif "right" == direction then
+					print( "Reached Right Limit" )
+				end
+			end
+
+			return true
+		end
+
+
+		local noCategories = 0
+
+		-- Handle row rendering
+		local function onRowRender( event )
+			local phase = event.phase
+			local row = event.row
+
+			--print( "Row id:", row.id )
+			local rowTitle = "Row " .. row.index
+
+			if row.isCategory then
+				noCategories = noCategories + 1
+				--rowTitle = "Category "  .. noCategories
+			end
+
+			local rowTitle = display.newText( row, rowTitle, 0, 0, nil, 14 )
+			rowTitle.x = row.x - ( row.contentWidth * 0.5 ) + ( rowTitle.contentWidth * 0.5 )
+			rowTitle.y = row.contentHeight * 0.5
+			rowTitle:setTextColor( 0, 0, 0 )
+
+			if not row.isCategory and row.index ~= 1 then
+				--print( row.index )
+				local spinner = widget.newSpinner{}
+				spinner.x = row.x + ( row.contentWidth * 0.5 ) - ( spinner.contentWidth * 0.5 )
+				spinner.y = row.contentHeight * 0.5
+				spinner:scale( 0.5, 0.5 )
+				row:insert( spinner ) 
+				spinner:start()
+			end
+		end
+
+		-- Handle row's becoming visible on screen
+		local function onRowUpdate( event )
+			local phase = event.phase
+			local row = event.row
+
+			--print( row.index, ": is now visible" )
+		end
+
+		-- Handle touches on the row
+		local function onRowTouch( event )
+			local phase = event.phase
+			local row = event.target
+
+			if "swipeRight" == phase then
+				print( "Swiped right on row with index: ", row.index )
+			elseif "swipeLeft" == phase then
+				print( "Swiped left on row with id: ", row.id )
+			elseif "tap" == phase then
+				print( "Tapped on row with id:", row.id )
+			elseif "press" == phase then
+				print( "Pressed row with id: ", row.id )
+			elseif "release" == phase then
+				print( "Released row with index: ", row.index )		
+			end
+		end
+
+		-- Create a tableView
+		tableView = widget.newTableView
+		{
+			top = 150,
+			width = 320, 
+			--height = 300,
+			height = 150,
+			maskFile = "assets/mask-320x366.png",
+			--listener = tableViewListener,
+			--isLocked = true,
+			onRowRender = onRowRender,
+			onRowUpdate = onRowUpdate,
+			onRowTouch = onRowTouch,
+		}
+		group:insert( tableView )
+
+
+		-- Create 100 rows
+		for i = 1, 50 do
+			local isCategory = false
+			local rowHeight = 40
+			local rowColor = 
+			{ 
+				default = { 255, 255, 255 },
+				over = { 255, 0, 255 },
+			}
+			local lineColor = { 220, 220, 220 }
+
+			-- Make some rows categories
+			if i == 1 or i == 4 or i == 8 or i == 18 or i == 28 or i == 35 or i == 45 then
+				isCategory = true
+
+				rowHeight = 24
+				--rowHeight = 47
+
+				rowColor = 
+				{ 
+					default = { 150, 160, 180, 200 },
+				}
+			end
+
+			-- Insert the row into the tableView
+			tableView:insertRow
+			{
+				id = "row:" .. i,
+				isCategory = isCategory,
+				rowHeight = rowHeight,
+				rowColor = rowColor,
+				lineColor = lineColor,
+			}
+		end
 	end
 	
 	

@@ -152,9 +152,6 @@ local function createPickerWheel( pickerWheel, options )
 			}
 		end
 		
-		-- Don't use the standard scrollHeight on pickerWheel columns
-		viewColumns[i]._view._scrollHeight = nil
-		
 		-- Insert the pickerWheel column into the view
 		view:insert( viewColumns[i] )
 	
@@ -192,6 +189,8 @@ local function createPickerWheel( pickerWheel, options )
 			-- We have retrieved the column, now set arg1 to arg2 (which is the index to scroll to) so scrollTo index gets called as expected
 			arg[1] = arg[2]
 		end
+		
+		arg[4] = self._view:_getValues()
 		
 		-- Scroll to the specified column index
 		return self._view._columns[column]:scrollToIndex( unpack( arg ) )
