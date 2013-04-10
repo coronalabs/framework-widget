@@ -450,6 +450,9 @@ end
 
 -- Function to create a scrollBar
 function M.createScrollBar( view, options )
+	-- Require needed widget files
+	local _widget = require( "widget" )
+	
 	local opt = {}
 	local customOptions = options or {}
 	
@@ -469,7 +472,7 @@ function M.createScrollBar( view, options )
 	end
 	
 	-- Grab the theme options for the scrollBar
-	local themeOptions = require( "widget" ).theme.scrollBar
+	local themeOptions = _widget.theme.scrollBar
 	
 	-- Get the theme sheet file and data
 	opt.themeSheetFile = themeOptions.sheet
@@ -478,9 +481,9 @@ function M.createScrollBar( view, options )
 	opt.height = options.height or themeOptions.height
 	
 	-- Grab the frames
-	opt.topFrame = options.topFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topFrame )
-	opt.middleFrame = options.middleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleFrame )
-	opt.bottomFrame = options.bottomFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomFrame )
+	opt.topFrame = options.topFrame or _widget._getFrameIndex( themeOptions, themeOptions.topFrame )
+	opt.middleFrame = options.middleFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleFrame )
+	opt.bottomFrame = options.bottomFrame or _widget._getFrameIndex( themeOptions, themeOptions.bottomFrame )
 	
 	-- Create the scrollBar imageSheet
 	local imageSheet
@@ -488,7 +491,8 @@ function M.createScrollBar( view, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-	 	imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+	 	imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- The scrollBar is a display group

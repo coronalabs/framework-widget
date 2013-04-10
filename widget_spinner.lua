@@ -21,6 +21,9 @@ local M =
 	_widgetName = "widget.newSpinner",
 }
 
+-- Require needed widget files
+local _widget = require( "widget" )
+
 -- Creates a new spinner from an image
 local function initWithImage( spinner, options )
 	-- Create a local reference to our options table
@@ -33,7 +36,8 @@ local function initWithImage( spinner, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- Create the view
@@ -125,7 +129,8 @@ local function initWithSprite( spinner, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- Create the view
@@ -181,7 +186,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -203,7 +208,7 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.startFrame = customOptions.startFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.startFrame )
+	opt.startFrame = customOptions.startFrame or _widget._getFrameIndex( themeOptions, themeOptions.startFrame )
 	opt.frameCount = customOptions.count or themeOptions.count or 0
 
 	-------------------------------------------------------
@@ -211,7 +216,7 @@ function M.new( options, theme )
 	-------------------------------------------------------
 		
 	-- Create the spinner object
-	local spinner = require( "widget" )._new
+	local spinner = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,

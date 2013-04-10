@@ -15,6 +15,9 @@ local M =
 	_widgetName = "widget.newSlider",
 }
 
+-- Require needed widget files
+local _widget = require( "widget" )
+
 -- Creates a new horizontal slider from an imageSheet
 local function createHorizontalSlider( slider, options )
 	-- Create a local reference to our options table
@@ -27,7 +30,8 @@ local function createHorizontalSlider( slider, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- The view is the slider (group)
@@ -222,7 +226,8 @@ local function createVerticalSlider( slider, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- The view is the slider (group)
@@ -421,7 +426,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -443,20 +448,20 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.leftFrame = customOptions.leftFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.leftFrame )
-	opt.rightFrame = customOptions.rightFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.rightFrame )
-	opt.middleFrame = customOptions.middleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleFrame )
-	opt.fillFrame = customOptions.fillFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillFrame )
+	opt.leftFrame = customOptions.leftFrame or _widget._getFrameIndex( themeOptions, themeOptions.leftFrame )
+	opt.rightFrame = customOptions.rightFrame or _widget._getFrameIndex( themeOptions, themeOptions.rightFrame )
+	opt.middleFrame = customOptions.middleFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleFrame )
+	opt.fillFrame = customOptions.fillFrame or _widget._getFrameIndex( themeOptions, themeOptions.fillFrame )
 	opt.frameWidth = customOptions.frameWidth or themeOptions.frameWidth
 	opt.frameHeight = customOptions.frameHeight or themeOptions.frameHeight
-	opt.handleFrame = customOptions.handleFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.handleFrame )
+	opt.handleFrame = customOptions.handleFrame or _widget._getFrameIndex( themeOptions, themeOptions.handleFrame )
 	opt.handleWidth = customOptions.handleWidth or theme.handleWidth
 	opt.handleHeight = customOptions.handleHeight or theme.handleHeight
 	
-	opt.topFrame = customOptions.topFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.topFrame )
-	opt.bottomFrame = customOptions.bottomFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.bottomFrame )
-	opt.middleVerticalFrame = customOptions.middleVerticalFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleVerticalFrame )
-	opt.fillVerticalFrame = customOptions.fillVerticalFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.fillVerticalFrame )
+	opt.topFrame = customOptions.topFrame or _widget._getFrameIndex( themeOptions, themeOptions.topFrame )
+	opt.bottomFrame = customOptions.bottomFrame or _widget._getFrameIndex( themeOptions, themeOptions.bottomFrame )
+	opt.middleVerticalFrame = customOptions.middleVerticalFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleVerticalFrame )
+	opt.fillVerticalFrame = customOptions.fillVerticalFrame or _widget._getFrameIndex( themeOptions, themeOptions.fillVerticalFrame )
 	
 	-- Throw an error if the user hasn't passed in a width or height (depending on orientation)
 	if "horizontal" == opt.orientation then
@@ -476,7 +481,7 @@ function M.new( options, theme )
 	-------------------------------------------------------
 		
 	-- Create the slider object
-	local slider = require( "widget" )._new
+	local slider = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,

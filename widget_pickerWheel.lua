@@ -15,6 +15,10 @@ local M =
 	_widgetName = "widget.newPickerWheel",
 }
 
+-- Require needed widget files
+local _widget = require( "widget" )
+
+
 -- Creates a new pickerWheel
 local function createPickerWheel( pickerWheel, options )
 	-- Create a local reference to our options table
@@ -27,7 +31,8 @@ local function createPickerWheel( pickerWheel, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- Create the view
@@ -108,7 +113,7 @@ local function createPickerWheel( pickerWheel, options )
 	
 	-- Create the pickerWheel Columns (which are tableView's)
 	for i = 1, #opt.columnData do
-		viewColumns[i] = require( "widget" ).newTableView
+		viewColumns[i] = _widget.newTableView
 		{
 			left = -144,
 			top = -110,
@@ -270,7 +275,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -296,15 +301,15 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.backgroundFrame = customOptions.backgroundFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.backgroundFrame )
+	opt.backgroundFrame = customOptions.backgroundFrame or _widget._getFrameIndex( themeOptions, themeOptions.backgroundFrame )
 	opt.backgroundFrameWidth = customOptions.backgroundFrameWidth or themeOptions.backgroundFrameWidth
 	opt.backgroundFrameHeight = customOptions.backgroundFrameHeight or themeOptions.backgroundFrameHeight
 	
-	opt.overlayFrame = customOptions.overlayFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.overlayFrame )
+	opt.overlayFrame = customOptions.overlayFrame or _widget._getFrameIndex( themeOptions, themeOptions.overlayFrame )
 	opt.overlayFrameWidth = customOptions.overlayFrameWidth or themeOptions.overlayFrameWidth
 	opt.overlayFrameHeight = customOptions.overlayFrameHeight or themeOptions.overlayFrameHeight
 	
-	opt.seperatorFrame = customOptions.seperatorFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.seperatorFrame )
+	opt.seperatorFrame = customOptions.seperatorFrame or _widget._getFrameIndex( themeOptions, themeOptions.seperatorFrame )
 	opt.seperatorFrameWidth = customOptions.seperatorFrameWidth or themeOptions.seperatorFrameWidth
 	opt.seperatorFrameHeight = customOptions.seperatorFrameHeight or themeOptions.seperatorFrameHeight
 	
@@ -313,7 +318,7 @@ function M.new( options, theme )
 	-------------------------------------------------------
 		
 	-- Create the pickerWheel object
-	local pickerWheel = require( "widget" )._new
+	local pickerWheel = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,

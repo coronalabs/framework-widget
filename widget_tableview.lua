@@ -18,6 +18,11 @@ local M =
 -- Localize math functions
 local mAbs = math.abs
 
+-- Require needed widget files
+local _widget = require( "widget" )
+local _momentumScrolling = require( "widget_momentumScrolling" )
+
+
 -- Creates a new tableView
 local function createTableView( tableView, options )
 	-- Create a local reference to our options table
@@ -283,7 +288,7 @@ local function createTableView( tableView, options )
 		
 		-- Handle momentum scrolling (if the view isn't locked)
 		if not self._isLocked then
-			require( "widget_momentumScrolling" )._touch( self, event )
+			_momentumScrolling._touch( self, event )
 		end
 				
 		-- Execute the listener if one is specified
@@ -385,7 +390,7 @@ local function createTableView( tableView, options )
 			-- Create the scrollBar
 			if not self._hideScrollBar then
 				if not self._isLocked and not self._scrollBar then
-					self._scrollBar = require( "widget_momentumScrolling" ).createScrollBar( view, opt.scrollBarOptions )
+					self._scrollBar = _momentumScrolling.createScrollBar( view, opt.scrollBarOptions )
 				end
 			end
 			
@@ -400,7 +405,7 @@ local function createTableView( tableView, options )
 		end
 		
 		-- Handle momentum @ runtime
-		require( "widget_momentumScrolling" )._runtime( self, event )
+		_momentumScrolling._runtime( self, event )
 		
 		-- Calculate the time the touch was held
 		local timeHeld = event.time - self._timeHeld
@@ -856,7 +861,7 @@ local function createTableView( tableView, options )
 			local function scrollList( event )
 				-- Handle momentum scrolling (if the view isn't locked)
 				if not self._isLocked then
-					require( "widget_momentumScrolling" )._touch( self, event )
+					_momentumScrolling._touch( self, event )
 				end
 			
 				return true
@@ -1167,7 +1172,7 @@ function M.new( options )
 	-------------------------------------------------------
 		
 	-- Create the tableView object
-	local tableView = require( "widget" )._new
+	local tableView = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,

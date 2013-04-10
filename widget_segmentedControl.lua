@@ -18,6 +18,9 @@ local M =
 	_widgetName = "widget.newSegmentedControl",
 }
 
+-- Require needed widget files
+local _widget = require( "widget" )
+
 -- Creates a new segmentedControl from an image
 local function initWithImage( segmentedControl, options )
 	-- Create a local reference to our options table
@@ -30,7 +33,8 @@ local function initWithImage( segmentedControl, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- The view is the segmentedControl (group)
@@ -354,7 +358,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -380,20 +384,20 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.leftSegmentFrame = customOptions.leftSegmentFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.leftSegmentFrame )
-	opt.leftSegmentSelectedFrame = customOptions.leftSegmentSelectedFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.leftSegmentSelectedFrame )
-	opt.rightSegmentFrame = customOptions.rightSegmentFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.rightSegmentFrame )
-	opt.rightSegmentSelectedFrame = customOptions.rightSegmentSelectedFrame or require( "widget" )._getFrameIndex( themeOptions,themeOptions.rightSegmentSelectedFrame )
-	opt.middleSegmentFrame = customOptions.middleSegmentFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleSegmentFrame )
-	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.middleSegmentSelectedFrame)
-	opt.dividerFrame = customOptions.dividerFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.dividerFrame)
+	opt.leftSegmentFrame = customOptions.leftSegmentFrame or _widget._getFrameIndex( themeOptions, themeOptions.leftSegmentFrame )
+	opt.leftSegmentSelectedFrame = customOptions.leftSegmentSelectedFrame or _widget._getFrameIndex( themeOptions, themeOptions.leftSegmentSelectedFrame )
+	opt.rightSegmentFrame = customOptions.rightSegmentFrame or _widget._getFrameIndex( themeOptions, themeOptions.rightSegmentFrame )
+	opt.rightSegmentSelectedFrame = customOptions.rightSegmentSelectedFrame or _widget._getFrameIndex( themeOptions,themeOptions.rightSegmentSelectedFrame )
+	opt.middleSegmentFrame = customOptions.middleSegmentFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleSegmentFrame )
+	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleSegmentSelectedFrame)
+	opt.dividerFrame = customOptions.dividerFrame or _widget._getFrameIndex( themeOptions, themeOptions.dividerFrame)
 
 	-------------------------------------------------------
 	-- Create the segmentedControl
 	-------------------------------------------------------
 		
 	-- Create the segmentedControl object
-	local segmentedControl = require( "widget" )._new
+	local segmentedControl = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,

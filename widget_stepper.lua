@@ -18,6 +18,9 @@ local M =
 	_widgetName = "widget.newStepper",
 }
 
+-- Require needed widget files
+local _widget = require( "widget" )
+
 -- Creates a new stepper from a sprite
 local function initWithSprite( stepper, options )
 	-- Create a local reference to our options table
@@ -70,7 +73,8 @@ local function initWithSprite( stepper, options )
 	if opt.sheet then
 		imageSheet = opt.sheet
 	else
-		imageSheet = graphics.newImageSheet( opt.themeSheetFile, require( opt.themeData ):getSheet() )
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
 	-- Create the view
@@ -347,7 +351,7 @@ function M.new( options, theme )
 	local opt = M._options
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
-	require( "widget" )._checkRequirements( customOptions, themeOptions, M._widgetName )
+	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
 	
 	-------------------------------------------------------
 	-- Properties
@@ -370,18 +374,18 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
-	opt.defaultFrame = customOptions.defaultFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.defaultFrame )
-	opt.noMinusFrame = customOptions.noMinusFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.noMinusFrame )
-	opt.noPlusFrame = customOptions.noPlusFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.noPlusFrame )
-	opt.minusActiveFrame = customOptions.minusActiveFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.minusActiveFrame )
-	opt.plusActiveFrame = customOptions.plusActiveFrame or require( "widget" )._getFrameIndex( themeOptions, themeOptions.plusActiveFrame )
+	opt.defaultFrame = customOptions.defaultFrame or _widget._getFrameIndex( themeOptions, themeOptions.defaultFrame )
+	opt.noMinusFrame = customOptions.noMinusFrame or _widget._getFrameIndex( themeOptions, themeOptions.noMinusFrame )
+	opt.noPlusFrame = customOptions.noPlusFrame or _widget._getFrameIndex( themeOptions, themeOptions.noPlusFrame )
+	opt.minusActiveFrame = customOptions.minusActiveFrame or _widget._getFrameIndex( themeOptions, themeOptions.minusActiveFrame )
+	opt.plusActiveFrame = customOptions.plusActiveFrame or _widget._getFrameIndex( themeOptions, themeOptions.plusActiveFrame )
 	
 	-------------------------------------------------------
 	-- Create the Stepper
 	-------------------------------------------------------
 		
 	-- Create the stepper object
-	local stepper = require( "widget" )._new
+	local stepper = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,
