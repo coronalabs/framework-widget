@@ -1,6 +1,6 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 
-local widget = nil -- require( _G.widgetLibraryPath )
+local widget = nil
 
 local function requireWidgetFiles()
     widget = require( _G.widgetLibraryPath )
@@ -8,7 +8,6 @@ end
 
 -- If we failed to find it
 if false == pcall( requireWidgetFiles ) then
-	print( "widget library not found, falling back to core version" ) 
 	widget = require( "widget" )
 end
 
