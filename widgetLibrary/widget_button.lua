@@ -936,10 +936,12 @@ local function createUsing9Slice( button, options )
 
 	-- If the passed width is less than the topLeft & top right width then don't use the middle pieces
 	if opt.width <= ( viewTopLeft.contentWidth + viewTopRight.contentWidth ) then
+		-- Hide the middle slices
 		viewTopMiddle.isVisible = false
 		viewMiddle.isVisible = false
 		viewBottomMiddle.isVisible = false
 		
+		-- Re-position slices
 		viewTopRight.x = viewTopLeft.x + ( viewTopLeft.contentWidth * 0.5 ) + ( viewBottomRight.contentWidth * 0.5 )
 		viewMiddleRight.x = viewTopLeft.x + ( viewTopLeft.contentWidth * 0.5 ) + ( viewBottomRight.contentWidth * 0.5 )
 		viewBottomRight.x = viewTopLeft.x + ( viewTopLeft.contentWidth * 0.5 ) + ( viewBottomRight.contentWidth * 0.5 )
@@ -947,16 +949,33 @@ local function createUsing9Slice( button, options )
 	
 	-- If the passed height is less than the topLeft & top right height then don't use the middle pieces
 	if opt.height <= ( viewTopLeft.contentHeight + viewTopRight.contentHeight ) then
-		viewMiddleRight.isVisible = false
-		viewMiddleLeft.isVisible = false
-		viewMiddle.isVisible = false
-		viewTopMiddle.isVisible = false
-		viewBottomMiddle.isVisible = false
-		
-		viewBottomLeft.y = viewTopLeft.y + ( viewTopLeft.contentHeight * 0.5 ) + ( viewBottomLeft.contentHeight * 0.5 )
-		viewBottomRight.y = viewTopLeft.y + ( viewTopLeft.contentHeight * 0.5 ) + ( viewBottomRight.contentHeight * 0.5 )
+		if opt.width <= ( viewTopLeft.contentWidth + viewTopRight.contentWidth )  then
+			-- Hide the middle slices
+			viewMiddleRight.isVisible = false
+			viewMiddleLeft.isVisible = false
+			viewMiddle.isVisible = false
+			viewTopMiddle.isVisible = false
+			viewBottomMiddle.isVisible = false
+			
+			-- Re-position slices
+			viewTopRight.x = viewTopLeft.x + ( viewTopLeft.contentWidth * 0.5 ) + ( viewTopRight.contentWidth * 0.5 )
+			viewBottomLeft.y = viewTopLeft.y + ( viewTopLeft.contentHeight * 0.5 ) + ( viewBottomLeft.contentHeight * 0.5 )		
+			viewBottomRight.x = viewTopLeft.x + ( viewTopLeft.contentWidth * 0.5 ) + ( viewTopRight.contentWidth * 0.5 )
+			viewBottomRight.y = viewTopLeft.y + ( viewTopLeft.contentHeight * 0.5 ) + ( viewBottomRight.contentHeight * 0.5 )
+			
+		else
+			-- Hide the middle slices
+			viewMiddle.isVisible = false
+			viewMiddleRight.isVisible = false
+			viewMiddleLeft.isVisible = false
+			
+			-- Re-position slices
+			viewBottomLeft.y = viewTopLeft.y + ( viewTopLeft.contentHeight * 0.5 ) + ( viewBottomLeft.contentHeight * 0.5 )
+			viewBottomMiddle.y = viewTopLeft.y + ( viewTopLeft.contentHeight * 0.5 ) + ( viewBottomLeft.contentHeight * 0.5 )			
+			viewBottomRight.y = viewTopLeft.y + ( viewTopLeft.contentHeight * 0.5 ) + ( viewBottomRight.contentHeight * 0.5 )
+			
+		end
 	end
-
 
 	-- Setup the Label
 	viewLabel:setTextColor( unpack( opt.labelColor.default ) )
