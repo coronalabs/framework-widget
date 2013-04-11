@@ -385,11 +385,16 @@ local function createScrollView( scrollView, options )
 		
 		-- Execute the listener if one is specified
 		if self._listener then
-			local newEvent = 
-			{
-				target = self.parent, -- Set event.target to the scrollView object, not the view
-				phase = event.phase,
-			}
+			local newEvent = {}
+			
+			for k, v in pairs( event ) do
+				newEvent[k] = v
+			end
+			
+			-- Set event.target to the scrollView object, not the view
+			newEvent.target = self.parent
+			
+			-- Execute the listener
 			self._listener( newEvent )
 		end
 				
