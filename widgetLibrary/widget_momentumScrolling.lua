@@ -29,7 +29,7 @@
 
 local M = 
 {
-	_directoryPath = "",
+	_directoryPath = "widgetLibrary.",
 }
 
 -- Localize math functions
@@ -471,7 +471,17 @@ end
 -- Function to create a scrollBar
 function M.createScrollBar( view, options )
 	-- Require needed widget files
-	local _widget = require( M._directoryPath .. "widget" )
+	local _widget = nil
+
+	-- Function to require the widget file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+	    _widget = require( M._directoryPath .. "widget" )
+	end
+
+	-- If we failed to find the widget file in the widget directory path.
+	if false == pcall( checkFileAtPath ) then
+		_widget = require( "widget" )
+	end
 	
 	local opt = {}
 	local customOptions = options or {}

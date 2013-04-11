@@ -9,7 +9,7 @@
 local widget = 
 {
 	version = "2.0",
-	_directoryPath = "",
+	_directoryPath = "widgetLibrary.",
 }
 
 ---------------------------------------------------------------------------------
@@ -192,8 +192,20 @@ end
 -- newScrollView widget
 -----------------------------------------------------------------------------------------
 
-function widget.newScrollView( options )	
-	return require( widget._directoryPath .. "widget_scrollview" ).new( options )
+function widget.newScrollView( options )
+	local _scrollView = nil
+	
+	-- Function to require the scrollview file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_scrollView = require( widget._directoryPath .. "widget_scrollview" )
+	end
+
+	-- If no scrollview file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_scrollView = require( "widget_scrollview" )
+	end
+	
+	return _scrollView.new( options )
 end
 
 -----------------------------------------------------------------------------------------
@@ -201,7 +213,19 @@ end
 -----------------------------------------------------------------------------------------
 
 function widget.newTableView( options )
-	return require( widget._directoryPath .. "widget_tableview" ).new( options )
+	local _tableView = nil
+	
+	-- Function to require the tableview file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_tableView = require( widget._directoryPath .. "widget_tableview" )
+	end
+
+	-- If no tableview file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_tableView = require( "widget_tableview" )
+	end
+	
+	return _tableView.new( options )	
 end
 
 -----------------------------------------------------------------------------------------
@@ -211,7 +235,19 @@ end
 function widget.newPickerWheel( options )
 	local theme = _getTheme( "pickerWheel", options )
 	
-	return require( widget._directoryPath .. "widget_pickerWheel" ).new( options, theme )
+	local _pickerWheel = nil
+	
+	-- Function to require the pickerWheel file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_pickerWheel = require( widget._directoryPath .. "widget_pickerWheel" )
+	end
+
+	-- If no pickerWheel file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_pickerWheel = require( "widget_pickerWheel" )
+	end
+	
+	return _pickerWheel.new( options, theme )	
 end
 
 -----------------------------------------------------------------------------------------
@@ -221,7 +257,19 @@ end
 function widget.newSlider( options )	
 	local theme = _getTheme( "slider", options )
 	
-	return require( widget._directoryPath .. "widget_slider" ).new( options, theme )
+	local _slider = nil
+	
+	-- Function to require the slider file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_slider = require( widget._directoryPath .. "widget_slider" )
+	end
+
+	-- If no slider file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_slider = require( "widget_slider" )
+	end
+	
+	return _slider.new( options, theme )	
 end
 
 -----------------------------------------------------------------------------------------
@@ -231,7 +279,19 @@ end
 function widget.newTabBar( options )
 	local theme = _getTheme( "tabBar", options )
 	
-	return require( widget._directoryPath .. "widget_tabbar" ).new( options, theme )
+	local _tabBar = nil
+	
+	-- Function to require the tabbar file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_tabBar = require( widget._directoryPath .. "widget_tabbar" )
+	end
+
+	-- If no tabbar file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_tabBar = require( "widget_tabbar" )
+	end
+	
+	return _tabBar.new( options, theme )	
 end
 
 -----------------------------------------------------------------------------------------
@@ -241,7 +301,19 @@ end
 function widget.newButton( options )
 	local theme = _getTheme( "button", options )
 	
-	return require( widget._directoryPath .. "widget_button" ).new( options, theme )
+	local _button = nil
+	
+	-- Function to require the button file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_button = require( widget._directoryPath .. "widget_button" )
+	end
+
+	-- If no button file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_button = require( "widget_button" )
+	end
+	
+	return _button.new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -250,8 +322,20 @@ end
 
 function widget.newSpinner( options )
 	local theme = _getTheme( "spinner", options )
+	
+	local _spinner = nil
+	
+	-- Function to require the spinner file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_spinner = require( widget._directoryPath .. "widget_spinner" )
+	end
 
-	return require( widget._directoryPath .. "widget_spinner" ).new( options, theme )
+	-- If no spinner file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_spinner = require( "widget_spinner" )
+	end
+	
+	return _spinner.new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -261,7 +345,19 @@ end
 function widget.newSwitch( options )
 	local theme = _getTheme( "switch", options )
 	
-	return require( widget._directoryPath .. "widget_switch" ).new( options, theme )
+	local _switch = nil
+	
+	-- Function to require the switch file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_switch = require( widget._directoryPath .. "widget_switch" )
+	end
+
+	-- If no switch file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_switch = require( "widget_switch" )
+	end
+	
+	return _switch.new( options, theme )	
 end
 
 -----------------------------------------------------------------------------------------
@@ -271,7 +367,19 @@ end
 function widget.newStepper( options )
 	local theme = _getTheme( "stepper", options )
 	
-	return require( widget._directoryPath .. "widget_stepper" ).new( options, theme )
+	local _stepper = nil
+	
+	-- Function to require the stepper file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_stepper = require( widget._directoryPath .. "widget_stepper" )
+	end
+
+	-- If no stepper file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_stepper = require( "widget_stepper" )
+	end
+	
+	return _stepper.new( options, theme )
 end
 
 -----------------------------------------------------------------------------------------
@@ -281,7 +389,19 @@ end
 function widget.newSearchField( options )
 	local theme = _getTheme( "searchField", options )
 	
-	return require( widget._directoryPath .. "widget_searchField" ).new( options, theme )
+	local _searchField = nil
+	
+	-- Function to require the searchField file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_searchField = require( widget._directoryPath .. "widget_searchField" )
+	end
+
+	-- If no searchField file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_searchField = require( "widget_searchField" )
+	end
+	
+	return _searchField.new( options, theme )	
 end
 
 -----------------------------------------------------------------------------------------
@@ -291,7 +411,19 @@ end
 function widget.newProgressView( options )
 	local theme = _getTheme( "progressView", options )
 	
-	return require( widget._directoryPath .. "widget_progressView" ).new( options, theme )
+	local _progressView = nil
+	
+	-- Function to require the progressView file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_progressView = require( widget._directoryPath .. "widget_progressView" )
+	end
+
+	-- If no progressView file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_progressView = require( "widget_progressView" )
+	end
+	
+	return _progressView.new( options, theme )	
 end
 
 -----------------------------------------------------------------------------------------
@@ -301,7 +433,19 @@ end
 function widget.newSegmentedControl( options )
 	local theme = _getTheme( "segmentedControl", options )
 	
-	return require( widget._directoryPath .. "widget_segmentedControl" ).new( options, theme )
+	local _segmentedControl = nil
+	
+	-- Function to require the segmentedControl file from the widget directory path (if it exists)
+	local function checkFileAtPath()
+		_segmentedControl = require( widget._directoryPath .. "widget_segmentedControl" )
+	end
+
+	-- If no segmentedControl file exists in the widget directory path, require the one from the core
+	if false == pcall( checkFileAtPath ) then
+		_segmentedControl = require( "widget_segmentedControl" )
+	end
+	
+	return _segmentedControl.new( options, theme )	
 end
 
 

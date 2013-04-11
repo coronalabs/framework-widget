@@ -1,7 +1,7 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newScrollView unit test.
 
-local widget = require( "widget" )
+local widget = require( _G.widgetLibraryPath )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -14,7 +14,7 @@ function scene:createScene( event )
 	local group = self.view
 	
 	--Display an iOS style background
-	local background = display.newImage( "assets/background.png" )
+	local background = display.newImage( "unitTestAssets/background.png" )
 	group:insert( background )
 	
 	-- Test android theme
@@ -99,13 +99,13 @@ function scene:createScene( event )
 		--isLocked = true,
 		horizontalScrollDisabled = false,
 		verticalScrollDisabled = false,
-		maskFile = "assets/scrollViewMask-350.png",
+		maskFile = "unitTestAssets/scrollViewMask-350.png",
 		--listener = scrollListener,
 	}
 	group:insert( scrollView )	
 	
 	-- insert image into scrollView widget
-	local background = display.newImageRect( "assets/scrollimage.jpg", 768, 1024 )
+	local background = display.newImageRect( "unitTestAssets/scrollimage.jpg", 768, 1024 )
 	background.x = background.contentWidth * 0.5
 	background.y = background.contentHeight * 0.5
 	scrollView:insert( background )
@@ -138,8 +138,8 @@ function scene:createScene( event )
 	{
 		width = 278,
 		height = 46,
-		defaultFile = "assets/default.png",
-		overFile = "assets/over.png",
+		defaultFile = "unitTestAssets/default.png",
+		overFile = "unitTestAssets/over.png",
 	    id = "Left Label Button",
 	    left = 0,
 	    top = 120,
@@ -170,7 +170,7 @@ function scene:createScene( event )
 	}
 	
 	-- Create the button sheet
-	local buttonSheet = graphics.newImageSheet( "assets/btnBlueSheet.png", sheetInfo )
+	local buttonSheet = graphics.newImageSheet( "unitTestAssets/btnBlueSheet.png", sheetInfo )
 	
 	-- ImageSheet button 
 	local buttonUsingImageSheet = widget.newButton
@@ -239,12 +239,12 @@ function scene:createScene( event )
 			width = 300,
 			height = 350,
 			id = "onTop",
-			maskFile = "assets/scrollViewMask-350.png",
+			maskFile = "unitTestAssets/scrollViewMask-350.png",
 			listener = scrollListener,
 		}
 	
 		-- insert image into scrollView widget
-		local bg2 = display.newImageRect( "assets/scrollimage.jpg", 768, 1024 )
+		local bg2 = display.newImageRect( "unitTestAssets/scrollimage.jpg", 768, 1024 )
 		bg2:setReferencePoint( display.TopLeftReferencePoint )
 		bg2.x, bg2.y = 0, 0
 		scrollView2:insert( bg2 )
@@ -346,7 +346,7 @@ function scene:createScene( event )
 			width = 320, 
 			--height = 300,
 			height = 150,
-			maskFile = "assets/mask-320x366.png",
+			maskFile = "unitTestAssets/mask-320x366.png",
 			--listener = tableViewListener,
 			--isLocked = true,
 			onRowRender = onRowRender,

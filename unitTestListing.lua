@@ -1,6 +1,17 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 
-local widget = require( "widget" )
+local widget = nil -- require( _G.widgetLibraryPath )
+
+local function requireWidgetFiles()
+    widget = require( _G.widgetLibraryPath )
+end
+
+-- If we failed to find it
+if false == pcall( requireWidgetFiles ) then
+	print( "widget library not found, falling back to core version" ) 
+	widget = require( "widget" )
+end
+
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -15,7 +26,7 @@ function scene:createScene( event )
 	end
 	
 	--Display an iOS style background
-	local background = display.newImage( "assets/background.png" )
+	local background = display.newImage( "unitTestAssets/background.png" )
 	group:insert( background )
 	
 	--Create a title to make the menu visibly clear

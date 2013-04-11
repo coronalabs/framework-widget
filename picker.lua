@@ -1,7 +1,7 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newPickerWheel unit test.
 
-local widget = require( "widget" )
+local widget = require( _G.widgetLibraryPath )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -16,7 +16,7 @@ function scene:createScene( event )
 	end
 	
 	--Display an iOS style background
-	local background = display.newImageRect( "assets/background.png", 640, 960 )
+	local background = display.newImageRect( "unitTestAssets/background.png", 640, 960 )
 	group:insert( background )
 	
 	-- Button to return to unit test listing

@@ -1,7 +1,7 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newTabBar unit test.
 
-local widget = require( "widget" )
+local widget = require( _G.widgetLibraryPath )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -19,7 +19,7 @@ function scene:createScene( event )
 	end
 	
 	--Display an iOS style background
-	local background = display.newImage( "assets/background.png" )
+	local background = display.newImage( "unitTestAssets/background.png" )
 	group:insert( background )
 	
 	--Button to return to unit test listing
@@ -51,8 +51,8 @@ function scene:createScene( event )
 		{
 			width = 32, 
 			height = 32,
-			defaultFile = "assets/tabIcon.png",
-			overFile = "assets/tabIcon-down.png",
+			defaultFile = "unitTestAssets/tabIcon.png",
+			overFile = "unitTestAssets/tabIcon-down.png",
 			label = "Tab1",
 			--labelXOffset = - 20,
 			--labelYOffset = - 20,
@@ -69,8 +69,8 @@ function scene:createScene( event )
 		{
 			width = 32, 
 			height = 32,
-			defaultFile = "assets/tabIcon.png",
-			overFile = "assets/tabIcon-down.png",
+			defaultFile = "unitTestAssets/tabIcon.png",
+			overFile = "unitTestAssets/tabIcon-down.png",
 			label = "Tab2",
 			labelColor =
 			{
@@ -85,8 +85,8 @@ function scene:createScene( event )
 		{
 			width = 32, 
 			height = 32,
-			defaultFile = "assets/tabIcon.png",
-			overFile = "assets/tabIcon-down.png",
+			defaultFile = "unitTestAssets/tabIcon.png",
+			overFile = "unitTestAssets/tabIcon-down.png",
 			label = "Tab3",
 			labelColor =
 			{
@@ -101,8 +101,8 @@ function scene:createScene( event )
 		{
 			width = 32, 
 			height = 32,
-			defaultFile = "assets/tabIcon.png",
-			overFile = "assets/tabIcon-down.png",
+			defaultFile = "unitTestAssets/tabIcon.png",
+			overFile = "unitTestAssets/tabIcon-down.png",
 			label = "Tab4",
 			labelColor =
 			{
@@ -135,10 +135,10 @@ function scene:createScene( event )
 			left = 0,
 			top = display.contentHeight - 52,
 			width = display.contentWidth,
-			backgroundFile = "assets/woodbg.png",
-			tabSelectedLeftFile = "assets/tabBar_tabSelectedLeftEdge.png",
-			tabSelectedRightFile = "assets/tabBar_tabSelectedRightEdge.png",
-			tabSelectedMiddleFile = "assets/tabBar_tabSelectedMiddle.png",
+			backgroundFile = "unitTestAssets/woodbg.png",
+			tabSelectedLeftFile = "unitTestAssets/tabBar_tabSelectedLeftEdge.png",
+			tabSelectedRightFile = "unitTestAssets/tabBar_tabSelectedRightEdge.png",
+			tabSelectedMiddleFile = "unitTestAssets/tabBar_tabSelectedMiddle.png",
 			tabSelectedFrameWidth = 20,
 			tabSelectedFrameHeight = 100,
 			buttons = tabButtons,
@@ -150,8 +150,8 @@ function scene:createScene( event )
 	if TEST_IMAGESHEET_TAB_BAR then
 		--- IMAGE SHEET TAB BAR
 	
-		local sheetOptions = require( "assets.tabBar.tabBar" )
-		local imageSheet = graphics.newImageSheet( "assets/tabBar/tabBar.png", sheetOptions:getSheet() )
+		local sheetOptions = require( "unitTestAssets.tabBar.tabBar" )
+		local imageSheet = graphics.newImageSheet( "unitTestAssets/tabBar/tabBar.png", sheetOptions:getSheet() )
 	
 		-- Create the tabBar's buttons
 		local tabButtonsImageSheet = 

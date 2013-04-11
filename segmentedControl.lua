@@ -1,7 +1,7 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newSegmentedControl unit test.
 
-local widget = require( "widget" )
+local widget = require( _G.widgetLibraryPath )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -19,7 +19,7 @@ function scene:createScene( event )
 	end
 	
 	--Display an iOS style background
-	local background = display.newImage( "assets/background.png" )
+	local background = display.newImage( "unitTestAssets/background.png" )
 	group:insert( background )
 	
 	--Button to return to unit test listing

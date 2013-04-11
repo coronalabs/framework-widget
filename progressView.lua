@@ -1,7 +1,7 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
--- File: newSlider unit test.
+-- File: newProgressView unit test.
 
-local widget = require( "widget" )
+local widget = require( _G.widgetLibraryPath )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -13,16 +13,16 @@ local testTimer = nil
 function scene:createScene( event )
 	local group = self.view
 	
-	--Display an iOS style background
-	local background = display.newImage( "assets/background.png" )
-	group:insert( background )
-	
 	-- Test android theme
 	if USE_ANDROID_THEME then
 		widget.setTheme( "widget_theme_android" )
 	end
 	
-	-- Button to return to unit test listing
+	--Display an iOS style background
+	local background = display.newImage( "unitTestAssets/background.png" )
+	group:insert( background )
+	
+	--Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
 	    left = 60,
@@ -39,58 +39,52 @@ function scene:createScene( event )
 	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
 	
-	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
-	local TEST_SET_VALUE = false
-	
-	--Create some text to show the sliders output
-	local sliderResult = display.newEmbossedText( "Slider at 50%", 0, 0, native.systemFontBold, 22 )
-	sliderResult:setTextColor( 0 )
-	sliderResult:setReferencePoint( display.CenterReferencePoint )
-	sliderResult.x = 160
-	sliderResult.y = 250
-	group:insert( sliderResult )
-	
-	-- Slider listener function
-	local function sliderListener( event )
-		--print( "phase is:", event.phase )
-		sliderResult:setText( "Slider at " .. event.value .. "%" )
-	end
-
-	-- Create a horizontal slider
-	local sliderHorizontal = widget.newSlider
-	{
-		width = 200,
-		top = 300,
-		left = 50,
-		value = 50,
-		listener = sliderListener,
-	}
-	group:insert( sliderHorizontal )
-			
-	-- Create a vertical slider
-	local sliderVertical = widget.newSlider
-	{
-		height = 150,
-		top = 130,
-		left = 50,
-		value = 80,
-		orientation = "vertical",
-		listener = sliderListener,
-	}
-	group:insert( sliderVertical )
+	--Toggle these defines to execute automated tests.
+	local TEST_REMOVE_PROGRESS_VIEW = false
+	local TEST_RESET_PROGRESS_VIEW = true
+	local TEST_DELAY = 1000
 		
+	-- Create a new progress view object
+	local newProgressView = widget.newProgressView
+	{
+		left = 20,
+		top = 20,
+		width = 150,
+		isAnimated = true,
+	}
+	newProgressView.x = display.contentCenterX
+	newProgressView.y = display.contentCenterY
+	group:insert( newProgressView )
+		
+	local currentProgress = 0.0
+
+	testTimer = timer.performWithDelay( 100, function( event )
+		currentProgress = currentProgress + 0.01
+		newProgressView:setProgress( currentProgress )
+		
+		if TEST_RESET_PROGRESS_VIEW then
+			if newProgressView:getProgress() >= 0.5 then
+				newProgressView:setProgress( 0 )
+				currentProgress = 0.0
+			end
+		end
+		
+		--print( newProgressView:getProgress() )
+	end, 0 )
+	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
-	
-	--Test setValue()
-	if TEST_SET_VALUE then
-		testTimer = timer.performWithDelay( 1000, function()
-			sliderHorizontal:setValue( 0 )
-			sliderVertical:setValue( 0 )
-			sliderResult:setText( "Slider at " .. sliderHorizontal.value .. "%" )
-		end, 1 )
+	-- Test removing the progress view
+	if TEST_REMOVE_PROGRESS_VIEW then
+		testTimer = timer.performWithDelay( 100, function()
+			display.remove( newProgressView )
+			
+			TEST_DELAY = TEST_DELAY + TEST_DELAY
+		end )
 	end
+
+	
 end
 
 function scene:didExitScene( event )
