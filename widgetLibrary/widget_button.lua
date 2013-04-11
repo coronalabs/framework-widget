@@ -170,9 +170,9 @@ local function createUsingText( button, options )
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
 	
-	-- Function to set the buttons fill color
-	function button:setFillColor( ... )
-		self._view:setFillColor( ... )
+	-- Function to set the buttons text color
+	function button:setTextColor( ... )
+		self._view:setTextColor( ... )
 	end
 	
 	-- Function to set the button's label
