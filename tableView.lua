@@ -1,7 +1,7 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newTableView unit test.
 
-local widget = require( "widget" )
+local widget = require( _G.widgetLibraryPath )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -14,7 +14,7 @@ function scene:createScene( event )
 	local group = self.view
 	
 	--Display an iOS style background
-	local background = display.newImage( "assets/background.png" )
+	local background = display.newImage( "unitTestAssets/background.png" )
 	group:insert( background )
 	
 	-- Test android theme
@@ -182,7 +182,7 @@ function scene:createScene( event )
 		width = 320, 
 		--height = 300,
 		height = 366,
-		maskFile = "assets/mask-320x366.png",
+		maskFile = "unitTestAssets/mask-320x366.png",
 		--listener = tableViewListener,
 		--isLocked = true,
 		onRowRender = onRowRender,

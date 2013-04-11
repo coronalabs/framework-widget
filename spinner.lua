@@ -1,7 +1,7 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newSpinner unit test.
 
-local widget = require( "widget" )
+local widget = require( _G.widgetLibraryPath )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -19,7 +19,7 @@ function scene:createScene( event )
 	end
 	
 	--Display an iOS style background
-	local background = display.newImage( "assets/background.png" )
+	local background = display.newImage( "unitTestAssets/background.png" )
 	group:insert( background )
 	
 	--Button to return to unit test listing
@@ -62,8 +62,8 @@ function scene:createScene( event )
 	group:insert( spinnerText )
 	
 	
-	local sheetOptions = require( "assets.customSpinner" )
-	local imageSheet = graphics.newImageSheet( "assets/customSpinner.png", sheetOptions:getSheet() )
+	local sheetOptions = require( "unitTestAssets.customSpinner" )
+	local imageSheet = graphics.newImageSheet( "unitTestAssets/customSpinner.png", sheetOptions:getSheet() )
 
 
 	-- Create a custom spinner (Animating sprite from imagesheet)

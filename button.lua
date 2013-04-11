@@ -1,7 +1,7 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 -- File: newButton unit test.
 
-local widget = require( "widget" )
+local widget = require( _G.widgetLibraryPath )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -14,7 +14,7 @@ function scene:createScene( event )
 	local group = self.view
 	
 	--Display an iOS style background
-	local background = display.newImageRect( "assets/background.png", 640, 960 )
+	local background = display.newImageRect( "unitTestAssets/background.png", 640, 960 )
 	group:insert( background )
 	
 	-- Test android theme
@@ -78,8 +78,8 @@ function scene:createScene( event )
 	{
 		width = 278,
 		height = 46,
-		defaultFile = "assets/default.png",
-		overFile = "assets/over.png",
+		defaultFile = "unitTestAssets/default.png",
+		overFile = "unitTestAssets/over.png",
 	    id = "Left Label Button",
 	    left = 0,
 	    top = 120,
@@ -110,7 +110,7 @@ function scene:createScene( event )
 	}
 	
 	-- Create the button sheet
-	local buttonSheet = graphics.newImageSheet( "assets/btnBlueSheet.png", sheetInfo )
+	local buttonSheet = graphics.newImageSheet( "unitTestAssets/btnBlueSheet.png", sheetInfo )
 	
 	-- ImageSheet button 
 	local buttonUsingImageSheet = widget.newButton

@@ -30,11 +30,21 @@ local M =
 {
 	_options = {},
 	_widgetName = "widget.newSegmentedControl",
-	_directoryPath = "",
+	_directoryPath = "widgetLibrary.",
 }
 
 -- Require needed widget files
-local _widget = require( M._directoryPath .. "widget" )
+local _widget = nil
+
+-- Function to require the widget file from the widget directory path (if it exists)
+local function checkFileAtPath()
+    _widget = require( M._directoryPath .. "widget" )
+end
+
+-- If we failed to find the widget file in the widget directory path.
+if false == pcall( checkFileAtPath ) then
+	_widget = require( "widget" )
+end
 
 
 -- Creates a new segmentedControl from an image
