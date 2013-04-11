@@ -172,7 +172,7 @@ local function initWithImageFiles( tabBar, options )
 	
 	-- Throw error if tabBar width is too small to hold all passed in tab items
 	if ( view._totalTabWidth + 4 ) > opt.width then
-		error( "ERROR: " .. M._widgetName .. ": width passed is too small to fit the tab items inside, you need a width of at least " .. ( totalTabWidth + 4 ) .. " to fit your tab items inside", 3 )
+		error( "ERROR: " .. M._widgetName .. ": width passed is too small to fit the tab items inside, you need a width of at least " .. ( view._totalTabWidth + 4 ) .. " to fit your tab items inside", 3 )
 	end
 	
 	-------------------------------------------------------
@@ -470,8 +470,8 @@ local function initWithImageSheet( tabBar, options )
 	--viewSelected.y = tabBar.y - viewSelected.contentHeight * 0.5
 	
 	-- Throw error if tabBar width is too small to hold all passed in tab items
-	if ( view._totalTabWidth + 4 ) > opt.width then
-		error( "ERROR: " .. M._widgetName .. ": width passed is too small to fit the tab items inside, you need a width of at least " .. ( totalTabWidth + 4 ) .. " to fit your tab items inside", 3 )
+	if ( view._totalTabWidth + 4 ) > view.width then
+		error( "ERROR: " .. M._widgetName .. ": width passed is too small to fit the tab items inside, you need a width of at least " .. ( view._totalTabWidth + 4 ) .. " to fit your tab items inside", 3 )
 	end
 	
 	-------------------------------------------------------
