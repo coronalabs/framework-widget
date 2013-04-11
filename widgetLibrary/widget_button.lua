@@ -880,7 +880,7 @@ local function createUsing9Slice( button, options )
 	viewTopMiddle = display.newSprite( button, imageSheet, sheetOptions.viewTopMiddle )
 	viewMiddle = display.newSprite( button, imageSheet, sheetOptions.viewMiddle )
 	viewBottomMiddle = display.newSprite( button, imageSheet, sheetOptions.viewBottomMiddle )
-	
+
 	-- Create the label (either embossed or standard)
 	if opt.embossedLabel then
 		viewLabel = display.newEmbossedText( button, opt.label, 0, 0, opt.font, opt.fontSize )
@@ -911,7 +911,7 @@ local function createUsing9Slice( button, options )
 	viewMiddleLeft._height = viewMiddleLeft.height
 	
 	viewMiddle.width = viewTopMiddle.width
-	viewMiddle.height = opt.height - ( viewTopLeft.contentHeight + ( viewTopRight.contentHeight * 0.5 ) )
+	viewMiddle.height = opt.height - ( viewTopLeft.contentHeight + ( viewTopRight.contentHeight ) )
 	viewMiddle.x = viewTopMiddle.x
 	viewMiddle.y = viewTopMiddle.y + ( viewTopMiddle.contentHeight * 0.5 ) + ( viewMiddle.contentHeight * 0.5 )
 	viewMiddle._width = viewMiddle.width
@@ -924,15 +924,15 @@ local function createUsing9Slice( button, options )
 	
 	-- Bottom
 	viewBottomLeft.x = viewTopLeft.x
-	viewBottomLeft.y = viewMiddle.y + ( viewMiddle.contentHeight * 0.5 )
+	viewBottomLeft.y = viewMiddle.y + ( viewMiddle.contentHeight * 0.5 ) + ( viewBottomLeft.contentHeight * 0.5 )
 	
 	viewBottomMiddle.width = viewTopMiddle.width
 	viewBottomMiddle.x = viewTopMiddle.x
-	viewBottomMiddle.y = viewMiddle.y + ( viewMiddle.contentHeight * 0.5 )
+	viewBottomMiddle.y = viewMiddle.y + ( viewMiddle.contentHeight * 0.5 ) + ( viewBottomMiddle.contentHeight * 0.5 )
 	viewBottomMiddle._width = viewBottomMiddle.width
 	
 	viewBottomRight.x = viewTopRight.x
-	viewBottomRight.y = viewMiddle.y + ( viewMiddle.contentHeight * 0.5 )
+	viewBottomRight.y = viewMiddle.y + ( viewMiddle.contentHeight * 0.5 ) + ( viewBottomRight.contentHeight * 0.5 )
 
 	-- If the passed width is less than the topLeft & top right width then don't use the middle pieces
 	if opt.width <= ( viewTopLeft.contentWidth + viewTopRight.contentWidth ) then
