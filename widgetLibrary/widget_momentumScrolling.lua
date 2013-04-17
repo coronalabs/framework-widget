@@ -57,6 +57,10 @@ end
 
 -- Function to handle vertical "snap back" on the view
 local function handleSnapBackVertical( self, view, snapBack )
+	
+	-- Set the limits now
+	setLimits( M, view )
+	
 	local limitHit = "none"
 	
 	-- Snap back vertically
