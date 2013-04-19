@@ -154,6 +154,8 @@ local function createTableView( tableView, options )
 	view._trackVelocity = false	
 	view._updateRuntime = false
 	view._hasRenderedRows = false
+	-- added for line preservation
+	view._noLines = opt.noLines
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the tableView
@@ -826,11 +828,11 @@ local function createTableView( tableView, options )
 		
 		-- Retrieve passed in row customization variables
 		local rowId = options.id or #self._rows
-		local rowWidth = opt.width
+		local rowWidth = self._width
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
 		local rowColor = options.rowColor or { default = { 255, 255, 255 }, over = { 30, 144, 255 } }
-		local noLines = opt.noLines or false
+		local noLines = self._noLines or false
 		
 		-- Set defaults for row color
 		if not rowColor.default then
