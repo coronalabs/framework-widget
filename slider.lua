@@ -60,11 +60,12 @@ function scene:createScene( event )
 	local sliderHorizontal = widget.newSlider
 	{
 		width = 200,
+		left = 80,
 		top = 300,
-		left = 50,
 		value = 50,
 		listener = sliderListener,
 	}
+	sliderHorizontal.x = display.contentCenterX
 	group:insert( sliderHorizontal )
 			
 	-- Create a vertical slider

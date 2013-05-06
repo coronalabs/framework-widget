@@ -45,10 +45,10 @@ function scene:createScene( event )
 	--Toggle these defines to execute tests. NOTE: It is recommended to only enable one of these tests at a time
 	local TEST_SCROLL_TO_Y = false
 	local TEST_SCROLL_TO_INDEX = false
-	local TEST_DELETE_ALL_ROWS = false
 	local TEST_DELETE_SINGLE_ROW = false
-	local TEST_REMOVE_AND_RECREATE = false
+	local TEST_DELETE_ALL_ROWS = false
 	local TEST_GET_CONTENT_POSITION = false
+	local TEST_REMOVE_AND_RECREATE = false
 	local tableView = nil
 		
 	-- Listen for tableView events
@@ -87,7 +87,8 @@ function scene:createScene( event )
 		local phase = event.phase
 		local row = event.row
 				
-		--print( "Row id:", row.id )
+		--print( "Rendering row with id:", row.id )
+		--print( #tableView._view._rows )
 		local rowTitle = "Row " .. row.index
 		
 		if row.isCategory then
@@ -100,7 +101,7 @@ function scene:createScene( event )
 		rowTitle.y = row.contentHeight * 0.5
 		rowTitle:setTextColor( 0, 0, 0 )
 		
-		if not row.isCategory and row.index ~= 1 then
+		if not row.isCategory then
 			--print( row.index )
 			local spinner = widget.newSpinner{}
 			spinner.x = row.x + ( row.contentWidth * 0.5 ) - ( spinner.contentWidth * 0.5 )
@@ -110,14 +111,7 @@ function scene:createScene( event )
 			spinner:start()
 		end
 	end
-	
-	-- Handle row's becoming visible on screen
-	local function onRowUpdate( event )
-		local phase = event.phase
-		local row = event.row
-		
-		--print( row.index, ": is now visible" )
-	end
+
 	
 	-- Handle touches on the row
 	local function onRowTouch( event )
@@ -132,6 +126,13 @@ function scene:createScene( event )
 			print( "Tapped on row with id:", row.id )
 		elseif "press" == phase then
 			print( "Pressed row with id: ", row.id )
+			
+			-- Set the row's default/over color's
+			--row:setRowColor( { default = { 255, 0, 0 }, over = { 0, 0, 255 } } )
+						
+		elseif "cancelled" == phase then
+			print( "Cancelled event on row with index: ", row.index )	
+		
 		elseif "release" == phase then
 			print( "Released row with index: ", row.index )
 			
@@ -186,14 +187,13 @@ function scene:createScene( event )
 		--listener = tableViewListener,
 		--isLocked = true,
 		onRowRender = onRowRender,
-		onRowUpdate = onRowUpdate,
 		onRowTouch = onRowTouch,
 	}
 	group:insert( tableView )
 
 	
-	-- Create 100 rows
-	for i = 1, 565 do
+	-- Create 1000 rows
+	for i = 1, 1000 do
 		local isCategory = false
 		local rowHeight = 40
 		local rowColor = 
@@ -204,7 +204,8 @@ function scene:createScene( event )
 		local lineColor = { 220, 220, 220 }
 		
 		-- Make some rows categories
-		if i == 1 or i == 4 or i == 8 or i == 18 or i == 28 or i == 35 or i == 45 then
+		---[[
+		if i == 1 or i == 4 or i == 8 or i == 22 or i == 28 or i == 35 or i == 45 then
 			isCategory = true
 			
 			rowHeight = 24
@@ -215,6 +216,7 @@ function scene:createScene( event )
 				default = { 150, 160, 180, 200 },
 			}
 		end
+		--]]
 		
 		-- Insert the row into the tableView
 		tableView:insertRow
