@@ -140,23 +140,20 @@ local function createTableView( tableView, options )
 	view._maxVelocity = opt.maxVelocity or 2
 	view._timeHeld = 0
 	view._isLocked = opt.isLocked
+	view._allowRowTouch = false
 	view._hideScrollBar = opt.hideScrollBar
 	view._rows = {}
 	view._rowWidth = opt.rowWidth
 	view._rowHeight = opt.rowHeight
-	view._currentCategoryIndex = 0	
-	view._offScreenRows = {}
-	view._rowProperties = {}
+	view._noLines = opt.noLines
+	view._currentCategoryIndex = 0
+	view._hasRenderedRows = false
 	view._onRowRender = opt.onRowRender
-	view._onRowUpdate = opt.onRowUpdate
 	view._onRowTouch = opt.onRowTouch
 	view._scrollHeight = 0
 	view._trackVelocity = false	
 	view._updateRuntime = false
-	view._hasRenderedRows = false
-	-- added for line preservation
-	view._noLines = opt.noLines
-	
+		
 	-------------------------------------------------------
 	-- Assign properties/objects to the tableView
 	-------------------------------------------------------
@@ -203,6 +200,11 @@ local function createTableView( tableView, options )
 	-- Function to retrieve the x/y position of the tableView's content
 	function tableView:getContentPosition()
 		return self._view.y
+	end
+
+	-- Function to retrieve the number of rows in a tableView
+	function tableView:getNumRows()
+		return #self._view._rows
 	end
 
 	----------------------------------------------------------
@@ -279,7 +281,7 @@ local function createTableView( tableView, options )
 		end
 	end
 
-
+	
 	-- Handle touches on the tableView
 	function view:touch( event )
 		local phase = event.phase
@@ -292,6 +294,14 @@ local function createTableView( tableView, options )
 			if not self._initalTouch then
 				self._initialTouch = true
 			end
+			
+			-- By default we allow touch events for our row's
+			self._allowRowTouch = true
+			
+			-- If the velocity is over 0.05, we prevent touch events on the rows as press/tap events should only result in the view's momentum been stopped
+			if mAbs( self._velocity ) > 0.05 then
+				self._allowRowTouch = false
+			end			
 		end	
 		
 		-- Distance moved
@@ -313,10 +323,23 @@ local function createTableView( tableView, options )
 					if "table" == type( self._targetRow._border ) then
 						-- If the row isn't a category
 						if not self._targetRow.isCategory then
-							-- Set the row's border's fill color
-							self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor.default ) )
-							-- The row was no longer touched
-							self._targetRow._wasTouched = false
+							if self._targetRow._wasTouched then
+								-- Set the row's border's fill color
+								self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor.default ) )
+								-- The row was no longer touched
+								self._targetRow._wasTouched = false
+							
+								-- Setup a cancelled event for this row
+								local newEvent =
+								{
+									phase = "cancelled",
+									target = event.target,
+									row = self._targetRow,
+								}
+							
+								-- Execute the row's touch event 
+								self._onRowTouch( newEvent )
+							end
 						end
 					end
 				end
@@ -440,7 +463,8 @@ local function createTableView( tableView, options )
 					self._scrollHeight = self._height
 				end
 			end
-			
+
+			-- Set the renderedRows back to false
 			self._hasRenderedRows = false
 		end
 		
@@ -467,7 +491,7 @@ local function createTableView( tableView, options )
 			-- If a finger was held down
 			if timeHeld >= 110 then				
 				-- If there is a onRowTouch listener
-				if self._onRowTouch then
+				if self._onRowTouch and self._allowRowTouch then
 					-- If the row isn't a category
 					if nil ~= self._targetRow.isCategory then
 						self._newPhase = "press"
@@ -635,14 +659,14 @@ local function createTableView( tableView, options )
 			if self._currentCategory.index ~= currentRow.index then
 				initNewCategory()
 			end
-		end
+		end		
 	end
 	
 		
 	-- Function to manage all row's lifeCycle
 	function view:_manageRowLifeCycle()
 		-- Gather all tableView categories
-		if not self._categories then
+		if "table" ~= type( self._categories ) then
 			self._categories, self._numCategories = self:_gatherCategories()
 		end
 		
@@ -661,14 +685,24 @@ local function createTableView( tableView, options )
 		-- Loop through all of the rows contained in the tableView 
 		for i = 1, #self._rows do
 			local currentRow = self._rows[i]
-			local currentRowExists = currentRow ~= nil
+			
+			-- If this row's view property doesn't exist
+			if type( currentRow._view ) ~= "table" then
+				-- Is this row within the visible bounds of our view?				
+				local isRowWithinBounds = ( currentRow.y + self.y ) + currentRow._height > upperLimit and ( currentRow.y + self.y ) - currentRow._height * 2 < lowerLimit
+				
+				-- If this row is within bounds, create it
+				if isRowWithinBounds then
+					self:_createRow( currentRow, true )
+				end
+			end
 			
 			-- Manage tableView categories (if there are any)
 			if self._numCategories > 0 then
-				-- If the row still exists
-				if currentRowExists and currentRow.y and currentRow.contentHeight then
+				-- If the currrent row has a view
+				if type( currentRow._view ) == "table" then			
 					-- Set the rows top position
-					currentRow._top = self.y + currentRow.y - currentRow.contentHeight * 0.5
+					currentRow._top = self.y + currentRow._view.y - currentRow._view.contentHeight * 0.5
 							
 					-- Category "pushing" effect
 					if self._currentCategory and currentRow.isCategory and currentRow.index ~= self._currentCategory.index then
@@ -679,17 +713,17 @@ local function createTableView( tableView, options )
 							end
 						end
 					end
-					
+										
 					-- Determine which category should be rendered (Sticky category at top)
 					if currentRow.isCategory and currentRow._top <= 0 then
 						self._currentCategoryIndex = i
 						
 						-- Hide the current row
-						currentRow.isVisible = false
+						currentRow._view.isVisible = false
 						
-					elseif currentRow ~= nil and currentRow.isCategory and currentRow._top >= 0 and self._currentCategory and currentRow.index == self._currentCategory.index then
+					elseif currentRow.isCategory and currentRow._top >= 0 and self._currentCategory and currentRow.index == self._currentCategory.index then
 						-- Category moved below top of tableView, render previous category
-						currentRow.isVisible = true
+						currentRow._view.isVisible = true
 												
 						-- Remove current category if the first category moved below the top of the tableView
 						display.remove( self._currentCategory )
@@ -697,69 +731,30 @@ local function createTableView( tableView, options )
 						self._currentCategoryIndex = nil
 					end
 				end	
-			end 
+			end
 			
 			-------------------------
 			-- Handle row culling
 			-------------------------
 			
 			-- Is this row currently within the tableView bounds ? Or above or below it.
-			if currentRowExists and currentRow ~= nil and currentRow.y and currentRow.contentHeight then
-				local isRowWithinBounds = ( currentRow.y + self.y ) + currentRow.contentHeight > upperLimit and ( currentRow.y + self.y ) - currentRow.contentHeight * 2 < lowerLimit
-			
+			if "table" == type( currentRow._view ) then
+				-- Is this row within the visible bounds of our view?
+				local isRowWithinBounds = ( currentRow.y + self.y ) + currentRow._height * 2 > upperLimit and ( currentRow.y + self.y ) - currentRow._height * 2 < lowerLimit
+				
+				-- If this row is a category, change the boundary to reflect it
 				if currentRow.isCategory then
-					isRowWithinBounds = ( currentRow.y + self.y ) - currentRow.contentHeight < lowerLimit
+					isRowWithinBounds = ( currentRow.y + self.y ) - currentRow._height < lowerLimit
 				end
-			
-				-- Hide rows that are are currently not within our tableView's visible bounds
+				
+				-- Remove rows that are are currently not within our view's visible bounds
 				if not isRowWithinBounds then
-					-- Add this row to the off screen rows table
-					self._offScreenRows[#self._offScreenRows +1] = 
-					{
-						id = currentRow.id,
-						index = currentRow.index,
-						y = currentRow.y,
-						isCategory = currentRow.isCategory,
-						rowColor = currentRow._rowColor,
-						contentWidth = currentRow.contentWidth,
-						contentHeight = currentRow.contentHeight,
-						rowHeight = currentRow._height,
-						_border = currentRow._border,
-						previousYPosition = currentRow.y,
-						_shouldRender = true, -- We are re-rendering this row
-					}
-
 					-- Remove this row
-					display.remove( currentRow )
-					currentRow = nil
+					display.remove( currentRow._view )
+					currentRow._view = nil					
 				end
 			end
 		end
-				
-		-- Recreate rows that are moving back on screen
-		for k, v in pairs( self._offScreenRows ) do
-			local currentRow = self._offScreenRows[k]
-			local isRowWithinBounds = ( currentRow.y + self.y ) + currentRow.contentHeight > upperLimit and ( currentRow.y + self.y ) - currentRow.contentHeight * 2 < lowerLimit
-			
-			-- If the row is back within the tableView bounds, re-create it
-			if isRowWithinBounds then
-				if currentRow._shouldRender and currentRow.x == nil then
-					-- Re-insert the row into the view
-					self:_insertRow( 
-					{
-						isCategory = currentRow.isCategory,
-						index = currentRow.index,
-						id = currentRow.id,
-						rowHeight = currentRow.rowHeight,
-						rowColor = currentRow.rowColor,
-						previousYPosition = currentRow.previousYPosition,	
-					}, true )
-				end
-				
-				-- Nil this row
-				self._offScreenRows[k] = nil
-			end
-		end		
 		
 		-- Render current category (if there are any categories)
 		if self._numCategories > 0 then
@@ -784,7 +779,7 @@ local function createTableView( tableView, options )
 		local row = event.target
 		
 		-- If tap's are allowed on the row at this time
-		if not row._cannotTap then
+		if not row._cannotTap and view._allowRowTouch then
 			if "function" == type( view._onRowTouch ) then
 				local newEvent =
 				{
@@ -807,141 +802,166 @@ local function createTableView( tableView, options )
 		end
 	end
 	
+	
+	
+	function view:_createRow( row, isReRender )
+		local currentRow = row
+		
+		-- Set the upper and lower category limits
+		local upperLimit = self._background.y - ( self._background.contentHeight * 0.5 )
+		local lowerLimit = self._background.y + ( self._background.contentHeight * 0.5 )
+		-- Is this row within the visible bounds of our view?
+		local isRowWithinBounds = ( currentRow.y + self.y ) + currentRow._height > upperLimit and ( currentRow.y + self.y ) - currentRow._height * 2 < lowerLimit
+	
+		-- If the row is within the bounds of the view, create it
+		if isRowWithinBounds then
+			-- If the row's view property doesn't exist
+			if type( currentRow._view ) ~= "table" then
+				-- We haven't finished rendering all rows yet
+				self._hasRenderedRows = false
+								
+				-- Create the row's view (a row is a display group)
+				currentRow._view = display.newGroup()
+				
+				-- Create the row's touch rectangle (ie it's border)
+				local border = display.newRect( currentRow._view, 0, 0, currentRow._width, currentRow._height )
+				border.x = border.contentWidth * 0.5
+				border.y = border.contentHeight * 0.5
+				border.strokeWidth = 1
+				border:setFillColor( unpack( currentRow._rowColor.default ) )
+				border:setStrokeColor( unpack( currentRow._rowColor.default ) )
+
+				-- If the user want's lines between rows, set the stroke color accordingly
+				if not noLines then
+					border:setStrokeColor( unpack( currentRow._lineColor ) )
+				end
+			
+				-- Set the row's reference point to it's center point (just incase)
+				currentRow._view:setReferencePoint( display.CenterReferencePoint )
+
+				-- Position the row
+				currentRow._view.x = self.x + currentRow._view.contentWidth * 0.5
+				currentRow._view.y = currentRow.y
+
+				-- Assign properties to the row
+				currentRow._view._border = border
+				currentRow._view._rowColor = currentRow._rowColor
+				currentRow._view.index = currentRow.index
+				currentRow._view.id = currentRow.id
+				currentRow._view.isCategory = currentRow.isCategory
+				
+				-- Insert the row into the view
+				self:insert( currentRow._view )				
+				
+				-- Add event listener to the row
+				if not currentRow.isCategory then
+					currentRow._view:addEventListener( "touch", _handleRowTouch )
+					currentRow._view:addEventListener( "tap", _handleRowTap )
+				else
+					-- If the row is a category, pass the touch event back to the view
+					local function scrollList( event )
+						-- Handle momentum scrolling (if the view isn't locked)
+						if not self._isLocked then
+							_momentumScrolling._touch( self, event )
+						end
+
+						return true
+					end
+
+					currentRow._view:addEventListener( "touch", scrollList )
+				end
+				
+				-- Row methods
+				function currentRow._view:setRowColor( options )
+					if "table" == type( options ) then
+						if "table" == type( options.default ) then
+							self._rowColor.default = options.default
+						end
+					
+						if "table" == type( options.over ) then
+							self._rowColor.over = options.over
+						end
+					else
+						print( "WARNING: row:setRowColor - options table with default/over tables expected, got", type( options ) )
+					end
+				end
+				
+				-- Create the rowRender event
+				local rowEvent = 
+				{
+					name = "rowRender",
+					row = currentRow._view,
+					target = self.parent,
+				}
+
+				-- If an onRowRender event exists, execute it
+				if self._onRowRender and "function" == type( self._onRowRender ) then
+					self._onRowRender( rowEvent )
+				end
+
+				-- We have finished rendering the rows (unless we render another, in which case this gets reset)
+				self._hasRenderedRows = true
+			end
+		end
+	end
+	
 					
 	-- Function to insert a row into a tableView
 	function view:_insertRow( options, reRender )
-		-- We haven't finished rendering all rows yet
-		self._hasRenderedRows = false
+		-- Create the row
+		self._rows[#self._rows + 1] = {}
 		
 		-- Are we re-rendering this row?
 		local isReRender = reRender
 		
-		-- Create a new row, a row is a display group
-		self._rows[#self._rows + 1] = display.newGroup()
-		-- Set the row's index
-		
-		if isReRender then
-			self._rows[#self._rows].index = options.index
-		else
-			self._rows[#self._rows].index = #self._rows
-		end
-		
 		-- Retrieve passed in row customization variables
 		local rowId = options.id or #self._rows
+		local rowIndex = #self._rows	
 		local rowWidth = self._width
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
 		local rowColor = options.rowColor or { default = { 255, 255, 255 }, over = { 30, 144, 255 } }
+		local lineColor = options.lineColor or { 220, 220, 220 }
 		local noLines = self._noLines or false
-		
-		-- Set defaults for row color
+				
+		-- Set defaults for row's color
 		if not rowColor.default then
 			rowColor.default = { 255, 255, 255 }
 		end
 		
-		-- Set defaults for row over color
+		-- Set defaults for row's over color
 		if not rowColor.over then
 			rowColor.over = { 30, 144, 255 }
 		end
 		
-		local lineColor = options.lineColor or { 220, 220, 220 }
-				
-		-- Create the row's touch rectangle (ie it's border)
-		local border = display.newRect( self._rows[#self._rows], 0, 0, rowWidth, rowHeight )
-		border.x = border.contentWidth * 0.5
-		border.y = border.contentHeight * 0.5
-		border.strokeWidth = 1
-		border:setFillColor( unpack( rowColor.default ) )
-		border:setStrokeColor( unpack( rowColor.default ) )
-				
-		-- If the user want's lines between rows, set the stroke color accordingly
-		if not noLines then
-			border:setStrokeColor( unpack( lineColor ) )
-		end
-		
-		-- Set the row's id
+		-- Assign public properties to the row
 		self._rows[#self._rows].id = rowId
-
-		-- Set the row's reference point to it's center point (just incase)
-		self._rows[#self._rows]:setReferencePoint( display.CenterReferencePoint )
-				
-		-- Position the row
-		self._rows[#self._rows].x = self.x + self._rows[#self._rows].contentWidth * 0.5
+		self._rows[#self._rows].index = rowIndex
+		self._rows[#self._rows].isCategory = isRowCategory
 		
-		-- Set the row's y position
-		
-		-- If we are re-rendering this row
-		if isReRender then
-			self._rows[#self._rows].y = options.previousYPosition
-		else
-			if #self._rows <= 1 then
-				self._rows[#self._rows].y = rowHeight * #self._rows - ( rowHeight * 0.5 ) - 1
-			else
-				self._rows[#self._rows].y = self._rows[#self._rows - 1].y + ( self._rows[#self._rows - 1].contentHeight * 0.5 ) + ( self._rows[#self._rows].contentHeight * 0.5 ) - 1
-			end
-		end
-				
 		-- Assign private properties to the row
-		self._rows[#self._rows]._border = border
 		self._rows[#self._rows]._rowColor = rowColor
 		self._rows[#self._rows]._lineColor = lineColor
 		self._rows[#self._rows]._noLines = noLines
 		self._rows[#self._rows]._width = rowWidth
 		self._rows[#self._rows]._height = rowHeight
+		self._rows[#self._rows]._previousYPosition = options.previousYPosition
+		self._rows[#self._rows]._view = nil
 		
-		-- Assign public properties to the row
-		self._rows[#self._rows].isCategory = isRowCategory
-		
-		-- Add event listener to the row
-		if not isRowCategory then
-			self._rows[#self._rows]:addEventListener( "touch", _handleRowTouch )
-			self._rows[#self._rows]:addEventListener( "tap", _handleRowTap )
+		-- Calculate and set the row's y position
+		if #self._rows <= 1 then
+			self._rows[#self._rows].y = ( self._rows[#self._rows]._height * 0.5 ) + 1
 		else
-			-- If the row is a category, pass the touch event back to the view
-			local function scrollList( event )
-				-- Handle momentum scrolling (if the view isn't locked)
-				if not self._isLocked then
-					_momentumScrolling._touch( self, event )
-				end
-			
-				return true
-			end
-			
-			self._rows[#self._rows]:addEventListener( "touch", scrollList )
+			self._rows[#self._rows].y = ( self._rows[#self._rows - 1].y + ( self._rows[#self._rows - 1]._height * 0.5 ) ) + ( self._rows[#self._rows]._height * 0.5 ) + 1
 		end
 		
-		-- Insert the row into the view
-		self:insert( self._rows[#self._rows] )
+		-- Update the scrollHeight of our view
+		self._scrollHeight = self._scrollHeight + self._rows[#self._rows]._height + 1
 		
-		-- Create the rowRender event
-		local rowEvent = 
-		{
-			name = "rowRender",
-			row = self._rows[#self._rows],
-			target = tableView,
-		}
-
-		-- If an onRowRender event exists, execute it
-		if self._onRowRender and "function" == type( self._onRowRender ) then
-			self._onRowRender( rowEvent )
-		end
-		
-		-- Add this row to the overall height (if this isn't a pickerWheel and this row isn't being re-rendered)
-		if not isReRender then
-			self._scrollHeight = self._scrollHeight + rowHeight + border.strokeWidth
-		end
-		
-		-- Add this row to the row properties table
-		self._rowProperties[#self._rowProperties + 1] = 
-		{
-			contentHeight = self._rows[#self._rows].contentHeight,
-			index = self._rows[#self._rows].index,
-			y = self._rows[#self._rows].y
-		}
-		
-		-- We have finished rendering the rows (unless we render another, in which case this gets reset)
-		self._hasRenderedRows = true
+		-- Create the row
+		self:_createRow( self._rows[#self._rows], reRender )
 	end
+	
 	
 	-- Function to delete a row from the tableView
 	function view:_deleteRow( rowIndex )
@@ -961,88 +981,68 @@ local function createTableView( tableView, options )
 			print( "Warning: A row cannot be deleted whilst the tableView is scrolling" )
 			return
 		end
-		
-		-- The row we want to delete
-		local rowToDelete = nil
-		-- Is the row we are deleting on screen
-		local isRowOnScreen = true
-		-- The height of the row we are deleting
-		local rowHeight = 0
-		
+				
 		----------------------------------------------------------------
 		-- Check if the row we are deleting is on screen or off screen
 		----------------------------------------------------------------
-				
-		-- If the row is on screen
-		if self._rows[rowIndex].y then
-			rowToDelete = self._rows[rowIndex]
-			rowHeight = rowToDelete._height
-		-- The row is off screen
-		else
-			for k, v in pairs( self._offScreenRows ) do
-				local currentRow = self._offScreenRows[k]
-			
-				if rowIndex == currentRow.index then
-					-- Set the rowHeight
-					rowHeight = currentRow.rowHeight
 		
-					-- Nil out this row
-					currentRow = nil
-					
-					-- Loop through the remaining off screen rows and move them up
-					for k, v in pairs( self._offScreenRows ) do
-						if self._offScreenRows[k].index > rowIndex then
-							if self._offScreenRows[k].isCategory then
-								if self._offScreenRows[k-1] ~= nil then
-									self._offScreenRows[k].previousYPosition = self._offScreenRows[k].previousYPosition - self._offScreenRows[k-1].contentHeight
-								end
-							else
-								self._offScreenRows[k].previousYPosition = self._offScreenRows[k].previousYPosition - self._offScreenRows[k].contentHeight
-							end
-						end
-					end
-
-					isRowOnScreen = false
-					break
-				end
-			end
-		end
-						
 		-- Re calculate the scrollHeight
-		self._scrollHeight = self._scrollHeight - rowHeight
+		self._scrollHeight = self._scrollHeight - self._rows[rowIndex]._height
 		
-		-- If the row that is being deleted is on screen, transition it out then move up the remaining rows to fill the gap
-		if isRowOnScreen then
-			-- Transition out & delete the row in question
-			transition.to( rowToDelete, { x = - ( rowToDelete.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = function() display.remove( rowToDelete ); rowToDelete = nil end } )
-		
-			-- Loop through the remaining on screen rows, starting at the next row after the deleted one
-			for i = rowIndex + 1, #self._rows do
-				if self._rows[i].y then
-					if self._rows[i].isCategory then
-						if nil ~= self._rows[i-1] then
-							transition.to( self._rows[i], { y = self._rows[i].y - ( self._rows[i-1].contentHeight ), transition = easing.outQuad } )
+		-- If the row is within the visible view
+		if "table" == type( self._rows[rowIndex]._view ) then
+			-- Function to remove the row from display
+			local function removeRow()	
+				-- Loop through the remaining rows, starting at the next row after the deleted one
+				for i = rowIndex + 1, #self._rows do
+					-- Move up the row's which are within our views vivible bounds
+					if "table" == type( self._rows[i]._view ) then
+						if self._rows[i].isCategory then
+							if nil ~= self._rows[i-1] then
+								transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i-1]._view.contentHeight ) + 1, transition = easing.outQuad } )
+							end
+						else
+							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i]._view.contentHeight ) + 1, transition = easing.outQuad } )
 						end
+					-- We are now moving up the off screen rows
 					else
-						transition.to( self._rows[i], { y = self._rows[i].y - ( self._rows[i].contentHeight ), transition = easing.outQuad } )
+						if self._rows[i].isCategory then
+							if nil ~= self._rows[i-1] then
+								self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1
+							end
+						else
+							self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
+						end
 					end
 				end
+				
+				-- Remove the row from display
+				display.remove( self._rows[rowIndex]._view )
+				self._rows[rowIndex]._view = nil
+				
+				-- Remove the row from the row's table
+				table.remove( self._rows, rowIndex )
 			end
+
+			-- Transition out & delete the row in question
+			transition.to( self._rows[rowIndex]._view, { x = - ( self._rows[rowIndex]._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = removeRow } )
 		
-			-- Move up the remaining off screen rows
-			for k, v in pairs( self._offScreenRows ) do
-				if self._offScreenRows[k].isCategory then
-					if self._offScreenRows[k-1] ~= nil then
-						self._offScreenRows[k].previousYPosition = self._offScreenRows[k].previousYPosition - self._offScreenRows[k-1].contentHeight
+		-- The row isn't within the visible bounds of our view
+		else
+			-- Loop through the remaining rows, starting at the next row after the deleted one
+ 			for i = rowIndex + 1, #self._rows do
+				if self._rows[i].isCategory then
+					if nil ~= self._rows[i-1] then
+						self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1
 					end
 				else
-					self._offScreenRows[k].previousYPosition = self._offScreenRows[k].previousYPosition - self._offScreenRows[k].contentHeight
+					self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
 				end
 			end
+			
+			-- Remove the row from the row's table
+			table.remove( self._rows, rowIndex )
 		end
-		
-		-- We have deleted the row
-		self._isDeletingRow = false
 	end
 	
 	-- Function to deleta all rows from the tableView
@@ -1050,21 +1050,23 @@ local function createTableView( tableView, options )
 		local _tableView = self.parent
 		
 		-- Loop through all rows and delete each one
-		for k, v in pairs( self._rows ) do
-			display.remove( self._rows[k] )
-			self._rows[k] = nil
+		for i = 1, #self._rows do
+			if "table" == type( self._rows[i]._view ) then
+				display.remove( self._rows[i]._view )
+				self._rows[i]._view = nil
+			end
 		end
 		
+		-- Remove & reset the row's table
+		self._rows = nil
+		self._rows = {}
+				
 		-- Delete any stuck categories
 		if self._currentCategory then
 			display.remove( self._currentCategory )
 			self._currentCategory = nil
 			self._currentCategoryIndex = nil
 		end
-		
-		-- Recreate the off screen rows table
-		self._offScreenRows = nil
-		self._offScreenRows = {}
 	
 		-- Nil out the categories table
 		self._categories = nil
@@ -1115,11 +1117,11 @@ local function createTableView( tableView, options )
 		local newPosition = 0
 				
 		-- Set the new position to scroll to
-		newPosition = -self._rowProperties[rowIndex].y + ( self._rowProperties[rowIndex].contentHeight * 0.5 )
+		newPosition = -self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 
 		-- The calculation needs altering for pickerWheels
 		if self._isUsedInPickerWheel then
-			newPosition = self.y - self._rowProperties[rowIndex].y + ( self._rowProperties[rowIndex].contentHeight * 0.5 )
+			newPosition = self.y - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 		end
 			
 		-- Transition the view to the row index	
