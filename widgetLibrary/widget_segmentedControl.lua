@@ -246,6 +246,8 @@ local function initWithImage( segmentedControl, options )
 		local firstSegment = 1
 		local lastSegment = self._totalSegments
 
+		--print( self.x - ( self.contentWidth * 0.5 ) )
+
 		if "began" == phase then
 			-- Loop through the segments
 			for i = 1, self._totalSegments do
@@ -254,7 +256,7 @@ local function initWithImage( segmentedControl, options )
 				local segmentWidth = self._segmentWidth
 				
 				-- Work out the current segments position
-				local currentSegmentLeftEdge = segmentedControlXPosition * currentSegment
+				local currentSegmentLeftEdge = ( segmentedControlXPosition * 0.5 ) * currentSegment
 				local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment )
 				
 				-- If the touch is within the segments range
@@ -267,6 +269,7 @@ local function initWithImage( segmentedControl, options )
 						self:setRightSegmentActive()
 					-- Any other segment
 					else
+						print( i )
 						self:setMiddleSegmentActive( i )
 					end
 					
