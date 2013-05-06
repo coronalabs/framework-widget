@@ -55,7 +55,7 @@ function scene:createScene( event )
 	-- Create a new progress view object
 	local newSegmentedControl = widget.newSegmentedControl
 	{
-		left = 0,
+		left = 45,
 		top = 80,
 		segments = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" },
 		defaultSegment = 1,
@@ -68,7 +68,7 @@ function scene:createScene( event )
 		--]]
 		onPress = onPress,
 	}
-	newSegmentedControl.x = display.contentCenterX
+	--newSegmentedControl.x = display.contentCenterX
 	group:insert( newSegmentedControl )
 	
 	----------------------------------------------------------------------------------------------------------------
