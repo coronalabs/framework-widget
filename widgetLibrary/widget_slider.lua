@@ -159,8 +159,16 @@ local function createHorizontalSlider( slider, options )
 		event.target = self._handle
 	
 		if "began" == phase then
-			-- Did the touch begin on the Handle?
-			local touchBeganOnHandle = event.x >= _slider.x + self._handle.x - ( self._handle.contentWidth * 0.5 ) and event.x <= _slider.x + self._handle.x + ( self._handle.contentWidth * 0.5 )
+			-- Did the touch begin on the Handle?			
+			local touchBeganOnHandle = false
+			
+			-- The content bounds of our handle
+			local bounds = self._handle.contentBounds
+			
+			-- If the touch event is within the boundary of the handle
+			if event.x > bounds.xMin and event.x < bounds.xMax then
+				touchBeganOnHandle = true
+			end
 			
 			-- If the touch began on the handle
 			if touchBeganOnHandle then
@@ -358,8 +366,13 @@ local function createVerticalSlider( slider, options )
 		event.target = self._handle
 	
 		if "began" == phase then
-			-- Did the touch begin on the Handle?
-			local touchBeganOnHandle = event.y >= _slider.y + self._handle.y - ( self._handle.contentHeight * 0.5 ) and event.y <= _slider.y + self._handle.y + ( self._handle.contentHeight * 0.5 )
+			-- The content bounds of our handle
+			local bounds = self._handle.contentBounds
+			
+			-- If the touch event is within the boundary of the handle
+			if event.y > bounds.yMin and event.y < bounds.yMax then
+				touchBeganOnHandle = true
+			end
 			
 			-- If the touch began on the handle
 			if touchBeganOnHandle then
