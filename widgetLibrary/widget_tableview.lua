@@ -251,31 +251,31 @@ local function createTableView( tableView, options )
 	-- Private Function to get a row at a specific y position
 	function view:_getRowAtPosition( position )
 		local yPosition = position
-				
+		
 		for k, v in pairs( self._rows ) do
 			local currentRow = self._rows[k]
 			
 			-- If the current row exists on screen
-			if currentRow.y then
-				local bounds = currentRow.contentBounds
+			if "table" == type( currentRow._view ) then
+				local bounds = currentRow._view.contentBounds
 			
 				local isWithinBounds = yPosition > bounds.yMin and yPosition < bounds.yMax + 1
 			
 				-- If we have hit the bottom limit, return the first row
 				if self._hasHitBottomLimit then
-					return self._rows[1]
+					return self._rows[1]._view
 				end
 			
 				-- If we have hit the top limit, return the last row
 				if self._hasHitTopLimit then
-					return self._rows[#self._rows]
+					return self._rows[#self._rows]._view
 				end
 			
 				-- If the row is within bounds
 				if isWithinBounds then								
 					transition.to( self, { time = 280, y = - currentRow.y - self.parent.y, transition = easing.outQuad } )
-				
-					return currentRow
+					
+					return currentRow._view
 				end
 			end
 		end
@@ -832,7 +832,7 @@ local function createTableView( tableView, options )
 				border:setStrokeColor( unpack( currentRow._rowColor.default ) )
 
 				-- If the user want's lines between rows, set the stroke color accordingly
-				if not noLines then
+				if not opt.noLines then
 					border:setStrokeColor( unpack( currentRow._lineColor ) )
 				end
 			

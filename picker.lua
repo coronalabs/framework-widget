@@ -87,7 +87,7 @@ function scene:createScene( event )
 	--pickerWheel:scrollToIndex( 2, 8, 0 )
 		
 	
-	local function showValues( event )
+	local function showValues( event )		
 		local values = pickerWheel:getValues()
 		
 		--print( values )
