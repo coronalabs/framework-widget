@@ -152,6 +152,7 @@ local function initWithSprite( stepper, options )
 	function view:touch( event )
 		local phase = event.phase
 		local _stepper = self.parent
+		local _stepperParent = _stepper.parent
 		event.target = stepper
 		
 		if "began" == phase then
@@ -160,9 +161,17 @@ local function initWithSprite( stepper, options )
 				display.getCurrentStage():setFocus( self, event.id )
        			self._isFocus = true
        		end
+
+			-- The current position of the stepper's plus segment
+			local plusPosition = _stepper.x
+			
+			-- Factor in the stepper's parent's group position in the calculation if it exists
+			if _stepperParent then
+				plusPosition = _stepperParent.x + _stepper.x
+			end
         
 			-- If we have pressed the right side of the stepper (the plus)
-			if event.x > _stepper.x then
+			if event.x > plusPosition then
 				self:_dispatchIncrement()
 			else
 				-- We have pressed the left side of the stepper (the minus)
