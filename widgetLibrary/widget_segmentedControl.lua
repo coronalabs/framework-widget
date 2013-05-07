@@ -267,7 +267,6 @@ local function initWithImage( segmentedControl, options )
 						self:setRightSegmentActive()
 					-- Any other segment
 					else
-						print( i )
 						self:setMiddleSegmentActive( i )
 					end
 					
