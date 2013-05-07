@@ -683,8 +683,8 @@ local function createTableView( tableView, options )
 		local categories = self._categories
 				
 		-- Loop through all of the rows contained in the tableView 
-		for i = 1, #self._rows do
-			local currentRow = self._rows[i]
+		for k, v in pairs( self._rows ) do
+			local currentRow = self._rows[k]
 			
 			-- If this row's view property doesn't exist
 			if type( currentRow._view ) ~= "table" then
@@ -716,7 +716,7 @@ local function createTableView( tableView, options )
 										
 					-- Determine which category should be rendered (Sticky category at top)
 					if currentRow.isCategory and currentRow._top <= 0 then
-						self._currentCategoryIndex = i
+						self._currentCategoryIndex = k
 						
 						-- Hide the current row
 						currentRow._view.isVisible = false
@@ -964,7 +964,7 @@ local function createTableView( tableView, options )
 	
 	
 	-- Function to delete a row from the tableView
-	function view:_deleteRow( rowIndex )
+	function view:_deleteRow( rowIndex )	
 		if type( self._rows[rowIndex] ) ~= "table" then
 			print( "WARNING: deleteRow( " .. rowIndex .. " ) - Row does not exist" )
 			return
@@ -989,59 +989,46 @@ local function createTableView( tableView, options )
 		-- Re calculate the scrollHeight
 		self._scrollHeight = self._scrollHeight - self._rows[rowIndex]._height
 		
-		-- If the row is within the visible view
-		if "table" == type( self._rows[rowIndex]._view ) then
-			-- Function to remove the row from display
-			local function removeRow()	
-				-- Loop through the remaining rows, starting at the next row after the deleted one
-				for i = rowIndex + 1, #self._rows do
-					-- Move up the row's which are within our views vivible bounds
-					if "table" == type( self._rows[i]._view ) then
-						if self._rows[i].isCategory then
-							if nil ~= self._rows[i-1] then
-								transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i-1]._view.contentHeight ) + 1, transition = easing.outQuad } )
-							end
-						else
-							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i]._view.contentHeight ) + 1, transition = easing.outQuad } )
-						end
-					-- We are now moving up the off screen rows
-					else
-						if self._rows[i].isCategory then
-							if nil ~= self._rows[i-1] then
-								self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1
-							end
-						else
-							self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
-						end
-					end
-				end
-				
-				-- Remove the row from display
-				display.remove( self._rows[rowIndex]._view )
-				self._rows[rowIndex]._view = nil
-				
-				-- Remove the row from the row's table
-				table.remove( self._rows, rowIndex )
-			end
-
-			-- Transition out & delete the row in question
-			transition.to( self._rows[rowIndex]._view, { x = - ( self._rows[rowIndex]._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = removeRow } )
-		
-		-- The row isn't within the visible bounds of our view
-		else
+		-- Function to remove the row from display
+		local function removeRow()	
 			-- Loop through the remaining rows, starting at the next row after the deleted one
- 			for i = rowIndex + 1, #self._rows do
-				if self._rows[i].isCategory then
-					if nil ~= self._rows[i-1] then
-						self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1
+			for i = rowIndex + 1, #self._rows do
+				-- Move up the row's which are within our views visible bounds
+				if "table" == type( self._rows[i]._view ) then
+					if self._rows[i].isCategory then
+						if nil ~= self._rows[i-1] then
+							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i-1]._view.contentHeight ) + 1, transition = easing.outQuad } )
+						end
+					else
+						transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i]._view.contentHeight ) + 1, transition = easing.outQuad } )
 					end
+				-- We are now moving up the off screen rows
 				else
-					self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
+					if self._rows[i].isCategory then
+						if nil ~= self._rows[i-1] then
+							self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1
+						end
+					else
+						self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
+					end
 				end
 			end
 			
+			-- Remove the row from display
+			display.remove( self._rows[rowIndex]._view )
+			self._rows[rowIndex]._view = nil
+							
 			-- Remove the row from the row's table
-			table.remove( self._rows, rowIndex )
+			self._rows[rowIndex] = nil
+		end
+		
+		-- If the row is within the visible view
+		if "table" == type( self._rows[rowIndex]._view ) then
+			-- Transition out & delete the row in question
+			transition.to( self._rows[rowIndex]._view, { x = - ( self._rows[rowIndex]._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = removeRow } )
+		-- The row isn't within the visible bounds of our view
+		else
+			removeRow()
 		end
 	end
 	
