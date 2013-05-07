@@ -246,8 +246,6 @@ local function initWithImage( segmentedControl, options )
 		local firstSegment = 1
 		local lastSegment = self._totalSegments
 
-		--print( self.x - ( self.contentWidth * 0.5 ) )
-
 		if "began" == phase then
 			-- Loop through the segments
 			for i = 1, self._totalSegments do
