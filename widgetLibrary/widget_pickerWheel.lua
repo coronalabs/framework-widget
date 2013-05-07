@@ -112,7 +112,7 @@ local function createPickerWheel( pickerWheel, options )
 		rowTitle.y = row.contentHeight * 0.5
 		rowTitle:setTextColor( unpack( opt.fontColor ) )
 		row.value = rowTitle.text
-		
+				
 		-- Align the text as requested
 		if "center" == alignment then
 			rowTitle.x = row.x
