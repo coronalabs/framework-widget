@@ -69,11 +69,7 @@ local function manageButtonTouch( view, event )
 		if "table" == type( view.parent ) then
 			-- Set focus on the button
 			view._isFocus = true
-					
-			-- Don't set focus to a button inside a scrollView
-			--if not event._insideScrollView then
-				display.getCurrentStage():setFocus( view, event.id )
-			--end
+			display.getCurrentStage():setFocus( view, event.id )
 		end
 		
 	elseif view._isFocus then
@@ -364,6 +360,7 @@ local function createUsingImageFiles( button, options )
 	-- Function to set the buttons fill color
 	function button:setFillColor( ... )
 		self._view:setFillColor( ... )
+		self._view._over:setFillColor( ... )
 	end
 	
 	-- Function to set the button's label
