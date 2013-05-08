@@ -472,7 +472,7 @@ local function initWithImageSheet( tabBar, options )
 		viewButtons[view._defaultTab].isVisible = false
 		viewButtons[view._defaultTab].over.isVisible = true
 	else
-		viewButtons[view._defaultTab]:setSequence( "active" )
+		viewButtons[view._defaultTab]:setSequence( "over" )
 	end
 	
 	-- Position the tab selected group
