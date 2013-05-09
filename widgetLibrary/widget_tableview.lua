@@ -459,8 +459,10 @@ local function createTableView( tableView, options )
 			
 			-- If the calculated scrollHeight is less than the height of the tableView, set it to that.
 			if "number" == type( self._scrollHeight ) then
-				if self._scrollHeight < self._height then
-					self._scrollHeight = self._height
+				if not self._isUsedInPickerWheel then
+					if self._scrollHeight < self._height then
+						self._scrollHeight = self._height
+					end
 				end
 			end
 
@@ -854,6 +856,7 @@ local function createTableView( tableView, options )
 				currentRow._view._rowColor = currentRow._rowColor
 				currentRow._view.index = currentRow.index
 				currentRow._view.id = currentRow.id
+				currentRow._view._label = currentRow._label
 				currentRow._view.isCategory = currentRow.isCategory
 				
 				-- Insert the row into the view
@@ -951,7 +954,7 @@ local function createTableView( tableView, options )
 		self._rows[#self._rows]._noLines = noLines
 		self._rows[#self._rows]._width = rowWidth
 		self._rows[#self._rows]._height = rowHeight
-		self._rows[#self._rows]._previousYPosition = options.previousYPosition
+		self._rows[#self._rows]._label = options.label or ""
 		self._rows[#self._rows]._view = nil
 		
 		-- Calculate and set the row's y position
