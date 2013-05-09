@@ -467,6 +467,9 @@ local function createOnOffSwitch( switch, options )
 				self.x = self._endRange
 				self._handle.x = self._endRange
 				self.maskX = self._startRange
+				
+				-- Execute the onComplete listener
+				executeOnComplete()
 			end
 		else
 			if _isAnimated then
@@ -476,6 +479,9 @@ local function createOnOffSwitch( switch, options )
 				self.x = self._startRange
 				self._handle.x = self._startRange
 				self.maskX = self._endRange
+				
+				-- Execute the onComplete listener
+				executeOnComplete()
 			end
 		end
 	end
