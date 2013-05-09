@@ -67,7 +67,7 @@ function scene:createScene( event )
 		},
 		
 		{
-			align = "center",
+			align = "right",
 			width = 80,
 			startIndex = 10,
 			labels = years,
@@ -113,48 +113,6 @@ function scene:createScene( event )
 	}
 	returnToListing.x = display.contentCenterX
 	group:insert( getValuesButton )
-	
-
-	
-	--transition.to( pickerWheel, { y = 100 } )
-	
-	--[[
-	
-	-- Create some text to display the chosen values on screen
-	local displayedValues = display.newEmbossedText( "Chosen date: ", 0, 0, native.systemFont, 18 )
-	displayedValues.x, displayedValues.y = display.contentCenterX, 160
-	group:insert( displayedValues )
-	
-	-- Show picker values on button press
-	local function showPickerValues( event )
-		-- extract selected rows from pickerWheel columns
-		local pickerValues = picker:getValues()
-		monthIndex = pickerValues[1].index
-		dayIndex = pickerValues[2].index
-		yearIndex = pickerValues[3].index
-		
-		--Set displayed value text
-		displayedValues:setText( "Chosen date: " .. pickerValues[1].value .. " " .. pickerValues[2].value .. ", " .. pickerValues[3].value )
-		displayedValues.x = display.contentCenterX
-		
-		--Output to console
-		print( "Chosen date: " .. pickerValues[1].value .. " " .. pickerValues[2].value .. ", " .. pickerValues[3].value )
-		
-		return true
-	end
-
-	--Button to print picker values
-	local pickerButton = widget.newButton
-	{
-	    id = "showPickerValues",
-	    left = 60,
-	    top = 200,
-	    label = "Show Values",
-	    width = 200, height = 52,
-	    onRelease = showPickerValues
-	}
-	group:insert( pickerButton )
-	--]]
 end
 
 function scene:didExitScene( event )

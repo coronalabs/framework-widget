@@ -104,11 +104,11 @@ local function createPickerWheel( pickerWheel, options )
 	local function _renderColumns( event )
 		local phase = event.phase
 		local row = event.row
-		local columnNo = event.target._columnNo
+		local fontSize = event.target._fontSize
 		local alignment = event.target._align
 
 		-- Create the column's title text
-		local rowTitle = display.newText( row, opt.columnData[columnNo].labels[row.index], 0, 0, opt.font, opt.fontSize )
+		local rowTitle = display.newText( row, row._label, 0, 0, opt.font, fontSize )
 		rowTitle.y = row.contentHeight * 0.5
 		rowTitle:setTextColor( unpack( opt.fontColor ) )
 		row.value = rowTitle.text
@@ -119,7 +119,7 @@ local function createPickerWheel( pickerWheel, options )
 		elseif "left" == alignment then
 			rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 6
 		elseif "right" == alignment then
-			rowTitle.x = ( rowTitle.contentWidth * 0.5 )
+			rowTitle.x = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 6
 		end
 	end
 	
@@ -166,8 +166,8 @@ local function createPickerWheel( pickerWheel, options )
 		end
 		
 		-- Column properties
-		viewColumns[i]._columnNo = i
-		viewColumns[i]._align = opt.columnData[i].align		
+		viewColumns[i]._align = opt.columnData[i].align
+		viewColumns[i]._fontSize = opt.fontSize
 			
 		-- Set the volumns initial values
 		viewColumns[i]._values = 
@@ -182,6 +182,7 @@ local function createPickerWheel( pickerWheel, options )
 			{
 				rowHeight = 40,
 				rowColor = { 255, 255, 255 },
+				label = opt.columnData[i].labels[j],
 			}
 		end
 		
