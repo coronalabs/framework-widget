@@ -320,12 +320,12 @@ local function createTableView( tableView, options )
 				self._newPhase = nil
 				
 				if "table" == type( self._targetRow ) then
-					if "table" == type( self._targetRow._border ) then
+					if "table" == type( self._targetRow._cell ) then
 						-- If the row isn't a category
 						if not self._targetRow.isCategory then
 							if self._targetRow._wasTouched then
-								-- Set the row's border's fill color
-								self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor.default ) )
+								-- Set the row cell's fill color
+								self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
 								-- The row was no longer touched
 								self._targetRow._wasTouched = false
 							
@@ -418,8 +418,8 @@ local function createTableView( tableView, options )
 					row = self._targetRow,
 				}
 				
-				-- Set the row's border's fill color
-				self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor.default ) )
+				-- Set the row cell's fill color
+				self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
 				
 				-- Execute the row's touch event 
 				self._onRowTouch( newEvent )
@@ -502,8 +502,8 @@ local function createTableView( tableView, options )
 							row = self._targetRow,
 						}
 				
-						-- Set the row's border fill color
-						self._targetRow._border:setFillColor( unpack( self._targetRow._rowColor.over ) )
+						-- Set the row cell's fill color
+						self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.over ) )
 				
 						-- Execute the row's onRowTouch listener
 						self._onRowTouch( newEvent )
@@ -591,17 +591,20 @@ local function createTableView( tableView, options )
 		local function newCategory()
 			local category = display.newGroup()
 			
-			-- Create the row's touch rectangle (ie it's border)
-			local border = display.newRect( category, 0, 0, currentRow._width, currentRow._height )
-			border.x = border.contentWidth * 0.5
-			border.y = border.contentHeight * 0.5
-			border.strokeWidth = 1
-			border:setFillColor( unpack( currentRow._rowColor.default ) )
-			border:setStrokeColor( unpack( currentRow._rowColor.default ) )
-
-			-- If the user want's lines between rows, set the stroke color accordingly
+			-- Create the row's cell
+			local rowCell = display.newRect( category, 0, 0, currentRow._width, currentRow._height )
+			rowCell.x = rowCell.contentWidth * 0.5
+			rowCell.y = rowCell.contentHeight * 0.5
+			rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
+			
+			-- If the user want's lines between rows, create a line to seperate them
 			if not currentRow._noLines then
-				border:setStrokeColor( unpack( currentRow._lineColor ) )
+				-- Create the row's dividing line
+				local rowLine = display.newLine( category, 0, rowCell.y, currentRow._width, rowCell.y )
+				rowLine:setReferencePoint( display.CenterReferencePoint )
+				rowLine.x = rowCell.x 
+				rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
+				rowLine:setColor( unpack( currentRow._lineColor ) )					
 			end
 
 			-- Set the row's id
@@ -635,7 +638,7 @@ local function createTableView( tableView, options )
 			-- Create the category
 			self._currentCategory = newCategory()
 			self._currentCategory:setReferencePoint( display.CenterReferencePoint )
-			self._currentCategory.x = self._currentCategory.contentWidth * 0.5
+			self._currentCategory.x = self.x + ( currentRow._width * 0.5 )
 			self._currentCategory.y = self._currentCategory.contentHeight * 0.5
 			
 			-- Create the rowRender event
@@ -787,13 +790,13 @@ local function createTableView( tableView, options )
 					target = row,
 				}
 
-				-- Set the row's border fill color
-				row._border:setFillColor( unpack( row._rowColor.over ) )
+				-- Set the row cell's fill color
+				row._cell:setFillColor( unpack( row._rowColor.over ) )
 		
 				-- After a little delay, set the row's fill color back to default
 				timer.performWithDelay( 100, function()
-					-- Set the row's border fill color
-					row._border:setFillColor( unpack( row._rowColor.default ) )
+					-- Set the row cell's fill color
+					row._cell:setFillColor( unpack( row._rowColor.default ) )
 				end)
 
 				-- Execute the row's onRowTouch listener
@@ -803,7 +806,7 @@ local function createTableView( tableView, options )
 	end
 	
 	
-	
+	-- Function to create a tableView row
 	function view:_createRow( row, isReRender )
 		local currentRow = row
 		
@@ -823,28 +826,31 @@ local function createTableView( tableView, options )
 				-- Create the row's view (a row is a display group)
 				currentRow._view = display.newGroup()
 				
-				-- Create the row's touch rectangle (ie it's border)
-				local border = display.newRect( currentRow._view, 0, 0, currentRow._width, currentRow._height )
-				border.x = border.contentWidth * 0.5
-				border.y = border.contentHeight * 0.5
-				border.strokeWidth = 1
-				border:setFillColor( unpack( currentRow._rowColor.default ) )
-				border:setStrokeColor( unpack( currentRow._rowColor.default ) )
+				-- Create the row's cell
+				local rowCell = display.newRect( currentRow._view, 0, 0, currentRow._width, currentRow._height )
+				rowCell.x = rowCell.contentWidth * 0.5
+				rowCell.y = rowCell.contentHeight * 0.5
+				rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
 
-				-- If the user want's lines between rows, set the stroke color accordingly
+				-- If the user want's lines between rows, create a line to seperate them
 				if not opt.noLines then
-					border:setStrokeColor( unpack( currentRow._lineColor ) )
+					-- Create the row's dividing line
+					local rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
+					rowLine:setReferencePoint( display.CenterReferencePoint )
+					rowLine.x = rowCell.x 
+					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
+					rowLine:setColor( unpack( currentRow._lineColor ) )					
 				end
 			
 				-- Set the row's reference point to it's center point (just incase)
 				currentRow._view:setReferencePoint( display.CenterReferencePoint )
 
 				-- Position the row
-				currentRow._view.x = self.x + currentRow._view.contentWidth * 0.5
+				currentRow._view.x = self.x + ( currentRow._width * 0.5 )
 				currentRow._view.y = currentRow.y
 
 				-- Assign properties to the row
-				currentRow._view._border = border
+				currentRow._view._cell = rowCell
 				currentRow._view._rowColor = currentRow._rowColor
 				currentRow._view.index = currentRow.index
 				currentRow._view.id = currentRow.id
