@@ -95,7 +95,7 @@ local function initWithSprite( stepper, options )
 	}
 	
 	-- Forward references
-	local imageSheet, view
+	local imageSheet, view, decrementOverlay, incrementOverlay
 	
 	-- Create the imageSheet
 	if opt.sheet then
@@ -110,6 +110,20 @@ local function initWithSprite( stepper, options )
 	view:setSequence( "default" )
 	view.x = stepper.x + ( view.contentWidth * 0.5 )
 	view.y = stepper.y + ( view.contentHeight * 0.5 )
+	
+	-- Create the decrement overlay rectangle
+	decrementOverlay = display.newRect( stepper, 0, 0, ( view.contentWidth * 0.5 ) - 1, view.contentHeight )
+	decrementOverlay.x = view.x - ( decrementOverlay.contentWidth * 0.5 ) - 1
+	decrementOverlay.y = view.y
+	decrementOverlay.isVisible = false
+	decrementOverlay.isHitTestable = true
+	
+	-- Create the increment overlay rectangle
+	incrementOverlay = display.newRect( stepper, 0, 0, ( view.contentWidth * 0.5 ) , view.contentHeight )
+	incrementOverlay.x = view.x + ( incrementOverlay.contentWidth * 0.5 )
+	incrementOverlay.y = view.y
+	incrementOverlay.isVisible = false
+	incrementOverlay.isHitTestable = true
 	
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -127,6 +141,10 @@ local function initWithSprite( stepper, options )
 	view._event = {} -- Our event table for the view
 	view._previousX = 0
 	view._onPress = opt.onPress
+	
+	-- Assign objects to the view
+	view._decrementOverlay = decrementOverlay
+	view._incrementOverlay = incrementOverlay
 	
 	-- If the startNumber is equal to/greater than the minimum or maxium values, set the steppers image sequence to reflect it
 	if view._currentValue <= view._minimumValue then
@@ -147,13 +165,25 @@ local function initWithSprite( stepper, options )
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
-		
+	
+	-- Function to set the stepper's value programatically
+	function stepper:setValue( newValue )
+		return self._view:_setValue( newValue )
+	end
+	
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
+	
 	-- Handle touch events on the stepper
 	function view:touch( event )
 		local phase = event.phase
 		local _stepper = self.parent
-		local _stepperParent = _stepper.parent
-		event.target = stepper
+		event.target = _stepper
+		
+		-- The content bounds of our increment/decrement segments
+		local decrementBounds = self._decrementOverlay.contentBounds
+		local incrementBounds = self._incrementOverlay.contentBounds
 		
 		if "began" == phase then
 			-- Set focus on the stepper (if focus isn't already on it)
@@ -161,19 +191,11 @@ local function initWithSprite( stepper, options )
 				display.getCurrentStage():setFocus( self, event.id )
        			self._isFocus = true
        		end
-
-			-- The current position of the stepper's plus segment
-			local plusPosition = _stepper.x
 			
-			-- Factor in the stepper's parent's group position in the calculation if it exists
-			if _stepperParent then
-				plusPosition = _stepperParent.x + _stepper.x
-			end
-        
 			-- If we have pressed the right side of the stepper (the plus)
-			if event.x > plusPosition then
+			if event.x >= incrementBounds.xMin and event.x <= incrementBounds.xMax then
 				self:_dispatchIncrement()
-			else
+			elseif event.x >= decrementBounds.xMin and event.x <= decrementBounds.xMax then
 				-- We have pressed the left side of the stepper (the minus)
 				self:_dispatchDecrement()
 			end
@@ -192,11 +214,11 @@ local function initWithSprite( stepper, options )
 		elseif self._isFocus then
 			if "moved" == phase then
 				-- Handle switching from one side of the stepper to the other whilst still holding your finger on the screen
-				if event.x >= _stepper.x then
+				if event.x >= incrementBounds.xMin and event.x <= incrementBounds.xMax then
 					if self._event.phase ~= "increment" then
 						self:dispatchEvent( { name = "touch", phase = "began", x = event.x } )
 					end
-				else
+				elseif event.x >= decrementBounds.xMin and event.x <= decrementBounds.xMax then
             		-- Dispatch a touch event to self
             		if self._event.phase ~= "decrement" then
 						self:dispatchEvent( { name = "touch", phase = "began", x = event.x } )
@@ -218,14 +240,6 @@ local function initWithSprite( stepper, options )
 	
 	view:addEventListener( "touch" )
 	
-	-- Function to set the stepper's value programatically
-	function stepper:setValue( newValue )
-		return self._view:_setValue( newValue )
-	end
-	
-	----------------------------------------------------------
-	--	PRIVATE METHODS	
-	----------------------------------------------------------
 
 	-- Function to dispatch a increment event for the stepper
 	function view:_dispatchIncrement()
