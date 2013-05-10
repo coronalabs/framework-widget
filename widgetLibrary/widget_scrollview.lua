@@ -171,6 +171,12 @@ local function createScrollView( scrollView, options )
 		local newY = options.y or self._view.y
 		local transitionTime = options.time or 400
 		local onTransitionComplete = options.onComplete
+		
+		-- Stop updating Runtime & tracking velocity
+		self._view._updateRuntime = false
+		self._view._trackVelocity = false
+		-- Reset velocity back to 0
+		self._view._velocity = 0		
 	
 		-- Transition the view to the new position
 		transition.to( self._view, { x = newX, y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
