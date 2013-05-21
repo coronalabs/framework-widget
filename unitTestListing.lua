@@ -1,15 +1,6 @@
 -- Copyright (C) 2013 Corona Inc. All Rights Reserved.
 
-local widget = nil
-
-local function requireWidgetFiles()
-    widget = require( _G.widgetLibraryPath )
-end
-
--- If we failed to find it
-if false == pcall( requireWidgetFiles ) then
-	widget = require( "widget" )
-end
+local widget = require( "widget" )
 
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
