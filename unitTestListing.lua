@@ -2,14 +2,13 @@
 
 local widget = nil
 
-local widgetFileExists = ( nil ~= io.open( system.pathForFile( nil )  .. "/widgetLibrary/widget.lua" ) )
+local function requireWidgetFiles()
+    widget = require( _G.widgetLibraryPath )
+end
 
--- if the file does not exist, we include from the core
-if widgetFileExists ~= true then
+-- If we failed to find it
+if false == pcall( requireWidgetFiles ) then
 	widget = require( "widget" )
--- else, include the local version
-else
-	widget = require( _G.widgetLibraryPath )
 end
 
 local storyboard = require( "storyboard" )

@@ -36,15 +36,16 @@ local M =
 -- Require needed widget files
 local _widget = nil
 
-local widgetFileExists = ( nil ~= io.open( system.pathForFile( nil )  .. "/widgetLibrary/widget.lua" ) )
-
--- if the file does not exist, we include from the core
-if widgetFileExists ~= true then
-	_widget = require( "widget" )
--- else, include the local version
-else
-	_widget = require( M._directoryPath .. "widget" )
+-- Function to require the widget file from the widget directory path (if it exists)
+local function checkFileAtPath()
+    _widget = require( M._directoryPath .. "widget" )
 end
+
+-- If we failed to find the widget file in the widget directory path.
+if false == pcall( checkFileAtPath ) then
+	_widget = require( "widget" )
+end
+
 
 -- Function to handle touches on a widget button, function is common to all widget button creation types (ie image files, imagesheet, and 9 slice button creation)
 local function manageButtonTouch( view, event )
