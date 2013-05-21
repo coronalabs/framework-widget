@@ -37,24 +37,24 @@ local M =
 local _widget = nil
 local _momentumScrolling = nil
 
--- Function to require the widget file from the widget directory path (if it exists)
-local function checkFileAtPath()
-    _widget = require( M._directoryPath .. "widget" )
-end
+local widgetFileExists = ( nil ~= io.open( system.pathForFile( nil )  .. "/widgetLibrary/widget.lua" ) )
 
--- Function to require the momemtum scrolling file from the widget directory path (if it exists)
-local function checkOtherFileAtPath()
-	_momentumScrolling = require( M._directoryPath .. "widget_momentumScrolling" )
-end
-
--- If we failed to find the widget file in the widget directory path.
-if false == pcall( checkFileAtPath ) then
+-- if the file does not exist, we include from the core
+if widgetFileExists ~= true then
 	_widget = require( "widget" )
+-- else, include the local version
+else
+	_widget = require( M._directoryPath .. "widget" )
 end
 
--- If we failed to find the momentum scrolling file in the widget directory path.
-if false == pcall( checkOtherFileAtPath ) then
+local momentumFileExists = ( nil ~= io.open( system.pathForFile( nil )  .. "/widgetLibrary/widget_momentumScrolling.lua" ) )
+
+-- if the file does not exist, we include from the core
+if momentumFileExists ~= true then
 	_momentumScrolling = require( "widget_momentumScrolling" )
+-- else, include the local version
+else
+	_momentumScrolling = require( M._directoryPath .. "widget_momentumScrolling" )
 end
 
 -- Localize math functions
