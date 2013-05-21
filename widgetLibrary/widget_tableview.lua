@@ -33,29 +33,14 @@ local M =
 	_directoryPath = "widgetLibrary.",
 }
 
+-- set the package path to look for the local versions first
+if nil == string.find( package.path, "widgetLibrary/*.lua;", 1, true ) then
+	package.path = "widgetLibrary/*.lua;" .. package.path
+end
+
 -- Require needed widget files
-local _widget = nil
-local _momentumScrolling = nil
-
--- Function to require the widget file from the widget directory path (if it exists)
-local function checkFileAtPath()
-    _widget = require( M._directoryPath .. "widget" )
-end
-
--- Function to require the momemtum scrolling file from the widget directory path (if it exists)
-local function checkOtherFileAtPath()
-	_momentumScrolling = require( M._directoryPath .. "widget_momentumScrolling" )
-end
-
--- If we failed to find the widget file in the widget directory path.
-if false == pcall( checkFileAtPath ) then
-	_widget = require( "widget" )
-end
-
--- If we failed to find the momentum scrolling file in the widget directory path.
-if false == pcall( checkOtherFileAtPath ) then
-	_momentumScrolling = require( "widget_momentumScrolling" )
-end
+local _widget = require( "widget" )
+local _momentumScrolling = require( "widget_momentumScrolling" )
 
 -- Localize math functions
 local mAbs = math.abs

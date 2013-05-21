@@ -12,6 +12,11 @@ local widget =
 	_directoryPath = "widgetLibrary.",
 }
 
+-- set the package path to look for the local versions first
+if nil == string.find( package.path, "widgetLibrary/*.lua;", 1, true ) then
+	package.path = "widgetLibrary/*.lua;" .. package.path
+end
+
 ---------------------------------------------------------------------------------
 -- PRIVATE METHODS
 ---------------------------------------------------------------------------------
@@ -86,7 +91,7 @@ function widget._new( options )
 	newWidget._removeSelf = newWidget.removeSelf
 	newWidget.removeSelf = _removeSelf
 	newWidget._loseFocus = widget._loseFocus
-	
+
 	return newWidget
 end
 
