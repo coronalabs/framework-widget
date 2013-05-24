@@ -12,13 +12,25 @@ package.preload.widget_theme_ios_sheet = nil
 package.preload.widget_theme_android = nil
 package.preload.widget_theme_android_sheet = nil
 
--- set the package path to look for the local versions first
-if nil == string.find( package.path, "widgetLibrary/*.lua;", 1, true ) then
-	package.path = "widgetLibrary/*.lua;" .. package.path
+-- Override Corona's core widget libraries with the files contained in this project's subdirectory.
+-- Argument "name" will be set to the name of the library being loaded by the require() function.
+local function onRequireWidgetLibrary(name)
+	return require("widgetLibrary." .. name)
 end
+package.preload.widget = onRequireWidgetLibrary
+package.preload.widget_button = onRequireWidgetLibrary
+package.preload.widget_momentumScrolling = onRequireWidgetLibrary
+package.preload.widget_pickerWheel = onRequireWidgetLibrary
+package.preload.widget_progressView = onRequireWidgetLibrary
+package.preload.widget_scrollview = onRequireWidgetLibrary
+package.preload.widget_searchField = onRequireWidgetLibrary
+package.preload.widget_segmentedControl = onRequireWidgetLibrary
+package.preload.widget_spinner = onRequireWidgetLibrary
+package.preload.widget_stepper = onRequireWidgetLibrary
+package.preload.widget_switch = onRequireWidgetLibrary
+package.preload.widget_tabbar = onRequireWidgetLibrary
+package.preload.widget_tableview = onRequireWidgetLibrary
 
--- Set the path to the widget library
-_G.widgetLibraryPath = "widget"
 
 -- For xcode console output
 io.output():setvbuf( "no" )
