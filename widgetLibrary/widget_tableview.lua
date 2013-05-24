@@ -120,7 +120,8 @@ local function createTableView( tableView, options )
 	view._maxVelocity = opt.maxVelocity or 2
 	view._timeHeld = 0
 	view._isLocked = opt.isLocked
-	view._allowRowTouch = false
+	-- allow row touch if the view is moving
+	view._permitRowTouches = false
 	view._hideScrollBar = opt.hideScrollBar
 	view._rows = {}
 	view._rowWidth = opt.rowWidth
@@ -275,12 +276,12 @@ local function createTableView( tableView, options )
 				self._initialTouch = true
 			end
 			
-			-- By default we allow touch events for our row's
-			self._allowRowTouch = true
+			-- By default we allow touch events for our rows
+			self._permitRowTouches = true
 			
 			-- If the velocity is over 0.05, we prevent touch events on the rows as press/tap events should only result in the view's momentum been stopped
 			if mAbs( self._velocity ) > 0.05 then
-				self._allowRowTouch = false
+				self._permitRowTouches = false
 			end			
 		end	
 		
@@ -473,7 +474,7 @@ local function createTableView( tableView, options )
 			-- If a finger was held down
 			if timeHeld >= 110 then				
 				-- If there is a onRowTouch listener
-				if self._onRowTouch and self._allowRowTouch then
+				if self._onRowTouch and self._permitRowTouches then
 					-- If the row isn't a category
 					if nil ~= self._targetRow.isCategory then
 						self._newPhase = "press"
@@ -764,7 +765,7 @@ local function createTableView( tableView, options )
 		local row = event.target
 		
 		-- If tap's are allowed on the row at this time
-		if not row._cannotTap and view._allowRowTouch then
+		if not row._cannotTap and view._permitRowTouches then
 			if "function" == type( view._onRowTouch ) then
 				local newEvent =
 				{
