@@ -816,7 +816,7 @@ local function createTableView( tableView, options )
 				rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
 
 				-- If the user want's lines between rows, create a line to seperate them
-				if not opt.noLines then
+				if not self._noLines then
 					-- Create the row's dividing line
 					local rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
 					rowLine:setReferencePoint( display.CenterReferencePoint )
