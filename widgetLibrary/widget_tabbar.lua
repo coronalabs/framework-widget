@@ -641,7 +641,14 @@ function M.new( options, theme )
 	opt.tabSelectedRightFile = customOptions.tabSelectedRightFile
 	opt.tabSelectedMiddleFile = customOptions.tabSelectedMiddleFile
 	opt.tabSelectedFrameWidth = customOptions.tabSelectedFrameWidth
-	opt.tabSelectedFrameHeight = customOptions.tabSelectedFrameHeight
+	
+	-- if we get passed a height parameter in the initializer, set the selected frame height to that value
+	if nil ~= customOptions.height and type( customOptions.height ) == "number" then
+		opt.tabSelectedFrameHeight = customOptions.height
+	else
+		opt.tabSelectedFrameHeight = customOptions.tabSelectedFrameHeight
+	end
+	
 	
 	-- If we are using a sheet
 	if not opt.backgroundFile and opt.sheet or not opt.backgroundFile and opt.themeSheetFile then
@@ -652,7 +659,14 @@ function M.new( options, theme )
 		opt.tabSelectedRightFrame = customOptions.tabSelectedRightFrame or _widget._getFrameIndex( themeOptions, themeOptions.tabSelectedRightFrame )
 		opt.tabSelectedMiddleFrame = customOptions.tabSelectedMiddleFrame or _widget._getFrameIndex( themeOptions, themeOptions.tabSelectedMiddleFrame )
 		opt.tabSelectedFrameWidth = customOptions.tabSelectedFrameWidth or themeOptions.tabSelectedFrameWidth
-		opt.tabSelectedFrameHeight = customOptions.tabSelectedFrameHeight or themeOptions.tabSelectedFrameHeight
+		
+		-- if we get passed a height parameter in the initializer, set the selected frame height to that value
+		if nil ~= customOptions.height and type( customOptions.height ) == "number" then
+			opt.tabSelectedFrameHeight = customOptions.height
+		else
+			opt.tabSelectedFrameHeight = customOptions.tabSelectedFrameHeight or themeOptions.tabSelectedFrameHeight
+		end
+		
 	end
 	
 	if opt.backgroundFile then
