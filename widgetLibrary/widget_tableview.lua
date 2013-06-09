@@ -1092,13 +1092,13 @@ local function createTableView( tableView, options )
 				
 		-- The new position to scroll to
 		local newPosition = 0
-				
+
 		-- Set the new position to scroll to
 		newPosition = -self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 
 		-- The calculation needs altering for pickerWheels
 		if self._isUsedInPickerWheel then
-			newPosition = self.y - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
+			newPosition = 89 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 		end
 			
 		-- Transition the view to the row index	
