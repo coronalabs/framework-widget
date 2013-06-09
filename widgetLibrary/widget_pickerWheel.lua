@@ -128,6 +128,18 @@ local function createPickerWheel( pickerWheel, options )
 	-- The available width for the whole pickerWheel (to fit columns)
 	local availableWidth = viewOverlay.width - 28
 	
+	-- local method that handles scrolling to the tapped / touched index
+	function didTapValue( event )
+		local phase = event.phase
+		local row = event.target
+		if "tap" == phase or "release" == phase then
+			view._columns[ row.id ]:scrollToIndex( 1, 400 )
+			view._columns[ row.id ]:scrollToIndex( row.index )	
+			print( "Row id: ", row.id )
+			print( "Row index: ", row.index )
+		end
+	end
+	
 	-- Create the pickerWheel Columns (which are tableView's)
 	for i = 1, #opt.columnData do
 		viewColumns[i] = _widget.newTableView
@@ -146,6 +158,7 @@ local function createPickerWheel( pickerWheel, options )
 			onRowRender = _renderColumns,
 			maskFile = opt.maskFile,
 			listener = nil,
+			onRowTouch = didTapValue
 		}
 		viewColumns[i]._view._isUsedInPickerWheel = true
 		 		
@@ -170,8 +183,12 @@ local function createPickerWheel( pickerWheel, options )
 			viewColumns[i]:insertRow
 			{
 				rowHeight = 40,
-				rowColor = { 255, 255, 255 },
+				rowColor = { 
+				default = { 255, 255, 255, 255 },
+    			over = { 255, 255, 255, 255 }, 
+    			},
 				label = opt.columnData[i].labels[j],
+				id = i
 			}
 		end
 		
