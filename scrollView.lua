@@ -52,6 +52,7 @@ function scene:createScene( event )
 	local TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER = false
 	local TEST_TABLEVIEW_INSIDE_SCROLLVIEW = false
 	local TEST_REMOVE_SCROLLVIEW = false
+	local TEST_RESIZE_SCROLLVIEW_VERTICALLY = true
 	
 	-- Our ScrollView listener
 	local function scrollListener( event )
@@ -218,6 +219,9 @@ function scene:createScene( event )
 	buttonUsingTheme.x = display.contentCenterX
 	scrollView:insert( buttonUsingTheme )
 
+	if TEST_RESIZE_SCROLLVIEW_VERTICALLY then
+		scrollView:setScrollHeight( 400 )
+	end
 
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS

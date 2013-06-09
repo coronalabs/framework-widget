@@ -214,7 +214,43 @@ local function createScrollView( scrollView, options )
 		-- Send a touch event to the view
 		self._view:touch( newEvent )
 	end
-	
+		
+	function scrollView:setScrollWidth( newValue )
+		
+		-- adjust the scrollview scroll width
+		timer.performWithDelay( 2, function()
+			self._view._scrollWidth = newValue or self._view._scrollWidth
+		end )
+				
+	end
+
+	function scrollView:setScrollHeight( newValue )
+		
+		-- adjust the scrollview scroll height
+		timer.performWithDelay( 2, function()
+			self._view._scrollHeight = newValue or self._view._scrollHeight
+		end )
+				
+		-- Recreate the scrollBar
+		if not opt.hideScrollBar then
+			if self._view._scrollBar then
+				display.remove( self._view._scrollBar )
+				self._view._scrollBar = nil
+			end
+			
+			if not self._view._isLocked then
+				-- Need a delay here also..
+				timer.performWithDelay( 2, function()
+					--[[
+					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
+					--]]								
+					if not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
+						self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
+					end
+				end)
+			end
+		end	
+	end
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
