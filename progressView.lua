@@ -42,6 +42,7 @@ function scene:createScene( event )
 	--Toggle these defines to execute automated tests.
 	local TEST_REMOVE_PROGRESS_VIEW = false
 	local TEST_RESET_PROGRESS_VIEW = true
+	local TEST_RESIZE_PROGRESS_VIEW = true
 	local TEST_DELAY = 1000
 		
 	-- Create a new progress view object
@@ -52,8 +53,13 @@ function scene:createScene( event )
 		width = 150,
 		isAnimated = true,
 	}
-	newProgressView.x = display.contentCenterX
+	newProgressView.x = 100
 	newProgressView.y = display.contentCenterY
+	
+	if TEST_RESIZE_PROGRESS_VIEW then
+		newProgressView:resizeView( 250 )
+	end
+	
 	group:insert( newProgressView )
 		
 	local currentProgress = 0.0

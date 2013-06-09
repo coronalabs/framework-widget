@@ -133,6 +133,7 @@ local function initWithImage( progressView, options )
 	-- Offsets
 	view._fillXOffset = opt.fillXOffset
 	view._fillYOffset = opt.fillYOffset
+	view._fillOuterWidth = opt.fillOuterWidth
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the progressView
@@ -239,10 +240,48 @@ local function initWithImage( progressView, options )
 		-- Set the ImageSheet to nil
 		self._imageSheet = nil
 	end
+
+	-- Resizes a existing progressView
+	function progressView:resizeView( newWidth )
+	
+		local view = self
+	
+		-- Set the left fills position
+		--view._fillLeft.x = progressView.x + ( view._fillLeft.contentWidth * 0.5 ) + view._fillXOffset
+		--view._fillLeft.y = progressView.y + ( view._fillLeft.contentHeight * 0.5 ) + view._fillYOffset
+
+		-- OUTER LEFT
+		--view._outerLeft.x = progressView.x + ( view._outerLeft.contentWidth * 0.5 )
+		--view._outerLeft.y = progressView.y + ( view._outerLeft.contentHeight * 0.5 )
+
+		-- Set the fill's initial width
+		--view._fillMiddle.width = 1
+		--view._fillMiddle.x = view._fillLeft.x + view._fillMiddle.width * 0.5
+		--view._fillMiddle.y = progressView.y + ( view._fillMiddle.contentHeight * 0.5 ) + view._fillYOffset
+	
+		-- OUTER MIDDLE
+		view._outerMiddle.width = ( newWidth - ( view._fillOuterWidth * 2 ) )
+		view._outerMiddle.x = view._outerLeft.x + ( ( view._outerLeft.contentWidth * 0.5 ) + ( view._outerMiddle.width * 0.5 ) )
+		--view._outerMiddle.y = progressView.y + ( view._outerMiddle.contentHeight * 0.5 )
+	
+		-- Set the right fills position
+		view._fillRight.x = view._fillLeft.x + view._fillMiddle.width + ( view._fillRight.contentWidth * 0.5 )
+		--view._fillRight.y = progressView.y + ( view._fillRight.contentHeight * 0.5 ) + view._fillYOffset
+	
+		-- OUTER RIGHT
+		view._outerRight.x = view._outerMiddle.x + ( view._outerMiddle.contentWidth * 0.5 ) + ( view._outerRight.contentWidth * 0.5 )
+		--view._outerRight.y = progressView.y + ( view._outerRight.contentHeight * 0.5 )
+
+		-- recalculate the properties
+		rangeFactor = 100
+		availableMoveSpace = ( newWidth - ( view._fillOuterWidth ) ) - ( view._fillXOffset * 2 )
+		moveFactor = availableMoveSpace / rangeFactor
+		currentPercent = ( availableMoveSpace / rangeFactor ) * ( rangeFactor )
+
+	end
 			
 	return progressView
 end
-
 
 -- Function to create a new progressView object ( widget.newProgressView )
 function M.new( options, theme )	
