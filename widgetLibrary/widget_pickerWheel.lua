@@ -133,10 +133,7 @@ local function createPickerWheel( pickerWheel, options )
 		local phase = event.phase
 		local row = event.target
 		if "tap" == phase or "release" == phase then
-			view._columns[ row.id ]:scrollToIndex( 1, 400 )
 			view._columns[ row.id ]:scrollToIndex( row.index )	
-			print( "Row id: ", row.id )
-			print( "Row index: ", row.index )
 		end
 	end
 	

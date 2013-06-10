@@ -285,6 +285,8 @@ local function createTableView( tableView, options )
 				-- to determine that the view is still in motion, although it's not.
 				if not self._hasHitBottomLimit and not self._hasHitTopLimit then
 					self._permitRowTouches = false
+				else
+					self._velocity = 0
 				end
 			end			
 		end	
@@ -958,7 +960,7 @@ local function createTableView( tableView, options )
 		self._scrollHeight = self._scrollHeight + self._rows[#self._rows]._height + 1
 		
 		-- Create the row
-		self:_createRow( self._rows[#self._rows], reRender )		
+		self:_createRow( self._rows[#self._rows], reRender )
 	end
 	
 	
@@ -1107,6 +1109,7 @@ local function createTableView( tableView, options )
 
 		-- The calculation needs altering for pickerWheels
 		if self._isUsedInPickerWheel then
+			-- TODO: this is just because we have a single theme for all the pickers, we'll have to add a real solution here.
 			newPosition = 89 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 		end
 			
