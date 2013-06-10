@@ -1189,10 +1189,12 @@ function M.new( options )
 	-- ScrollBar options
 	opt.scrollBarOptions =
 	{
-		sheet = customOptions.sheet,
-		topFrame = customOptions.topFrame,
-		middleFrame = customOptions.middleFrame,
-		bottomFrame = customOptions.bottomFrame,
+		sheet = customOptions.scrollBarOptions.sheet,
+		topFrame = customOptions.scrollBarOptions.topFrame,
+		middleFrame = customOptions.scrollBarOptions.middleFrame,
+		bottomFrame = customOptions.scrollBarOptions.bottomFrame,
+		frameWidth = customOptions.scrollBarOptions.frameWidth,
+		frameHeight = customOptions.scrollBarOptions.frameHeight
 	}
 
 	-------------------------------------------------------

@@ -496,10 +496,11 @@ function M.createScrollBar( view, options )
 	local themeOptions = _widget.theme.scrollBar
 	
 	-- Get the theme sheet file and data
+	opt.sheet = options.sheet
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
-	opt.width = options.width or themeOptions.width
-	opt.height = options.height or themeOptions.height
+	opt.width = options.frameWidth or options.width or themeOptions.width
+	opt.height = options.frameHeight or options.height or themeOptions.height
 	
 	-- Grab the frames
 	opt.topFrame = options.topFrame or _widget._getFrameIndex( themeOptions, themeOptions.topFrame )
