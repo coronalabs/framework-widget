@@ -281,7 +281,11 @@ local function createTableView( tableView, options )
 			
 			-- If the velocity is over 0.05, we prevent touch events on the rows as press/tap events should only result in the view's momentum been stopped
 			if mAbs( self._velocity ) > 0.05 then
-				self._permitRowTouches = false
+				-- if the view is at the bottom or at the top, allow the touch, because in the momentum we have a timer that causes the above if 
+				-- to determine that the view is still in motion, although it's not.
+				if not self._hasHitBottomLimit and not self._hasHitTopLimit then
+					self._permitRowTouches = false
+				end
 			end			
 		end	
 		
