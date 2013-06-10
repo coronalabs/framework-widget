@@ -1187,15 +1187,20 @@ function M.new( options )
 	opt.onRowTouch = customOptions.onRowTouch
 	
 	-- ScrollBar options
-	opt.scrollBarOptions =
-	{
-		sheet = customOptions.scrollBarOptions.sheet,
-		topFrame = customOptions.scrollBarOptions.topFrame,
-		middleFrame = customOptions.scrollBarOptions.middleFrame,
-		bottomFrame = customOptions.scrollBarOptions.bottomFrame,
-		frameWidth = customOptions.scrollBarOptions.frameWidth,
-		frameHeight = customOptions.scrollBarOptions.frameHeight
-	}
+	if customOptions.scrollBarOptions then
+		opt.scrollBarOptions =
+		{
+			sheet = customOptions.scrollBarOptions.sheet,
+			topFrame = customOptions.scrollBarOptions.topFrame,
+			middleFrame = customOptions.scrollBarOptions.middleFrame,
+			bottomFrame = customOptions.scrollBarOptions.bottomFrame,
+			frameWidth = customOptions.scrollBarOptions.frameWidth,
+			frameHeight = customOptions.scrollBarOptions.frameHeight
+		}
+	else
+		opt.scrollBarOptions = {}
+	end
+	
 
 	-------------------------------------------------------
 	-- Create the tableView
