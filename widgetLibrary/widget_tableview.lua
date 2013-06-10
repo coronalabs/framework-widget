@@ -841,6 +841,8 @@ local function createTableView( tableView, options )
 				currentRow._view._rowColor = currentRow._rowColor
 				currentRow._view.index = currentRow.index
 				currentRow._view.id = currentRow.id
+				-- add the custom params to the row
+				currentRow._view.params = currentRow.params
 				currentRow._view._label = currentRow._label
 				currentRow._view.isCategory = currentRow.isCategory
 				
@@ -917,7 +919,8 @@ local function createTableView( tableView, options )
 		local rowColor = options.rowColor or { default = { 255, 255, 255 }, over = { 30, 144, 255 } }
 		local lineColor = options.lineColor or { 220, 220, 220 }
 		local noLines = self._noLines or false
-				
+		-- the passed row params
+		local rowParams = options.params or {}
 		-- Set defaults for row's color
 		if not rowColor.default then
 			rowColor.default = { 255, 255, 255 }
@@ -932,6 +935,8 @@ local function createTableView( tableView, options )
 		self._rows[#self._rows].id = rowId
 		self._rows[#self._rows].index = rowIndex
 		self._rows[#self._rows].isCategory = isRowCategory
+		-- add the params table to the row variable
+		self._rows[#self._rows].params = rowParams
 		
 		-- Assign private properties to the row
 		self._rows[#self._rows]._rowColor = rowColor
@@ -953,7 +958,7 @@ local function createTableView( tableView, options )
 		self._scrollHeight = self._scrollHeight + self._rows[#self._rows]._height + 1
 		
 		-- Create the row
-		self:_createRow( self._rows[#self._rows], reRender )
+		self:_createRow( self._rows[#self._rows], reRender )		
 	end
 	
 	

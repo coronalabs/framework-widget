@@ -110,6 +110,9 @@ function scene:createScene( event )
 			row:insert( spinner ) 
 			spinner:start()
 		end
+		
+		
+		
 	end
 
 	
@@ -129,6 +132,7 @@ function scene:createScene( event )
 			
 			-- Set the row's default/over color's
 			--row:setRowColor( { default = { 255, 0, 0 }, over = { 0, 0, 255 } } )
+			print( row.params.rowIdentifier )
 						
 		elseif "cancelled" == phase then
 			print( "Cancelled event on row with index: ", row.index )	
@@ -218,7 +222,9 @@ function scene:createScene( event )
 			}
 		end
 		--]]
-		
+		local rowParams = {
+		rowIdentifier = "testing"..i,
+		}
 		-- Insert the row into the tableView
 		tableView:insertRow
 		{
@@ -227,6 +233,7 @@ function scene:createScene( event )
 			rowHeight = rowHeight,
 			rowColor = rowColor,
 			lineColor = lineColor,
+			params = rowParams
 		}
 	end
 
