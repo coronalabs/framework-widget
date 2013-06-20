@@ -79,6 +79,7 @@ local function createPickerWheel( pickerWheel, options )
 	view._overlay = viewOverlay
 	view._background = viewBackground
 	view._columns = viewColumns
+	view._didTap = false
 		
 	-------------------------------------------------------
 	-- Assign properties/objects to the pickerWheel
@@ -133,7 +134,8 @@ local function createPickerWheel( pickerWheel, options )
 		local phase = event.phase
 		local row = event.target
 		if "tap" == phase or "release" == phase then
-			view._columns[ row.id ]:scrollToIndex( row.index )	
+			view._columns[ row.id ]:scrollToIndex( row.index )
+			view._didTap = true
 		end
 	end
 	
@@ -252,7 +254,12 @@ local function createPickerWheel( pickerWheel, options )
 		-- Manage the Picker Wheels columns
 		for i = 1, #self._columns do
 			if "ended" == self._columns[i]._view._phase and not self._columns[i]._view._updateRuntime then
-				self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( self._yPosition )
+			    if not self._didTap then
+				    self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( self._yPosition )
+				else
+				    self._columns[i]._values = self._columns[i]._view:_getRowAtIndex( self._columns[ i ]._view._lastRowIndex )
+				    self._didTap = false
+				end
 				self._columns[i]._view._phase = "none"
 			end
 		end
