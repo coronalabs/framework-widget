@@ -134,6 +134,9 @@ local function createTableView( tableView, options )
 	view._scrollHeight = 0
 	view._trackVelocity = false	
 	view._updateRuntime = false
+	view._didDeleteRow = false
+	view._didDeleteNumberOfRows = 0
+	view._numberOfRows = 0
 		
 	-------------------------------------------------------
 	-- Assign properties/objects to the tableView
@@ -185,7 +188,8 @@ local function createTableView( tableView, options )
 
 	-- Function to retrieve the number of rows in a tableView
 	function tableView:getNumRows()
-		return #self._view._rows
+		--return #self._view._rows
+	    return self._view._numberOfRows
 	end
 
 	----------------------------------------------------------
@@ -260,6 +264,14 @@ local function createTableView( tableView, options )
 				end
 			end
 		end
+	end
+	
+	function view:_getRowAtIndex( index )
+		local currentIndex = index
+		local currentRow = self._rows[currentIndex]
+
+		return currentRow._view
+	
 	end
 
 	
@@ -899,6 +911,9 @@ local function createTableView( tableView, options )
 
 				-- We have finished rendering the rows (unless we render another, in which case this gets reset)
 				self._hasRenderedRows = true
+				
+				-- increment the table rows variable
+				self._numberOfRows =  self._numberOfRows + 1
 			end
 		end
 	end
@@ -907,14 +922,14 @@ local function createTableView( tableView, options )
 	-- Function to insert a row into a tableView
 	function view:_insertRow( options, reRender )
 		-- Create the row
-		self._rows[#self._rows + 1] = {}
+		self._rows[table.maxn(self._rows) + 1] = {}
 		
 		-- Are we re-rendering this row?
 		local isReRender = reRender
 		
 		-- Retrieve passed in row customization variables
-		local rowId = options.id or #self._rows
-		local rowIndex = #self._rows	
+		local rowId = options.id or table.maxn(self._rows)
+		local rowIndex = table.maxn(self._rows)	
 		local rowWidth = self._width
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
@@ -934,33 +949,45 @@ local function createTableView( tableView, options )
 		end
 		
 		-- Assign public properties to the row
-		self._rows[#self._rows].id = rowId
-		self._rows[#self._rows].index = rowIndex
-		self._rows[#self._rows].isCategory = isRowCategory
+		self._rows[table.maxn(self._rows)].id = rowId
+		self._rows[table.maxn(self._rows)].index = rowIndex
+		self._rows[table.maxn(self._rows)].isCategory = isRowCategory
 		-- add the params table to the row variable
-		self._rows[#self._rows].params = rowParams
+		self._rows[table.maxn(self._rows)].params = rowParams
 		
 		-- Assign private properties to the row
-		self._rows[#self._rows]._rowColor = rowColor
-		self._rows[#self._rows]._lineColor = lineColor
-		self._rows[#self._rows]._noLines = noLines
-		self._rows[#self._rows]._width = rowWidth
-		self._rows[#self._rows]._height = rowHeight
-		self._rows[#self._rows]._label = options.label or ""
-		self._rows[#self._rows]._view = nil
+		self._rows[table.maxn(self._rows)]._rowColor = rowColor
+		self._rows[table.maxn(self._rows)]._lineColor = lineColor
+		self._rows[table.maxn(self._rows)]._noLines = noLines
+		self._rows[table.maxn(self._rows)]._width = rowWidth
+		self._rows[table.maxn(self._rows)]._height = rowHeight
+		self._rows[table.maxn(self._rows)]._label = options.label or ""
+		self._rows[table.maxn(self._rows)]._view = nil
 		
 		-- Calculate and set the row's y position
-		if #self._rows <= 1 then
-			self._rows[#self._rows].y = ( self._rows[#self._rows]._height * 0.5 ) + 1
+		
+		if table.maxn(self._rows) <= 1 then
+			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1
 		else
-			self._rows[#self._rows].y = ( self._rows[#self._rows - 1].y + ( self._rows[#self._rows - 1]._height * 0.5 ) ) + ( self._rows[#self._rows]._height * 0.5 ) + 1
+			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows) - 1].y + ( self._rows[table.maxn(self._rows) - 1]._height * 0.5 ) )
+			 + ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1	
+			
+			if self._didDeleteRow then 
+			
+			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows) - 1].y + ( self._rows[table.maxn(self._rows) - 1]._height * 0.5 ) )
+			- ( ( self._rows[table.maxn(self._rows)]._height * 0.5 )  * self._didDeleteNumberOfRows ) + 1	
+			self._didDeleteNumberOfRows = 0
+			self._didDeleteRow = false
+			end
+			 
 		end
 		
 		-- Update the scrollHeight of our view
-		self._scrollHeight = self._scrollHeight + self._rows[#self._rows]._height + 1
+		self._scrollHeight = self._scrollHeight + self._rows[table.maxn(self._rows)]._height + 1
 		
 		-- Create the row
-		self:_createRow( self._rows[#self._rows], reRender )
+		self:_createRow( self._rows[table.maxn(self._rows)], reRender )
+		self._didDeleteRow = false
 	end
 	
 	
@@ -993,9 +1020,10 @@ local function createTableView( tableView, options )
 		-- Function to remove the row from display
 		local function removeRow()	
 			-- Loop through the remaining rows, starting at the next row after the deleted one
-			for i = rowIndex + 1, #self._rows do
+			for i = rowIndex + 1, table.maxn(self._rows) do
 				-- Move up the row's which are within our views visible bounds
-				if "table" == type( self._rows[i]._view ) then
+				if nil~= self._rows[i] then
+				if nil~= self._rows[i]._view and "table" == type( self._rows[i]._view ) then
 					if self._rows[i].isCategory then
 						if nil ~= self._rows[i-1] then
 							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i-1]._view.contentHeight ) + 1, transition = easing.outQuad } )
@@ -1013,6 +1041,7 @@ local function createTableView( tableView, options )
 						self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
 					end
 				end
+				end
 			end
 			
 			-- Remove the row from display
@@ -1021,6 +1050,10 @@ local function createTableView( tableView, options )
 							
 			-- Remove the row from the row's table
 			self._rows[rowIndex] = nil
+			
+			-- decrement the table rows variable
+			self._numberOfRows =  self._numberOfRows - 1
+			
 		end
 		
 		-- If the row is within the visible view
@@ -1031,17 +1064,26 @@ local function createTableView( tableView, options )
 		else
 			removeRow()
 		end
+		
+	    if rowIndex > 1 and rowIndex < table.maxn(self._rows) then
+	        self._didDeleteRow = true
+	        self._didDeleteNumberOfRows = view._didDeleteNumberOfRows + 1
+	    end
+		
 	end
 	
 	-- Function to deleta all rows from the tableView
 	function view:_deleteAllRows()
 		local _tableView = self.parent
+		self._numberOfRows = 0
 		
 		-- Loop through all rows and delete each one
 		for i = 1, #self._rows do
-			if "table" == type( self._rows[i]._view ) then
-				display.remove( self._rows[i]._view )
-				self._rows[i]._view = nil
+			if nil ~= self._rows[i] then
+			    if nil ~= self._rows[i]._view and "table" == type( self._rows[i]._view ) then
+				    display.remove( self._rows[i]._view )
+				    self._rows[i]._view = nil
+			    end
 			end
 		end
 		
