@@ -240,7 +240,8 @@ function M._touch( view, event )
 					end
 					
 					-- Handle limits
-					local limit = handleSnapBackVertical( M, view, false )
+					-- was false, why?
+					local limit = handleSnapBackVertical( M, view, true )
 					
 					-- Move the scrollBar
 					if limit ~= "top" and limit ~= "bottom" then

@@ -102,7 +102,21 @@ local function createPickerWheel( pickerWheel, options )
 		rowTitle.y = row.contentHeight * 0.5
 		rowTitle:setTextColor( unpack( opt.fontColor ) )
 		row.value = rowTitle.text
-				
+		
+		-- check if the text is greater than the actual column size
+		local availableWidth = viewOverlay.width - 28
+		local columnWidth = view._columns[ row.id ].width or availableWidth / #view._columns
+		local textWidth = rowTitle.contentWidth
+		if textWidth > columnWidth - 1 then
+	        --cap the text
+	        local pixelsPerChar = 23 -- aproximate median value
+	        local numChars = columnWidth / pixelsPerChar
+	        print ("nchars: ", numChars)
+	        row._label = row._label:sub(1, numChars)
+	        rowTitle.text = row._label
+	        
+	    end
+		
 		-- Align the text as requested
 		if "center" == alignment then
 			rowTitle.x = row.x
