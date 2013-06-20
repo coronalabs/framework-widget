@@ -795,10 +795,10 @@ local function createTableView( tableView, options )
 				row._cell:setFillColor( unpack( row._rowColor.over ) )
 		
 				-- After a little delay, set the row's fill color back to default
-				timer.performWithDelay( 100, function()
+				--timer.performWithDelay( 100, function()
 					-- Set the row cell's fill color
 					row._cell:setFillColor( unpack( row._rowColor.default ) )
-				end)
+				--end)
 
 				-- Execute the row's onRowTouch listener
 				view._onRowTouch( newEvent )
