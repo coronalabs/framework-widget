@@ -62,6 +62,10 @@ local function handleSnapBackVertical( self, view, snapBack )
 	setLimits( M, view )
 	
 	local limitHit = "none"
+	local bounceTime = 400
+	if not self.isBounceEnabled then
+	    bounceTime = 0
+	end
 	
 	-- Snap back vertically
 	if not view._isVerticalScrollingDisabled then
@@ -79,7 +83,7 @@ local function handleSnapBackVertical( self, view, snapBack )
 					end
 					
 					-- Put the view back to the top
-					view._tween = transition.to( view, { time = 400, y = self.bottomLimit, transition = easing.outQuad } )						
+					view._tween = transition.to( view, { time = bounceTime, y = self.bottomLimit, transition = easing.outQuad } )						
 				end
 			end
 			
@@ -97,7 +101,7 @@ local function handleSnapBackVertical( self, view, snapBack )
 					end
 					
 					-- Put the view back to the bottom
-					view._tween = transition.to( view, { time = 400, y = self.upperLimit, transition = easing.outQuad } )
+					view._tween = transition.to( view, { time = bounceTime, y = self.upperLimit, transition = easing.outQuad } )
 				end
 			end
 		end
@@ -108,7 +112,15 @@ end
 	
 -- Function to handle horizontal "snap back" on the view
 local function handleSnapBackHorizontal( self, view )
+
+	-- Set the limits now
+	setLimits( M, view )
+
 	local limitHit = "none"
+	local bounceTime = 400
+	if not self.isBounceEnabled then
+	    bounceTime = 0
+	end
 	
 	-- Snap back horizontally
 	if not view._isHorizontalScrollingDisabled then
@@ -118,14 +130,14 @@ local function handleSnapBackHorizontal( self, view )
 			limitHit = "left"
 			
 			-- Transition the view back to it's maximum position
-			view._tween = transition.to( view, { time = 400, x = self.leftLimit, transition = easing.outQuad } )
+			view._tween = transition.to( view, { time = bounceTime, x = self.leftLimit, transition = easing.outQuad } )
 		-- Put the view back to the right if it isn't already there ( and should be )
 		elseif view.x > self.rightLimit then
 			-- Set the hit limit
 			limitHit = "right"
 			
 			-- Transition the view back to it's maximum position
-			view._tween = transition.to( view, { time = 400, x = self.rightLimit, transition = easing.outQuad } )
+			view._tween = transition.to( view, { time = bounceTime, x = self.rightLimit, transition = easing.outQuad } )
 		end
 	end
 	
@@ -226,6 +238,9 @@ function M._touch( view, event )
 					else
 						view.x = view.x + view._delta
 					end
+					
+					local limit = handleSnapBackHorizontal( M, view, true )
+					
 				end
 				
 			-- Vertical movement
