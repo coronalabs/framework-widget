@@ -202,7 +202,7 @@ local function initWithImageFiles( tabBar, options )
 	function view:touch( event )
 		local phase = event.phase
 		local tabSize = ( self._width / #self._tabs ) 
-		
+
 		if "began" == phase then
 			-- Loop through the tabs
 			for i = 1, #self._tabs do
@@ -226,7 +226,36 @@ local function initWithImageFiles( tabBar, options )
 		return true
 	end
 	
+    -- Tap listener for the tabBar
+	local function _handleTapEvent( event )
+		local phase = event.phase
+		local tabSize = ( view._width / #view._tabs ) 
+
+		if "tap" == phase then
+			-- Loop through the tabs
+			for i = 1, #view._tabs do
+				local currentTab = view._tabs[i]
+				
+				-- Have we pressed within the current tab?
+				local pressedWithinRange = event.x >= ( currentTab.x - tabSize * 0.5 ) and event.x <= ( currentTab.x + tabSize * 0.5 )
+				
+				-- If we have pressed a tab
+				if pressedWithinRange then
+					-- Activate the tab
+					if not currentTab._isPressed then
+						view:_setSelected( i, true )
+					end
+					
+					break
+				end
+			end
+		end
+		
+		return true
+	end
+	
 	view:addEventListener( "touch" )
+	view:addEventListener( "tap", _handleTapEvent )
 	
 	-- Function to programatically set a tab button as active
 	function tabBar:setSelected( selectedTab, simulatePress )
@@ -300,6 +329,7 @@ end
 
 -- Creates a new tabBar from an imageSheet
 local function initWithImageSheet( tabBar, options )
+
 	-- Create a local reference to our options table
 	local opt = options
 		
@@ -501,7 +531,7 @@ local function initWithImageSheet( tabBar, options )
 	function view:touch( event )
 		local phase = event.phase
 		local tabSize = ( self._width / #self._tabs ) 
-		
+
 		if "began" == phase then
 			-- Loop through the tabs
 			for i = 1, #self._tabs do
@@ -525,7 +555,36 @@ local function initWithImageSheet( tabBar, options )
 		return true
 	end
 	
+    -- Tap listener for the tabBar
+	local function _handleTapEvent( event )
+		local phase = event.phase
+		local tabSize = ( view._width / #view._tabs ) 
+
+		if "tap" == phase then
+			-- Loop through the tabs
+			for i = 1, #view._tabs do
+				local currentTab = view._tabs[i]
+				
+				-- Have we pressed within the current tab?
+				local pressedWithinRange = event.x >= ( currentTab.x - tabSize * 0.5 ) and event.x <= ( currentTab.x + tabSize * 0.5 )
+				
+				-- If we have pressed a tab
+				if pressedWithinRange then
+					-- Activate the tab
+					if not currentTab._isPressed then
+						view:_setSelected( i, true )
+					end
+					
+					break
+				end
+			end
+		end
+		
+		return true
+	end
+	
 	view:addEventListener( "touch" )
+	view:addEventListener( "tap", _handleTapEvent )
 	
 	-- Function to programatically set a tab button as active
 	function tabBar:setSelected( selectedTab, simulatePress )
