@@ -394,16 +394,23 @@ local function initWithImageSheet( tabBar, options )
 		else
 			-- If there isn't a default frame, look for default/over files
 			if not opt.tabButtons[i].defaultFile then
-				error( "ERROR: " .. M._widgetName .. ": tab button default file expected, got nil" )
+			    viewButtons[i] = display.newImageRect( tabBar, imageSheet, 7, 15, 15 )
+				--error( "ERROR: " .. M._widgetName .. ": tab button default file expected, got nil" )
+			else
+			    viewButtons[i] = display.newImageRect( tabBar, opt.tabButtons[i].defaultFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
 			end
 			
 			if not opt.tabButtons[i].overFile then
-				error( "ERROR: " .. M._widgetName .. ": tab button default file expected, got nil" )
+			    viewButtons[i].over = display.newImageRect( tabBar, imageSheet, 10, 15, 15 )
+				--error( "ERROR: " .. M._widgetName .. ": tab button default file expected, got nil" )
+            else
+                viewButtons[i].over = display.newImageRect( tabBar, opt.tabButtons[i].overFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
 			end
+		viewButtons[i].over.isVisible = false
 			
-			viewButtons[i] = display.newImageRect( tabBar, opt.tabButtons[i].defaultFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
-			viewButtons[i].over = display.newImageRect( tabBar, opt.tabButtons[i].overFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
-			viewButtons[i].over.isVisible = false
+
+			
+			
 		end
 		
 		-- Get the passed in properties if any
