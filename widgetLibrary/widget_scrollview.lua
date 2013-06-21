@@ -123,6 +123,9 @@ local function createScrollView( scrollView, options )
 	view._scrollHeight = opt.scrollHeight
 	view._trackVelocity = false	
 	view._updateRuntime = false
+	
+	-- assign the threshold values to the momentum
+	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
 			
 	-------------------------------------------------------
 	-- Assign properties/objects to the scrollView
@@ -512,6 +515,7 @@ function M.new( options )
 	opt.scrollHeight = customOptions.scrollHeight or opt.height
 	opt.hideScrollBar = customOptions.hideScrollBar or false
 	opt.isLocked = customOptions.isLocked or false
+	opt.scrollStopThreshold = customOptions.scrollStopThreshold or 250
 	
 	-- Set the scrollView to locked if both horizontal and vertical scrolling are disabled
 	if opt.isHorizontalScrollingDisabled and opt.isVerticalScrollingDisabled then

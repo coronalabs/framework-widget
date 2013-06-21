@@ -137,6 +137,9 @@ local function createTableView( tableView, options )
 	view._didDeleteRow = false
 	view._didDeleteNumberOfRows = 0
 	view._numberOfRows = 0
+	
+	-- assign the momentum property
+	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
 		
 	-------------------------------------------------------
 	-- Assign properties/objects to the tableView
@@ -1230,6 +1233,7 @@ function M.new( options )
 	opt.onRowRender = customOptions.onRowRender
 	opt.onRowUpdate = customOptions.onRowUpdate
 	opt.onRowTouch = customOptions.onRowTouch
+	opt.scrollStopThreshold = customOptions.scrollStopThreshold or 250
 	
 	-- ScrollBar options
 	if customOptions.scrollBarOptions then
