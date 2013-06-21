@@ -283,7 +283,16 @@ function M._touch( view, event )
 			    view._velocity = 0
 			end
 			view._timeHeld = 0
-						
+			
+			-- when tapping fast and the view is at the limit, the velocity changes sign. This ALWAYS has to be treated.
+			if view._delta > 0 and view._velocity < 0 then
+			    view._velocity = - view._velocity
+			end
+			
+			if view._delta < 0 and view._velocity > 0 then
+			    view._velocity = - view._velocity
+			end
+	
 			-- Remove focus								
 			display.getCurrentStage():setFocus( nil )
 			view._isFocus = nil
