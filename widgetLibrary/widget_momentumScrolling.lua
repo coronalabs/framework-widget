@@ -33,6 +33,9 @@ local M = {}
 local mAbs = math.abs
 local mFloor = math.floor
 
+-- configuration variables
+M.scrollStopThreshold = 250
+
 -- Function to set the view's limits
 local function setLimits( self, view )
 	-- Set the bottom limit
@@ -256,10 +259,14 @@ function M._touch( view, event )
 			end
 			
 		elseif "ended" == phase or "cancelled" == phase then
+		
 			-- Reset values				
 			view._lastTime = event.time
 			view._trackVelocity = false			
 			view._updateRuntime = true
+			if event.time - view._timeHeld > M.scrollStopThreshold then
+			    view._velocity = 0
+			end
 			view._timeHeld = 0
 						
 			-- Remove focus								
