@@ -126,6 +126,7 @@ local function createScrollView( scrollView, options )
 	
 	-- assign the threshold values to the momentum
 	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
+	_momentumScrolling.isBounceEnabled = opt.isBounceEnabled
 			
 	-------------------------------------------------------
 	-- Assign properties/objects to the scrollView
@@ -516,6 +517,10 @@ function M.new( options )
 	opt.hideScrollBar = customOptions.hideScrollBar or false
 	opt.isLocked = customOptions.isLocked or false
 	opt.scrollStopThreshold = customOptions.scrollStopThreshold or 250
+	opt.isBounceEnabled = true
+	if nil ~= customOptions.isBounceEnabled and customOptions.isBounceEnabled == false then 
+	    opt.isBounceEnabled = false
+	end
 	
 	-- Set the scrollView to locked if both horizontal and vertical scrolling are disabled
 	if opt.isHorizontalScrollingDisabled and opt.isVerticalScrollingDisabled then
