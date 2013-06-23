@@ -111,7 +111,6 @@ local function createPickerWheel( pickerWheel, options )
 	        --cap the text
 	        local pixelsPerChar = 23 -- aproximate median value
 	        local numChars = columnWidth / pixelsPerChar
-	        print ("nchars: ", numChars)
 	        row._label = row._label:sub(1, numChars)
 	        rowTitle.text = row._label
 	        
