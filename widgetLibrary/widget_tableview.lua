@@ -140,6 +140,7 @@ local function createTableView( tableView, options )
 	
 	-- assign the momentum property
 	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
+	_momentumScrolling.isBounceEnabled = opt.isBounceEnabled
 		
 	-------------------------------------------------------
 	-- Assign properties/objects to the tableView
@@ -1234,6 +1235,10 @@ function M.new( options )
 	opt.onRowUpdate = customOptions.onRowUpdate
 	opt.onRowTouch = customOptions.onRowTouch
 	opt.scrollStopThreshold = customOptions.scrollStopThreshold or 250
+	opt.isBounceEnabled = true
+	if nil ~= customOptions.isBounceEnabled and customOptions.isBounceEnabled == false then 
+	    opt.isBounceEnabled = false
+	end
 	
 	-- ScrollBar options
 	if customOptions.scrollBarOptions then
