@@ -159,7 +159,7 @@ end
 function M._touch( view, event )
 	local phase = event.phase
 	local time = event.time
-			
+
 	if "began" == phase then	
 		-- Reset values	
 		view._startXPos = event.x
@@ -217,7 +217,6 @@ function M._touch( view, event )
 						if not view._isVerticalScrollingDisabled then
 							-- The move was vertical
 		                    view._moveDirection = "vertical"
-	
 							-- Handle horizontal snap back
 							handleSnapBackHorizontal( M, view, true )						
 	                	end
@@ -258,8 +257,14 @@ function M._touch( view, event )
 					end
 					
 					-- Handle limits
-					-- was false, why?
-					local limit = handleSnapBackVertical( M, view, true )
+					-- if bounce is true, then the snapback parameter has to be true, otherwise false
+					local limit
+					
+					if M.isBounceEnabled == true then 
+					    limit = handleSnapBackVertical( M, view, false )
+					else
+					    limit = handleSnapBackVertical( M, view, true )
+					end
 					
 					-- Move the scrollBar
 					if limit ~= "top" and limit ~= "bottom" then
