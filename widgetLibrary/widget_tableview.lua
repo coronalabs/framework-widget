@@ -1079,7 +1079,7 @@ local function createTableView( tableView, options )
 		self._numberOfRows = 0
 		
 		-- Loop through all rows and delete each one
-		for i = 1, #self._rows do
+		for i = 1, table.maxn(self._rows) do
 			if nil ~= self._rows[i] then
 			    if nil ~= self._rows[i]._view and "table" == type( self._rows[i]._view ) then
 				    display.remove( self._rows[i]._view )
