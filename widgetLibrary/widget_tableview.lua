@@ -134,8 +134,6 @@ local function createTableView( tableView, options )
 	view._scrollHeight = 0
 	view._trackVelocity = false	
 	view._updateRuntime = false
-	view._didDeleteRow = false
-	view._didDeleteNumberOfRows = 0
 	view._numberOfRows = 0
 	
 	-- assign the momentum property
@@ -192,7 +190,6 @@ local function createTableView( tableView, options )
 
 	-- Function to retrieve the number of rows in a tableView
 	function tableView:getNumRows()
-		--return #self._view._rows
 	    return self._view._numberOfRows
 	end
 
@@ -825,6 +822,7 @@ local function createTableView( tableView, options )
 		if isRowWithinBounds then
 			-- If the row's view property doesn't exist
 			if type( currentRow._view ) ~= "table" then
+
 				-- We haven't finished rendering all rows yet
 				self._hasRenderedRows = false
 								
@@ -916,8 +914,6 @@ local function createTableView( tableView, options )
 				-- We have finished rendering the rows (unless we render another, in which case this gets reset)
 				self._hasRenderedRows = true
 				
-				-- increment the table rows variable
-				self._numberOfRows =  self._numberOfRows + 1
 			end
 		end
 	end
@@ -968,22 +964,18 @@ local function createTableView( tableView, options )
 		self._rows[table.maxn(self._rows)]._label = options.label or ""
 		self._rows[table.maxn(self._rows)]._view = nil
 		
+		-- increment the table rows variable
+		self._numberOfRows =  self._numberOfRows + 1
+		
 		-- Calculate and set the row's y position
 		
 		if table.maxn(self._rows) <= 1 then
 			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1
 		else
+		    if ( self._rows[table.maxn(self._rows) - 1].y ) then
 			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows) - 1].y + ( self._rows[table.maxn(self._rows) - 1]._height * 0.5 ) )
 			 + ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1	
-			
-			if self._didDeleteRow then 
-			
-			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows) - 1].y + ( self._rows[table.maxn(self._rows) - 1]._height * 0.5 ) )
-			- ( ( self._rows[table.maxn(self._rows)]._height * 0.5 )  * self._didDeleteNumberOfRows ) + 1	
-			self._didDeleteNumberOfRows = 0
-			self._didDeleteRow = false
 			end
-			 
 		end
 		
 		-- Update the scrollHeight of our view
@@ -991,7 +983,6 @@ local function createTableView( tableView, options )
 		
 		-- Create the row
 		self:_createRow( self._rows[table.maxn(self._rows)], reRender )
-		self._didDeleteRow = false
 	end
 	
 	
@@ -1018,9 +1009,6 @@ local function createTableView( tableView, options )
 		-- Check if the row we are deleting is on screen or off screen
 		----------------------------------------------------------------
 		
-		-- Re calculate the scrollHeight
-		self._scrollHeight = self._scrollHeight - self._rows[rowIndex]._height
-		
 		-- Function to remove the row from display
 		local function removeRow()	
 			-- Loop through the remaining rows, starting at the next row after the deleted one
@@ -1031,9 +1019,11 @@ local function createTableView( tableView, options )
 					if self._rows[i].isCategory then
 						if nil ~= self._rows[i-1] then
 							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i-1]._view.contentHeight ) + 1, transition = easing.outQuad } )
+						    self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1 
 						end
 					else
 						transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i]._view.contentHeight ) + 1, transition = easing.outQuad } )
+						self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
 					end
 				-- We are now moving up the off screen rows
 				else
@@ -1048,31 +1038,38 @@ local function createTableView( tableView, options )
 				end
 			end
 			
+			-- for all the rows beneath the deleted one, update the y to be y - the height of the deleted row
+			
+			
 			-- Remove the row from display
 			display.remove( self._rows[rowIndex]._view )
 			self._rows[rowIndex]._view = nil
 							
-			-- Remove the row from the row's table
-			self._rows[rowIndex] = nil
-			
-			-- decrement the table rows variable
-			self._numberOfRows =  self._numberOfRows - 1
+			-- Remove the row from the rows table
+			self._rows[rowIndex] = nil 
 			
 		end
 		
 		-- If the row is within the visible view
 		if "table" == type( self._rows[rowIndex]._view ) then
 			-- Transition out & delete the row in question
+		    -- decrement the table rows variable
+			self._numberOfRows =  self._numberOfRows - 1
+			-- remove the event listeners on the row before starting the transition
+			self._rows[rowIndex]._view:removeEventListener( "touch", _handleRowTouch )
+			self._rows[rowIndex]._view:removeEventListener( "tap", _handleRowTap )
+			
+			-- transition the row
 			transition.to( self._rows[rowIndex]._view, { x = - ( self._rows[rowIndex]._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = removeRow } )
 		-- The row isn't within the visible bounds of our view
 		else
+		    -- decrement the table rows variable
+			self._numberOfRows =  self._numberOfRows - 1
 			removeRow()
 		end
 		
-	    if rowIndex > 1 and rowIndex < table.maxn(self._rows) then
-	        self._didDeleteRow = true
-	        self._didDeleteNumberOfRows = view._didDeleteNumberOfRows + 1
-	    end
+		-- Re calculate the scrollHeight
+		self._scrollHeight = self._scrollHeight - self._rows[rowIndex]._height
 		
 	end
 	
