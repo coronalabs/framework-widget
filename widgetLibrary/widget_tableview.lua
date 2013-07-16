@@ -1140,8 +1140,9 @@ local function createTableView( tableView, options )
 		
 		local scrollTime = time or 400
 		
+		-- this makes no sense
 		if self._lastRowIndex == rowIndex then
-			return
+			--return
 		end
 				
 		-- The new position to scroll to
