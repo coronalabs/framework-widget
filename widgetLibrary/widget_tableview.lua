@@ -1156,6 +1156,11 @@ local function createTableView( tableView, options )
 			-- TODO: this is just because we have a single theme for all the pickers, we'll have to add a real solution here.
 			newPosition = 89 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 		end
+		
+		--Check if a category is displayed, so we adjust the position with the height of the category
+		if nil ~= self._currentCategory and nil ~= self._currentCategory.contentHeight and not self._isUsedInPickerWheel then
+		    newPosition = newPosition + self._currentCategory.contentHeight
+		end
 			
 		-- Transition the view to the row index	
 		transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad, onComplete = executeOnComplete } )
