@@ -983,7 +983,11 @@ local function createUsing9Slice( button, options )
 	end
 	
 	-- The label's y position
-	viewLabel.y = button.y + ( opt.height * 0.5 ) + opt.labelYOffset
+	local minHeight = opt.height
+	if opt.height < 30 then
+	    minHeight = 30
+	end
+	viewLabel.y = button.y + ( minHeight * 0.5 ) + opt.labelYOffset
 	
 	-------------------------------------------------------
 	-- Assign properties/objects to the view
