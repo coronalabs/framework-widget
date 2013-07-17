@@ -194,6 +194,8 @@ local function initWithImage( progressView, options )
 			end
 			
 			-- While the progress is less than the user specified progress, increase by 0.01
+			if view._currentProgress < progress then
+			-- if we increase the progress 
 			while view._currentProgress < progress do
 				local hasReachedLimit = view._currentProgress > 1.01  and view._currentPercent >0
 				local noLimit = view._currentProgress < 0.01
@@ -206,6 +208,27 @@ local function initWithImage( progressView, options )
 					-- Set the current fill %
 					view._currentPercent = ( availableMoveSpace / rangeFactor ) * ( view._currentProgress * rangeFactor )
 				end
+				
+			end
+			
+			else
+			    -- if we decrease the progress 
+			    while view._currentProgress >= progress do
+			    
+				local hasReachedLimit = view._currentProgress > 1.01  and view._currentPercent >0
+				local noLimit = view._currentProgress < 0.01
+			
+				-- Increment the current progress
+				view._currentProgress = view._currentProgress - 0.01
+			
+				-- If we haven't reached the limit yet (1.0) increase the fill
+				if not hasReachedLimit then
+					-- Set the current fill %
+					view._currentPercent = ( availableMoveSpace / rangeFactor ) * ( view._currentProgress * rangeFactor )
+				end
+				
+			    end
+			    
 			end
 			
 			-- If the fill is animated
@@ -219,6 +242,7 @@ local function initWithImage( progressView, options )
 				view._fillRight.x = mFloor( view._fillLeft.x + view._currentPercent + view._fillRight.contentWidth * 0.5  )
 			end
 		end
+		
  	end
 
 	-- Function to get the progressView's current progress
