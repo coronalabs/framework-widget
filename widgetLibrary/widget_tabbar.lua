@@ -144,7 +144,7 @@ local function initWithImageFiles( tabBar, options )
 	for i = 1, #viewButtons do
 		-- Set the buttons position
 		viewButtons[i].x = tabBar.x + ( ( opt.width / #viewButtons ) * i ) - ( opt.width / #viewButtons ) / 2
-		viewButtons[i].y = tabBar.y + ( view.contentHeight * 0.5 ) - ( view.contentHeight * 0.1 )
+		viewButtons[i].y = tabBar.y + ( view.contentHeight * 0.5 ) 
 		
 		-- if no label, center the images
 		if nil ~= viewButtons[i].label then
