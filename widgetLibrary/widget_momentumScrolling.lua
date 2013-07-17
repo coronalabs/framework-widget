@@ -261,7 +261,13 @@ function M._touch( view, event )
 					local limit
 					
 					if M.isBounceEnabled == true then 
-					    limit = handleSnapBackVertical( M, view, false )
+					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
+					    if view._isUsedInPickerWheel == true then
+					        limit = handleSnapBackVertical( M, view, true )
+					    else
+					    -- if not used in picker, we don't need snap back so we don't lose elastic behaviour on the tableview
+					        limit = handleSnapBackVertical( M, view, false )
+					    end
 					else
 					    limit = handleSnapBackVertical( M, view, true )
 					end

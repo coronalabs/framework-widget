@@ -264,9 +264,11 @@ local function createPickerWheel( pickerWheel, options )
 		-- Update the y position
 		self._yPosition = _pickerWheel.y + ( self._height * 0.5 )
 				
+
+				
 		-- Manage the Picker Wheels columns
 		for i = 1, #self._columns do
-			if "ended" == self._columns[i]._view._phase and not self._columns[i]._view._updateRuntime then
+			if ( "ended" == self._columns[i]._view._phase or "none" == self._columns[i]._view._phase ) and not self._columns[i]._view._updateRuntime then
 			    if not self._didTap then
 				    self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( self._yPosition )
 				else
