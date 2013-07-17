@@ -1206,8 +1206,8 @@ function M.new( options )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or 0
-	opt.height = customOptions.height or 0
+	opt.width = customOptions.width or display.contentWidth
+	opt.height = customOptions.height or display.contentHeight
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.maskFile = customOptions.maskFile
