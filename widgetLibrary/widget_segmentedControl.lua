@@ -235,11 +235,12 @@ local function initWithImage( segmentedControl, options )
 		event.target = _segmentedControl
 		local firstSegment = 1
 		local lastSegment = self._totalSegments
-		
+
 		if "began" == phase then
 			-- Loop through the segments
 			for i = 1, self._totalSegments do
 				local segmentedControlXPosition = self.x - ( self.contentWidth * 0.5 )
+
 				local currentSegment = i
 				local segmentWidth = self._segmentWidth
 				
@@ -251,9 +252,12 @@ local function initWithImage( segmentedControl, options )
 				if nil ~= self.parent and nil ~= self.parent.x then
 				    parentOffsetX = self.parent.x
 			    end
-			    				
-				local currentSegmentLeftEdge = ( segmentedControlXPosition * 0.5 ) * currentSegment + parentOffsetX
-				local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) + parentOffsetX
+			
+				--local currentSegmentLeftEdge = ( segmentedControlXPosition * 0.5 ) * currentSegment + parentOffsetX
+				--local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) + parentOffsetX
+
+                local currentSegmentLeftEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) - segmentWidth + parentOffsetX
+                local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) + parentOffsetX	
 				
 				-- If the touch is within the segments range
 				if event.x >= currentSegmentLeftEdge and event.x <= currentSegmentRightEdge then
