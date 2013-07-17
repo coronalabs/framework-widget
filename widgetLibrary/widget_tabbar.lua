@@ -84,6 +84,7 @@ local function initWithImageFiles( tabBar, options )
 		-- Create the tab button
 		viewButtons[i] = display.newImageRect( tabBar, defaultFile, baseDir, width, height )
 		viewButtons[i]._over = display.newImageRect( tabBar, overFile, baseDir, width, height )
+		
 		viewButtons[i]._over.isVisible = false
 		
 		-- Get the passed in properties if any
@@ -96,6 +97,7 @@ local function initWithImageFiles( tabBar, options )
 		
 		-- Create the tab button's label
 		viewButtons[i].label = display.newText( tabBar, label, 0, 0, labelFont, labelSize )
+		viewButtons[i].label.text = label
 		viewButtons[i].label:setTextColor( unpack( labelColor.default ) )
 		
 		-- Set the label offsets
@@ -143,6 +145,14 @@ local function initWithImageFiles( tabBar, options )
 		-- Set the buttons position
 		viewButtons[i].x = tabBar.x + ( ( opt.width / #viewButtons ) * i ) - ( opt.width / #viewButtons ) / 2
 		viewButtons[i].y = tabBar.y + ( view.contentHeight * 0.5 ) - ( view.contentHeight * 0.1 )
+		
+		-- if no label, center the images
+		if nil ~= viewButtons[i].label then
+		    if "" == viewButtons[i].label.text then
+	            viewButtons[i].y = tabBar.y + ( view.contentHeight * 0.5 )
+	        end
+		end
+		
 		viewButtons[i]._over.x = viewButtons[i].x
 		viewButtons[i]._over.y = viewButtons[i].y
 		
@@ -165,6 +175,8 @@ local function initWithImageFiles( tabBar, options )
 	
 	-- Set the default tab to active
 	viewButtons[view._defaultTab]._over.isVisible = true
+	-- hide the default image on the default tab
+	viewButtons[view._defaultTab].isVisible = false
 	
 	-- Position the tab selected group
 	viewSelected.x = viewButtons[view._defaultTab].x - ( viewSelected.contentWidth * 0.5 ) - tabBar.x
