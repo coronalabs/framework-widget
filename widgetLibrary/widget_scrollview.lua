@@ -541,13 +541,18 @@ function M.new( options )
 	end
 	
 	-- ScrollBar options
-	opt.scrollBarOptions =
-	{
-		sheet = customOptions.sheet,
-		topFrame = customOptions.topFrame,
-		middleFrame = customOptions.middleFrame,
-		bottomFrame = customOptions.bottomFrame,
-	}
+	if nil ~= customOptions.scrollBarOptions then
+	    opt.scrollBarOptions =
+	    {
+		    sheet = customOptions.scrollBarOptions.sheet,
+		    topFrame = customOptions.scrollBarOptions.topFrame,
+		    middleFrame = customOptions.scrollBarOptions.middleFrame,
+		    bottomFrame = customOptions.scrollBarOptions.bottomFrame,
+	    }
+	else
+	    opt.scrollBarOptions = {}
+	end
+
 			
 	-------------------------------------------------------
 	-- Create the scrollView
