@@ -409,7 +409,14 @@ function M._runtime( view, event )
 				end
 	
 				-- Handle limits
-				local limit = handleSnapBackVertical( M, view, true )
+				-- if we have motion, then we check for snapback. otherwise, we don't.
+				local limit
+				
+				if "vertical" == view._moveDirection then
+                    limit = handleSnapBackVertical( M, view, true )
+                else
+                    limit = handleSnapBackVertical( M, view, false )
+                end
 	
 				-- Top
 				if "top" == limit then					
@@ -467,7 +474,7 @@ function M._runtime( view, event )
 	end
 	
 	-- If we are tracking velocity
-	if view._trackVelocity then		
+	if view._trackVelocity then	
 		-- Calculate the time passed
 		local newTimePassed = event.time - view._prevTime
 		view._prevTime = view._prevTime + newTimePassed
@@ -499,7 +506,6 @@ function M._runtime( view, event )
                     
 					if possibleVelocity ~= 0 then
                         view._velocity = possibleVelocity
-
 						-- Clamp the velocity if it goes over the max range
 						clampVelocity( view )
                     end
@@ -561,28 +567,46 @@ function M.createScrollBar( view, options )
 	end
 	
 	-- The scrollBar is a display group
-	local scrollBar = display.newGroup()
+	M.scrollBar = display.newGroup()
 	
 	-- Create the scrollBar frames ( 3 slice )
-	local topFrame = display.newImageRect( scrollBar, imageSheet, opt.topFrame, opt.width, opt.height )
-	local middleFrame = display.newImageRect( scrollBar, imageSheet, opt.middleFrame, opt.width, opt.height )
-	local bottomFrame = display.newImageRect( scrollBar, imageSheet, opt.bottomFrame, opt.width, opt.height )
+	M.topFrame = display.newImageRect( M.scrollBar, imageSheet, opt.topFrame, opt.width, opt.height )
+	M.middleFrame = display.newImageRect( M.scrollBar, imageSheet, opt.middleFrame, opt.width, opt.height )
+	M.bottomFrame = display.newImageRect( M.scrollBar, imageSheet, opt.bottomFrame, opt.width, opt.height )
 	
 	-- Set the middle frame's width
-	middleFrame.height = scrollBarHeight - ( topFrame.contentHeight + bottomFrame.contentHeight )
+	M.middleFrame.height = scrollBarHeight - ( M.topFrame.contentHeight + M.bottomFrame.contentHeight )
 	
 	-- Positioning
-	middleFrame.y = topFrame.y + topFrame.contentHeight * 0.5 + middleFrame.contentHeight * 0.5
-	bottomFrame.y = middleFrame.y + middleFrame.contentHeight * 0.5 + bottomFrame.contentHeight * 0.5
+	M.middleFrame.y = M.topFrame.y + M.topFrame.contentHeight * 0.5 + M.middleFrame.contentHeight * 0.5
+	M.bottomFrame.y = M.middleFrame.y + M.middleFrame.contentHeight * 0.5 + M.bottomFrame.contentHeight * 0.5
 	
 	-- Setup the scrollBar's properties
-	scrollBar._viewHeight = viewHeight
-	scrollBar._viewContentHeight = viewContentHeight
-	scrollBar.alpha = 0 -- The scrollBar is invisible initally
-	scrollBar._tween = nil
+	M.scrollBar._viewHeight = viewHeight
+	M.scrollBar._viewContentHeight = viewContentHeight
+	M.scrollBar.alpha = 0 -- The scrollBar is invisible initally
+	M.scrollBar._tween = nil
+	
+	-- function to recalculate the scrollbar params, based on content height change
+	function M.scrollBar:repositionY()
+	
+	    self._viewHeight = view._height
+	    self._viewContentHeight = view._scrollHeight
+	    -- Set the scrollbar Height
+	    
+	    local scrollBarHeight = ( viewHeight * 100 ) / viewContentHeight
+	    
+	    -- If the calculated scrollBar height is below the minimum height, set it to it
+	    if scrollBarHeight < minimumScrollBarHeight then
+		    scrollBarHeight = minimumScrollBarHeight
+	    end
+	
+        M.middleFrame.height = scrollBarHeight - ( M.topFrame.contentHeight + M.bottomFrame.contentHeight ) 
+    
+	end
 	
 	-- Function to move the scrollBar
-	function scrollBar:move()
+	function M.scrollBar:move()
 		local moveFactor = ( view.y * 100 ) / ( self._viewContentHeight - self._viewHeight )		
 		local moveQuantity = ( moveFactor * ( self._viewHeight - self.contentHeight ) ) / 100
 				
@@ -594,7 +618,7 @@ function M.createScrollBar( view, options )
 		end		
 	end
 	
-	function scrollBar:setPositionTo( position )
+	function M.scrollBar:setPositionTo( position )
 		if "top" == position then
 			self.y = view.parent.y - view._top
 		elseif "bottom" == position then
@@ -603,7 +627,7 @@ function M.createScrollBar( view, options )
 	end
 	
 	-- Function to show the scrollBar
-	function scrollBar:show()
+	function M.scrollBar:show()
 		-- Cancel any previous transition
 		if self._tween then
 			transition.cancel( self._tween ) 
@@ -615,7 +639,7 @@ function M.createScrollBar( view, options )
 	end
 	
 	-- Function to hide the scrollBar
-	function scrollBar:hide()
+	function M.scrollBar:hide()
 		-- If there already isn't a tween in progress
 		if not self._tween then
 			self._tween = transition.to( self, { time = 400, alpha = 0, transition = easing.outQuad } )
@@ -623,12 +647,12 @@ function M.createScrollBar( view, options )
 	end
 		
 	-- Insert the scrollBar into the fixed group and position it
-	view._fixedGroup:insert( scrollBar )
+	view._fixedGroup:insert( M.scrollBar )
 	view._fixedGroup:setReferencePoint( display.CenterReferencePoint )
 	view._fixedGroup.x = view._width - scrollBarWidth * 0.5
-	view._fixedGroup.y = view.parent.y - view._top + ( scrollBar.contentHeight * 0.5 )
+	view._fixedGroup.y = view.parent.y - view._top + ( M.scrollBar.contentHeight * 0.5 )
 	
-	return scrollBar
+	return M.scrollBar
 end
 
 return M

@@ -279,7 +279,6 @@ local function createTableView( tableView, options )
 	-- Handle touches on the tableView
 	function view:touch( event )
 		local phase = event.phase
-		
 		-- Set the time held
 		if "began" == phase then
 			self._timeHeld = event.time
@@ -1038,8 +1037,7 @@ local function createTableView( tableView, options )
 				end
 			end
 			
-			-- for all the rows beneath the deleted one, update the y to be y - the height of the deleted row
-			
+
 			
 			-- Remove the row from display
 			display.remove( self._rows[rowIndex]._view )
@@ -1059,17 +1057,25 @@ local function createTableView( tableView, options )
 			self._rows[rowIndex]._view:removeEventListener( "touch", _handleRowTouch )
 			self._rows[rowIndex]._view:removeEventListener( "tap", _handleRowTap )
 			
+			-- Re calculate the scrollHeight
+		    self._scrollHeight = self._scrollHeight - self._rows[rowIndex]._height
+		    self._scrollBar:repositionY()
+			
 			-- transition the row
 			transition.to( self._rows[rowIndex]._view, { x = - ( self._rows[rowIndex]._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = removeRow } )
 		-- The row isn't within the visible bounds of our view
 		else
+		    
+		    -- Re calculate the scrollHeight
+		    self._scrollHeight = self._scrollHeight - self._rows[rowIndex]._height
+		    self._scrollBar:repositionY()
+		
 		    -- decrement the table rows variable
 			self._numberOfRows =  self._numberOfRows - 1
 			removeRow()
 		end
 		
-		-- Re calculate the scrollHeight
-		self._scrollHeight = self._scrollHeight - self._rows[rowIndex]._height
+
 		
 	end
 	
