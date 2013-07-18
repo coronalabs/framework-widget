@@ -260,10 +260,14 @@ local function createPickerWheel( pickerWheel, options )
 	-- EnterFrame listener for our pickerWheel
 	function view:enterFrame( event )
 		local _pickerWheel = self.parent
-		
 		-- Update the y position
 		self._yPosition = _pickerWheel.y + ( self._height * 0.5 )
-				
+		if nil ~= self._top then
+		    -- TODO: make a real mvc container structure so we can determine the parent. Right now, this just solves problems with pickers in scrollviews
+		    if self.parent.parent.parent ~= nil and self.parent.parent.parent.id == "widget_scrollView" then
+		        self._yPosition = self._yPosition + self._top
+		    end
+		end
 
 				
 		-- Manage the Picker Wheels columns
