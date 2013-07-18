@@ -237,6 +237,19 @@ local function createTableView( tableView, options )
 	-- Private Function to get a row at a specific y position
 	function view:_getRowAtPosition( position )
 		local yPosition = position
+		yPosition = yPosition 
+		
+		-- if we have a top defined in the pickerwheel
+		if nil ~= self.parent.parent then
+		    if nil ~= self.parent.parent._top then
+		    -- TODO: move this to a permanent detection routine. For now, fixes picker problems when in scrollviews.
+		    if nil ~= self.parent.parent.parent.parent.parent then
+		        if ( self.parent.parent.parent.parent.parent.id == "widget_scrollView" ) then
+		            yPosition = yPosition + self.parent.parent._top * 0.5
+		        end
+		    end
+		    end
+		end
 		
 		for k, v in pairs( self._rows ) do
 			local currentRow = self._rows[k]
@@ -244,7 +257,7 @@ local function createTableView( tableView, options )
 			-- If the current row exists on screen
 			if "table" == type( currentRow._view ) then
 				local bounds = currentRow._view.contentBounds
-			
+
 				local isWithinBounds = yPosition > bounds.yMin and yPosition < bounds.yMax + 1
 			
 				-- If we have hit the bottom limit, return the first row
@@ -256,7 +269,7 @@ local function createTableView( tableView, options )
 				if self._hasHitTopLimit then
 					return self._rows[#self._rows]._view
 				end
-			
+
 				-- If the row is within bounds
 				if isWithinBounds then								
 					transition.to( self, { time = 280, y = - currentRow.y - self.parent.y, transition = easing.outQuad } )
