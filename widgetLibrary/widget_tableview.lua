@@ -1088,7 +1088,7 @@ local function createTableView( tableView, options )
 			removeRow()
 		end
 		
-
+		-- NOTE: this was the previous location of the scrollHeight calculation. If we resize the scrollheight after the transition.to above, you get a funny motion effect on the tableview. This way, it does not happen.
 		
 	end
 	
