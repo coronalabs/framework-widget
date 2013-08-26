@@ -1356,9 +1356,10 @@ function M.new( options, theme )
 	
 	-- Set the button's position ( set the reference point to center, just to be sure )
 	--button:setReferencePoint( display.CenterReferencePoint )
-	button.anchorX = 0.5
-	button.anchorY = 0.5
-	button.x = 100--opt.left + button.contentWidth * 0.5
+	-- button.anchorChildren = true
+	-- button.anchorX = 0.5
+	-- button.anchorY = 0.5
+	button.x = opt.left + button.contentWidth * 0.5
 	button.y = opt.top + button.contentHeight * 0.5
 	
 	return button

@@ -96,7 +96,7 @@ local function initWithImageFiles( tabBar, options )
 		
 		-- Create the tab button's label
 		viewButtons[i].label = display.newText( tabBar, label, 0, 0, labelFont, labelSize )
-		viewButtons[i].label:setTextColor( unpack( labelColor.default ) )
+		viewButtons[i].label:setFillColor( unpack( labelColor.default ) )
 		
 		-- Set the label offsets
 		viewButtons[i].label._xOffset = labelXOffset
@@ -107,7 +107,7 @@ local function initWithImageFiles( tabBar, options )
 			view._defaultTab = i
 			
 			-- Set the selected tab's label to the over color
-			viewButtons[i].label:setTextColor( unpack( labelColor.over ) )
+			viewButtons[i].label:setFillColor( unpack( labelColor.over ) )
 		end	
 		
 		-- Keep a reference to the label's colors
@@ -269,7 +269,7 @@ local function initWithImageFiles( tabBar, options )
 				self._tabs[i]._isPressed = true
 
 				-- Set the label's color to 'over'
-				self._tabs[i].label:setTextColor( unpack( self._tabs[i].label._color.over ) )
+				self._tabs[i].label:setFillColor( unpack( self._tabs[i].label._color.over ) )
 
 			-- Turn off all other tabs
 			else
@@ -278,7 +278,7 @@ local function initWithImageFiles( tabBar, options )
 				self._tabs[i]._over.isVisible = false
 				
 				-- Set the label's color to 'default'
-				self._tabs[i].label:setTextColor( unpack( self._tabs[i].label._color.default ) )
+				self._tabs[i].label:setFillColor( unpack( self._tabs[i].label._color.default ) )
 				
 				-- Set the tab as not pressed
 				self._tabs[i]._isPressed = false
@@ -386,7 +386,7 @@ local function initWithImageSheet( tabBar, options )
 		
 		-- Create the tab button's label
 		viewButtons[i].label = display.newText( tabBar, label, 0, 0, labelFont, labelSize )
-		viewButtons[i].label:setTextColor( unpack( labelColor.default ) )
+		viewButtons[i].label:setFillColor( unpack( labelColor.default ) )
 		
 		-- Set the label offsets
 		viewButtons[i].label._xOffset = labelXOffset
@@ -397,7 +397,7 @@ local function initWithImageSheet( tabBar, options )
 			view._defaultTab = i
 			
 			-- Set the selected tab's label to the over color
-			viewButtons[i].label:setTextColor( unpack( labelColor.over ) )
+			viewButtons[i].label:setFillColor( unpack( labelColor.over ) )
 		end	
 		
 		-- Keep a reference to the label's colors
@@ -572,7 +572,7 @@ local function initWithImageSheet( tabBar, options )
 				self._tabs[i]._isPressed = true
 
 				-- Set the label's color to 'over'
-				self._tabs[i].label:setTextColor( unpack( self._tabs[i].label._color.over ) )
+				self._tabs[i].label:setFillColor( unpack( self._tabs[i].label._color.over ) )
 
 			-- Turn off all other tabs
 			else
@@ -585,7 +585,7 @@ local function initWithImageSheet( tabBar, options )
 				end
 				
 				-- Set the label's color to 'default'
-				self._tabs[i].label:setTextColor( unpack( self._tabs[i].label._color.default ) )
+				self._tabs[i].label:setFillColor( unpack( self._tabs[i].label._color.default ) )
 				
 				-- Set the tab as not pressed
 				self._tabs[i]._isPressed = false
@@ -704,7 +704,6 @@ function M.new( options, theme )
 	end
 	
 	-- Set the tabBar's position ( set the reference point to center, just to be sure )
-	tabBar:setReferencePoint( display.CenterReferencePoint )
 	tabBar.x = opt.left + tabBar.contentWidth * 0.5
 	tabBar.y = opt.top + tabBar.contentHeight * 0.5
 	
