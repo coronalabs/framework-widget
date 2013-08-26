@@ -86,6 +86,7 @@ function widget._new( options )
 	newWidget._removeSelf = newWidget.removeSelf
 	newWidget.removeSelf = _removeSelf
 	newWidget._loseFocus = widget._loseFocus
+	newWidget.anchorChildren = true
 
 	return newWidget
 end

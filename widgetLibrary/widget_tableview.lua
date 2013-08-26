@@ -593,7 +593,7 @@ local function createTableView( tableView, options )
 				rowLine:setReferencePoint( display.CenterReferencePoint )
 				rowLine.x = rowCell.x 
 				rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
-				rowLine:setColor( unpack( currentRow._lineColor ) )					
+				rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
 			end
 
 			-- Set the row's id
@@ -813,10 +813,13 @@ local function createTableView( tableView, options )
 				self._hasRenderedRows = false
 								
 				-- Create the row's view (a row is a display group)
-				currentRow._view = display.newGroup()
+				local view = display.newGroup()
+				view.anchorChildren = true
+
+				currentRow._view = view
 				
 				-- Create the row's cell
-				local rowCell = display.newRect( currentRow._view, 0, 0, currentRow._width, currentRow._height )
+				local rowCell = display.newRect( view, 0, 0, currentRow._width, currentRow._height )
 				rowCell.x = rowCell.contentWidth * 0.5
 				rowCell.y = rowCell.contentHeight * 0.5
 				rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
@@ -824,37 +827,37 @@ local function createTableView( tableView, options )
 				-- If the user want's lines between rows, create a line to seperate them
 				if not self._noLines then
 					-- Create the row's dividing line
-					local rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
+					local rowLine = display.newLine( view, 0, rowCell.y, currentRow._width, rowCell.y )
 					rowLine:setReferencePoint( display.CenterReferencePoint )
 					rowLine.x = rowCell.x 
 					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
-					rowLine:setColor( unpack( currentRow._lineColor ) )					
+					rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
 				end
 			
 				-- Set the row's reference point to it's center point (just incase)
-				currentRow._view:setReferencePoint( display.CenterReferencePoint )
+				view:setReferencePoint( display.CenterReferencePoint )
 
 				-- Position the row
-				currentRow._view.x = self.x + ( currentRow._width * 0.5 )
-				currentRow._view.y = currentRow.y
+				view.x = self.x + ( currentRow._width * 0.5 )
+				view.y = currentRow.y
 
 				-- Assign properties to the row
-				currentRow._view._cell = rowCell
-				currentRow._view._rowColor = currentRow._rowColor
-				currentRow._view.index = currentRow.index
-				currentRow._view.id = currentRow.id
+				view._cell = rowCell
+				view._rowColor = currentRow._rowColor
+				view.index = currentRow.index
+				view.id = currentRow.id
 				-- add the custom params to the row
-				currentRow._view.params = currentRow.params
-				currentRow._view._label = currentRow._label
-				currentRow._view.isCategory = currentRow.isCategory
+				view.params = currentRow.params
+				view._label = currentRow._label
+				view.isCategory = currentRow.isCategory
 				
 				-- Insert the row into the view
-				self:insert( currentRow._view )				
+				self:insert( view )				
 				
 				-- Add event listener to the row
 				if not currentRow.isCategory then
-					currentRow._view:addEventListener( "touch", _handleRowTouch )
-					currentRow._view:addEventListener( "tap", _handleRowTap )
+					view:addEventListener( "touch", _handleRowTouch )
+					view:addEventListener( "tap", _handleRowTap )
 				else
 					-- If the row is a category, pass the touch event back to the view
 					local function scrollList( event )
@@ -866,11 +869,11 @@ local function createTableView( tableView, options )
 						return true
 					end
 
-					currentRow._view:addEventListener( "touch", scrollList )
+					view:addEventListener( "touch", scrollList )
 				end
 				
 				-- Row methods
-				function currentRow._view:setRowColor( options )
+				function view:setRowColor( options )
 					if "table" == type( options ) then
 						if "table" == type( options.default ) then
 							self._rowColor.default = options.default
@@ -888,7 +891,7 @@ local function createTableView( tableView, options )
 				local rowEvent = 
 				{
 					name = "rowRender",
-					row = currentRow._view,
+					row = view,
 					target = self.parent,
 				}
 
