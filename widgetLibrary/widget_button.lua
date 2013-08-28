@@ -119,7 +119,7 @@ local function createUsingText( button, options )
 	end
 	
 	-- Set the view's color
-	view:setTextColor( unpack( opt.labelColor.default ) )
+	view:setFillColor( unpack( opt.labelColor.default ) )
 	view._labelColor = opt.labelColor
 	
 	----------------------------------
@@ -156,8 +156,8 @@ local function createUsingText( button, options )
 	----------------------------------------------------------
 	
 	-- Function to set the buttons text color
-	function button:setTextColor( ... )
-		self._view:setTextColor( ... )
+	function button:setFillColor( ... )
+		self._view:setFillColor( ... )
 	end
 	
 	-- Function to set the button's label
@@ -214,7 +214,7 @@ local function createUsingText( button, options )
 		if "over" == newState then
 			-- Set the label to it's over color
 			if "table" == type( self ) then
-				self:setTextColor( unpack( self._labelColor.over ) )
+				self:setFillColor( unpack( self._labelColor.over ) )
 			end
 			
 			-- The pressedState is now "over"
@@ -223,7 +223,7 @@ local function createUsingText( button, options )
 		elseif "default" == newState then
 			-- Set the label back to it's default color
 			if "table" == type( self ) then
-				self:setTextColor( unpack( self._labelColor.default ) )
+				self:setFillColor( unpack( self._labelColor.default ) )
 			end
 			
 			-- The pressedState is now "default"
@@ -295,7 +295,7 @@ local function createUsingImageFiles( button, options )
 	viewOver.isVisible = false
 	
 	-- Setup the label
-	viewLabel:setTextColor( unpack( opt.labelColor.default ) )
+	viewLabel:setFillColor( unpack( opt.labelColor.default ) )
 	viewLabel._isLabel = true
 	viewLabel._labelColor = opt.labelColor
 	
@@ -422,7 +422,7 @@ local function createUsingImageFiles( button, options )
 			
 			-- Set the label to it's over color
 			if "table" == type( self._label ) then
-				self._label:setTextColor( unpack( self._label._labelColor.over ) )
+				self._label:setFillColor( unpack( self._label._labelColor.over ) )
 			end
 			
 			-- The pressedState is now "over"
@@ -435,7 +435,7 @@ local function createUsingImageFiles( button, options )
 			
 			-- Set the label back to it's default color
 			if "table" == type( self._label ) then
-				self._label:setTextColor( unpack( self._label._labelColor.default ) )
+				self._label:setFillColor( unpack( self._label._labelColor.default ) )
 			end
 			
 			-- The pressedState is now "default"
@@ -510,7 +510,7 @@ local function createUsingImageSheet( button, options )
 	view.y = button.y + ( view.contentHeight * 0.5 )
 	
 	-- Setup the label
-	viewLabel:setTextColor( unpack( opt.labelColor.default ) )
+	viewLabel:setFillColor( unpack( opt.labelColor.default ) )
 	viewLabel._isLabel = true
 	viewLabel._labelColor = opt.labelColor
 	
@@ -635,7 +635,7 @@ local function createUsingImageSheet( button, options )
 			
 			-- Set the label to it's over color
 			if "table" == type( self._label ) then
-				self._label:setTextColor( unpack( self._label._labelColor.over ) )
+				self._label:setFillColor( unpack( self._label._labelColor.over ) )
 			end
 			
 			-- The pressedState is now "over"
@@ -647,7 +647,7 @@ local function createUsingImageSheet( button, options )
 			
 			-- Set the label back to it's default color
 			if "table" == type( self._label ) then
-				self._label:setTextColor( unpack( self._label._labelColor.default ) )
+				self._label:setFillColor( unpack( self._label._labelColor.default ) )
 			end
 			
 			-- The pressedState is now "default"
@@ -964,7 +964,7 @@ local function createUsing9Slice( button, options )
 	end
 
 	-- Setup the Label
-	viewLabel:setTextColor( unpack( opt.labelColor.default ) )
+	viewLabel:setFillColor( unpack( opt.labelColor.default ) )
 	viewLabel._isLabel = true
 	viewLabel._labelColor = opt.labelColor
 	
@@ -1101,7 +1101,7 @@ local function createUsing9Slice( button, options )
 				
 				-- If the child is a label then set it's color
 				if child._isLabel then
-					child:setTextColor( unpack( child._labelColor.over ) )
+					child:setFillColor( unpack( child._labelColor.over ) )
 				
 				-- The child is a button piece 
 				else
@@ -1130,7 +1130,7 @@ local function createUsing9Slice( button, options )
 				
 				-- If the child is a label then set it's color
 				if child._isLabel then
-					child:setTextColor( unpack( child._labelColor.default ) )
+					child:setFillColor( unpack( child._labelColor.default ) )
 					
 				-- The child is a button piece 
 				else
@@ -1359,7 +1359,10 @@ function M.new( options, theme )
 	end
 	
 	-- Set the button's position ( set the reference point to center, just to be sure )
-	button:setReferencePoint( display.CenterReferencePoint )
+	--button:setReferencePoint( display.CenterReferencePoint )
+	-- button.anchorChildren = true
+	-- button.anchorX = 0.5
+	-- button.anchorY = 0.5
 	button.x = opt.left + button.contentWidth * 0.5
 	button.y = opt.top + button.contentHeight * 0.5
 	
