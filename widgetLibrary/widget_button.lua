@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Function to handle touches on a widget button, function is common to all widget button creation types (ie image files, imagesheet, and 9 slice button creation)
 local function manageButtonTouch( view, event )
 	local phase = event.phase
@@ -1359,13 +1361,13 @@ function M.new( options, theme )
 	end
 	
 	-- Set the button's position ( set the reference point to center, just to be sure )
-	--button:setReferencePoint( display.CenterReferencePoint )
-	-- button.anchorChildren = true
-	-- button.anchorX = 0.5
-	-- button.anchorY = 0.5
+	if ( isGraphicsV1 ) then
+		button:setReferencePoint( display.CenterReferencePoint )
+	end
+	
 	button.x = opt.left + button.contentWidth * 0.5
 	button.y = opt.top + button.contentHeight * 0.5
-	
+
 	return button
 end
 
