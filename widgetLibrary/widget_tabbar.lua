@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 ------------------------------------------------------------------------
 -- Image Files TabBar
 ------------------------------------------------------------------------
@@ -782,9 +784,13 @@ function M.new( options, theme )
 	end
 	
 	-- Set the tabBar's position ( set the reference point to center, just to be sure )
+	if ( isGraphicsV1 ) then
+		tabBar:setReferencePoint( display.CenterReferencePoint )
+	end
+
 	tabBar.x = opt.left + tabBar.contentWidth * 0.5
 	tabBar.y = opt.top + tabBar.contentHeight * 0.5
-	
+
 	return tabBar
 end
 
