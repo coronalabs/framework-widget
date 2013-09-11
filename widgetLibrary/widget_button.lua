@@ -39,7 +39,7 @@ local _widget = require( "widget" )
 -- Function to handle touches on a widget button, function is common to all widget button creation types (ie image files, imagesheet, and 9 slice button creation)
 local function manageButtonTouch( view, event )
 	local phase = event.phase
-	
+
 	-- If the button isn't active, just return
 	if not view._isEnabled then
 		return
@@ -49,6 +49,11 @@ local function manageButtonTouch( view, event )
 		-- Set the button to it's over image state
 		view:_setState( "over" )
 		
+		-- Create the alpha fade if ios7
+		if _widget.isSeven() then
+			transition.to( view._label, { time = 50, alpha = 0.5 } )
+		end
+
 		-- If there is a onPress method ( and not a onEvent method )
 		if view._onPress and not view._onEvent then
 			view._onPress( event )
@@ -59,6 +64,7 @@ local function manageButtonTouch( view, event )
 			-- Set focus on the button
 			view._isFocus = true
 			display.getCurrentStage():setFocus( view, event.id )
+			
 		end
 		
 	elseif view._isFocus then
@@ -66,10 +72,22 @@ local function manageButtonTouch( view, event )
 			if not _widget._isWithinBounds( view, event ) then
 				-- Set the button to it's default image state
 				view:_setState( "default" )
+				
+				-- Create the alpha fade if ios7
+				if _widget.isSeven() then
+					transition.to( view._label, { time = 50, alpha = 1.0 } )
+				end
+				
 			else
 				if view:_getState() ~= "over" then
 					-- Set the button to it's over image state
 					view:_setState( "over" )
+					
+					-- Create the alpha fade if ios7
+					if _widget.isSeven() then
+						transition.to( view._label, { time = 50, alpha = 0.5 } )
+					end
+					
 				end
 			end
 		
@@ -83,6 +101,11 @@ local function manageButtonTouch( view, event )
 			
 			-- Set the button to it's default image state
 			view:_setState( "default" )
+
+			-- Create the alpha fade if ios7
+			if _widget.isSeven() then
+				transition.to( view._label, { time = 50, alpha = 1.0 } )
+			end
 			
 			-- Remove focus from the button
 			view._isFocus = false
@@ -94,6 +117,7 @@ local function manageButtonTouch( view, event )
 	if view._onEvent and not view._onPress and not view._onRelease then
 		if not _widget._isWithinBounds( view, event ) and "ended" == phase then
 			event.phase = "cancelled"
+			
 		end
 		
 		view._onEvent( event )
@@ -1200,6 +1224,13 @@ function M.new( options, theme )
 	opt.labelColor = customOptions.labelColor or { default = { 0, 0, 0 }, over = { 255, 255, 255 } }	
 	opt.font = customOptions.font or themeOptions.font or native.systemFont
 	opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 14
+	
+	if _widget.isSeven() then
+		opt.font = customOptions.font or themeOptions.font or "HelveticaNeue-Light"
+		opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 17
+		opt.labelColor = customOptions.labelColor or themeOptions.labelColor or { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
+	end
+	
 	opt.labelAlign = customOptions.labelAlign or "center"
 	opt.labelXOffset = customOptions.labelXOffset or 0
 	opt.labelYOffset = customOptions.labelYOffset or 0

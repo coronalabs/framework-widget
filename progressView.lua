@@ -6,6 +6,7 @@ local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
+local USE_IOS7_THEME = widget.isSeven()
 
 --Forward reference for test function timer
 local testTimer = nil
@@ -19,16 +20,38 @@ function scene:createScene( event )
 	end
 	
 	--Display an iOS style background
-	local background = display.newImage( "unitTestAssets/background.png" )
+	local background
+	
+	if USE_IOS7_THEME then
+		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+	else
+		background = display.newImage( "unitTestAssets/background.png" )
+	end
+	
 	group:insert( background )
+	
+	if USE_IOS7_THEME then
+		-- create a white background, 40px tall, to mask / hide the scrollView
+		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
+		topMask:setFillColor( 235, 235, 235, 255 )
+		group:insert( topMask )
+	end
+
+	local backButtonPosition = 5
+	local backButtonSize = 52
+	
+	if USE_IOS7_THEME then
+		backButtonPosition = 0
+		backButtonSize = 40
+	end
 	
 	--Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
-	    left = 60,
-	    top = 5,
+	    left = display.contentWidth * 0.5,
+	    top = backButtonPosition,
 	    label = "Exit",
-	    width = 200, height = 52,
+	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
@@ -42,18 +65,18 @@ function scene:createScene( event )
 	--Toggle these defines to execute automated tests.
 	local TEST_REMOVE_PROGRESS_VIEW = false
 	local TEST_RESET_PROGRESS_VIEW = true
-	local TEST_RESIZE_PROGRESS_VIEW = true
+	local TEST_RESIZE_PROGRESS_VIEW = false
 	local TEST_DELAY = 1000
 		
 	-- Create a new progress view object
 	local newProgressView = widget.newProgressView
 	{
-		left = 20,
+		left = 0,
 		top = 20,
 		width = 150,
 		isAnimated = true,
 	}
-	newProgressView.x = 100
+	newProgressView.x = display.contentWidth * 0.5 
 	newProgressView.y = display.contentCenterY
 	
 	if TEST_RESIZE_PROGRESS_VIEW then

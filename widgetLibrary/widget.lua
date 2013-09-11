@@ -9,6 +9,7 @@
 local widget = 
 {
 	version = "2.0",
+	themeName = "default"
 }
 
 
@@ -142,6 +143,12 @@ end
 function widget.setTheme( themeModule )
 	-- Returns table with theme data
 	widget.theme = require( themeModule )
+	widget.themeName = themeModule
+end
+
+-- Check if the theme is ios7
+function widget.isSeven()
+	return widget.themeName == "widget_theme_ios7"
 end
 
 -- Function to retrieve a widget's theme settings
