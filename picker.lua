@@ -6,6 +6,7 @@ local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
+local USE_IOS7_THEME = widget.isSeven()
 
 function scene:createScene( event )
 	local group = self.view
@@ -16,16 +17,38 @@ function scene:createScene( event )
 	end
 	
 	--Display an iOS style background
-	local background = display.newImageRect( "unitTestAssets/background.png", 640, 960 )
+	local background
+	
+	if USE_IOS7_THEME then
+		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+	else
+		background = display.newImage( "unitTestAssets/background.png" )
+	end
+	
 	group:insert( background )
+	
+	if USE_IOS7_THEME then
+		-- create a white background, 40px tall, to mask / hide the scrollView
+		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
+		topMask:setFillColor( 235, 235, 235, 255 )
+		group:insert( topMask )
+	end
+	
+	local backButtonPosition = 5
+	local backButtonSize = 52
+	
+	if USE_IOS7_THEME then
+		backButtonPosition = 0
+		backButtonSize = 40
+	end
 	
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
 	    left = 60,
-	    top = 5,
+	    top = backButtonPosition,
 	    label = "Exit",
-	    width = 200, height = 52,
+	    width = 200, height = 40,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
 	returnToListing.x = display.contentCenterX
@@ -60,7 +83,7 @@ function scene:createScene( event )
 		},
 		
 		{
-			align = "left",
+			align = "center",
 			width = 60,
 			startIndex = 18,
 			labels = days,
@@ -78,7 +101,6 @@ function scene:createScene( event )
 	local pickerWheel = widget.newPickerWheel
 	{
 		top = display.contentHeight - 222,
-		font = native.systemFontBold,
 		columns = columnData,
 	}
 	group:insert( pickerWheel )
@@ -105,8 +127,8 @@ function scene:createScene( event )
 	
 	local getValuesButton = widget.newButton{
 	    id = "getValues",
-	    left = 60,
-	    top = 80,
+	    left = display.contentWidth * 0.5 - 50,
+	    top = 60,
 	    label = "Values",
 	    width = 100, height = 52,
 	    onRelease = showValues;

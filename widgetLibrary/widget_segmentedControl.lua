@@ -160,8 +160,21 @@ local function initWithImage( segmentedControl, options )
 	-- Create the segment labels & dividers
 	for i = 1, #segments do
 		-- Create the labels
-		local label = display.newEmbossedText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
-		label:setTextColor( 255 )
+		local label
+		if _widget.isSeven() then
+			label = display.newText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
+			if view._segmentNumber == i or opt.defaultSegment == i then
+				label:setTextColor( 255, 255, 255 )
+			else
+				label:setTextColor( 21, 126, 251 )
+			end
+		else
+			label = display.newEmbossedText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
+			label:setTextColor( 255 )
+		end
+		
+		
+		
 		label.x = leftSegment.x + ( segmentWidth * 0.5 + segmentWidth * ( i - 1 ) ) - leftSegment.width * 0.5
 		label.y = leftSegment.y
 		label.segmentName = segments[i] 
@@ -313,6 +326,18 @@ local function initWithImage( segmentedControl, options )
 		
 		-- Set the segment number
 		self._segmentNumber = 1
+		
+		-- Reset the colors if ios7
+		if _widget.isSeven() then
+			for i = 1, #view._segmentLabels do
+				local currentSegment = view._segmentLabels[ i ]
+				currentSegment:setTextColor( 21, 126, 251 )
+			end
+			
+			view._segmentLabels[1]:setTextColor( 255 )
+			
+		end
+		
 	end
 	
 	-- Function to set the right segment active
@@ -331,6 +356,18 @@ local function initWithImage( segmentedControl, options )
 		
 		-- Set the segment number
 		self._segmentNumber = self._totalSegments
+		
+		-- Reset the colors if ios7
+		if _widget.isSeven() then
+			for i = 1, #view._segmentLabels do
+				local currentSegment = view._segmentLabels[ i ]
+				currentSegment:setTextColor( 21, 126, 251 )
+			end
+			
+			view._segmentLabels[ #view._segmentLabels ]:setTextColor( 255 )
+			
+		end
+		
 	end
 	
 	-- Function to set the middle segment active
@@ -349,6 +386,18 @@ local function initWithImage( segmentedControl, options )
 		
 		-- Set the segment number
 		self._segmentNumber = segmentNum
+		
+		-- Reset the colors if ios7
+		if _widget.isSeven() then
+			for i = 1, #view._segmentLabels do
+				local currentSegment = view._segmentLabels[ i ]
+				currentSegment:setTextColor( 21, 126, 251 )
+			end
+			
+			view._segmentLabels[ segmentNum ]:setTextColor( 255 )
+			
+		end
+		
 	end
 	
 	-- Set the intial segment to active
@@ -404,6 +453,12 @@ function M.new( options, theme )
 	opt.defaultSegment = customOptions.defaultSegment or 1
 	opt.labelSize = customOptions.labelSize or 12
 	opt.labelFont = customOptions.labelFont or native.systemFont
+	
+	if _widget.isSeven() then
+		opt.labelFont = customOptions.labelFont or "HelveticaNeue"
+		opt.labelSize = customOptions.labelSize or 13
+	end
+	
 	opt.labelXOffset = customOptions.labelXOffset or 0
 	opt.labelYOffset = customOptions.labelYOffset or 0
 	opt.onPress = customOptions.onPress

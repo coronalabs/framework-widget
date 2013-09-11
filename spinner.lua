@@ -6,6 +6,7 @@ local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
+local USE_IOS7_THEME = widget.isSeven()
 
 --Forward reference for test function timer
 local testTimer = nil
@@ -19,16 +20,41 @@ function scene:createScene( event )
 	end
 	
 	--Display an iOS style background
-	local background = display.newImage( "unitTestAssets/background.png" )
+	local background
+	
+	if USE_IOS7_THEME then
+		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+	else
+		background = display.newImage( "unitTestAssets/background.png" )
+	end
+	
 	group:insert( background )
+	
+	if USE_IOS7_THEME then
+		-- create a white background, 40px tall, to mask / hide the scrollView
+		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
+		topMask:setFillColor( 235, 235, 235, 255 )
+		group:insert( topMask )
+	end
+	
+	local backButtonPosition = 5
+	local backButtonSize = 52
+	local fontUsed = native.systemFont
+	
+	
+	if USE_IOS7_THEME then
+		backButtonPosition = 0
+		backButtonSize = 40
+		fontUsed = "HelveticaNeue-Light"
+	end
 	
 	--Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
-	    left = 0,
-	    top = 5,
+	    left = display.contentWidth * 0.5,
+	    top = backButtonPosition,
 	    label = "Exit",
-	    width = 200, height = 52,
+	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
@@ -56,8 +82,9 @@ function scene:createScene( event )
 	group:insert( spinnerDefault )
 	
 	
-	local spinnerText = display.newText( "Default spinner (From theme)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
-	spinnerText.x = display.contentCenterX
+	local spinnerText = display.newText( "Default spinner (From theme)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, fontUsed, 14 )
+	spinnerText:setTextColor( 0 )
+	spinnerText.x = display.contentCenterX + 20
 	spinnerText.y = spinnerDefault.y + ( spinnerDefault.contentWidth * 0.5 ) + 20
 	group:insert( spinnerText )
 	
@@ -82,8 +109,9 @@ function scene:createScene( event )
 	group:insert( spinnerCustom )
 	
 	
-	local spinnerCustomText = display.newText( "Custom spinner (Custom graphics)\nAnimating sprite from imagesheet", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
-	spinnerCustomText.x = display.contentCenterX
+	local spinnerCustomText = display.newText( "Custom spinner (Custom graphics)\nAnimating sprite from imagesheet", 0, 0, display.contentWidth, 0, fontUsed, 14 )
+	spinnerCustomText:setTextColor( 0 )
+	spinnerCustomText.x = display.contentCenterX + 20
 	spinnerCustomText.y = spinnerCustom.y + ( spinnerCustom.contentWidth * 0.5 ) + 20
 	group:insert( spinnerCustomText )
 	
@@ -103,8 +131,9 @@ function scene:createScene( event )
 	spinnerCustomJustRotates.x = display.contentCenterX
 	group:insert( spinnerCustomJustRotates )
 	
-	local spinnerCustomJustRotatesText = display.newText( "Custom spinner (Custom graphics)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, native.systemFontBold, 14 )
-	spinnerCustomJustRotatesText.x = display.contentCenterX
+	local spinnerCustomJustRotatesText = display.newText( "Custom spinner (Custom graphics)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, fontUsed, 14 )
+	spinnerCustomJustRotatesText:setTextColor( 0 )
+	spinnerCustomJustRotatesText.x = display.contentCenterX + 20
 	spinnerCustomJustRotatesText.y = spinnerCustomJustRotates.y + ( spinnerCustomJustRotates.contentWidth * 0.5 ) + 20
 	group:insert( spinnerCustomJustRotatesText )
 

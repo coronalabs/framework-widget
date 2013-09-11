@@ -6,6 +6,7 @@ local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
+local USE_IOS7_THEME = true
 
 function scene:createScene( event )	
 	local group = self.view
@@ -15,15 +16,21 @@ function scene:createScene( event )
 		widget.setTheme( "widget_theme_android" )
 	end
 	
+	if USE_IOS7_THEME then
+		widget.setTheme( "widget_theme_ios7" )
+	end
+	
 	--Display an iOS style background
-	local background = display.newImage( "unitTestAssets/background.png" )
+	local background
+	
+	if USE_IOS7_THEME then
+		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+	else
+		background = display.newImage( "unitTestAssets/background.png" )
+	end
+	
 	group:insert( background )
-	
-	--Create a title to make the menu visibly clear
-	local title = display.newEmbossedText( "Select a unit test to view", 0, 0, native.systemFont, 20)
-	title.x, title.y = display.contentCenterX, 20
-	group:insert( title )
-	
+
 	local scrollView = widget.newScrollView
 	{
 		left = 0,
@@ -35,6 +42,36 @@ function scene:createScene( event )
 		hideBackground = true,
 	}
 	group:insert( scrollView )
+	
+	if USE_IOS7_THEME then
+		-- create a white background, 40px tall, to mask / hide the scrollView
+		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
+		topMask:setFillColor( 235, 235, 235, 255 )
+		group:insert( topMask )
+	end
+	
+	--Create a title to make the menu visibly clear
+	
+	-- create some skinning variables
+	local fontUsed = native.systemFont
+	local headerTextSize = 20
+	local separatorColor = { 198, 198, 198 }
+	
+	if USE_IOS7_THEME then
+		fontUsed = "HelveticaNeue-Medium"
+		headerTextSize = 17
+	end
+	
+	local title = display.newEmbossedText( group, "Select a unit test to view", 0, 0, fontUsed, headerTextSize )
+	title.x, title.y = display.contentCenterX, 20
+	group:insert( title )
+	
+	if USE_IOS7_THEME then
+		local separator = display.newRect( group, 0, title.contentHeight + title.y, display.contentWidth, 0.5 )
+		separator:setFillColor( unpack ( separatorColor ) )
+	end
+	
+
 	
 	--Go to selected unit test
 	local function gotoSelection( event )
