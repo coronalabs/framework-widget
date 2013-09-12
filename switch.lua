@@ -205,7 +205,7 @@ function scene:createScene( event )
 		left = 0,
 		top = 300,
 		style = "onOff",
-		initialSwitchState = true,
+		initialSwitchState = false,
 		onRelease = onOnOffPress
 	}
 	onOffSwitch.x = display.contentCenterX
