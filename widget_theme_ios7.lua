@@ -155,15 +155,17 @@ theme.switch =
 	-- Default (on/off switch)
 	sheet = sheetFile,
 	data = sheetData,
-	backgroundFrame = "switch_background",
-	backgroundWidth = 165,
+	backgroundFrame = "switchBg_off",
+	backgroundInterFrame = "switchBg_inter",
+	backgroundOnFrame = "switchBg_on",
+	backgroundWidth = 51,
 	backgroundHeight = 31,
-	overlayFrame = "switch_overlay",
-	overlayWidth = 83,
+	overlayFrame = "switchBg_on",
+	overlayWidth = 51,
 	overlayHeight = 31,
 	handleDefaultFrame = "switch_handle",
 	handleOverFrame = "switch_handleOver",
-	mask = "widget_theme_onOff_mask.png",
+	
 	
 	radio =
 	{
