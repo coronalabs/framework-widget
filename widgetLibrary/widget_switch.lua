@@ -376,12 +376,15 @@ local function createOnOffSwitch( switch, options )
 			end
 		
 		else
+		
+			local originalScale = self._offView.xScale
+		
 			-- Transition the switch from on>off and vice versa
 			if _switch.isOn then
 				-- fade fast to gray, then show green
 				self._interView.isVisible = true
 
-				local originalScale = self._offView.xScale
+				
 				transition.to ( self._offView, { time = 250, xScale = 0.1, yScale = 0.1, onComplete = function() 
 				
 					self._offView.isVisible = false
