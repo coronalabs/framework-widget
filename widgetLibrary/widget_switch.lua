@@ -774,9 +774,7 @@ local function createStandardSwitch( switch, options )
 				_listener( event )
 			end
 		end
-		
-		if not _widget.isSeven() then
-		
+				
 		-- Set the switch to on/off visually
 		if _isSwitchOn then
 			-- Toggle the view's visibility
@@ -786,8 +784,6 @@ local function createStandardSwitch( switch, options )
 			-- Toggle the view's visibility
 			switch._viewOn.isVisible = false
 			switch._viewOff.isVisible = true
-		end
-		
 		end
 		
 		executeOnComplete()
