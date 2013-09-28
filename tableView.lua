@@ -9,6 +9,7 @@ local scene = storyboard.newScene()
 local testTimer = nil
 
 local USE_ANDROID_THEME = false
+local USE_IOS7_THEME = widget.isSeven()
 
 function scene:createScene( event )
 	local group = self.view
@@ -21,17 +22,48 @@ function scene:createScene( event )
 	if USE_ANDROID_THEME then
 		widget.setTheme( "widget_theme_android" )
 	end
+
+	--Display an iOS style background
+	local background
+	
+	if USE_IOS7_THEME then
+		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+	else
+		background = display.newImage( "unitTestAssets/background.png" )
+	end
+	
+	group:insert( background )
+	
+	if USE_IOS7_THEME then
+		-- create a white background, 40px tall, to mask / hide the scrollView
+		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
+		topMask:setFillColor( 235, 235, 235, 255 )
+		group:insert( topMask )
+	end
+	
+	local backButtonPosition = 5
+	local backButtonSize = 52
+	local fontUsed = native.systemFont
+	local textFontUsed = native.systemFontBold
+	
+	
+	if USE_IOS7_THEME then
+		backButtonPosition = 0
+		backButtonSize = 40
+		fontUsed = "HelveticaNeue-Light"
+		textFontUsed = "HelveticaNeue-Light"
+	end
 	
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton
 	{
 	    id = "returnToListing",
 	    left = 0,
-	    top = 5,
+	    top = backButtonPosition,
 	    label = "Exit",
 		labelAlign = "center",
 		fontSize = 18,
-	    width = 200, height = 52,
+	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
@@ -89,15 +121,24 @@ function scene:createScene( event )
 				
 		--print( "Rendering row with id:", row.id )
 		--print( #tableView._view._rows )
-		local rowTitle = "Row " .. row.index
+		local rowTitleText = "Row " .. row.index
 		
 		if row.isCategory then
 			noCategories = noCategories + 1
-			--rowTitle = "Category "  .. noCategories
+			rowTitleText = "Category"
 		end
 		
-		local rowTitle = display.newText( row, rowTitle, 0, 0, nil, 14 )
-		rowTitle.x = ( rowTitle.contentWidth * 0.5 )
+		local rowTitle
+		if USE_IOS7_THEME and not row.isCategory then
+			rowTitle = display.newText( row, rowTitleText, 0, 0, "HelveticaNeue-Light", 17 )
+		elseif USE_IOS7_THEME and row.isCategory then
+			rowTitle = display.newText( row, rowTitleText, 0, 0, "HelveticaNeue", 14 )
+		else
+			rowTitle = display.newText( row, rowTitleText, 0, 0, nil, 14 )
+		end
+		
+		--local rowTitle = display.newText( row, rowTitleText, 0, 0, nil, 14 )
+		rowTitle.x = ( rowTitle.contentWidth * 0.5 + 15 )
 		rowTitle.y = row.contentHeight * 0.5
 		rowTitle:setTextColor( 0, 0, 0 )
 		
@@ -197,15 +238,19 @@ function scene:createScene( event )
 	group:insert( tableView )
 
 	
-	-- Create 1000 rows
-	for i = 1, 1000 do
+	-- Create 200 rows
+	for i = 1, 200 do
 		local isCategory = false
 		local rowHeight = 40
-		local rowColor = 
-		{ 
-			default = { 255, 255, 255 },
-			over = { 255, 0, 255 },
-		}
+		local rowColor = nil
+		
+		if not widget.isSeven() then
+			rowColor = { 
+				default = { 255, 255, 255 },
+				over = { 217, 217, 217 },
+			}
+		end
+
 		local lineColor = { 220, 220, 220 }
 		
 		-- Make some rows categories
@@ -216,10 +261,13 @@ function scene:createScene( event )
 			rowHeight = 24
 			--rowHeight = 47
 			
-			rowColor = 
-			{ 
-				default = { 150, 160, 180, 200 },
-			}
+			if not widget.isSeven() then
+				rowColor = 
+				{ 
+					default = { 150, 160, 180, 200 },
+				}
+			end
+			
 		end
 		--]]
 		local rowParams = {
@@ -236,6 +284,19 @@ function scene:createScene( event )
 			params = rowParams
 		}
 	end
+	
+	local row = tableView:getRowAtIndex( 12 )
+	print(row.id)
+	print(row.index)
+	local t1 = display.newRect( 15, 20, 10, 10 )
+	t1:setFillColor( 0 )
+	row:insert( t1 )
+	
+	timer.performWithDelay( 1000, function() 
+		tableView:reloadData()
+		print("reloaded")
+	end )
+
 
 
 	----------------------------------------------------------------------------------------------------------------

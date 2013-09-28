@@ -170,6 +170,7 @@ local function createOnOffSwitch( switch, options )
 	
 	-- Frame references
 	local onFrame, offFrame, backgroundFrame, overlayFrame
+	local defaultBackground, interBackground, onBackground, handle, ios7theme, onView, interView, offView
 	
 	-- Setup which frames to use for the on/off images
 	if opt.sheet then
@@ -183,6 +184,14 @@ local function createOnOffSwitch( switch, options )
 		onFrame = themeData:getFrameIndex( opt.onOffHandleOverFrame )
 		backgroundFrame = themeData:getFrameIndex( opt.onOffBackgroundFrame )
 		overlayFrame = themeData:getFrameIndex( opt.onOffOverlayFrame )
+	end
+	
+	if _widget.isSeven() then
+			defaultBackground = opt.backgroundFrame
+			interBackground = opt.backgroundInterFrame
+			onBackground = opt.backgroundOnFrame
+			handle = opt.handle
+			ios7theme = opt.ios7theme
 	end
 	
 	
@@ -212,19 +221,45 @@ local function createOnOffSwitch( switch, options )
 		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
-	-- The view is the switches background image
-	view = display.newImageRect( switch, imageSheet, backgroundFrame, opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
+	if not _widget.isSeven() then
+		-- The view is the switches background image
+		view = display.newImageRect( switch, imageSheet, backgroundFrame, opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
+	else
+		view = display.newGroup()
+		switch:insert( view )
+		
+		onView = display.newImageRect( view, imageSheet, 60, 51, 31 )
+		interView = display.newImageRect( view, imageSheet, 58, 51, 31 )
+		offView = display.newImageRect( view, imageSheet, 59, 51, 31 )
+		
+		if opt.initialSwitchState then
+			offView.isVisible = false
+			interView.isVisible = false
+		else
+			interView.isVisible = false
+			onView.isVisible = false
+		end
+	end
 	
-	-- The view's overlay is the "shine" effect
-	viewOverlay = display.newImageRect( switch, imageSheet, overlayFrame, opt.onOffOverlayWidth, opt.onOffOverlayHeight )
+	if not _widget.isSeven() then
+		-- The view's overlay is the "shine" effect
+		viewOverlay = display.newImageRect( switch, imageSheet, overlayFrame, opt.onOffOverlayWidth, opt.onOffOverlayHeight )
+	end
 	
-	-- The view's handle
-	viewHandle = display.newSprite( switch, imageSheet, handleSheetOptions )
-	viewHandle:setSequence( "off" )
+	if not _widget.isSeven() then
+		-- The view's handle
+		viewHandle = display.newSprite( switch, imageSheet, handleSheetOptions )
+		viewHandle:setSequence( "off" )
+	else
+		viewHandle = display.newImageRect( switch, imageSheet, 63, 40, 40 )	
+	end
 	
-	-- The view's mask
-	viewMask = graphics.newMask( opt.onOffMask, opt.baseDir )
-	view:setMask( viewMask )
+	
+	if not _widget.isSeven() then
+		-- The view's mask
+		viewMask = graphics.newMask( opt.onOffMask, opt.baseDir )
+		view:setMask( viewMask )
+	end
 
 	-------------------------------------------------------
 	-- Assign properties to the view
@@ -238,6 +273,12 @@ local function createOnOffSwitch( switch, options )
 	view._onPress = opt.onPress
 	view._onRelease = opt.onRelease
 	
+	if _widget.isSeven() then
+		view._offView = offView
+		view._onView = onView
+		view._interView = interView
+	end
+	
 	-- Objects
 	view._overlay = viewOverlay
 	view._handle = viewHandle
@@ -250,15 +291,28 @@ local function createOnOffSwitch( switch, options )
 	-- Assign properties to the switch	
 	switch.isOn = opt.initialSwitchState
 	
-	-- Set the switch position based on the chosen default value (ie on/off)
-	if switch.isOn then
-		view.x = view._endRange
-		view._handle.x = view._endRange
-		view.maskX = view._handle.x - mAbs( view._startRange ) - view._endRange
+	if not _widget.isSeven() then
+	
+		-- Set the switch position based on the chosen default value (ie on/off)
+		if switch.isOn then
+			view.x = view._endRange
+			view._handle.x = view._endRange
+			view.maskX = view._handle.x - mAbs( view._startRange ) - view._endRange
+		else
+			view.x = view._startRange
+			view._handle.x = view._startRange
+			view.maskX = view._handle.x + mAbs( view._startRange ) + view._endRange
+		end
+
 	else
-		view.x = view._startRange
-		view._handle.x = view._startRange
-		view.maskX = view._handle.x + mAbs( view._startRange ) + view._endRange
+
+		-- Set the switch position based on the chosen default value (ie on/off)
+		if switch.isOn then
+			view._handle.x = view.x + view.contentWidth * 0.5 - view._handle.contentWidth * 0.5 + 4 
+		else
+			view._handle.x = view.x - view.contentWidth * 0.5 + view._handle.contentWidth * 0.5 - 4
+		end
+	
 	end
 	
 	-- Assign objects to the switch
@@ -267,6 +321,9 @@ local function createOnOffSwitch( switch, options )
 
 	switch.x = switch.x + ( view.contentWidth * 0.5 )
 	switch.y = switch.y + ( view.contentHeight * 0.5 )
+
+	if _widget.isSeven() then
+	end
 
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -307,13 +364,70 @@ local function createOnOffSwitch( switch, options )
 		-- Set the switches transition time
 		local switchTransitionTime = 200
 		
-		-- Transition the switch from on>off and vice versa
-		if _switch.isOn then
-			self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnPress } )
-			self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
+		if not _widget.isSeven() then
+		
+			-- Transition the switch from on>off and vice versa
+			if _switch.isOn then
+				self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnPress } )
+				self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
+			else
+				self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnPress } )
+				self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+			end
+		
 		else
-			self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnPress } )
-			self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+		
+			local originalScale = self._offView.xScale
+		
+			-- Transition the switch from on>off and vice versa
+			if _switch.isOn then
+				-- fade fast to gray, then show green
+				self._interView.isVisible = true
+
+				
+				transition.to ( self._offView, { time = 250, xScale = 0.1, yScale = 0.1, onComplete = function() 
+				
+					self._offView.isVisible = false
+					self._offView.xScale = originalScale
+					self._offView.yScale = originalScale
+					
+
+					self._onView.isVisible = true
+
+					transition.to ( self._interView, { time = 100, alpha = 0.0 , onComplete = function() 
+						self._interView.isVisible = false
+						self._interView.alpha = 1.0 
+					end } )
+					
+				
+				end } )
+				self._handleTransition = transition.to( self._handle, { x = self.x + self.contentWidth * 0.5 - self._handle.contentWidth * 0.5 + 4, time = switchTransitionTime, onComplete = executeOnPress } )
+			else
+			-- back to grey immediately, fade from grey to white
+			
+			self._interView.isVisible = true
+			
+			transition.to ( self._onView, { time = 100, alpha = 0.0 , onComplete = function() 
+			
+						self._onView.isVisible = false
+						self._onView.alpha = 1.0 
+						--self._interView:toFront()
+						self._offView.isVisible = true
+						transition.to ( self._interView, { time = 250, xScale = 0.1, yScale = 0.1, onComplete = function() 
+					
+							self._interView.isVisible = false
+							self._interView.xScale = originalScale
+							self._interView.yScale = originalScale
+							self._onView.isVisible = true
+							
+		
+						end } )
+						
+					end } )
+			
+				self._handleTransition = transition.to( self._handle, { x = self.x - self.contentWidth * 0.5 + self._handle.contentWidth * 0.5 - 4, time = switchTransitionTime, onComplete = executeOnPress } )
+			end
+		
 		end
 		
 		return true
@@ -324,6 +438,8 @@ local function createOnOffSwitch( switch, options )
 	-- Handle touch/drag events on the switch
 	function view:touch( event )
 		local phase = event.phase
+	
+		if not _widget.isSeven() then
 	
 		if "began" == phase then
 			-- Cancel current view transition if there is one
@@ -399,6 +515,10 @@ local function createOnOffSwitch( switch, options )
 				display.getCurrentStage():setFocus( nil )
 				self._isFocus = false
 			end
+		end
+		
+		else
+		
 		end
 		
 		-- If self has a _onEvent method execute it
@@ -654,7 +774,7 @@ local function createStandardSwitch( switch, options )
 				_listener( event )
 			end
 		end
-		
+				
 		-- Set the switch to on/off visually
 		if _isSwitchOn then
 			-- Toggle the view's visibility
@@ -735,6 +855,16 @@ function M.new( options, theme )
 		opt.onOffHandleDefaultFrame = customOptions.onOffHandleDefaultFrame or themeOptions.handleDefaultFrame 
 		opt.onOffHandleOverFrame = customOptions.onOffHandleOverFrame or themeOptions.handleOverFrame
 		opt.onOffMask = customOptions.onOffMask or themeOptions.mask
+		
+		-- properties for the ios7 switch
+		if _widget.isSeven() then
+			opt.defaultBackground = themeOptions.backgroundFrame
+			opt.interBackground = themeOptions.backgroundInterFrame
+			opt.onBackground = themeOptions.backgroundOnFrame
+			opt.handle = themeOptions.handleDefaultFrame
+			opt.ios7theme = opt.themeSheetFile
+		end
+		
 	else
 		if not opt.width then 
 			error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )

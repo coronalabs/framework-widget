@@ -6,6 +6,7 @@ local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
+local USE_IOS7_THEME = widget.isSeven()
 
 -- Forward reference for test function timer
 local testTimer = nil
@@ -14,8 +15,30 @@ function scene:createScene( event )
 	local group = self.view
 	
 	--Display an iOS style background
-	local background = display.newImageRect( "unitTestAssets/background.png", 640, 960 )
+	local background
+	
+	if USE_IOS7_THEME then
+		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+	else
+		background = display.newImage( "unitTestAssets/background.png" )
+	end
+	
 	group:insert( background )
+	
+	if USE_IOS7_THEME then
+		-- create a white background, 40px tall, to mask / hide the scrollView
+		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
+		topMask:setFillColor( 235, 235, 235, 255 )
+		group:insert( topMask )
+	end
+	
+	local backButtonPosition = 5
+	local backButtonSize = 52
+	
+	if USE_IOS7_THEME then
+		backButtonPosition = 0
+		backButtonSize = 40
+	end
 	
 	-- Test android theme
 	if USE_ANDROID_THEME then
@@ -27,11 +50,11 @@ function scene:createScene( event )
 	{
 	    id = "returnToListing",
 	    left = 0,
-	    top = 5,
+	    top = backButtonPosition,
 	    label = "Exit",
 		labelAlign = "center",
 		fontSize = 18,
-	    width = 200, height = 52,
+	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
@@ -143,13 +166,13 @@ function scene:createScene( event )
 	    left = 0,
 	    top = 280,
 	    label = "Theme",
-		labelAlign = "right",
+		labelAlign = "center",
 	    width = 140, 
 		height = 50,
 		fontSize = 18,
 		labelColor =
 		{ 
-			default = { 0, 0, 0 },
+			default = { 23, 127, 252 },
 			--over = { 255, 255, 255 },
 		},
 	    onEvent = onButtonEvent

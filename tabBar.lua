@@ -6,6 +6,7 @@ local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
+local USE_IOS7_THEME = widget.isSeven()
 
 -- Forward reference for test function timer
 local testTimer = nil
@@ -19,16 +20,43 @@ function scene:createScene( event )
 	end
 	
 	--Display an iOS style background
-	local background = display.newImage( "unitTestAssets/background.png" )
+	local background
+	
+	if USE_IOS7_THEME then
+		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+	else
+		background = display.newImage( "unitTestAssets/background.png" )
+	end
+	
 	group:insert( background )
+	
+	if USE_IOS7_THEME then
+		-- create a white background, 40px tall, to mask / hide the scrollView
+		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
+		topMask:setFillColor( 235, 235, 235, 255 )
+		group:insert( topMask )
+	end
+	
+	local backButtonPosition = 5
+	local backButtonSize = 52
+	local fontUsed = native.systemFont
+	local textFontUsed = native.systemFontBold
+	
+	
+	if USE_IOS7_THEME then
+		backButtonPosition = 0
+		backButtonSize = 40
+		fontUsed = "HelveticaNeue-Light"
+		textFontUsed = "HelveticaNeue-Light"
+	end
 	
 	--Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
-	    left = 60,
-	    top = 5,
+	    left = display.contentWidth * 0.5,
+	    top = backButtonPosition,
 	    label = "Exit",
-	    width = 200, height = 52,
+	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
@@ -45,72 +73,78 @@ function scene:createScene( event )
 	local TEST_THEME_TAB_BAR = true
 	local tabBar = nil
 	
+	local labelColors = {
+				default = { 255, 255, 255, 128 },
+				over = { 255, 255, 255, 255 },
+			}
+			
+	local tabLabelFont = native.systemFontBold
+	local tabLabelFontSize = 8
+	local normalTabImage = "unitTestAssets/tabIcon.png"
+	local overTabImage = "unitTestAssets/tabIcon-down.png"
+			
+	if USE_IOS7_THEME then
+		labelColors = {
+				default = { 146 },
+				over = { 21, 125, 251, 255 },
+			}
+		tabLabelFont = "HelveticaNeue"
+		tabLabelFontSize = 10
+		normalTabImage = "unitTestAssets/tabIcon-ios7.png"
+		overTabImage = "unitTestAssets/tabIcon-down-ios7.png"
+	end
+	
+	
 	-- Create the tabBar's buttons
 	local tabButtons = 
 	{
 		{
 			width = 32, 
 			height = 32,
-			defaultFile = "unitTestAssets/tabIcon.png",
-			overFile = "unitTestAssets/tabIcon-down.png",
+			defaultFile = normalTabImage,
+			overFile = overTabImage,
 			label = "Tab1",
 			--labelXOffset = - 20,
 			--labelYOffset = - 20,
-			labelColor =
-			{
-				default = { 255, 255, 255, 128 },
-				over = { 255, 255, 255, 255 },
-			},
-			font = native.systemFontBold,
-			size = 8,
+			labelColor = labelColors,
+			font = tabLabelFont,
+			size = tabLabelFontSize,
 			onPress = function() print( "Tab 1 pressed" ) end,
 			selected = false
 		},
 		{
 			width = 32, 
 			height = 32,
-			defaultFile = "unitTestAssets/tabIcon.png",
-			overFile = "unitTestAssets/tabIcon-down.png",
+			defaultFile = normalTabImage,
+			overFile = overTabImage,
 			label = "Tab2",
-			labelColor =
-			{
-				default = { 255, 255, 255, 128 },
-				over = { 255, 255, 255, 255 },
-			},
-			font = native.systemFontBold,
-			size = 8,
+			labelColor = labelColors,
+			font = tabLabelFont,
+			size = tabLabelFontSize,
 			onPress = function( event ) print( "Tab 2 pressed" ) end,
 			selected = true
 		},
 		{
 			width = 32, 
 			height = 32,
-			defaultFile = "unitTestAssets/tabIcon.png",
-			overFile = "unitTestAssets/tabIcon-down.png",
+			defaultFile = normalTabImage,
+			overFile = overTabImage,
 			label = "Tab3",
-			labelColor =
-			{
-				default = { 255, 255, 255, 128 },
-				over = { 255, 255, 255, 255 },
-			},
-			font = native.systemFontBold,
-			size = 8,
+			labelColor = labelColors,
+			font = tabLabelFont,
+			size = tabLabelFontSize,
 			onPress = function() print( "Tab 3 pressed" ) end,
 			selected = false
 		},
 		{
 			width = 32, 
 			height = 32,
-			defaultFile = "unitTestAssets/tabIcon.png",
-			overFile = "unitTestAssets/tabIcon-down.png",
+			defaultFile = normalTabImage,
+			overFile = overTabImage,
 			label = "Tab4",
-			labelColor =
-			{
-				default = { 255, 255, 255, 128 },
-				over = { 255, 255, 255, 255 },
-			},
-			font = native.systemFontBold,
-			size = 8,
+			labelColor = labelColors,
+			font = tabLabelFont,
+			size = tabLabelFontSize,
 			onPress = function() print( "Tab 4 pressed" ) end,
 			selected = false
 		},
@@ -207,8 +241,8 @@ function scene:createScene( event )
 			tabSelectedLeftFrame = sheetOptions:getFrameIndex( "tabBar_tabSelectedLeftEdge" ),
 			tabSelectedRightFrame = sheetOptions:getFrameIndex( "tabBar_tabSelectedRightEdge" ),
 			tabSelectedMiddleFrame = sheetOptions:getFrameIndex( "tabBar_tabSelectedMiddle" ),
-			tabSelectedFrameWidth = 20,
-			tabSelectedFrameHeight = 100,
+			tabSelectedFrameWidth = 5,
+			tabSelectedFrameHeight = 49,
 			buttons = tabButtonsImageSheet,
 		}
 		group:insert( tabBarImageSheet )
