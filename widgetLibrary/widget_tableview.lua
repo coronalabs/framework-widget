@@ -192,7 +192,12 @@ local function createTableView( tableView, options )
 	function tableView:getNumRows()
 	    return self._view._numberOfRows
 	end
-
+	
+	-- Function to retrieve the row (view) at the specific index
+	function tableView:getRowAtIndex( index )
+		return self._view:_getRowAtIndex( index )
+	end
+	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -224,7 +229,7 @@ local function createTableView( tableView, options )
             self._view:insert( obj )
         end
     end
-
+    
 	-- Transfer touch from the view's background to the view's content
 	function viewBackground:touch( event )
 		view:touch( event )
@@ -279,6 +284,7 @@ local function createTableView( tableView, options )
 	-- Handle touches on the tableView
 	function view:touch( event )
 		local phase = event.phase
+
 		-- Set the time held
 		if "began" == phase then
 			self._timeHeld = event.time
@@ -300,7 +306,17 @@ local function createTableView( tableView, options )
 				else
 					self._velocity = 0
 				end
-			end			
+			end	
+			
+			if _widget.isSeven() and self._isUsedInPickerWheel then
+				for i = 1, #self._rows do
+					-- if the row is on screen, set it to the default color
+					if nil ~= self._rows[ i ]._view then
+						self._rows[ i ]._view[ 2 ]:setTextColor( 155 )
+					end
+				end
+			end
+					
 		end	
 		
 		-- Distance moved
@@ -599,9 +615,16 @@ local function createTableView( tableView, options )
 			rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
 			
 			-- If the user want's lines between rows, create a line to seperate them
-			if not currentRow._noLines then
+			if not currentRow._noLines and not ( _widget.isSeven() and currentRow.isCategory ) then
 				-- Create the row's dividing line
-				local rowLine = display.newLine( category, 0, rowCell.y, currentRow._width, rowCell.y )
+				local rowLine 
+				
+				if _widget.isSeven() then
+					rowLine = display.newLine( category, 15, rowCell.y, currentRow._width, rowCell.y )
+				else
+					rowLine = display.newLine( category, 0, rowCell.y, currentRow._width, rowCell.y )
+				end
+				
 				rowLine:setReferencePoint( display.CenterReferencePoint )
 				rowLine.x = rowCell.x 
 				rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
@@ -838,11 +861,39 @@ local function createTableView( tableView, options )
 				rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
 
 				-- If the user want's lines between rows, create a line to seperate them
-				if not self._noLines then
+				if not self._noLines and not ( _widget.isSeven() and currentRow.isCategory ) then
 					-- Create the row's dividing line
-					local rowLine = display.newLine( view, 0, rowCell.y, currentRow._width, rowCell.y )
-					rowLine:setReferencePoint( display.CenterReferencePoint )
-					rowLine.x = rowCell.x 
+					local rowLine 
+					
+					-- TODO: Verify that this works. And use this instead
+					--[[
+					local y = 0
+					if _widget.isSeven() then
+						if not( view._rows[ row.index + 1] and view._rows[ row.index + 1 ].isCategory ) then
+							y = 15
+						end
+					end
+
+					rowLine = display.newLine( currentRow._view, y, rowCell.y, currentRow._width, rowCell.y )
+					--]]
+					if _widget.isSeven() then
+						if view._rows[ row.index + 1] and view._rows[ row.index + 1 ].isCategory then
+							rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
+						else
+							rowLine = display.newLine( currentRow._view, 15, rowCell.y, currentRow._width, rowCell.y )
+						end
+					else
+						rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
+					end
+
+					if _widget.isSeven() then
+						---rowLine:setReferencePoint( display.RightReferencePoint )
+						--rowLine.x = rowCell.x 
+					else
+						rowLine:setReferencePoint( display.CenterReferencePoint )
+						rowLine.x = rowCell.x 
+					end
+
 					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
 					rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
 				end
@@ -938,6 +989,18 @@ local function createTableView( tableView, options )
 		local rowColor = options.rowColor or { default = { 255, 255, 255 }, over = { 30, 144, 255 } }
 		local lineColor = options.lineColor or { 220, 220, 220 }
 		local noLines = self._noLines or false
+		
+		if _widget.isSeven() then
+			rowColor = options.rowColor or { default = { 255, 255, 255 }, over = { 217, 217, 217 } }
+			lineColor = options.lineColor or { 200, 199, 204 }
+			
+			if isRowCategory then
+				rowColor = options.rowColor or { default = { 247 }, over = { 247 } }
+				lineColor = options.lineColor or { 200, 199, 204, 0 }
+			end
+			
+		end
+		
 		-- the passed row params
 		local rowParams = options.params or {}
 		-- Set defaults for row's color

@@ -9,6 +9,7 @@
 local widget = 
 {
 	version = "2.0",
+	themeName = "default"
 }
 
 
@@ -143,6 +144,12 @@ end
 function widget.setTheme( themeModule )
 	-- Returns table with theme data
 	widget.theme = require( themeModule )
+	widget.themeName = themeModule
+end
+
+-- Check if the theme is ios7
+function widget.isSeven()
+	return widget.themeName == "widget_theme_ios7"
 end
 
 -- Function to retrieve a widget's theme settings
@@ -309,11 +316,22 @@ end
 
 
 -- Get platform
-local isAndroid = "Android" == system.getInfo( "platformName" )
-local defaultTheme = "widget_theme_ios"
+local platformName = system.getInfo( "platformName" )
+local isSimulator = "Mac OS X" == platformName or "Win" == platformName
+local isAndroid = "Android" == platformName
+local defaultTheme = "widget_theme_ios7"
 
 if isAndroid then
 	defaultTheme = "widget_theme_android"
+elseif not isSimulator then
+	-- Only show the iOS 6 theme if its on below iOS 7
+	-- Gets the major platform version eg 10 in 10.1.3
+	local platformVersion = string.match(system.getInfo("platformVersion"), "%d+")
+	platformVersion = tonumber(platformVersion)
+	
+	if type(platformVersion) == "number" and platformVersion < 7 then
+		defaultTheme = "widget_theme_ios"
+	end
 end
 
 -- Set the default theme

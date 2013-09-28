@@ -6,6 +6,7 @@ local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
+local USE_IOS7_THEME = widget.isSeven()
 
 --Forward reference for test function timer
 local testTimer = nil
@@ -19,21 +20,45 @@ function scene:createScene( event )
 	end
 	
 	--Display an iOS style background
-	local background = display.newImage( "unitTestAssets/background.png" )
+	local background
+	
+	if USE_IOS7_THEME then
+		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+	else
+		background = display.newImage( "unitTestAssets/background.png" )
+	end
+	
 	group:insert( background )
 	
-	--Button to return to unit test listing
+	if USE_IOS7_THEME then
+		-- create a white background, 40px tall, to mask / hide the scrollView
+		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
+		topMask:setFillColor( 235, 235, 235, 255 )
+		group:insert( topMask )
+	end
+	
+	local backButtonPosition = 5
+	local backButtonSize = 52
+	local fontUsed = native.systemFontBold
+
+	if USE_IOS7_THEME then
+		backButtonPosition = 0
+		backButtonSize = 40
+		fontUsed = "HelveticaNeue-Light"
+	end
+
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
-	    left = 60,
-	    top = 10,
-	    label = "Return To Menu",
-	    width = 200, height = 52,
+	    left = display.contentWidth * 0.5,
+	    top = backButtonPosition,
+	    label = "Exit",
+	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
+	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
-	
+			
 	----------------------------------------------------------------------------------------------------------------
 	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
@@ -42,7 +67,8 @@ function scene:createScene( event )
 	local TEST_REMOVE_SEGMENTED_CONTROL = false
 	local TEST_DELAY = 1000
 	
-	local currentSegment = display.newEmbossedText( "You selected: ", 40, 200, native.systemFontBold, 18 )
+	local currentSegment = display.newEmbossedText( "You selected: ", 40, 200, fontUsed, 18 )
+	currentSegment.x = display.contentWidth * 0.5
 	group:insert( currentSegment )
 	
 	local function onPress( event )

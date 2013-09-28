@@ -93,15 +93,21 @@ local function initWithImage( searchField, options )
 	viewRight.y = viewLeft.y
 	
 	magnifyingGlass.x = viewLeft.x + ( viewLeft.contentWidth * 0.5 )
+	if _widget.isSeven() then
+		magnifyingGlass.x = magnifyingGlass.x + 10
+	end
 	magnifyingGlass.y = viewLeft.y
 	
 	-- Set the cancel buttons position and assign properties (if any)
 	cancelButton.x = viewRight.x - ( cancelButton.contentWidth * 0.5 ) + opt.cancelButtonXOffset
+	if _widget.isSeven() then
+		cancelButton.x = cancelButton.x - 6
+	end
 	cancelButton.y = viewLeft.y + opt.cancelButtonYOffset
 	cancelButton.isVisible = false
 	
 	-- Position the searchField's textField and assign properties (if any)
-	viewTextField:setReferencePoint( display.CenterReferencePoint )
+	--viewTextField:setReferencePoint( display.CenterReferencePoint )
 	viewTextField.x = viewLeft.x - magnifyingGlass.contentWidth + opt.textFieldXOffset
 	viewTextField.y = viewLeft.y + opt.textFieldYOffset
 	viewTextField.isEditable = true
