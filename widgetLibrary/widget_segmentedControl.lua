@@ -143,8 +143,9 @@ local function initWithImage( segmentedControl, options )
 	leftSegment.width = opt.width
 	
 	-- The segment fill
-	local middleSegment = display.newSprite( segmentedControl, imageSheet, middleSegmentOptions )	middleSegment:setSequence( "middleSegmentOff" )
-	middleSegment:setReferencePoint( display.CenterLeftReferencePoint )
+	local middleSegment = display.newSprite( segmentedControl, imageSheet, middleSegmentOptions )
+	middleSegment:setSequence( "middleSegmentOff" )
+	--middleSegment:setReferencePoint( display.CenterLeftReferencePoint )
 	middleSegment.width = ( overallControlWidth ) - ( opt.width + opt.width * 0.5 )
 	middleSegment.x = leftSegment.x + ( middleSegment.width * 0.5 )
 	middleSegment.y = segmentedControl.y + ( middleSegment.contentHeight * 0.5 )
@@ -154,7 +155,7 @@ local function initWithImage( segmentedControl, options )
 	rightSegment:setSequence( "rightSegmentOff" )
 	rightSegment.width = opt.width
 	rightSegment:setReferencePoint( display.CenterRightReferencePoint )
-	rightSegment.x = middleSegment.x + ( middleSegment.width * 0.5 ) + rightSegment.width
+	rightSegment.x = middleSegment.x + ( middleSegment.width * 0.5 ) + rightSegment.width - 2
 	rightSegment.y = segmentedControl.y + ( rightSegment.contentHeight * 0.5 )
 	
 	-- Create the segment labels & dividers
@@ -192,6 +193,7 @@ local function initWithImage( segmentedControl, options )
 	-- The "over" frame
 	local segmentOver = display.newSprite( segmentedControl, imageSheet, middleSegmentOptions )	
 	segmentOver:setSequence( "middleSegmentOn" )
+	--segmentOver:setReferencePoint( display.CenterLeftReferencePoint )
 	segmentOver.width = opt.width
 	segmentOver.y = leftSegment.y
 	
@@ -317,9 +319,16 @@ local function initWithImage( segmentedControl, options )
 		-- Turn on the left segment
 		self._leftSegment:setSequence( "leftSegmentOn" )
 		-- Set the over segment's width
-		segmentOver.width = view._segmentWidth - self._leftSegment.width - 0.5
+		segmentOver.width = view._segmentWidth - self._leftSegment.width + self._leftSegment.contentWidth * 0.5
 		-- Set the over segment's position
-		segmentOver.x = self._leftSegment.x + self._leftSegment.width * 0.5 + segmentOver.width * 0.5
+		
+		-- TODO: get a clear mathematical value for this
+		local deductValue = 0
+		if not _widget.isSeven() then
+			deductValue = 6
+		end
+		
+		segmentOver.x = self._leftSegment.x + self._leftSegment.width * 0.5 + segmentOver.width * 0.5 - deductValue
 		
 		-- Set the segment's name
 		self._segmentLabel = self._segmentLabels[1].text
@@ -349,7 +358,7 @@ local function initWithImage( segmentedControl, options )
 		-- Set the over segment's width
 		segmentOver.width = view._segmentWidth - self._rightSegment.width - 0.5
 		-- Set the over segment's position
-		segmentOver.x = self._rightSegment.x - self._rightSegment.width - segmentOver.width * 0.5 - self._segmentDividers[#self._segmentDividers].width * 0.5
+		segmentOver.x = self._rightSegment.x - self._rightSegment.width - segmentOver.width * 0.5 - self._segmentDividers[#self._segmentDividers].width * 0.5 + 2
 	
 		-- Set the segment's name
 		self._segmentLabel = self._segmentLabels[self._totalSegments].text

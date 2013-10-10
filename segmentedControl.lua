@@ -94,7 +94,6 @@ function scene:createScene( event )
 		--]]
 		onPress = onPress,
 	}
-	--newSegmentedControl.x = display.contentCenterX
 	group:insert( newSegmentedControl )
 	
 	----------------------------------------------------------------------------------------------------------------

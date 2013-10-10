@@ -28,7 +28,7 @@ function scene:createScene( event )
 	else
 		background = display.newImage( "unitTestAssets/background.png" )
 	end
-	
+
 	group:insert( background )
 
 	local scrollView = widget.newScrollView

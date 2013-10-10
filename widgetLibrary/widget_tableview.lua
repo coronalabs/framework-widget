@@ -877,7 +877,7 @@ local function createTableView( tableView, options )
 					rowLine = display.newLine( currentRow._view, y, rowCell.y, currentRow._width, rowCell.y )
 					--]]
 					if _widget.isSeven() then
-						if view._rows[ row.index + 1] and view._rows[ row.index + 1 ].isCategory then
+						if view._rows and view._rows[ row.index + 1] and view._rows[ row.index + 1 ].isCategory then
 							rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
 						else
 							rowLine = display.newLine( currentRow._view, 15, rowCell.y, currentRow._width, rowCell.y )
