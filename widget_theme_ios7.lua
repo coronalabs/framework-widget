@@ -48,6 +48,7 @@ theme.button =
 		default = { 21, 126, 251, 255 },
 		over = { 21, 126, 251, 255 },
 	},
+
 	emboss = false,
 }
 
