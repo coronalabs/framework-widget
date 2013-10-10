@@ -8,6 +8,8 @@ local scene = storyboard.newScene()
 local USE_ANDROID_THEME = false
 local USE_IOS7_THEME = true
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 function scene:createScene( event )	
 	local group = self.view
 	
@@ -23,8 +25,18 @@ function scene:createScene( event )
 	--Display an iOS style background
 	local background
 	
+	local xAnchor, yAnchor
+	
+	if not isGraphicsV1 then
+		xAnchor = display.contentCenterX
+		yAnchor = display.contentCenterY
+	else
+		xAnchor = 0
+		yAnchor = 0
+	end
+	
 	if USE_IOS7_THEME then
-		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	else
 		background = display.newImage( "unitTestAssets/background.png" )
 	end

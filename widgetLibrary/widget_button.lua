@@ -1230,7 +1230,11 @@ function M.new( options, theme )
 	if _widget.isSeven() then
 		opt.font = customOptions.font or themeOptions.font or "HelveticaNeue-Light"
 		opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 17
-		opt.labelColor = customOptions.labelColor or themeOptions.labelColor or { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
+		if isGraphicsV1 then
+			opt.labelColor = customOptions.labelColor or themeOptions.labelColor or { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
+		else
+			opt.labelColor = customOptions.labelColorGraphics2 or themeOptions.labelColorGraphics2 or { default = { 21 / 255, 126 / 255, 251 / 255, 255 / 255 }, over = { 21 / 255, 126 / 255, 251 / 255, 255 / 255 } }
+		end
 	end
 	
 	opt.labelAlign = customOptions.labelAlign or "center"
