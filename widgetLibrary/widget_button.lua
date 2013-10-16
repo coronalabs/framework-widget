@@ -1213,8 +1213,6 @@ function M.new( options, theme )
 	local customOptions = options or {}
 	local themeOptions = theme or {}
 	
-	print(theme.labelColor.default[1])
-	
 	-- Create a local reference to our options table
 	local opt = M._options
 		

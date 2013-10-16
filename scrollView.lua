@@ -18,8 +18,18 @@ function scene:createScene( event )
 	--Display an iOS style background
 	local background
 	
+	local xAnchor, yAnchor
+	
+	if not isGraphicsV1 then
+		xAnchor = display.contentCenterX
+		yAnchor = display.contentCenterY
+	else
+		xAnchor = 0
+		yAnchor = 0
+	end
+	
 	if USE_IOS7_THEME then
-		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	else
 		background = display.newImage( "unitTestAssets/background.png" )
 	end
@@ -277,7 +287,7 @@ function scene:createScene( event )
 		if isGraphicsV1 then
 			bg2:setReferencePoint( display.TopLeftReferencePoint )
 		end
-		bg2.x, bg2.y = 0, 0
+		bg2.x, bg2.y = xAnchor, yAnchor
 		scrollView2:insert( bg2 )
 		group:insert( scrollView2 )
 	end
