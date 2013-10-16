@@ -274,7 +274,9 @@ function scene:createScene( event )
 	
 		-- insert image into scrollView widget
 		local bg2 = display.newImageRect( "unitTestAssets/scrollimage.jpg", 768, 1024 )
-		bg2:setReferencePoint( display.TopLeftReferencePoint )
+		if isGraphicsV1 then
+			bg2:setReferencePoint( display.TopLeftReferencePoint )
+		end
 		bg2.x, bg2.y = 0, 0
 		scrollView2:insert( bg2 )
 		group:insert( scrollView2 )
