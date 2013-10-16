@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Creates a new pickerWheel
 local function createPickerWheel( pickerWheel, options )
 	-- Create a local reference to our options table
@@ -402,7 +404,10 @@ function M.new( options, theme )
 	createPickerWheel( pickerWheel, opt )
 	
 	-- Set the pickerWheel's position ( set the reference point to center, just to be sure )
-	pickerWheel:setReferencePoint( display.TopLeftReferencePoint )
+	if isGraphicsV1 then
+		pickerWheel:setReferencePoint( display.TopLeftReferencePoint )
+	end
+	
 	pickerWheel.x = opt.left
 	pickerWheel.y = opt.top --+ opt.overlayFrameHeight * 0.5	
 	

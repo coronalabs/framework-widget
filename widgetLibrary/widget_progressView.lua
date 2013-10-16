@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Localize math functions
 local mFloor = math.floor
 
@@ -353,7 +355,11 @@ function M.new( options, theme )
 	initWithImage( progressView, opt )
 	
 	-- Set the progressView's position ( set the reference point to center, just to be sure )
-	progressView:setReferencePoint( display.CenterReferencePoint )
+	
+	if ( isGraphicsV1 ) then
+		progressView:setReferencePoint( display.CenterReferencePoint )
+	end
+	
 	progressView.x = opt.left + progressView.contentWidth * 0.5
 	progressView.y = opt.top + progressView.contentHeight * 0.5
 	

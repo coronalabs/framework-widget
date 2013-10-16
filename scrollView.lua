@@ -10,6 +10,7 @@ local testTimer = nil
 
 local USE_ANDROID_THEME = false
 local USE_IOS7_THEME = widget.isSeven()
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 function scene:createScene( event )
 	local group = self.view

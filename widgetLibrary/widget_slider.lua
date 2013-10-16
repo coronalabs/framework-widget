@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Localize math functions
 local mRound = math.round
 
@@ -534,7 +536,11 @@ function M.new( options, theme )
 	end
 	
 	-- Set the slider's position ( set the reference point to center, just to be sure )
-	slider:setReferencePoint( display.CenterReferencePoint )
+	
+	if ( isGraphicsV1 ) then
+		slider:setReferencePoint( display.CenterReferencePoint )
+	end
+	
 	slider.x = opt.left + slider.contentWidth * 0.5
 	slider.y = opt.top + slider.contentHeight * 0.5
 		

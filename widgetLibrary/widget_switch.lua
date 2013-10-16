@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Localize math functions
 local mAbs = math.abs
 local mRound = math.round
@@ -895,7 +897,11 @@ function M.new( options, theme )
  		createStandardSwitch( switch, opt )
 
 		-- Set the switch's position ( set the reference point to center, just to be sure )
-		switch:setReferencePoint( display.CenterReferencePoint )
+		if ( isGraphicsV1 ) then
+			switch:setReferencePoint( display.CenterReferencePoint )
+		end
+		
+		
 		switch.x = opt.left + switch.contentWidth * 0.5
 		switch.y = opt.top + switch.contentHeight * 0.5
 	end

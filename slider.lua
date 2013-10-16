@@ -7,6 +7,7 @@ local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
 local USE_IOS7_THEME = widget.isSeven()
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 --Forward reference for test function timer
 local testTimer = nil
@@ -71,7 +72,11 @@ function scene:createScene( event )
 	--Create some text to show the sliders output
 	local sliderResult = display.newEmbossedText( "Slider at 50%", 0, 0, fontUsed, 22 )
 	sliderResult:setTextColor( 0 )
-	sliderResult:setReferencePoint( display.CenterReferencePoint )
+	
+	if isGraphicsV1 then
+		sliderResult:setReferencePoint( display.CenterReferencePoint )
+	end
+	
 	sliderResult.x = 160
 	sliderResult.y = 250
 	group:insert( sliderResult )
