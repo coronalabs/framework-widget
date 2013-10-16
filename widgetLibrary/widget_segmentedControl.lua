@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Creates a new segmentedControl from an image
 local function initWithImage( segmentedControl, options )
 	-- Create a local reference to our options table
@@ -145,7 +147,11 @@ local function initWithImage( segmentedControl, options )
 	-- The segment fill
 	local middleSegment = display.newSprite( segmentedControl, imageSheet, middleSegmentOptions )
 	middleSegment:setSequence( "middleSegmentOff" )
-	--middleSegment:setReferencePoint( display.CenterLeftReferencePoint )
+	
+	if isGraphicsV1 then
+		middleSegment:setReferencePoint( display.CenterLeftReferencePoint )
+	end
+	
 	middleSegment.width = ( overallControlWidth ) - ( opt.width + opt.width * 0.5 )
 	middleSegment.x = leftSegment.x + ( middleSegment.width * 0.5 )
 	middleSegment.y = segmentedControl.y + ( middleSegment.contentHeight * 0.5 )
@@ -154,7 +160,11 @@ local function initWithImage( segmentedControl, options )
 	local rightSegment = display.newSprite( segmentedControl, imageSheet, rightSegmentOptions )
 	rightSegment:setSequence( "rightSegmentOff" )
 	rightSegment.width = opt.width
-	rightSegment:setReferencePoint( display.CenterRightReferencePoint )
+	
+	if isGraphicsV1 then
+		rightSegment:setReferencePoint( display.CenterRightReferencePoint )
+	end
+	
 	rightSegment.x = middleSegment.x + ( middleSegment.width * 0.5 ) + rightSegment.width - 2
 	rightSegment.y = segmentedControl.y + ( rightSegment.contentHeight * 0.5 )
 	
@@ -193,7 +203,11 @@ local function initWithImage( segmentedControl, options )
 	-- The "over" frame
 	local segmentOver = display.newSprite( segmentedControl, imageSheet, middleSegmentOptions )	
 	segmentOver:setSequence( "middleSegmentOn" )
-	--segmentOver:setReferencePoint( display.CenterLeftReferencePoint )
+	
+	if isGraphicsV1 then
+		segmentOver:setReferencePoint( display.CenterLeftReferencePoint )
+	end
+	
 	segmentOver.width = opt.width
 	segmentOver.y = leftSegment.y
 	
@@ -502,7 +516,10 @@ function M.new( options, theme )
 	initWithImage( segmentedControl, opt )
 	
 	-- Set the segmentedControl's position ( set the reference point to center, just to be sure )
-	segmentedControl:setReferencePoint( display.CenterReferencePoint )
+	if ( isGraphicsV1 ) then
+		segmentedControl:setReferencePoint( display.CenterReferencePoint )
+	end
+	
 	segmentedControl.x = opt.left + segmentedControl.contentWidth * 0.5
 	segmentedControl.y = opt.top + segmentedControl.contentHeight * 0.5
 	

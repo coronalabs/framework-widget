@@ -7,7 +7,6 @@ local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
 local USE_IOS7_THEME = true
-
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 function scene:createScene( event )	

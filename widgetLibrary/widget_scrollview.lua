@@ -37,10 +37,10 @@ local M =
 local _widget = require( "widget" )
 local _momentumScrolling = require( "widget_momentumScrolling" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Localize math functions
 local mAbs = math.abs
-
-local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 -- Creates a new scrollView
 local function createScrollView( scrollView, options )
@@ -82,9 +82,6 @@ local function createScrollView( scrollView, options )
 	
 	-- Set the view's initial position ( to account for top padding )
 	view.y = view.y + opt.topPadding
-	if not isGraphicsV1 then
-		view.x = display.contentCenterX
-	end
 	-- Set the platform
 	view._isPlatformAndroid = "Android" == system.getInfo( "platformName" )
 	
@@ -572,6 +569,13 @@ function M.new( options )
 
 	-- Create the scrollView
 	createScrollView( scrollView, opt )	
+
+	if ( isGraphicsV1 ) then
+		scrollView:setReferencePoint( display.CenterReferencePoint )
+	end
+
+	scrollView.x = opt.left + scrollView.contentWidth * 0.5
+	scrollView.y = opt.top + scrollView.contentHeight * 0.5
 
 	return scrollView
 end

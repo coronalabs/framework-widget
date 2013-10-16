@@ -32,6 +32,7 @@ local M = {}
 -- Localize math functions
 local mAbs = math.abs
 local mFloor = math.floor
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 -- configuration variables
 M.scrollStopThreshold = 250
@@ -648,7 +649,11 @@ function M.createScrollBar( view, options )
 		
 	-- Insert the scrollBar into the fixed group and position it
 	view._fixedGroup:insert( M.scrollBar )
-	view._fixedGroup:setReferencePoint( display.CenterReferencePoint )
+	
+	if isGraphicsV1 then
+		view._fixedGroup:setReferencePoint( display.CenterReferencePoint )
+	end
+	
 	view._fixedGroup.x = view._width - scrollBarWidth * 0.5
 	view._fixedGroup.y = view.parent.y - view._top + ( M.scrollBar.contentHeight * 0.5 )
 	

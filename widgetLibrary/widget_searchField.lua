@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Creates a new search field from an image
 local function initWithImage( searchField, options )
 	local opt = options
@@ -300,7 +302,11 @@ function M.new( options, theme )
 	initWithImage( searchField, opt )
 	
 	-- Set the searchField's position ( set the reference point to center, just to be sure )
-	searchField:setReferencePoint( display.CenterReferencePoint )
+	
+	if ( isGraphicsV1 ) then
+		searchField:setReferencePoint( display.CenterReferencePoint )
+	end
+	
 	searchField.x = opt.left + searchField.contentWidth * 0.5
 	searchField.y = opt.top + searchField.contentHeight * 0.5
 	

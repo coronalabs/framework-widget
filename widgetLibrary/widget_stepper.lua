@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Localize math functions
 local mHuge = math.huge
 
@@ -442,7 +444,11 @@ function M.new( options, theme )
 	initWithSprite( stepper, opt )
 	
 	-- Set the stepper's position ( set the reference point to center, just to be sure )
-	stepper:setReferencePoint( display.CenterReferencePoint )
+	
+	if ( isGraphicsV1 ) then
+		stepper:setReferencePoint( display.CenterReferencePoint )
+	end
+	
 	stepper.x = opt.left + stepper.contentWidth * 0.5
 	stepper.y = opt.top + stepper.contentHeight * 0.5
 	

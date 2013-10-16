@@ -7,6 +7,7 @@ local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
 local USE_IOS7_THEME = widget.isSeven()
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 -- Forward reference for test function timer
 local testTimer = nil

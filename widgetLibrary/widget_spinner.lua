@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Creates a new spinner from an image
 local function initWithImage( spinner, options )
 	-- Create a local reference to our options table
@@ -247,7 +249,11 @@ function M.new( options, theme )
 	end
 	
 	-- Set the spinner's position ( set the reference point to center, just to be sure )
-	spinner:setReferencePoint( display.CenterReferencePoint )
+	
+	if ( isGraphicsV1 ) then
+		spinner:setReferencePoint( display.CenterReferencePoint )
+	end
+	
 	spinner.x = opt.left + spinner.contentWidth * 0.5
 	spinner.y = opt.top + spinner.contentHeight * 0.5
 	

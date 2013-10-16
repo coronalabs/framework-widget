@@ -37,6 +37,8 @@ local M =
 local _widget = require( "widget" )
 local _momentumScrolling = require( "widget_momentumScrolling" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Localize math functions
 local mAbs = math.abs
 
@@ -625,7 +627,10 @@ local function createTableView( tableView, options )
 					rowLine = display.newLine( category, 0, rowCell.y, currentRow._width, rowCell.y )
 				end
 				
-				rowLine:setReferencePoint( display.CenterReferencePoint )
+				if isGraphicsV1 then
+					rowLine:setReferencePoint( display.CenterReferencePoint )
+				end
+				
 				rowLine.x = rowCell.x 
 				rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
 				rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
@@ -661,7 +666,11 @@ local function createTableView( tableView, options )
 						
 			-- Create the category
 			self._currentCategory = newCategory()
-			self._currentCategory:setReferencePoint( display.CenterReferencePoint )
+			
+			if isGraphicsV1 then
+				self._currentCategory:setReferencePoint( display.CenterReferencePoint )
+			end
+			
 			self._currentCategory.x = self.x + ( currentRow._width * 0.5 )
 			self._currentCategory.y = self._currentCategory.contentHeight * 0.5
 			
@@ -850,7 +859,6 @@ local function createTableView( tableView, options )
 								
 				-- Create the row's view (a row is a display group)
 				local view = display.newGroup()
-				view.anchorChildren = true
 
 				currentRow._view = view
 				
@@ -890,7 +898,11 @@ local function createTableView( tableView, options )
 						---rowLine:setReferencePoint( display.RightReferencePoint )
 						--rowLine.x = rowCell.x 
 					else
-						rowLine:setReferencePoint( display.CenterReferencePoint )
+						
+						if isGraphicsV1 then
+							rowLine:setReferencePoint( display.CenterReferencePoint )
+						end
+						
 						rowLine.x = rowCell.x 
 					end
 
@@ -899,8 +911,9 @@ local function createTableView( tableView, options )
 				end
 			
 				-- Set the row's reference point to it's center point (just incase)
-				view:setReferencePoint( display.CenterReferencePoint )
-
+				if isGraphicsV1 then
+					view:setReferencePoint( display.CenterReferencePoint )
+				end
 				-- Position the row
 				view.x = self.x + ( currentRow._width * 0.5 )
 				view.y = currentRow.y
