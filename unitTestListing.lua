@@ -7,6 +7,7 @@ local scene = storyboard.newScene()
 
 local USE_ANDROID_THEME = false
 local USE_IOS7_THEME = true
+
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 function scene:createScene( event )	
@@ -18,7 +19,7 @@ function scene:createScene( event )
 	end
 	
 	if USE_IOS7_THEME then
-		widget.setTheme( "widget_theme_ios7" )
+		--widget.setTheme( "widget_theme_ios7" )
 	end
 	
 	--Display an iOS style background

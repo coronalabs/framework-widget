@@ -38,6 +38,14 @@ local _widget = require( "widget" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
+-- define a default color set for both graphics modes
+local buttonDefault
+if isGraphicsV1 then
+    buttonDefault = { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
+else
+    buttonDefault = { default = { 0, 0, 0 }, over = { 1, 1, 1 } }
+end
+
 -- Function to handle touches on a widget button, function is common to all widget button creation types (ie image files, imagesheet, and 9 slice button creation)
 local function manageButtonTouch( view, event )
 	local phase = event.phase
@@ -1205,6 +1213,8 @@ function M.new( options, theme )
 	local customOptions = options or {}
 	local themeOptions = theme or {}
 	
+	print(theme.labelColor.default[1])
+	
 	-- Create a local reference to our options table
 	local opt = M._options
 		
@@ -1223,18 +1233,14 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.label = customOptions.label or ""
-	opt.labelColor = customOptions.labelColor or { default = { 0, 0, 0 }, over = { 255, 255, 255 } }	
+	opt.labelColor = customOptions.labelColor or buttonDefault	
 	opt.font = customOptions.font or themeOptions.font or native.systemFont
 	opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 14
 	
 	if _widget.isSeven() then
 		opt.font = customOptions.font or themeOptions.font or "HelveticaNeue-Light"
 		opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 17
-		if isGraphicsV1 then
-			opt.labelColor = customOptions.labelColor or themeOptions.labelColor or { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
-		else
-			opt.labelColor = customOptions.labelColorGraphics2 or themeOptions.labelColorGraphics2 or { default = { 21 / 255, 126 / 255, 251 / 255, 255 / 255 }, over = { 21 / 255, 126 / 255, 251 / 255, 255 / 255 } }
-		end
+		opt.labelColor = customOptions.labelColor or themeOptions.labelColor or buttonDefault
 	end
 	
 	opt.labelAlign = customOptions.labelAlign or "center"

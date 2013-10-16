@@ -633,6 +633,7 @@ local function createTableView( tableView, options )
 				
 				rowLine.x = rowCell.x 
 				rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
+
 				rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
 			end
 
@@ -670,10 +671,10 @@ local function createTableView( tableView, options )
 			if isGraphicsV1 then
 				self._currentCategory:setReferencePoint( display.CenterReferencePoint )
 			end
-			
-			self._currentCategory.x = self.x + ( currentRow._width * 0.5 )
-			self._currentCategory.y = self._currentCategory.contentHeight * 0.5
-			
+
+			self._currentCategory.x = self.x + ( currentRow._width * 0.5 ) 
+			self._currentCategory.y = self._currentCategory.contentHeight * 0.5	 			
+
 			-- Create the rowRender event
 			local rowEvent = 
 			{
