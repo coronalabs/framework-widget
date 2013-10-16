@@ -15,10 +15,6 @@ local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 function scene:createScene( event )
 	local group = self.view
 	
-	--Display an iOS style background
-	local background = display.newImage( "unitTestAssets/background.png" )
-	group:insert( background )
-	
 	-- Test android theme
 	if USE_ANDROID_THEME then
 		widget.setTheme( "widget_theme_android" )
@@ -27,8 +23,18 @@ function scene:createScene( event )
 	--Display an iOS style background
 	local background
 	
+	local xAnchor, yAnchor
+	
+	if not isGraphicsV1 then
+		xAnchor = display.contentCenterX
+		yAnchor = display.contentCenterY
+	else
+		xAnchor = 0
+		yAnchor = 0
+	end
+	
 	if USE_IOS7_THEME then
-		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	else
 		background = display.newImage( "unitTestAssets/background.png" )
 	end
