@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------------------
--- theme_ios.lua
+-- theme_ios7.lua
 -----------------------------------------------------------------------------------------
 local modname = ...
 local theme = {}
@@ -8,6 +8,16 @@ local imageSuffix = display.imageSuffix or ""
 
 local sheetFile = "widget_theme_ios7.png"
 local sheetData = "widget_theme_ios7_sheet"
+
+-- Check for graphics V1 compatibility mode set
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
+-- conversion function
+local function convertToV1( channels )
+    for i=1,#channels do
+        channels[i] = 255 * channels[i]
+    end
+end
 
 -----------------------------------------------------------------------------------------
 -- button
@@ -43,14 +53,20 @@ theme.button =
 	height = 50,
 	font = "HelveticaNeue-Light",
 	fontSize = 17,
-	labelColor = 
-	{ 
-		default = { 21, 126, 251, 255 },
-		over = { 21, 126, 251, 255 },
-	},
+    labelColor = 
+    { 
+        default = { 0.08, 0.49, 0.98, 1 },
+        over = { 0.08, 0.49, 0.98, 1 },
+    },
 
 	emboss = false,
 }
+
+-- convert to v1 style values if it's the case
+if isGraphicsV1 then
+	convertToV1( theme.button.labelColor.default )
+	convertToV1( theme.button.labelColor.over )
+end
 
 
 -----------------------------------------------------------------------------------------

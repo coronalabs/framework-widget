@@ -243,7 +243,6 @@ function scene:createScene( event )
 		onRowTouch = onRowTouch,
 	}
 	group:insert( tableView )
-
 	
 	-- Create 200 rows
 	for i = 1, 200 do
