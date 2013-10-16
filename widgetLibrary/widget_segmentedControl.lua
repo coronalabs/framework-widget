@@ -38,6 +38,14 @@ local _widget = require( "widget" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
+-- define a default color set for both graphics modes
+local labelDefault
+if isGraphicsV1 then
+    labelDefault = { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
+else
+    labelDefault = { default = { 0, 0, 0 }, over = { 1, 1, 1 } }
+end
+
 -- Creates a new segmentedControl from an image
 local function initWithImage( segmentedControl, options )
 	-- Create a local reference to our options table
@@ -57,6 +65,7 @@ local function initWithImage( segmentedControl, options )
 	-- The view is the segmentedControl (group)
 	view = segmentedControl
 	view._segmentWidth = M.segmentWidth
+	view._labelColor = opt.labelColor
 	
 	-- Create the sequenceData table
 	local leftSegmentOptions = 
@@ -183,13 +192,13 @@ local function initWithImage( segmentedControl, options )
 		if _widget.isSeven() then
 			label = display.newText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
 			if view._segmentNumber == i or opt.defaultSegment == i then
-				label:setTextColor( 255, 255, 255 )
+				label:setFillColor( unpack( view._labelColor.over ) )
 			else
-				label:setTextColor( 21, 126, 251 )
+				label:setFillColor( unpack( view._labelColor.default ) )
 			end
 		else
 			label = display.newEmbossedText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
-			label:setTextColor( 255 )
+			label:setFillColor( 255 )
 		end
 		
 		
@@ -360,7 +369,7 @@ local function initWithImage( segmentedControl, options )
 		if _widget.isSeven() then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setTextColor( 21, 126, 251 )
+				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
 			
 			view._segmentLabels[1]:setTextColor( 255 )
@@ -390,7 +399,7 @@ local function initWithImage( segmentedControl, options )
 		if _widget.isSeven() then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setTextColor( 21, 126, 251 )
+				currentSegment:setTextColor( unpack( view._labelColor.default ) )
 			end
 			
 			view._segmentLabels[ #view._segmentLabels ]:setTextColor( 255 )
@@ -420,7 +429,7 @@ local function initWithImage( segmentedControl, options )
 		if _widget.isSeven() then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setTextColor( 21, 126, 251 )
+				currentSegment:setTextColor( unpack( view._labelColor.default ) )
 			end
 			
 			view._segmentLabels[ segmentNum ]:setTextColor( 255 )
@@ -482,6 +491,8 @@ function M.new( options, theme )
 	opt.defaultSegment = customOptions.defaultSegment or 1
 	opt.labelSize = customOptions.labelSize or 12
 	opt.labelFont = customOptions.labelFont or native.systemFont
+	-- TODO: document this in the API
+	opt.labelColor = customOptions.labelColor or themeOptions.labelColor or buttonDefault
 	
 	if _widget.isSeven() then
 		opt.labelFont = customOptions.labelFont or "HelveticaNeue"
