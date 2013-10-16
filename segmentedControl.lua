@@ -23,8 +23,18 @@ function scene:createScene( event )
 	--Display an iOS style background
 	local background
 	
+	local xAnchor, yAnchor
+	
+	if not isGraphicsV1 then
+		xAnchor = display.contentCenterX
+		yAnchor = display.contentCenterY
+	else
+		xAnchor = 0
+		yAnchor = 0
+	end
+	
 	if USE_IOS7_THEME then
-		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	else
 		background = display.newImage( "unitTestAssets/background.png" )
 	end
@@ -70,6 +80,7 @@ function scene:createScene( event )
 	
 	local currentSegment = display.newEmbossedText( "You selected: ", 40, 200, fontUsed, 18 )
 	currentSegment.x = display.contentWidth * 0.5
+	currentSegment.y = display.contentHeight * 0.5
 	group:insert( currentSegment )
 	
 	local function onPress( event )

@@ -262,7 +262,18 @@ theme.segmentedControl =
 	middleSegmentFrame = "segmentedControl_middle",
 	middleSegmentSelectedFrame = "segmentedControl_middleOn",
 	dividerFrame = "segmentedControl_divider",
+	labelColor = 
+    { 
+        default = { 0.08, 0.49, 0.98, 1 },
+        over = { 1, 1, 1, 1 },
+    },
 }
+
+-- convert to v1 style values if it's the case
+if isGraphicsV1 then
+	convertToV1( theme.segmentedControl.labelColor.default )
+	convertToV1( theme.segmentedControl.labelColor.over )
+end
 
 -----------------------------------------------------------------------------------------
 -- searchField
