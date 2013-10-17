@@ -314,7 +314,7 @@ local function createTableView( tableView, options )
 				for i = 1, #self._rows do
 					-- if the row is on screen, set it to the default color
 					if nil ~= self._rows[ i ]._view then
-						self._rows[ i ]._view[ 2 ]:setTextColor( 155 )
+						self._rows[ i ]._view[ 2 ]:setFillColor( 155 )
 					end
 				end
 			end

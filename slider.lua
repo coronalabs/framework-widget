@@ -71,7 +71,7 @@ function scene:createScene( event )
 	
 	--Create some text to show the sliders output
 	local sliderResult = display.newEmbossedText( "Slider at 50%", 0, 0, fontUsed, 22 )
-	sliderResult:setTextColor( 0 )
+	sliderResult:setFillColor( 0 )
 	
 	if isGraphicsV1 then
 		sliderResult:setReferencePoint( display.CenterReferencePoint )

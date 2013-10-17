@@ -341,7 +341,7 @@ function scene:createScene( event )
 			local rowTitle = display.newText( row, rowTitle, 0, 0, nil, 14 )
 			rowTitle.x = row.x - ( row.contentWidth * 0.5 ) + ( rowTitle.contentWidth * 0.5 )
 			rowTitle.y = row.contentHeight * 0.5
-			rowTitle:setTextColor( 0, 0, 0 )
+			rowTitle:setFillColor( 0, 0, 0 )
 
 			if not row.isCategory and row.index ~= 1 then
 				--print( row.index )

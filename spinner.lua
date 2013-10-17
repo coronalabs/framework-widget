@@ -94,7 +94,7 @@ function scene:createScene( event )
 	
 	
 	local spinnerText = display.newText( "Default spinner (From theme)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, fontUsed, 14 )
-	spinnerText:setTextColor( 0 )
+	spinnerText:setFillColor( 0 )
 	spinnerText.x = display.contentCenterX + 20
 	spinnerText.y = spinnerDefault.y + ( spinnerDefault.contentWidth * 0.5 ) + 20
 	group:insert( spinnerText )
@@ -121,7 +121,7 @@ function scene:createScene( event )
 	
 	
 	local spinnerCustomText = display.newText( "Custom spinner (Custom graphics)\nAnimating sprite from imagesheet", 0, 0, display.contentWidth, 0, fontUsed, 14 )
-	spinnerCustomText:setTextColor( 0 )
+	spinnerCustomText:setFillColor( 0 )
 	spinnerCustomText.x = display.contentCenterX + 20
 	spinnerCustomText.y = spinnerCustom.y + ( spinnerCustom.contentWidth * 0.5 ) + 20
 	group:insert( spinnerCustomText )
@@ -143,7 +143,7 @@ function scene:createScene( event )
 	group:insert( spinnerCustomJustRotates )
 	
 	local spinnerCustomJustRotatesText = display.newText( "Custom spinner (Custom graphics)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, fontUsed, 14 )
-	spinnerCustomJustRotatesText:setTextColor( 0 )
+	spinnerCustomJustRotatesText:setFillColor( 0 )
 	spinnerCustomJustRotatesText.x = display.contentCenterX + 20
 	spinnerCustomJustRotatesText.y = spinnerCustomJustRotates.y + ( spinnerCustomJustRotates.contentWidth * 0.5 ) + 20
 	group:insert( spinnerCustomJustRotatesText )
