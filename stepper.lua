@@ -81,7 +81,7 @@ function scene:createScene( event )
 	local startAtNumber = 2
 	
 	local numberText = display.newText( "0000", 0, 0, fontUsed, 24 )
-	numberText:setTextColor( 0 )
+	numberText:setFillColor( 0 )
 	numberText.x = display.contentCenterX
 	numberText.y = 150
 	numberText.no = startAtNumber

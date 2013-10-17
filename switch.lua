@@ -160,7 +160,7 @@ function scene:createScene( event )
 	local radioButtonText1 = display.newText( "< Set 1", 0, 0, textFontUsed, 18 )
 	radioButtonText1.x = 70 + radioButton.x + radioButtonText1.contentWidth * 0.5
 	radioButtonText1.y = radioButton.y - 2
-	radioButtonText1:setTextColor( 0 )
+	radioButtonText1:setFillColor( 0 )
 	group:insert( radioButtonText1 )
 	
 	---- other
@@ -195,7 +195,7 @@ function scene:createScene( event )
 	local radioButtonText2 = display.newText( "< Set 2", 0, 0, textFontUsed, 18 )
 	radioButtonText2.x = radioButtonText1.x
 	radioButtonText2.y = radioButtonOther2.y - 2
-	radioButtonText2:setTextColor( 0 )
+	radioButtonText2:setFillColor( 0 )
 	group:insert( radioButtonText2 )
 	
 	

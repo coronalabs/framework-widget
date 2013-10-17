@@ -372,7 +372,7 @@ local function initWithImage( segmentedControl, options )
 				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
 			
-			view._segmentLabels[1]:setTextColor( 255 )
+			view._segmentLabels[1]:setFillColor( 255 )
 			
 		end
 		
@@ -399,10 +399,10 @@ local function initWithImage( segmentedControl, options )
 		if _widget.isSeven() then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setTextColor( unpack( view._labelColor.default ) )
+				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
 			
-			view._segmentLabels[ #view._segmentLabels ]:setTextColor( 255 )
+			view._segmentLabels[ #view._segmentLabels ]:setFillColor( 255 )
 			
 		end
 		
@@ -429,10 +429,10 @@ local function initWithImage( segmentedControl, options )
 		if _widget.isSeven() then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setTextColor( unpack( view._labelColor.default ) )
+				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
 			
-			view._segmentLabels[ segmentNum ]:setTextColor( 255 )
+			view._segmentLabels[ segmentNum ]:setFillColor( 255 )
 			
 		end
 		
