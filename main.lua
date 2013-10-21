@@ -29,6 +29,7 @@ package.preload.widget_searchField = onRequireWidgetLibrary
 package.preload.widget_segmentedControl = onRequireWidgetLibrary
 package.preload.widget_spinner = onRequireWidgetLibrary
 package.preload.widget_stepper = onRequireWidgetLibrary
+package.preload.widget_slider = onRequireWidgetLibrary
 package.preload.widget_switch = onRequireWidgetLibrary
 package.preload.widget_tabbar = onRequireWidgetLibrary
 package.preload.widget_tableview = onRequireWidgetLibrary
