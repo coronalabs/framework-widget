@@ -10,6 +10,16 @@ local USE_IOS7_THEME = true
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
+local topGrayColor = { 0.92, 0.92, 0.92, 1 }
+local separatorColor = { 0.77, 0.77, 0.77, 1 }
+local headerTextColor = { 0, 0, 0, 1 }
+
+if isGraphicsV1 then
+	widget._convertColorToV1( topGrayColor )
+	widget._convertColorToV1( separatorColor )	
+	widget._convertColorToV1( headerTextColor )
+end
+
 function scene:createScene( event )	
 	local group = self.view
 	
@@ -47,8 +57,10 @@ function scene:createScene( event )
 	{
 		left = 0,
 		top = 40,
-		width = display.contentWidth * 0.5,
-		height = display.contentHeight - 50,
+		--x = display.contentWidth * 0.5,
+		--y = display.contentHeight * 0.5 + 20,
+		width = display.contentWidth,
+		height = display.contentHeight - 40,
 		horizontalScrollDisabled = true,
 		hideScrollBar = true,
 		hideBackground = true,
@@ -58,7 +70,12 @@ function scene:createScene( event )
 	if USE_IOS7_THEME then
 		-- create a white background, 40px tall, to mask / hide the scrollView
 		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		topMask:setFillColor( 235, 235, 235, 255 )
+		if not isGraphicsV1 then
+			topMask.x = topMask.x + topMask.contentWidth * 0.5
+			topMask.y = topMask.y + topMask.contentHeight * 0.5
+		end
+		topMask:setFillColor( unpack( topGrayColor ) )
+		topMask.alpha = 0
 		group:insert( topMask )
 	end
 	
@@ -67,7 +84,7 @@ function scene:createScene( event )
 	-- create some skinning variables
 	local fontUsed = native.systemFont
 	local headerTextSize = 20
-	local separatorColor = { 198, 198, 198 }
+	local separatorColor = { unpack( separatorColor ) }
 	
 	if USE_IOS7_THEME then
 		fontUsed = "HelveticaNeue-Medium"
@@ -75,6 +92,7 @@ function scene:createScene( event )
 	end
 	
 	local title = display.newEmbossedText( group, "Select a unit test to view", 0, 0, fontUsed, headerTextSize )
+	title:setFillColor( unpack( headerTextColor ) )
 	title.x, title.y = display.contentCenterX, 20
 	group:insert( title )
 	
@@ -108,10 +126,10 @@ function scene:createScene( event )
 	local spinnerButton = widget.newButton
 	{
 	    id = "spinner",
-	    left = 60,
+	    left = 0,
 	    top = 10,
 	    label = "Spinner",
-	    width = 200, height = 52,
+	    width = display.contentWidth, height = 52,
 	    cornerRadius = 8,
 	    onEvent = gotoSelection
 	}
@@ -176,10 +194,10 @@ function scene:createScene( event )
 	local segmentedControlButton = widget.newButton
 	{
 	    id = "segmentedControl",
-	    left = 60,
+	    left = 0,
 	    top = progressViewButton.y + 30,
 	    label = "Segmented Control",
-	    width = 200, height = 52,
+	    width = display.contentWidth, height = 52,
 	    cornerRadius = 8,
 	    onEvent = gotoSelection
 	}

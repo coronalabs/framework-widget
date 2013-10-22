@@ -1407,6 +1407,12 @@ function M.new( options, theme )
 	button.x = opt.left + button.contentWidth * 0.5
 	button.y = opt.top + button.contentHeight * 0.5
 
+	--print( "Button anchors: ", button.anchorX, button.anchorY )
+	--print( "Button anchors children: ", button.anchorChildren )
+	--print( "Button coords: ", button.x, button.y )
+	--local bBounds = button.contentBounds
+	--print( "Button bounds: ", bBounds.xMin, bBounds.xMax, bBounds.yMin, bBounds.yMax )
+
 	return button
 end
 
