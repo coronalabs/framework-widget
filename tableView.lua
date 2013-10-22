@@ -232,9 +232,10 @@ function scene:createScene( event )
 	tableView = widget.newTableView
 	{
 		top = 100,
-		width = 320, 
+		left = 0,
+		width = display.contentWidth, 
 		--height = 300,
-		height = 366,
+		height = display.contentHeight - 100,
 		maskFile = "unitTestAssets/mask-320x366.png",
 		--listener = tableViewListener,
 		--isLocked = true,

@@ -122,21 +122,10 @@ function scene:createScene( event )
 	{
 		top = 100,
 		left = 10,
-		width = 300,
-		height = 350,
-		--scrollWidth = 465,
-		--scrollHeight = 1024,
+		width = display.contentWidth - 10,
+		height = display.contentHeight - 100,
 		id = "onBottom",
-		--topPadding = 80,
-		--bottomPadding = 40,
-		--leftPadding = 40,
-		--rightPadding = 80,
-		--hideBackground = true,
-		--isLocked = true,
-		horizontalScrollDisabled = false,
-		verticalScrollDisabled = false,
 		maskFile = "unitTestAssets/scrollViewMask-350.png",
-		--listener = scrollListener,
 	}
 	group:insert( scrollView )	
 	

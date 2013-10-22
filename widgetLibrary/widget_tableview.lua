@@ -1299,6 +1299,12 @@ function M.new( options )
 	opt.top = customOptions.top or 0
 	opt.width = customOptions.width or display.contentWidth
 	opt.height = customOptions.height or display.contentHeight
+	opt.x = customOptions.x or nil
+	opt.y = customOptions.y or nil
+	if customOptions.x and customOptions.y then
+		opt.left = 0
+		opt.top = 0
+	end	
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.maskFile = customOptions.maskFile
@@ -1360,6 +1366,31 @@ function M.new( options )
 
 	-- Create the tableView
 	createTableView( tableView, opt )
+	
+	local optX = customOptions.x or 0
+	local optY = customOptions.y or 0
+	
+	if ( isGraphicsV1 ) then
+		if customOptions.x and customOptions.y then
+			tableView.x = opt.left + optX - opt.width * 0.5
+			tableView.y = opt.top + optY - opt.height * 0.5
+		end
+	else
+		tableView.x = optX + opt.left
+		if not customOptions.x then
+			--tableView.x = opt.left + opt.width * 0.5
+		end
+		tableView.y = optY + opt.top
+		if not customOptions.y then
+			--tableView.y = opt.top + opt.height * 0.5
+		end
+	end
+	
+	print( "tv anchors: ", tableView.anchorX, tableView.anchorY )
+	print( "tv anchors children: ", tableView.anchorChildren )
+	print( "tv coords: ", tableView.x, tableView.y )
+	local bBounds = tableView.contentBounds
+	print( "tv bounds: ", bBounds.xMin, bBounds.xMax, bBounds.yMin, bBounds.yMax )
 	
 	return tableView
 end

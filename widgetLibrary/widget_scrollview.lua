@@ -54,9 +54,26 @@ local function createScrollView( scrollView, options )
 	view = display.newGroup()
 	
 	viewFixed = display.newGroup()
-		
+	
+	
+	
 	-- Create the view's background
 	viewBackground = display.newRect( scrollView, 0, 0, opt.width, opt.height )
+
+	if isGraphicsV1 then
+		viewBackground.x = opt.width * 0.5
+		viewBackground.y = opt.height * 0.5
+	else
+		viewBackground.x = opt.left + opt.width * 0.5
+		if opt.x then
+			viewBackground.x = opt.x
+		end
+		
+		--viewBackground.y = opt.top + opt.height * 0.5
+		--if opt.y then
+		--	viewBackground.y = opt.y
+		--end
+	end
 	
 	-- If there is a mask file, create the mask
 	if opt.maskFile then
@@ -494,6 +511,12 @@ function M.new( options )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
+	opt.x = customOptions.x or nil
+	opt.y = customOptions.y or nil
+	if customOptions.x and customOptions.y then
+		opt.left = 0
+		opt.top = 0
+	end
 	opt.width = customOptions.width
 	opt.height = customOptions.height
 	opt.id = customOptions.id
@@ -570,13 +593,25 @@ function M.new( options )
 	-- Create the scrollView
 	createScrollView( scrollView, opt )	
 
+	local optX = customOptions.x or 0
+	local optY = customOptions.y or 0
+
 	if ( isGraphicsV1 ) then
-		scrollView:setReferencePoint( display.CenterReferencePoint )
+		if customOptions.x and customOptions.y then
+			scrollView.x = opt.left + optX - opt.width * 0.5
+			scrollView.y = opt.top + optY - opt.height * 0.5
+		end
+	else
+		scrollView.x = optX + opt.left
+		if not customOptions.x then
+			scrollView.x = opt.left + opt.width * 0.5
+		end
+		scrollView.y = optY + opt.top
+		if not customOptions.y then
+			scrollView.y = opt.top + opt.height * 0.5
+		end
 	end
-
-	scrollView.x = opt.left + scrollView.contentWidth * 0.5
-	scrollView.y = opt.top + scrollView.contentHeight * 0.5
-
+	
 	return scrollView
 end
 

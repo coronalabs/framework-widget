@@ -426,6 +426,17 @@ if not isGraphicsV1 then
 	end
 end
 
+-----------------------------------------------------------------------------------------
+-- utility methods
+-----------------------------------------------------------------------------------------
+
+-- color conversion function
+function widget._convertColorToV1( channels )
+    for i=1,#channels do
+        channels[i] = 255 * channels[i]
+    end
+end
+
 -- Get platform
 local platformName = system.getInfo( "platformName" )
 local isSimulator = "Mac OS X" == platformName or "Win" == platformName
