@@ -22,11 +22,22 @@ function scene:createScene( event )
 	
 	--Display an iOS style background
 	local background
+
+	local xAnchor, yAnchor
+	
+	if not isGraphicsV1 then
+		xAnchor = display.contentCenterX
+		yAnchor = display.contentCenterY
+	else
+		xAnchor = 0
+		yAnchor = 0
+	end
 	
 	if USE_IOS7_THEME then
 		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
 	else
 		background = display.newImage( "unitTestAssets/background.png" )
+		background.x, background.y = xAnchor, yAnchor
 	end
 	
 	group:insert( background )
