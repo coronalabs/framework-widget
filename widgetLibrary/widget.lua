@@ -81,7 +81,7 @@ function widget._new( options )
 
 	local newWidget
 
-	if options.widgetType and options.widgetType == "scrollView" then
+	if options.widgetType and ( options.widgetType == "scrollView" or options.widgetType == "tableView" ) and not isGraphicsV1 then
 		
 		newWidget = display.newContainer( display.contentWidth, display.contentHeight ) -- All Widget* objects are display groups, except scrollview and tableview
 		

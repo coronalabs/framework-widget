@@ -39,6 +39,30 @@ local _momentumScrolling = require( "widget_momentumScrolling" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
+local rowColorIos6 = { default = { 1, 1, 1 }, over = { 0.11, 0.56, 1 } }
+local lineColorIos6 = { 0.86, 0.86, 0.86 }
+local rowColorIos7 = { default = { 1, 1, 1 }, over = { 0.85, 0.85, 0.85 } }
+local catColorIos7 = { default = { 0.96 }, over = { 0.96 } }
+local lineColorIos7 = { 0.78, 0.78, 0.80 }
+local lineCatColorIos7 = { 0.78, 0.78, 0.80, 0 }
+local rowColorDefault = { 1, 1, 1 }
+local rowColorOver = { 0.11, 0.56, 1 }
+local whiteColor = { 1, 1, 1, 1 }
+
+if isGraphicsV1 then
+	_widget._convertColorToV1( rowColorIos6.default )
+	_widget._convertColorToV1( rowColorIos6.over )
+	_widget._convertColorToV1( lineColorIos6 )
+	_widget._convertColorToV1( rowColorIos7.default )
+	_widget._convertColorToV1( rowColorIos7.over )
+	_widget._convertColorToV1( catColorIos7 )
+	_widget._convertColorToV1( lineColorIos7 )
+	_widget._convertColorToV1( lineCatColorIos7 )
+	_widget._convertColorToV1( rowColorDefault )
+	_widget._convertColorToV1( rowColorOver )
+	_widget._convertColorToV1( whiteColor )
+end
+
 -- Localize math functions
 local mAbs = math.abs
 
@@ -53,6 +77,32 @@ local function createTableView( tableView, options )
 	
 	-- Create the view
 	view = display.newGroup()
+
+	if not isGraphicsV1 then
+	
+		local containerWidth = options.width or display.contentWidth
+		local containerHeight = options.height or display.contentHeight 
+		
+		tableView.width = containerWidth
+		tableView.height = containerHeight
+	
+		tableView.x = containerWidth * 0.5 + opt.left
+		tableView.y = containerHeight * 0.5 + opt.top
+
+		if opt.x and opt.y then
+			tableView.x = opt.x
+			tableView.y = opt.y
+		end 
+	
+		if opt.x and opt.y then
+			view.x = view.x - opt.x
+			view.y = view.y - opt.y
+		else
+			view.x = view.x - opt.width * 0.5 - opt.left
+			view.y = view.y - opt.height * 0.5
+		end
+
+	end
 	
 	-- Create the fixed view
 	viewFixed = display.newGroup()
@@ -651,7 +701,8 @@ local function createTableView( tableView, options )
 			category:addEventListener( "tap", function() return true end )
 			
 			-- Insert the category into the group
-			self._categoryGroup.y = 0
+			self._categoryGroup.y = 0 - self._height * 0.5
+			self._categoryGroup.x = 0 - self._width * 0.5
 			self._categoryGroup:insert( category )
 			
 			return category
@@ -1000,17 +1051,17 @@ local function createTableView( tableView, options )
 		local rowWidth = self._width
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
-		local rowColor = options.rowColor or { default = { 255, 255, 255 }, over = { 30, 144, 255 } }
-		local lineColor = options.lineColor or { 220, 220, 220 }
+		local rowColor = options.rowColor or rowColorIos6
+		local lineColor = options.lineColor or lineColorIos6
 		local noLines = self._noLines or false
 		
 		if _widget.isSeven() then
-			rowColor = options.rowColor or { default = { 255, 255, 255 }, over = { 217, 217, 217 } }
-			lineColor = options.lineColor or { 200, 199, 204 }
+			rowColor = options.rowColor or rowColorIos7
+			lineColor = options.lineColor or lineColorIos7
 			
 			if isRowCategory then
-				rowColor = options.rowColor or { default = { 247 }, over = { 247 } }
-				lineColor = options.lineColor or { 200, 199, 204, 0 }
+				rowColor = options.rowColor or catColorIos7
+				lineColor = options.lineColor or lineCatColorIos7
 			end
 			
 		end
@@ -1019,12 +1070,12 @@ local function createTableView( tableView, options )
 		local rowParams = options.params or {}
 		-- Set defaults for row's color
 		if not rowColor.default then
-			rowColor.default = { 255, 255, 255 }
+			rowColor.default = rowColorDefault
 		end
 		
 		-- Set defaults for row's over color
 		if not rowColor.over then
-			rowColor.over = { 30, 144, 255 }
+			rowColor.over = rowColorOver
 		end
 		
 		-- Assign public properties to the row
@@ -1312,7 +1363,7 @@ function M.new( options )
 		
 	-- Properties
 	opt.shouldHideBackground = customOptions.hideBackground or false
-	opt.backgroundColor = customOptions.backgroundColor or { 255, 255, 255, 255 }
+	opt.backgroundColor = customOptions.backgroundColor or whiteColor
 	opt.topPadding = customOptions.topPadding or 0
 	opt.bottomPadding = customOptions.bottomPadding or 0
 	opt.leftPadding = customOptions.leftPadding or 0
@@ -1362,6 +1413,7 @@ function M.new( options )
 		top = opt.top,
 		id = opt.id or "widget_tableView",
 		baseDir = opt.baseDir,
+		widgetType = "tableView",
 	}
 
 	-- Create the tableView
@@ -1370,21 +1422,7 @@ function M.new( options )
 	local optX = customOptions.x or 0
 	local optY = customOptions.y or 0
 	
-	if ( isGraphicsV1 ) then
-		if customOptions.x and customOptions.y then
-			tableView.x = opt.left + optX - opt.width * 0.5
-			tableView.y = opt.top + optY - opt.height * 0.5
-		end
-	else
-		tableView.x = optX + opt.left
-		if not customOptions.x then
-			--tableView.x = opt.left + opt.width * 0.5
-		end
-		tableView.y = optY + opt.top
-		if not customOptions.y then
-			--tableView.y = opt.top + opt.height * 0.5
-		end
-	end
+
 	
 	print( "tv anchors: ", tableView.anchorX, tableView.anchorY )
 	print( "tv anchors children: ", tableView.anchorChildren )
