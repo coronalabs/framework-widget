@@ -47,47 +47,42 @@ local function createScrollView( scrollView, options )
 	-- Create a local reference to our options table
 	local opt = options
 		
+	local containerWidth = options.width or display.contentWidth
+	local containerHeight = options.height or display.contentHeight 
+		
+	scrollView.width = containerWidth
+	scrollView.height = containerHeight
+	
+	scrollView.x = containerWidth * 0.5 + opt.left
+	scrollView.y = containerHeight * 0.5 + opt.top
+	
+	if opt.x and opt.y then
+		scrollView.x = opt.x
+		scrollView.y = opt.y
+	end 
+	
+	local wBounds = scrollView.contentBounds
+	print("scrollView bounds: ", wBounds.xMin, wBounds.xMax, wBounds.yMin, wBounds.yMax )
 	-- Forward references
 	local view, viewFixed, viewBackground, viewMask
 	
 	-- Create the view
 	view = display.newGroup()
 	
+	-- Position it in the container
+	if opt.x and opt.y then
+		view.x = view.x - opt.x
+		view.y = view.y - opt.y
+	else
+		view.x = view.x - opt.width * 0.5 - opt.left
+		view.y = view.y - opt.height * 0.5 - opt.height
+	end
+		
 	viewFixed = display.newGroup()
-	
-	
-	
+		
 	-- Create the view's background
 	viewBackground = display.newRect( scrollView, 0, 0, opt.width, opt.height )
-
-	if isGraphicsV1 then
-		viewBackground.x = opt.width * 0.5
-		viewBackground.y = opt.height * 0.5
-	else
-		viewBackground.x = opt.left + opt.width * 0.5
-		if opt.x then
-			viewBackground.x = opt.x
-		end
 		
-		--viewBackground.y = opt.top + opt.height * 0.5
-		--if opt.y then
-		--	viewBackground.y = opt.y
-		--end
-	end
-	
-	-- If there is a mask file, create the mask
-	if opt.maskFile then
-		viewMask = graphics.newMask( opt.maskFile, opt.baseDir )
-	end
-	
-	-- If a mask was specified, set it
-	if viewMask then
-		scrollView:setMask( viewMask )
-		scrollView.maskX = opt.width * 0.5
-		scrollView.maskY = opt.height * 0.5
-		scrollView.isHitTestMasked = true
-	end
-	
 	----------------------------------
 	-- Properties
 	----------------------------------
@@ -593,25 +588,6 @@ function M.new( options )
 
 	-- Create the scrollView
 	createScrollView( scrollView, opt )	
-
-	local optX = customOptions.x or 0
-	local optY = customOptions.y or 0
-
-	if ( isGraphicsV1 ) then
-		if customOptions.x and customOptions.y then
-			scrollView.x = opt.left + optX - opt.width * 0.5
-			scrollView.y = opt.top + optY - opt.height * 0.5
-		end
-	else
-		scrollView.x = optX + opt.left
-		if not customOptions.x then
-			scrollView.x = opt.left + opt.width * 0.5
-		end
-		scrollView.y = optY + opt.top
-		if not customOptions.y then
-			scrollView.y = opt.top + opt.height * 0.5
-		end
-	end
 	
 	return scrollView
 end
