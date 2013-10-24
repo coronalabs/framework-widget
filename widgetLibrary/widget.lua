@@ -78,19 +78,38 @@ end
 
 -- Widget constructor. Every widget object is created from this method
 function widget._new( options )
-	local newWidget = display.newGroup() -- All Widget* objects are display groups
-	newWidget.x = options.left or 0
-	newWidget.y = options.top or 0
-	newWidget.id = options.id or "widget*"
-	newWidget.baseDir = options.baseDir or system.ResourceDirectory
-	newWidget._isWidget = true
-	newWidget._widgetType = options.widgetType
-	newWidget._removeSelf = newWidget.removeSelf
-	newWidget.removeSelf = _removeSelf
-	newWidget._loseFocus = widget._loseFocus
+
+	local newWidget
+
+	if options.widgetType and options.widgetType == "scrollView" then
+		
+		newWidget = display.newContainer( display.contentWidth, display.contentHeight ) -- All Widget* objects are display groups, except scrollview and tableview
+		
+		newWidget.id = options.id or "widget*"
+		newWidget.baseDir = options.baseDir or system.ResourceDirectory
+		newWidget._isWidget = true
+		newWidget._widgetType = options.widgetType
+		newWidget._removeSelf = newWidget.removeSelf
+		newWidget.removeSelf = _removeSelf
+		newWidget._loseFocus = widget._loseFocus
+			
+	else
+
+		newWidget = display.newGroup() -- All Widget* objects are display groups, except scrollview and tableview
+		newWidget.x = options.left or 0
+		newWidget.y = options.top or 0
+		newWidget.id = options.id or "widget*"
+		newWidget.baseDir = options.baseDir or system.ResourceDirectory
+		newWidget._isWidget = true
+		newWidget._widgetType = options.widgetType
+		newWidget._removeSelf = newWidget.removeSelf
+		newWidget.removeSelf = _removeSelf
+		newWidget._loseFocus = widget._loseFocus
 	
-	if not isGraphicsV1 then
-		newWidget.anchorChildren = true
+		if not isGraphicsV1 then
+			newWidget.anchorChildren = true
+		end
+	
 	end
 	
 	return newWidget

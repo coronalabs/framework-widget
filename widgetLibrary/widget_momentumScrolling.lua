@@ -40,19 +40,19 @@ M.scrollStopThreshold = 250
 -- Function to set the view's limits
 local function setLimits( self, view )
 	-- Set the bottom limit
-	self.bottomLimit = view._topPadding
+	self.bottomLimit = view._topPadding - view._height * 0.5
 	
 	-- Set the upper limit
 	if view._scrollHeight then
-		self.upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
+		self.upperLimit = ( -view._scrollHeight + view._height * 0.5 ) - view._bottomPadding
 	end
 	
 	-- Set the right limit
-	self.rightLimit = view._leftPadding
+	self.rightLimit = view._leftPadding - view._width * 0.5
 
 	-- Set the left limit
 	if view._scrollWidth then
-		self.leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
+		self.leftLimit = ( - view._scrollWidth + view._width * 0.5 ) - view._rightPadding
 	end
 end
 
@@ -654,8 +654,8 @@ function M.createScrollBar( view, options )
 		view._fixedGroup:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	view._fixedGroup.x = view._width - scrollBarWidth * 0.5
-	view._fixedGroup.y = view.parent.y - view._top + ( M.scrollBar.contentHeight * 0.5 )
+	view._fixedGroup.x = view._width * 0.5 - scrollBarWidth * 0.5
+	view._fixedGroup.y = view.parent.y - view._top - view._height * 0.5
 	
 	return M.scrollBar
 end
