@@ -588,6 +588,7 @@ function M.new( options )
 		top = opt.top,
 		id = opt.id or "widget_scrollView",
 		baseDir = opt.baseDir,
+		widgetType = "scrollView",
 	}
 
 	-- Create the scrollView

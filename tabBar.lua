@@ -34,7 +34,7 @@ function scene:createScene( event )
 	end
 	
 	if USE_IOS7_THEME then
-		background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
+		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	else
 		background = display.newImage( "unitTestAssets/background.png" )
 		background.x, background.y = xAnchor, yAnchor

@@ -96,7 +96,7 @@ function widget._new( options )
 	return newWidget
 end
 
-local newWidgetV2 = function( newWidget, options )
+local newWidgetV2 = function( newWidget, ... )
 
 	-- we obtain the old anchorpoints first
 	local oldAnchorX = display.getDefault( "anchorX" )
@@ -107,7 +107,7 @@ local newWidgetV2 = function( newWidget, options )
 	display.setDefault( "anchorY", 0.5 )
 
 	-- we localize the newWidget call
-	local g = newWidget( options )
+	local g = newWidget( ... )
 
 	-- we restore the old defaults
 	display.setDefault( "anchorX", oldAnchorX )
@@ -233,13 +233,6 @@ function widget.newScrollView( options )
 	return _scrollView.new( options )
 end
 
-if not isGraphicsV1 then
-	local newScrollView = widget.newScrollView
-	widget.newScrollView = function( options )
-		return newWidgetV2( newScrollView, options )
-	end
-end
-
 -----------------------------------------------------------------------------------------
 -- newTableView widget
 -----------------------------------------------------------------------------------------
@@ -247,13 +240,6 @@ end
 function widget.newTableView( options )
 	local _tableView = require( "widget_tableview" )
 	return _tableView.new( options )	
-end
-
-if not isGraphicsV1 then
-	local newTableView = widget.newTableView
-	widget.newTableView = function( options )
-		return newWidgetV2( newTableView, options )
-	end
 end
 
 -----------------------------------------------------------------------------------------
@@ -266,13 +252,6 @@ function widget.newPickerWheel( options )
 	return _pickerWheel.new( options, theme )	
 end
 
-if not isGraphicsV1 then
-	local newPickerWheel = widget.newPickerWheel
-	widget.newPickerWheel = function( options )
-		return newWidgetV2( newPickerWheel, options )
-	end
-end
-
 -----------------------------------------------------------------------------------------
 -- newSlider widget
 -----------------------------------------------------------------------------------------
@@ -281,13 +260,6 @@ function widget.newSlider( options )
 	local theme = _getTheme( "slider", options )
 	local _slider = require( "widget_slider" )
 	return _slider.new( options, theme )	
-end
-
-if not isGraphicsV1 then
-	local newSlider = widget.newSlider
-	widget.newSlider = function( options )
-		return newWidgetV2( newSlider, options )
-	end
 end
 
 -----------------------------------------------------------------------------------------
@@ -300,13 +272,6 @@ function widget.newTabBar( options )
 	return _tabBar.new( options, theme )	
 end
 
-if not isGraphicsV1 then
-	local newTabBar = widget.newTabBar
-	widget.newTabBar = function( options )
-		return newWidgetV2( newTabBar, options )
-	end
-end
-
 -----------------------------------------------------------------------------------------
 -- newButton widget
 -----------------------------------------------------------------------------------------
@@ -315,13 +280,6 @@ function widget.newButton( options )
 	local theme = _getTheme( "button", options )
 	local _button = require( "widget_button" )
 	return _button.new( options, theme )
-end
-
-if not isGraphicsV1 then
-	local newButton = widget.newButton
-	widget.newButton = function( options )
-		return newWidgetV2( newButton, options )
-	end
 end
 
 -----------------------------------------------------------------------------------------
@@ -334,13 +292,6 @@ function widget.newSpinner( options )
 	return _spinner.new( options, theme )
 end
 
-if not isGraphicsV1 then
-	local newSpinner = widget.newSpinner
-	widget.newSpinner = function( options )
-		return newWidgetV2( newSpinner, options )
-	end
-end
-
 -----------------------------------------------------------------------------------------
 -- newSwitch widget
 -----------------------------------------------------------------------------------------
@@ -349,13 +300,6 @@ function widget.newSwitch( options )
 	local theme = _getTheme( "switch", options )
 	local _switch = require( "widget_switch" )
 	return _switch.new( options, theme )	
-end
-
-if not isGraphicsV1 then
-	local newSwitch = widget.newSwitch
-	widget.newSwitch = function( options )
-		return newWidgetV2( newSwitch, options )
-	end
 end
 
 -----------------------------------------------------------------------------------------
@@ -368,13 +312,6 @@ function widget.newStepper( options )
 	return _stepper.new( options, theme )
 end
 
-if not isGraphicsV1 then
-	local newStepper = widget.newStepper
-	widget.newStepper = function( options )
-		return newWidgetV2( newStepper, options )
-	end
-end
-
 -----------------------------------------------------------------------------------------
 -- newSearchField widget
 -----------------------------------------------------------------------------------------
@@ -383,13 +320,6 @@ function widget.newSearchField( options )
 	local theme = _getTheme( "searchField", options )
 	local _searchField = require( "widget_searchField" )
 	return _searchField.new( options, theme )	
-end
-
-if not isGraphicsV1 then
-	local newSearchField = widget.newSearchField
-	widget.newSearchField = function( options )
-		return newWidgetV2( newSearchField, options )
-	end
 end
 
 -----------------------------------------------------------------------------------------
@@ -402,13 +332,6 @@ function widget.newProgressView( options )
 	return _progressView.new( options, theme )	
 end
 
-if not isGraphicsV1 then
-	local newProgressView = widget.newProgressView
-	widget.newProgressView = function( options )
-		return newWidgetV2( newProgressView, options )
-	end
-end
-
 -----------------------------------------------------------------------------------------
 -- newSegmentedControl widget
 -----------------------------------------------------------------------------------------
@@ -419,11 +342,71 @@ function widget.newSegmentedControl( options )
 	return _segmentedControl.new( options, theme )	
 end
 
+-----------------------------------------------------------------------------------------
+-- graphics v2.0 constructor calls
+-----------------------------------------------------------------------------------------
 if not isGraphicsV1 then
-	local newSegmentedControl = widget.newSegmentedControl
-	widget.newSegmentedControl = function( options )
-		return newWidgetV2( newSegmentedControl, options )
+
+	local newScrollView = widget.newScrollView
+	widget.newScrollView = function( ... )
+		return newWidgetV2( newScrollView, ... )
 	end
+
+	local newTableView = widget.newTableView
+	widget.newTableView = function( ... )
+		return newWidgetV2( newTableView, ... )
+	end
+
+	local newPickerWheel = widget.newPickerWheel
+	widget.newPickerWheel = function( ... )
+		return newWidgetV2( newPickerWheel, ... )
+	end
+
+	local newSlider = widget.newSlider
+	widget.newSlider = function( ... )
+		return newWidgetV2( newSlider, ... )
+	end
+
+	local newTabBar = widget.newTabBar
+	widget.newTabBar = function( ... )
+		return newWidgetV2( newTabBar, ... )
+	end
+
+	local newButton = widget.newButton
+	widget.newButton = function( ... )
+		return newWidgetV2( newButton, ... )
+	end
+
+	local newSpinner = widget.newSpinner
+	widget.newSpinner = function( ... )
+		return newWidgetV2( newSpinner, ... )
+	end
+
+	local newSwitch = widget.newSwitch
+	widget.newSwitch = function( ... )
+		return newWidgetV2( newSwitch, ... )
+	end
+
+	local newStepper = widget.newStepper
+	widget.newStepper = function( ... )
+		return newWidgetV2( newStepper, ... )
+	end
+
+	local newSearchField = widget.newSearchField
+	widget.newSearchField = function( ... )
+		return newWidgetV2( newSearchField, ... )
+	end
+
+	local newProgressView = widget.newProgressView
+	widget.newProgressView = function( ... )
+		return newWidgetV2( newProgressView, ... )
+	end
+	
+	local newSegmentedControl = widget.newSegmentedControl
+	widget.newSegmentedControl = function( ... )
+		return newWidgetV2( newSegmentedControl, ... )
+	end
+
 end
 
 -----------------------------------------------------------------------------------------
