@@ -75,7 +75,7 @@ local function createScrollView( scrollView, options )
 		view.y = view.y - opt.y
 	else
 		view.x = view.x - opt.width * 0.5 - opt.left
-		view.y = view.y - opt.height * 0.5 - opt.height
+		view.y = view.y - opt.height * 0.5
 	end
 		
 	viewFixed = display.newGroup()
