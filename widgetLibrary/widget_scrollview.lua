@@ -62,7 +62,7 @@ local function createScrollView( scrollView, options )
 	end 
 	
 	local wBounds = scrollView.contentBounds
-	print("scrollView bounds: ", wBounds.xMin, wBounds.xMax, wBounds.yMin, wBounds.yMax )
+
 	-- Forward references
 	local view, viewFixed, viewBackground, viewMask
 	
