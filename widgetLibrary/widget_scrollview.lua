@@ -49,40 +49,36 @@ local function createScrollView( scrollView, options )
 		
 	local containerWidth = options.width or display.contentWidth
 	local containerHeight = options.height or display.contentHeight 
-		
+	
+	local x, y = opt.x, opt.y
+
 	scrollView.width = containerWidth
 	scrollView.height = containerHeight
+		
+	if not x or not y then
+		x = containerWidth * 0.5  + opt.left
+		y = containerHeight * 0.5 + opt.top
+	end
 	
-	scrollView.x = containerWidth * 0.5 + opt.left
-	scrollView.y = containerHeight * 0.5 + opt.top
+	scrollView.x = x
+	scrollView.y = y
 	
-	if opt.x and opt.y then
-		scrollView.x = opt.x
-		scrollView.y = opt.y
-	end 
-	
-	local wBounds = scrollView.contentBounds
-
 	-- Forward references
 	local view, viewFixed, viewBackground, viewMask
 	
 	-- Create the view
 	view = display.newGroup()
-	
-	-- Position it in the container
-	if opt.x and opt.y then
-		view.x = view.x - opt.x
-		view.y = view.y - opt.y
-	else
-		view.x = view.x - opt.width * 0.5 - opt.left
-		view.y = view.y - opt.height * 0.5
-	end
-		
+	view.x = - containerWidth * 0.5; view.y = -containerHeight * 0.5
+			
 	viewFixed = display.newGroup()
 		
 	-- Create the view's background
 	viewBackground = display.newRect( scrollView, 0, 0, opt.width, opt.height )
-		
+	viewBackground.x = 0
+	viewBackground.y = 0
+
+
+	
 	----------------------------------
 	-- Properties
 	----------------------------------
@@ -577,7 +573,7 @@ function M.new( options )
 	-------------------------------------------------------
 		
 	-- Create the scrollView object
-	local scrollView = _widget._new
+	local scrollView = _widget._newContainer
 	{
 		left = opt.left,
 		top = opt.top,
