@@ -39,14 +39,14 @@ local _momentumScrolling = require( "widget_momentumScrolling" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
-local rowColorIos6 = { default = { 1, 1, 1 }, over = { 0.11, 0.56, 1 } }
-local lineColorIos6 = { 0.86, 0.86, 0.86 }
-local rowColorIos7 = { default = { 1, 1, 1 }, over = { 0.85, 0.85, 0.85 } }
-local catColorIos7 = { default = { 0.96 }, over = { 0.96 } }
-local lineColorIos7 = { 0.78, 0.78, 0.80 }
-local lineCatColorIos7 = { 0.78, 0.78, 0.80, 0 }
-local rowColorDefault = { 1, 1, 1 }
-local rowColorOver = { 0.11, 0.56, 1 }
+local rowColorIos6 = { default = { 1, 1, 1, 1 }, over = { 0.11, 0.56, 1, 1 } }
+local lineColorIos6 = { 0.86, 0.86, 0.86, 1 }
+local rowColorIos7 = { default = { 1, 1, 1, 1 }, over = { 0.85, 0.85, 0.85, 1 } }
+local catColorIos7 = { default = { 0.96, 0.96, 0.96, 1 }, over = { 0.96, 0.96, 0.96, 1 } }
+local lineColorIos7 = { 0.78, 0.78, 0.80, 1 }
+local lineCatColorIos7 = { 0.78, 0.78, 0.80, 1 }
+local rowColorDefault = { 1, 1, 1, 1 }
+local rowColorOver = { 0.11, 0.56, 1, 1 }
 local whiteColor = { 1, 1, 1, 1 }
 
 if isGraphicsV1 then
@@ -55,7 +55,8 @@ if isGraphicsV1 then
 	_widget._convertColorToV1( lineColorIos6 )
 	_widget._convertColorToV1( rowColorIos7.default )
 	_widget._convertColorToV1( rowColorIos7.over )
-	_widget._convertColorToV1( catColorIos7 )
+	_widget._convertColorToV1( catColorIos7.default )
+	_widget._convertColorToV1( catColorIos7.over )
 	_widget._convertColorToV1( lineColorIos7 )
 	_widget._convertColorToV1( lineCatColorIos7 )
 	_widget._convertColorToV1( rowColorDefault )
@@ -74,57 +75,43 @@ local function createTableView( tableView, options )
 	
 	-- Forward references
 	local view, viewBackground, viewMask, viewFixed, categoryGroup
+
+	local containerWidth = options.width or display.contentWidth
+	local containerHeight = options.height or display.contentHeight 
 	
+	local x, y = opt.x, opt.y
+
+	tableView.width = containerWidth
+	tableView.height = containerHeight
+		
+	if not x or not y then
+		x = containerWidth * 0.5  + opt.left
+		y = containerHeight * 0.5 + opt.top
+	end
+	
+	tableView.x = x
+	tableView.y = y
+
 	-- Create the view
 	view = display.newGroup()
 
-	if not isGraphicsV1 then
-	
-		local containerWidth = options.width or display.contentWidth
-		local containerHeight = options.height or display.contentHeight 
-		
-		tableView.width = containerWidth
-		tableView.height = containerHeight
-	
-		tableView.x = containerWidth * 0.5 + opt.left
-		tableView.y = containerHeight * 0.5 + opt.top
-
-		if opt.x and opt.y then
-			tableView.x = opt.x
-			tableView.y = opt.y
-		end 
-	
-		if opt.x and opt.y then
-			view.x = view.x - opt.x
-			view.y = view.y - opt.y
-		else
-			view.x = view.x - opt.width * 0.5 - opt.left
-			view.y = view.y - opt.height * 0.5
-		end
-
+	local x, y = - containerWidth * 0.5, - containerHeight * 0.5
+	if isGraphicsV1 then
+		x = view.x
 	end
 	
+	view.x = x; view.y = y
+
 	-- Create the fixed view
 	viewFixed = display.newGroup()
 		
 	-- Create the view's background
 	viewBackground = display.newRect( tableView, 0, 0, opt.width, opt.height )
+	viewBackground.x = 0
+	viewBackground.y = 0
 	
 	-- Create the view's category group
 	categoryGroup = display.newGroup()
-	
-	-- If there is a mask file, create the mask
-	if opt.maskFile then
-		viewMask = graphics.newMask( opt.maskFile, opt.baseDir )
-	end
-
-	-- If a mask was specified, set it
-	if viewMask then
-		tableView:setMask( viewMask )
-		tableView.maskX = opt.width * 0.5
-		tableView.maskY = opt.height * 0.5
-		tableView.isHitTestMasked = true
-	end
 	
 	----------------------------------
 	-- Properties
@@ -659,7 +646,6 @@ local function createTableView( tableView, options )
 		-- Function to create a new category
 		local function newCategory()
 			local category = display.newGroup()
-			
 			-- Create the row's cell
 			local rowCell = display.newRect( category, 0, 0, currentRow._width, currentRow._height )
 			rowCell.x = rowCell.contentWidth * 0.5
@@ -701,8 +687,12 @@ local function createTableView( tableView, options )
 			category:addEventListener( "tap", function() return true end )
 			
 			-- Insert the category into the group
-			self._categoryGroup.y = 0 - self._height * 0.5
-			self._categoryGroup.x = 0 - self._width * 0.5
+			local catGroupY = - self._height * 0.5 - category.contentHeight * 0.5
+			if isGraphicsV1 then
+				catGroupY = - self._height * 0.5
+			end
+			self._categoryGroup.y = catGroupY - 1
+			self._categoryGroup.x = - self.width * 0.5 + 1
 			self._categoryGroup:insert( category )
 			
 			return category
@@ -790,7 +780,11 @@ local function createTableView( tableView, options )
 				-- If the currrent row has a view
 				if type( currentRow._view ) == "table" then			
 					-- Set the rows top position
-					currentRow._top = self.y + currentRow._view.y - currentRow._view.contentHeight * 0.5
+					local rowTop = self.y + currentRow._view.y + view._height * 0.5
+					if isGraphicsV1 then
+						rowTop = self.y + currentRow._view.y - currentRow._view.contentHeight * 0.5 + view._height * 0.5
+					end
+					currentRow._top = rowTop
 							
 					-- Category "pushing" effect
 					if self._currentCategory and currentRow.isCategory and currentRow.index ~= self._currentCategory.index then
@@ -951,15 +945,22 @@ local function createTableView( tableView, options )
 						--rowLine.x = rowCell.x 
 					else
 						
+						rowLine.x = rowCell.x
+						
 						if isGraphicsV1 then
 							rowLine:setReferencePoint( display.CenterReferencePoint )
 						end
 						
-						rowLine.x = rowCell.x 
 					end
 
-					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
-					rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
+					local rowLineY = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
+					if isGraphicsV1 then
+						rowLineY = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
+					end
+					rowLine.y = rowLineY
+					
+					rowLine:setStrokeColor( unpack( currentRow._lineColor ) )
+										
 				end
 			
 				-- Set the row's reference point to it's center point (just incase)
@@ -968,7 +969,20 @@ local function createTableView( tableView, options )
 				end
 				-- Position the row
 				view.x = self.x + ( currentRow._width * 0.5 )
-				view.y = currentRow.y
+				
+				if isGraphicsV1 then
+					view.x = self.x
+				end
+				
+				local viewY = currentRow.y
+				if row.isCategory then
+					viewY = currentRow.y + view.contentHeight * 0.25
+					if isGraphicsV1 then
+						viewY = currentRow.y
+					end
+				end
+				
+				view.y = viewY
 
 				-- Assign properties to the row
 				view._cell = rowCell
@@ -1407,7 +1421,7 @@ function M.new( options )
 	-------------------------------------------------------
 		
 	-- Create the tableView object
-	local tableView = _widget._new
+	local tableView = _widget._newContainer
 	{
 		left = opt.left,
 		top = opt.top,
@@ -1418,11 +1432,6 @@ function M.new( options )
 
 	-- Create the tableView
 	createTableView( tableView, opt )
-	
-	local optX = customOptions.x or 0
-	local optY = customOptions.y or 0
-	
-
 	
 	print( "tv anchors: ", tableView.anchorX, tableView.anchorY )
 	print( "tv anchors children: ", tableView.anchorChildren )
