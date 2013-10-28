@@ -12,6 +12,14 @@ local USE_ANDROID_THEME = false
 local USE_IOS7_THEME = widget.isSeven()
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
+local tableSeparatorColor = { 0.86, 0.86, 0.86, 1 }
+
+if isGraphicsV1 then
+	widget._convertColorToV1( tableSeparatorColor )
+end
+
+local tableView
+
 function scene:createScene( event )
 	local group = self.view
 	
@@ -89,7 +97,6 @@ function scene:createScene( event )
 	local TEST_DELETE_ALL_ROWS = false
 	local TEST_GET_CONTENT_POSITION = false
 	local TEST_REMOVE_AND_RECREATE = false
-	local tableView = nil
 		
 	-- Listen for tableView events
 	local function tableViewListener( event )
@@ -144,20 +151,31 @@ function scene:createScene( event )
 		else
 			rowTitle = display.newText( row, rowTitleText, 0, 0, nil, 14 )
 		end
+
+		rowTitle.x = 38
 		
-		--local rowTitle = display.newText( row, rowTitleText, 0, 0, nil, 14 )
-		rowTitle.x = ( rowTitle.contentWidth * 0.5 + 15 )
-		rowTitle.y = row.contentHeight * 0.5
+		local rowY = row.contentHeight * 0.4
+		
+		if isGraphicsV1 then
+			rowY = row.contentHeight * 0.5
+		end
+		
+		if row.isCategory then
+			rowY = row.contentHeight * 0.3
+		end
+		
+		rowTitle.y = rowY
+		
 		rowTitle:setFillColor( 0, 0, 0 )
 		
 		if not row.isCategory then
 			--print( row.index )
 			local spinner = widget.newSpinner{}
-			spinner.x = row.x + ( row.contentWidth * 0.5 ) - ( spinner.contentWidth * 0.5 )
+			spinner.x = row.x + ( row.contentWidth ) - 20
 			spinner.y = row.contentHeight * 0.5
 			spinner:scale( 0.5, 0.5 )
 			row:insert( spinner ) 
-			spinner:start()
+			--spinner:start()
 		end
 		
 		
@@ -202,7 +220,7 @@ function scene:createScene( event )
 						{ 
 							default = { 255, 255, 255 }
 						}
-						local lineColor = { 220, 220, 220 }
+						local lineColor = { 0.86, 0.86, 0.86, 1 }
 
 						-- Make some rows categories
 						if i == 8 or i == 25 or i == 50 or i == 75 then
@@ -258,7 +276,7 @@ function scene:createScene( event )
 			}
 		end
 
-		local lineColor = { 220, 220, 220 }
+		local lineColor = tableSeparatorColor;
 		
 		-- Make some rows categories
 		---[[
