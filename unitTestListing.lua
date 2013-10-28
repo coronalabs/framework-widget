@@ -301,8 +301,6 @@ function scene:createScene( event )
 	convertCoords( scrollViewButton )
 	scrollView:insert( scrollViewButton )
 	
-	print("SCoords: ", scrollView._view.x, scrollView._view.y)
-	print("VBounds: ", scrollView._view.contentBounds.xMin, scrollView._view.contentBounds.xMax, scrollView._view.contentBounds.yMin, scrollView._view.contentBounds.yMax)
 end
 
 function scene:didExitScene( event )
