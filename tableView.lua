@@ -237,7 +237,6 @@ function scene:createScene( event )
 		width = display.contentWidth, 
 		--height = 300,
 		height = display.contentHeight - 40,
-		maskFile = "unitTestAssets/mask-320x366.png",
 		--listener = tableViewListener,
 		--isLocked = true,
 		--hideBackground = true,

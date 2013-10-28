@@ -88,7 +88,7 @@ function scene:createScene( event )
 	local TEST_SCROLLVIEW_ON_TOP_OF_EACHOTHER = false
 	local TEST_TABLEVIEW_INSIDE_SCROLLVIEW = false
 	local TEST_REMOVE_SCROLLVIEW = false
-	local TEST_RESIZE_SCROLLVIEW_VERTICALLY = true
+	local TEST_RESIZE_SCROLLVIEW_VERTICALLY = false
 	
 	-- Our ScrollView listener
 	local function scrollListener( event )
@@ -126,7 +126,6 @@ function scene:createScene( event )
 		width = display.contentWidth - 10,
 		height = display.contentHeight - 100,
 		id = "onBottom",
-		maskFile = "unitTestAssets/scrollViewMask-350.png",
 	}
 	group:insert( scrollView )	
 	
