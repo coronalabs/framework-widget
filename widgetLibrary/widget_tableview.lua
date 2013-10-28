@@ -1433,12 +1433,6 @@ function M.new( options )
 	-- Create the tableView
 	createTableView( tableView, opt )
 	
-	print( "tv anchors: ", tableView.anchorX, tableView.anchorY )
-	print( "tv anchors children: ", tableView.anchorChildren )
-	print( "tv coords: ", tableView.x, tableView.y )
-	local bBounds = tableView.contentBounds
-	print( "tv bounds: ", bBounds.xMin, bBounds.xMax, bBounds.yMin, bBounds.yMax )
-	
 	return tableView
 end
 
