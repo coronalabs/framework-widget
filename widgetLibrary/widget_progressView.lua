@@ -353,10 +353,6 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
-		width = opt.width,
-		height = opt.height,
-		x = opt.x,
-		y = opt.y,
 		id = opt.id or "widget_progressView",
 		baseDir = opt.baseDir,
 	}
@@ -370,8 +366,12 @@ function M.new( options, theme )
 		progressView:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	--progressView.x = opt.left + progressView.contentWidth * 0.5
-	--progressView.y = opt.top + progressView.contentHeight * 0.5
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		x = opt.left + progressView.contentWidth * 0.5
+		y = opt.top + progressView.contentHeight * 0.5
+	end
+	progressView.x, progressView.y = x, y	
 	
 	return progressView
 end

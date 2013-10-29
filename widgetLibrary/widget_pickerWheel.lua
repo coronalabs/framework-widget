@@ -405,10 +405,6 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
-		width = opt.width,
-		height = opt.height,
-		x = opt.x,
-		y = opt.y,
 		id = opt.id or "widget_pickerWheel",
 		baseDir = opt.baseDir,
 	}
@@ -416,8 +412,12 @@ function M.new( options, theme )
 	-- Create the pickerWheel
 	createPickerWheel( pickerWheel, opt )
 
-	--pickerWheel.x = opt.left + display.contentWidth * 0.5
-	--pickerWheel.y = opt.top + pickerWheel.contentHeight * 0.5
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		x = opt.left + pickerWheel.contentWidth * 0.5
+		y = opt.top + pickerWheel.contentHeight * 0.5
+	end
+	pickerWheel.x, pickerWheel.y = x, y	
 	
 	return pickerWheel
 end

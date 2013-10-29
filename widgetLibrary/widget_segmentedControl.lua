@@ -531,10 +531,6 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
-		width = opt.width,
-		height = opt.height,
-		x = opt.x,
-		y = opt.y,
 		id = opt.id or "widget_segmentedControl",
 		baseDir = opt.baseDir,
 	}
@@ -547,8 +543,12 @@ function M.new( options, theme )
 		segmentedControl:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	--segmentedControl.x = opt.left + segmentedControl.contentWidth * 0.5
-	--segmentedControl.y = opt.top + segmentedControl.contentHeight * 0.5
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		x = opt.left + segmentedControl.contentWidth * 0.5
+		y = opt.top + segmentedControl.contentHeight * 0.5
+	end
+	segmentedControl.x, segmentedControl.y = x, y
 	
 	return segmentedControl
 end

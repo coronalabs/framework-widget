@@ -82,12 +82,6 @@ function widget._new( options )
 	local newWidget
 
 	newWidget = display.newGroup() -- All Widget* objects are display groups, except scrollview and tableview
-	local x, y = options.x, options.y
-	if not x or not y then
-		x = options.left + options.width * 0.5; y = options.top + options.height * 0.5
-	end
-	newWidget.x = x
-	newWidget.y = y
 	newWidget.id = options.id or "widget*"
 	newWidget.baseDir = options.baseDir or system.ResourceDirectory
 	newWidget._isWidget = true
@@ -109,12 +103,6 @@ function widget._newContainer( options )
 	local newWidget
 
 	newWidget = display.newContainer( display.contentWidth, display.contentHeight ) -- All Widget* objects are display groups, except scrollview and tableview
-	local x, y = options.x, options.y
-	if not x or not y then
-		x = options.left + options.width * 0.5; y = options.top + options.height * 0.5
-	end
-	newWidget.x = x
-	newWidget.y = y
 	newWidget.id = options.id or "widget*"
 	newWidget.baseDir = options.baseDir or system.ResourceDirectory
 	newWidget._isWidget = true
