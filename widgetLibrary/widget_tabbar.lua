@@ -772,6 +772,10 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
+		width = opt.width,
+		height = opt.height,
+		x = opt.x,
+		y = opt.y,
 		id = opt.id or "widget_tabBar",
 		baseDir = opt.baseDir,
 	}
@@ -788,8 +792,8 @@ function M.new( options, theme )
 		tabBar:setReferencePoint( display.CenterReferencePoint )
 	end
 
-	tabBar.x = opt.left + tabBar.contentWidth * 0.5
-	tabBar.y = opt.top + tabBar.contentHeight * 0.5
+	--tabBar.x = opt.left + tabBar.contentWidth * 0.5
+	--tabBar.y = opt.top + tabBar.contentHeight * 0.5
 
 	return tabBar
 end

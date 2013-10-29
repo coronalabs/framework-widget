@@ -110,6 +110,8 @@ function scene:createScene( event )
 		id = "dy",
 		left = 100,
 		top = 100,
+		x = 0,
+		y = 200,
 		initialValue = startAtNumber,
 		minimumValue = 0,
 		maximumValue = 25,

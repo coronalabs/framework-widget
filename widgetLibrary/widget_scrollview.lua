@@ -46,22 +46,6 @@ local mAbs = math.abs
 local function createScrollView( scrollView, options )
 	-- Create a local reference to our options table
 	local opt = options
-		
-	local containerWidth = options.width or display.contentWidth
-	local containerHeight = options.height or display.contentHeight 
-	
-	local x, y = opt.x, opt.y
-
-	scrollView.width = containerWidth
-	scrollView.height = containerHeight
-		
-	if not x or not y then
-		x = containerWidth * 0.5  + opt.left
-		y = containerHeight * 0.5 + opt.top
-	end
-	
-	scrollView.x = x
-	scrollView.y = y
 	
 	-- Forward references
 	local view, viewFixed, viewBackground, viewMask
@@ -579,6 +563,10 @@ function M.new( options )
 	{
 		left = opt.left,
 		top = opt.top,
+		width = opt.width,
+		height = opt.height,
+		x = opt.x,
+		y = opt.y,
 		id = opt.id or "widget_scrollView",
 		baseDir = opt.baseDir,
 		widgetType = "scrollView",

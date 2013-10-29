@@ -310,8 +310,14 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
+	opt.x = customOptions.x or nil
+	opt.y = customOptions.y or nil
+	if customOptions.x and customOptions.y then
+		opt.left = 0
+		opt.top = 0
+	end
 	opt.width = customOptions.width or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
-	
+	opt.height = 6 -- from the theme file
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.isAnimated = customOptions.isAnimated or false
@@ -347,6 +353,10 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
+		width = opt.width,
+		height = opt.height,
+		x = opt.x,
+		y = opt.y,
 		id = opt.id or "widget_progressView",
 		baseDir = opt.baseDir,
 	}
@@ -360,8 +370,8 @@ function M.new( options, theme )
 		progressView:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	progressView.x = opt.left + progressView.contentWidth * 0.5
-	progressView.y = opt.top + progressView.contentHeight * 0.5
+	--progressView.x = opt.left + progressView.contentWidth * 0.5
+	--progressView.y = opt.top + progressView.contentHeight * 0.5
 	
 	return progressView
 end
