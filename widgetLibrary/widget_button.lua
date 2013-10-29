@@ -1226,6 +1226,12 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
+	opt.x = customOptions.x or nil
+	opt.y = customOptions.y or nil
+	if customOptions.x and customOptions.y then
+		opt.left = 0
+		opt.top = 0
+	end
 	opt.width = customOptions.width or themeOptions.width
 	opt.height = customOptions.height or themeOptions.height
 	opt.id = customOptions.id

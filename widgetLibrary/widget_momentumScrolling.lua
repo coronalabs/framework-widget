@@ -32,27 +32,44 @@ local M = {}
 -- Localize math functions
 local mAbs = math.abs
 local mFloor = math.floor
-local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 -- configuration variables
 M.scrollStopThreshold = 250
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
 -- Function to set the view's limits
 local function setLimits( self, view )
 	-- Set the bottom limit
-	self.bottomLimit = view._topPadding - view._height * 0.5
+	local bottomLimit = view._topPadding
+	if isGraphicsV1 then
+		bottomLimit = bottomLimit - view._height * 0.5
+	end
+	self.bottomLimit = bottomLimit
 	
 	-- Set the upper limit
 	if view._scrollHeight then
-		self.upperLimit = ( -view._scrollHeight + view._height * 0.5 ) - view._bottomPadding
+		local upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
+		if isGraphicsV1 then
+			upperLimit = upperLimit - view._height * 0.5
+		end
+		self.upperLimit = upperLimit
 	end
 	
 	-- Set the right limit
-	self.rightLimit = view._leftPadding - view._width * 0.5
+	local rightLimit = view._leftPadding
+	if isGraphicsV1 then
+		rightLimit = rightLimit - view._width * 0.5
+	end
+	self.rightLimit = rightLimit
 
 	-- Set the left limit
 	if view._scrollWidth then
-		self.leftLimit = ( - view._scrollWidth + view._width * 0.5 ) - view._rightPadding
+		local leftLimit = ( - view._scrollWidth + view._width ) - view._rightPadding
+		if isGraphicsV1 then
+			leftLimit = leftLimit - view._width * 0.5
+		end
+		self.leftLimit = leftLimit
 	end
 end
 

@@ -68,8 +68,10 @@ local function createScrollView( scrollView, options )
 	
 	-- Create the view
 	view = display.newGroup()
-	view.x = - containerWidth * 0.5; view.y = -containerHeight * 0.5
-			
+	if isGraphicsV1 then
+		view.x = - scrollView.width * 0.5; view.y = -scrollView.height * 0.5
+	end
+
 	viewFixed = display.newGroup()
 		
 	-- Create the view's background
