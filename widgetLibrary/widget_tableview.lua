@@ -94,13 +94,9 @@ local function createTableView( tableView, options )
 
 	-- Create the view
 	view = display.newGroup()
-
-	local x, y = - containerWidth * 0.5, - containerHeight * 0.5
 	if isGraphicsV1 then
-		x = view.x
+		view.x = - containerWidth * 0.5; view.y = - containerHeight * 0.5
 	end
-	
-	view.x = x; view.y = y
 
 	-- Create the fixed view
 	viewFixed = display.newGroup()
@@ -691,8 +687,16 @@ local function createTableView( tableView, options )
 			if isGraphicsV1 then
 				catGroupY = - self._height * 0.5
 			end
-			self._categoryGroup.y = catGroupY - 1
-			self._categoryGroup.x = - self.width * 0.5 + 1
+			self._categoryGroup.y = catGroupY
+			
+			local catGroupX = - self.width + 2
+			
+			if isGraphicsV1 then
+				catGroupX = 0
+			end
+			
+			self._categoryGroup.x = catGroupX
+			
 			self._categoryGroup:insert( category )
 			
 			return category
@@ -945,22 +949,15 @@ local function createTableView( tableView, options )
 						--rowLine.x = rowCell.x 
 					else
 						
-						rowLine.x = rowCell.x
-						
 						if isGraphicsV1 then
 							rowLine:setReferencePoint( display.CenterReferencePoint )
 						end
 						
+						rowLine.x = rowCell.x 
 					end
 
-					local rowLineY = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
-					if isGraphicsV1 then
-						rowLineY = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
-					end
-					rowLine.y = rowLineY
-					
-					rowLine:setStrokeColor( unpack( currentRow._lineColor ) )
-										
+					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
+					rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
 				end
 			
 				-- Set the row's reference point to it's center point (just incase)
@@ -968,21 +965,15 @@ local function createTableView( tableView, options )
 					view:setReferencePoint( display.CenterReferencePoint )
 				end
 				-- Position the row
-				view.x = self.x + ( currentRow._width * 0.5 )
-				
+				local rowX = - view.contentWidth * 0.5
+				local rowY = currentRow.y - view.contentHeight * 0.5
 				if isGraphicsV1 then
-					view.x = self.x
+					rowX = self.x + currentRow._width
+					rowY = currentRow.y
 				end
 				
-				local viewY = currentRow.y
-				if row.isCategory then
-					viewY = currentRow.y + view.contentHeight * 0.25
-					if isGraphicsV1 then
-						viewY = currentRow.y
-					end
-				end
-				
-				view.y = viewY
+				view.x = rowX
+				view.y = rowY
 
 				-- Assign properties to the row
 				view._cell = rowCell
@@ -1362,14 +1353,14 @@ function M.new( options )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or display.contentWidth
-	opt.height = customOptions.height or display.contentHeight
 	opt.x = customOptions.x or nil
 	opt.y = customOptions.y or nil
 	if customOptions.x and customOptions.y then
 		opt.left = 0
 		opt.top = 0
 	end	
+	opt.width = customOptions.width or display.contentWidth
+	opt.height = customOptions.height or display.contentHeight
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.maskFile = customOptions.maskFile
@@ -1427,7 +1418,7 @@ function M.new( options )
 		top = opt.top,
 		id = opt.id or "widget_tableView",
 		baseDir = opt.baseDir,
-		widgetType = "tableView",
+		widgetType = "tableView"
 	}
 
 	-- Create the tableView

@@ -121,19 +121,26 @@ function scene:createScene( event )
 	-- Create a ScrollView
 	local scrollView = widget.newScrollView
 	{
-		top = 100,
-		left = 10,
-		width = display.contentWidth - 10,
-		height = display.contentHeight - 100,
+		--top = 100,
+		--left = 10,
+		x = 160,
+		y = 270,
+		width = 300,
+		height = 350,
 		id = "onBottom",
 	}
 	group:insert( scrollView )	
 	
 	-- insert image into scrollView widget
 	local background = display.newImageRect( "unitTestAssets/scrollimage.jpg", 768, 1024 )
-	background.x = background.contentWidth * 0.5
-	background.y = background.contentHeight * 0.5
+	background.x = 240
+	background.y = 340
+	background.alpha = 0.3
 	scrollView:insert( background )
+	
+	print( "sc coords: ", scrollView._view.x, scrollView._view.y )
+	local vBounds = scrollView._view.contentBounds
+	print( vBounds.xMin, vBounds.xMax, vBounds.yMin, vBounds.yMax )
 	
 	local function test( event )
 		local phase = event.phase

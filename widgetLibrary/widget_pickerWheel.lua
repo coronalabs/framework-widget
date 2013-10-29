@@ -54,8 +54,31 @@ local function createPickerWheel( pickerWheel, options )
 		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
+	local containerWidth = options.width or display.contentWidth
+	local containerHeight = options.height or display.contentHeight 
+	
+	local x, y = opt.x, opt.y
+
+	pickerWheel.width = containerWidth
+	pickerWheel.height = containerHeight
+		
+	if not x or not y then
+		x = containerWidth * 0.5  + opt.left
+		y = containerHeight * 0.5 + opt.top
+	end
+	
+	pickerWheel.x = x
+	pickerWheel.y = y
+
 	-- Create the view
 	view = display.newGroup()
+
+	local x, y = - containerWidth, - containerHeight * 0.5
+	if isGraphicsV1 then
+		x = 0; y = 0
+	end
+	
+	view.x = x; view.y = y
 	
 	-- The view's background
 	viewOverlay = display.newImageRect( pickerWheel, imageSheet, opt.overlayFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
@@ -181,11 +204,16 @@ local function createPickerWheel( pickerWheel, options )
 			onRowTouch = didTapValue
 		}
 		viewColumns[i]._view._isUsedInPickerWheel = true
+		viewColumns[i]._view.x = -50
+		viewColumns[i]._view.y = -50
 		 		
 		-- Position the columns
 		if i > 1 then
 			viewColumns[i].x = viewColumns[i-1].x + viewColumns[i-1]._view._width
 		end
+		
+		print( viewColumns[i]._view.x )
+		print( viewColumns[i]._view.y )
 		
 		-- Column properties
 		viewColumns[i]._align = opt.columnData[i].align

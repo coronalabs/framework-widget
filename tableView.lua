@@ -252,12 +252,10 @@ function scene:createScene( event )
 	{
 		top = 40,
 		left = 0,
+		x = 160,
+		y = 260,
 		width = display.contentWidth, 
-		--height = 300,
 		height = display.contentHeight - 40,
-		--listener = tableViewListener,
-		--isLocked = true,
-		--hideBackground = true,
 		onRowRender = onRowRender,
 		onRowTouch = onRowTouch,
 	}
