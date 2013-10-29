@@ -300,10 +300,6 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
-		width = opt.width,
-		height = opt.height,
-		x = opt.x,
-		y = opt.y,
 		id = opt.id or "widget_searchField",
 		baseDir = opt.baseDir,
 	}
@@ -317,8 +313,12 @@ function M.new( options, theme )
 		searchField:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	--searchField.x = opt.left + searchField.contentWidth * 0.5
-	--searchField.y = opt.top + searchField.contentHeight * 0.5
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		x = opt.left + searchField.contentWidth * 0.5
+		y = opt.top + searchField.contentHeight * 0.5
+	end
+	searchField.x, searchField.y = x, y
 	
 	return searchField
 end

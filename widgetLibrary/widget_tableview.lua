@@ -76,22 +76,6 @@ local function createTableView( tableView, options )
 	-- Forward references
 	local view, viewBackground, viewMask, viewFixed, categoryGroup
 
-	local containerWidth = options.width or display.contentWidth
-	local containerHeight = options.height or display.contentHeight 
-	
-	local x, y = opt.x, opt.y
-
-	tableView.width = containerWidth
-	tableView.height = containerHeight
-		
-	if not x or not y then
-		x = containerWidth * 0.5  + opt.left
-		y = containerHeight * 0.5 + opt.top
-	end
-	
-	tableView.x = x
-	tableView.y = y
-
 	-- Create the view
 	view = display.newGroup()
 	if isGraphicsV1 then
@@ -1416,10 +1400,6 @@ function M.new( options )
 	{
 		left = opt.left,
 		top = opt.top,
-		width = opt.width,
-		height = opt.height,
-		x = opt.x,
-		y = opt.y,
 		id = opt.id or "widget_tableView",
 		baseDir = opt.baseDir,
 		widgetType = "tableView"
@@ -1427,6 +1407,16 @@ function M.new( options )
 
 	-- Create the tableView
 	createTableView( tableView, opt )
+	
+	tableView.width = opt.width
+	tableView.height = opt.height
+	
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		x = opt.left + tableView.contentWidth * 0.5
+		y = opt.top + tableView.contentHeight * 0.5
+	end
+	tableView.x, tableView.y = x, y
 	
 	return tableView
 end

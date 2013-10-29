@@ -240,10 +240,6 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
-		width = opt.width,
-		height = opt.height,
-		x = opt.x,
-		y = opt.y,
 		id = opt.id or "widget_spinner",
 		baseDir = opt.baseDir,
 	}
@@ -264,8 +260,12 @@ function M.new( options, theme )
 		spinner:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	--spinner.x = opt.left + spinner.contentWidth * 0.5
-	--spinner.y = opt.top + spinner.contentHeight * 0.5
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		x = opt.left + spinner.contentWidth * 0.5
+		y = opt.top + spinner.contentHeight * 0.5
+	end
+	spinner.x, spinner.y = x, y
 	
 	return spinner
 end

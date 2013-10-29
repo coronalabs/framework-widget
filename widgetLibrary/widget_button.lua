@@ -1379,10 +1379,6 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
-		width = opt.width,
-		height = opt.height,
-		x = opt.x,
-		y = opt.y,
 		id = opt.id or "widget_button",
 		baseDir = opt.baseDir,
 		widgetType = "button",
@@ -1414,8 +1410,12 @@ function M.new( options, theme )
 		button:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	--button.x = opt.left + button.contentWidth * 0.5
-	--button.y = opt.top + button.contentHeight * 0.5
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		x = opt.left + button.contentWidth * 0.5
+		y = opt.top + button.contentHeight * 0.5
+	end
+	button.x, button.y = x, y	
 
 	return button
 end

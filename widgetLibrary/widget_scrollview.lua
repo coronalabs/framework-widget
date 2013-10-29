@@ -563,10 +563,6 @@ function M.new( options )
 	{
 		left = opt.left,
 		top = opt.top,
-		width = opt.width,
-		height = opt.height,
-		x = opt.x,
-		y = opt.y,
 		id = opt.id or "widget_scrollView",
 		baseDir = opt.baseDir,
 		widgetType = "scrollView",
@@ -574,6 +570,16 @@ function M.new( options )
 
 	-- Create the scrollView
 	createScrollView( scrollView, opt )	
+	
+	scrollView.width = opt.width
+	scrollView.height = opt.height
+	
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		x = opt.left + scrollView.contentWidth * 0.5
+		y = opt.top + scrollView.contentHeight * 0.5
+	end
+	scrollView.x, scrollView.y = x, y	
 	
 	return scrollView
 end

@@ -892,10 +892,6 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
-		width = opt.width,
-		height = opt.height,
-		x = opt.x,
-		y = opt.y,
 		id = opt.id or "widget_switch",
 		baseDirectory = opt.baseDir,
 	}
@@ -910,11 +906,16 @@ function M.new( options, theme )
 		if ( isGraphicsV1 ) then
 			switch:setReferencePoint( display.CenterReferencePoint )
 		end
-		
-		
-		--switch.x = opt.left + switch.contentWidth * 0.5
-		--switch.y = opt.top + switch.contentHeight * 0.5
+	
 	end
+		
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		x = opt.left + switch.contentWidth * 0.5
+		y = opt.top + switch.contentHeight * 0.5
+	end
+	switch.x, switch.y = x, y
+	
 	
 	return switch
 end

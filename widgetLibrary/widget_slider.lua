@@ -530,10 +530,6 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
-		width = opt.width,
-		height = opt.height,
-		x = opt.x,
-		y = opt.y,
 		id = opt.id or "widget_slider",
 		baseDir = opt.baseDir,
 	}
@@ -551,8 +547,12 @@ function M.new( options, theme )
 		slider:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	--slider.x = opt.left + slider.contentWidth * 0.5
-	--slider.y = opt.top + slider.contentHeight * 0.5
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		x = opt.left + slider.contentWidth * 0.5
+		y = opt.top + slider.contentHeight * 0.5
+	end
+	slider.x, slider.y = x, y
 		
 	return slider
 end
