@@ -53,32 +53,9 @@ local function createPickerWheel( pickerWheel, options )
 		local themeData = require( opt.themeData )
 		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
-	
-	local containerWidth = options.width or display.contentWidth
-	local containerHeight = options.height or display.contentHeight 
-	
-	local x, y = opt.x, opt.y
-
-	pickerWheel.width = containerWidth
-	pickerWheel.height = containerHeight
-		
-	if not x or not y then
-		x = containerWidth * 0.5  + opt.left
-		y = containerHeight * 0.5 + opt.top
-	end
-	
-	pickerWheel.x = x
-	pickerWheel.y = y
 
 	-- Create the view
 	view = display.newGroup()
-
-	local x, y = - containerWidth, - containerHeight * 0.5
-	if isGraphicsV1 then
-		x = 0; y = 0
-	end
-	
-	view.x = x; view.y = y
 	
 	-- The view's background
 	viewOverlay = display.newImageRect( pickerWheel, imageSheet, opt.overlayFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
@@ -149,11 +126,11 @@ local function createPickerWheel( pickerWheel, options )
 		
 		-- Align the text as requested
 		if "center" == alignment then
-			rowTitle.x = row.x
+			rowTitle.x = row.x * 0.5
 		elseif "left" == alignment then
 			rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 6
 		elseif "right" == alignment then
-			rowTitle.x = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 6
+			rowTitle.x =  row.contentWidth - ( rowTitle.contentWidth * 0.5 ) - 6
 		end
 	end
 	
@@ -165,7 +142,7 @@ local function createPickerWheel( pickerWheel, options )
 	-- Function to create the column seperator
 	function view:_createSeperator( x )		
 		local seperator = display.newImageRect( self, imageSheet, opt.seperatorFrame, opt.seperatorFrameWidth + 4, opt.backgroundFrameHeight )
-		seperator.x = x
+		seperator.x = x - 70
 		
 		return seperator
 	end
@@ -187,8 +164,10 @@ local function createPickerWheel( pickerWheel, options )
 	for i = 1, #opt.columnData do
 		viewColumns[i] = _widget.newTableView
 		{
-			left = -144,
-			top = -110,
+			--left = -164,
+			--top = -110,
+			x = - 84,
+			y = 0,
 			width = opt.columnData[i].width or availableWidth / #opt.columnData,
 			height = opt.overlayFrameHeight,
 			topPadding = 90,
@@ -199,21 +178,15 @@ local function createPickerWheel( pickerWheel, options )
 			friction = 0.92,
 			rowColor = opt.columnColor,
 			onRowRender = _renderColumns,
-			maskFile = opt.maskFile,
 			listener = nil,
 			onRowTouch = didTapValue
 		}
 		viewColumns[i]._view._isUsedInPickerWheel = true
-		viewColumns[i]._view.x = -50
-		viewColumns[i]._view.y = -50
 		 		
 		-- Position the columns
 		if i > 1 then
-			viewColumns[i].x = viewColumns[i-1].x + viewColumns[i-1]._view._width
+			viewColumns[i].x = viewColumns[i-1].x + viewColumns[i-1]._view._width - 10
 		end
-		
-		print( viewColumns[i]._view.x )
-		print( viewColumns[i]._view.y )
 		
 		-- Column properties
 		viewColumns[i]._align = opt.columnData[i].align
@@ -249,7 +222,7 @@ local function createPickerWheel( pickerWheel, options )
 
 	-- Create the column seperators
 	for i = 1, #opt.columnData - 1 do
-		view:_createSeperator( viewColumns[i].x + viewColumns[i]._view._width )
+		view:_createSeperator( viewColumns[i].x + viewColumns[i]._view._width ) 
 	end
 
 	-- Push the view's background to the front.
@@ -380,6 +353,14 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
+	opt.x = customOptions.x or nil
+	opt.y = customOptions.y or nil
+	if customOptions.x and customOptions.y then
+		opt.left = 0
+		opt.top = 0
+	end
+	opt.width = display.contentWidth
+	opt.height = 0
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.maskFile = customOptions.maskFile or themeOptions.maskFile
@@ -424,20 +405,19 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
+		width = opt.width,
+		height = opt.height,
+		x = opt.x,
+		y = opt.y,
 		id = opt.id or "widget_pickerWheel",
 		baseDir = opt.baseDir,
 	}
 
 	-- Create the pickerWheel
 	createPickerWheel( pickerWheel, opt )
-	
-	-- Set the pickerWheel's position ( set the reference point to center, just to be sure )
-	if isGraphicsV1 then
-		pickerWheel:setReferencePoint( display.TopLeftReferencePoint )
-	end
-	
-	pickerWheel.x = opt.left
-	pickerWheel.y = opt.top --+ opt.overlayFrameHeight * 0.5	
+
+	--pickerWheel.x = opt.left + display.contentWidth * 0.5
+	--pickerWheel.y = opt.top + pickerWheel.contentHeight * 0.5
 	
 	return pickerWheel
 end

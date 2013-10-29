@@ -482,6 +482,12 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
+	opt.x = customOptions.x or nil
+	opt.y = customOptions.y or nil
+	if customOptions.x and customOptions.y then
+		opt.left = 0
+		opt.top = 0
+	end
 	opt.width = customOptions.width or themeOptions.width or error( "ERROR:" .. M._widgetName .. ": width expected, got nil", 3 )
 	opt.height = customOptions.height or themeOptions.height or error( "ERROR:" .. M._widgetName .. ": height expected, got nil", 3 )
 	opt.id = customOptions.id
@@ -525,6 +531,10 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
+		width = opt.width,
+		height = opt.height,
+		x = opt.x,
+		y = opt.y,
 		id = opt.id or "widget_segmentedControl",
 		baseDir = opt.baseDir,
 	}
@@ -537,8 +547,8 @@ function M.new( options, theme )
 		segmentedControl:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	segmentedControl.x = opt.left + segmentedControl.contentWidth * 0.5
-	segmentedControl.y = opt.top + segmentedControl.contentHeight * 0.5
+	--segmentedControl.x = opt.left + segmentedControl.contentWidth * 0.5
+	--segmentedControl.y = opt.top + segmentedControl.contentHeight * 0.5
 	
 	return segmentedControl
 end

@@ -255,6 +255,12 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
+	opt.x = customOptions.x or nil
+	opt.y = customOptions.y or nil
+	if customOptions.x and customOptions.y then
+		opt.left = 0
+		opt.top = 0
+	end
 	opt.width = customOptions.width or 150
 	opt.height = customOptions.height or 60
 	opt.id = customOptions.id
@@ -294,6 +300,10 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
+		width = opt.width,
+		height = opt.height,
+		x = opt.x,
+		y = opt.y,
 		id = opt.id or "widget_searchField",
 		baseDir = opt.baseDir,
 	}
@@ -307,8 +317,8 @@ function M.new( options, theme )
 		searchField:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	searchField.x = opt.left + searchField.contentWidth * 0.5
-	searchField.y = opt.top + searchField.contentHeight * 0.5
+	--searchField.x = opt.left + searchField.contentWidth * 0.5
+	--searchField.y = opt.top + searchField.contentHeight * 0.5
 	
 	return searchField
 end

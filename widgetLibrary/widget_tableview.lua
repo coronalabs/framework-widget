@@ -1416,6 +1416,10 @@ function M.new( options )
 	{
 		left = opt.left,
 		top = opt.top,
+		width = opt.width,
+		height = opt.height,
+		x = opt.x,
+		y = opt.y,
 		id = opt.id or "widget_tableView",
 		baseDir = opt.baseDir,
 		widgetType = "tableView"

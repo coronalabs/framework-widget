@@ -1379,6 +1379,10 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
+		width = opt.width,
+		height = opt.height,
+		x = opt.x,
+		y = opt.y,
 		id = opt.id or "widget_button",
 		baseDir = opt.baseDir,
 		widgetType = "button",
@@ -1410,14 +1414,8 @@ function M.new( options, theme )
 		button:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	button.x = opt.left + button.contentWidth * 0.5
-	button.y = opt.top + button.contentHeight * 0.5
-
-	--print( "Button anchors: ", button.anchorX, button.anchorY )
-	--print( "Button anchors children: ", button.anchorChildren )
-	--print( "Button coords: ", button.x, button.y )
-	--local bBounds = button.contentBounds
-	--print( "Button bounds: ", bBounds.xMin, bBounds.xMax, bBounds.yMin, bBounds.yMax )
+	--button.x = opt.left + button.contentWidth * 0.5
+	--button.y = opt.top + button.contentHeight * 0.5
 
 	return button
 end

@@ -47,6 +47,8 @@ local function setLimits( self, view )
 	end
 	self.bottomLimit = bottomLimit
 	
+	-- TODO: use local functions for the limits instead of ifs
+	
 	-- Set the upper limit
 	if view._scrollHeight then
 		local upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding

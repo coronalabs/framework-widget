@@ -822,8 +822,14 @@ function M.new( options, theme )
 	-- Positioning & properties
 	opt.left = customOptions.left or 0
 	opt.top = customOptions.top or 0
-	opt.width = customOptions.width or themeOptions.width
-	opt.height = customOptions.height or themeOptions.height
+	opt.x = customOptions.x or nil
+	opt.y = customOptions.y or nil
+	if customOptions.x and customOptions.y then
+		opt.left = 0
+		opt.top = 0
+	end
+	opt.width = customOptions.width or themeOptions.width or 20 -- from the sheet file
+	opt.height = customOptions.height or themeOptions.height or 20 -- from the sheet file
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.switchType = customOptions.style or "onOff"
@@ -886,6 +892,10 @@ function M.new( options, theme )
 	{
 		left = opt.left,
 		top = opt.top,
+		width = opt.width,
+		height = opt.height,
+		x = opt.x,
+		y = opt.y,
 		id = opt.id or "widget_switch",
 		baseDirectory = opt.baseDir,
 	}
@@ -902,8 +912,8 @@ function M.new( options, theme )
 		end
 		
 		
-		switch.x = opt.left + switch.contentWidth * 0.5
-		switch.y = opt.top + switch.contentHeight * 0.5
+		--switch.x = opt.left + switch.contentWidth * 0.5
+		--switch.y = opt.top + switch.contentHeight * 0.5
 	end
 	
 	return switch
