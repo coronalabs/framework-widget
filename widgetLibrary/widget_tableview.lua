@@ -79,7 +79,7 @@ local function createTableView( tableView, options )
 	-- Create the view
 	view = display.newGroup()
 	if isGraphicsV1 then
-		view.x = - containerWidth * 0.5; view.y = - containerHeight * 0.5
+		view.x = - tableView.width * 0.5; view.y = - tableView.height * 0.5
 	end
 
 	-- Create the fixed view
