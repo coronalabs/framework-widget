@@ -1089,7 +1089,11 @@ local function createTableView( tableView, options )
 		-- Calculate and set the row's y position
 		
 		if table.maxn(self._rows) <= 1 then
-			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1
+			local rowPos = - self.parent.contentHeight * 0.5 + ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1
+			if isGraphicsV1 then
+				rowPos = rowPos + self.parent.contentHeight * 0.5
+			end 
+			self._rows[table.maxn(self._rows)].y = rowPos 
 		else
 		    if ( self._rows[table.maxn(self._rows) - 1].y ) then
 			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows) - 1].y + ( self._rows[table.maxn(self._rows) - 1]._height * 0.5 ) )
