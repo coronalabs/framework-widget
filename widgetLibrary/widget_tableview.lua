@@ -383,7 +383,7 @@ local function createTableView( tableView, options )
 		self._targetRow = event.target
 		
 		-- Handle swipe events on the tableView
-		if "ended" == phase or "cancelled" == phase then
+		if "moved" == phase or "ended" == phase or "cancelled" == phase then
 			-- This wasn't the initial touch
 			self._initialTouch = false
 			
