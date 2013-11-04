@@ -200,17 +200,18 @@ local function createHorizontalSlider( slider, options )
 				self._isFocus = false
 			end
 			
-			-- Execute the listener ( if any )
-			if self._listener then
-				local newEvent = 
-				{ 
-					name = event.name,
-					phase = event.phase,
-					value = mRound( self._currentPercent ),
-					target = self,
-				}
-				self._listener( newEvent )
-			end
+		end
+		
+		-- Execute the listener ( if any )
+		if self._listener then
+			local newEvent = 
+			{ 
+				name = event.name,
+				phase = event.phase,
+				value = mRound( self._currentPercent ),
+				target = self,
+			}
+			self._listener( newEvent )
 		end
 		
 		return true
@@ -406,17 +407,18 @@ local function createVerticalSlider( slider, options )
 				self._isFocus = false
 			end
 			
-			-- Execute the listener ( if any )
-			if self._listener then
-				local newEvent = 
-				{ 
-					name = event.name,
-					phase = event.phase,
-					value = mRound( self._currentPercent ),
-					target = self,
-				}
-				self._listener( newEvent )
-			end
+		end
+		
+		-- Execute the listener ( if any )
+		if self._listener then
+			local newEvent = 
+			{ 
+				name = event.name,
+				phase = event.phase,
+				value = mRound( self._currentPercent ),
+				target = self,
+			}
+			self._listener( newEvent )
 		end
 		
 		return true
