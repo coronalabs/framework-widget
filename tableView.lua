@@ -284,18 +284,6 @@ function scene:createScene( event )
 			params = rowParams
 		}
 	end
-	
-	local row = tableView:getRowAtIndex( 12 )
-	print(row.id)
-	print(row.index)
-	local t1 = display.newRect( 15, 20, 10, 10 )
-	t1:setFillColor( 0 )
-	row:insert( t1 )
-	
-	timer.performWithDelay( 1000, function() 
-		tableView:reloadData()
-		print("reloaded")
-	end )
 
 
 
