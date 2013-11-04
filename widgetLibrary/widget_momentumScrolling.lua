@@ -111,7 +111,7 @@ local function handleSnapBackVertical( self, view, snapBack )
 end
 	
 -- Function to handle horizontal "snap back" on the view
-local function handleSnapBackHorizontal( self, view )
+local function handleSnapBackHorizontal( self, view, snapBack )
 
 	-- Set the limits now
 	setLimits( M, view )
@@ -130,14 +130,23 @@ local function handleSnapBackHorizontal( self, view )
 			limitHit = "left"
 			
 			-- Transition the view back to it's maximum position
-			view._tween = transition.to( view, { time = bounceTime, x = self.leftLimit, transition = easing.outQuad } )
+			if "boolean" == type( snapBack ) then
+				if snapBack == true then
+					view._tween = transition.to( view, { time = bounceTime, x = self.leftLimit, transition = easing.outQuad } )
+				end
+			end
+		
 		-- Put the view back to the right if it isn't already there ( and should be )
 		elseif view.x > self.rightLimit then
 			-- Set the hit limit
 			limitHit = "right"
 			
 			-- Transition the view back to it's maximum position
-			view._tween = transition.to( view, { time = bounceTime, x = self.rightLimit, transition = easing.outQuad } )
+			if "boolean" == type( snapBack ) then
+				if snapBack == true then
+					view._tween = transition.to( view, { time = bounceTime, x = self.rightLimit, transition = easing.outQuad } )
+				end
+			end
 		end
 	end
 	
@@ -236,9 +245,68 @@ function M._touch( view, event )
 						view.x = view.x + ( view._delta * 0.5 )
 					else
 						view.x = view.x + view._delta
+						
+						if view._listener then
+						
+							local newEvent = {}
+						
+							if view._delta < 0 then
+						
+							newEvent = 
+							{
+								direction = "left",
+								limitReached = false,
+								target = view,
+							}
+						
+							elseif view._delta > 0 then
+
+							newEvent = 
+							{
+								direction = "right",
+								limitReached = false,
+								target = view,
+							}
+							
+							elseif view._delta == 0 then
+							
+								if view._prevDeltaX and view._prevDeltaX < 0 then
+									newEvent = 
+									{
+										direction = "left",
+										limitReached = false,
+										target = view,
+									}
+								elseif view._prevDeltaX and view._prevDeltaX > 0 then
+									newEvent = 
+									{
+										direction = "right",
+										limitReached = false,
+										target = view,
+									}
+								end
+						
+							end
+							view._listener( newEvent )
+						end
+
 					end
 					
-					local limit = handleSnapBackHorizontal( M, view, true )
+					view._prevDeltaX = view._delta
+					
+					local limit
+					
+					if M.isBounceEnabled == true then 
+					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
+					    if view._isUsedInPickerWheel == true then
+					        limit = handleSnapBackHorizontal( M, view, true )
+					    else
+					    -- if not used in picker, we don't need snap back so we don't lose elastic behaviour on the tableview
+					        limit = handleSnapBackHorizontal( M, view, false )
+					    end
+					else
+					    limit = handleSnapBackHorizontal( M, view, true )
+					end
 					
 				end
 				
@@ -254,7 +322,57 @@ function M._touch( view, event )
 						view.y = view.y + ( view._delta * 0.5 )
 					else
 						view.y = view.y + view._delta 
+						
+												if view._listener then
+						
+							local newEvent = {}
+						
+							if view._delta < 0 then
+						
+							newEvent = 
+							{
+								direction = "up",
+								limitReached = false,
+								target = view,
+							}
+						
+							elseif view._delta > 0 then
+
+							newEvent = 
+							{
+								direction = "down",
+								limitReached = false,
+								target = view,
+							}
+							
+							elseif view._delta == 0 then
+							
+								if view._prevDeltaY and view._prevDeltaY < 0 then
+									newEvent = 
+									{
+										direction = "up",
+										limitReached = false,
+										target = view,
+									}
+								elseif view._prevDeltaY and view._prevDeltaY > 0 then
+									newEvent = 
+									{
+										direction = "down",
+										limitReached = false,
+										target = view,
+									}
+								end
+						
+							end
+							view._listener( newEvent )
+						
+						
+						
+						end
+						
 					end
+					
+					view._prevDeltaY = view._delta
 					
 					-- Handle limits
 					-- if bounce is true, then the snapback parameter has to be true, otherwise false
@@ -348,7 +466,12 @@ function M._runtime( view, event )
 				view.x = view.x + view._velocity * timePassed
 			
 				-- Handle limits
-				local limit = handleSnapBackHorizontal( M, view )
+				local limit
+				if "horizontal" == view._moveDirection then
+                    limit = handleSnapBackHorizontal( M, view, true )
+                else
+                    limit = handleSnapBackHorizontal( M, view, false )
+                end
 			
 				-- Left
 				if "left" == limit then					

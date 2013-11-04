@@ -409,8 +409,9 @@ local function createScrollView( scrollView, options )
 			_momentumScrolling._touch( self, event )
 		end
 		
+		-- This has been overridden by the listener execution in the momentumScrolling touch method.
 		-- Execute the listener if one is specified
-		if self._listener then
+		--[[if self._listener then
 			local newEvent = {}
 			
 			for k, v in pairs( event ) do
@@ -422,7 +423,7 @@ local function createScrollView( scrollView, options )
 			
 			-- Execute the listener
 			self._listener( newEvent )
-		end
+		end]]--
 				
 		-- Set the view's phase so we can access it in the enterFrame listener below
 		self._phase = event.phase
