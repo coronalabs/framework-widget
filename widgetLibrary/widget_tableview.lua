@@ -198,6 +198,11 @@ local function createTableView( tableView, options )
 		return self._view:_getRowAtIndex( index )
 	end
 	
+	-- Function to reload tableView data
+	function tableView:reloadData()
+		return self._view:_reloadData()
+	end
+	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -859,6 +864,14 @@ local function createTableView( tableView, options )
 		-- If the row is within the bounds of the view, create it
 		if isRowWithinBounds then
 			-- If the row's view property doesn't exist
+			
+			if isReRender then
+					if currentRow._view then 
+						display.remove( currentRow._view )
+						currentRow._view = nil
+					end
+			end
+			
 			if type( currentRow._view ) ~= "table" then
 
 				-- We haven't finished rendering all rows yet
@@ -882,7 +895,7 @@ local function createTableView( tableView, options )
 						if view._rows[ row.index + 1] and view._rows[ row.index + 1 ].isCategory then
 							rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
 						else
-							rowLine = display.newLine( currentRow._view, 15, rowCell.y, currentRow._width, rowCell.y )
+							rowLine = display.newLine( currentRow._view, 15, rowCell.y, currentRow._width - 2, rowCell.y )
 						end
 					else
 						rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
@@ -896,7 +909,7 @@ local function createTableView( tableView, options )
 						rowLine.x = rowCell.x 
 					end
 
-					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
+					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 )
 					rowLine:setColor( unpack( currentRow._lineColor ) )					
 				end
 			
@@ -1250,6 +1263,22 @@ local function createTableView( tableView, options )
 		local onTransitionComplete = options.onComplete
 	
 		transition.to( self, { y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
+	end
+	
+	-- Function to re-render the rows
+	function view:_reloadData()
+		
+		-- calculate the view limits
+		local upperLimit = self._background.y - ( self._background.contentHeight * 0.5 )
+		local lowerLimit = self._background.y + ( self._background.contentHeight * 0.5 )
+	
+		for i, row in pairs( self._rows ) do
+			local isRowWithinBounds = ( row.y + self.y ) + row._height > upperLimit and ( row.y + self.y ) - row._height * 2 < lowerLimit
+			-- if the row is visible, re-render it
+			if isRowWithinBounds then
+				self:_createRow( row, true )
+			end
+		end
 	end
 	
 	-- Finalize function for the tableView
