@@ -561,6 +561,22 @@ local function createTableView( tableView, options )
 	
 	Runtime:addEventListener( "enterFrame", view )
 	
+	-- suspend / resume listener
+	local function _handleSuspendResume( event )
+		-- if the application comes back from a suspension
+		if "applicationResume" == event.type then
+			if Runtime._tableListeners.enterFrame then
+				for _,func in pairs(Runtime._tableListeners.enterFrame) do
+					if func==view then
+						Runtime:removeEventListener( "enterFrame", view )
+					end
+				end
+			end
+			Runtime:addEventListener( "enterFrame", view )
+		end
+	end
+	
+	Runtime:addEventListener("system", _handleSuspendResume)	
 		
 	-- Function to set all tableView categories (if any)
 	function view:_gatherCategories()
