@@ -124,6 +124,7 @@ function scene:createScene( event )
 		--isLocked = true,
 		horizontalScrollDisabled = false,
 		verticalScrollDisabled = false,
+		scrollBarAutoHide = true,
 		maskFile = "unitTestAssets/scrollViewMask-350.png",
 		--listener = scrollListener,
 	}

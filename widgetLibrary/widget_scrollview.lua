@@ -127,6 +127,7 @@ local function createScrollView( scrollView, options )
 	-- assign the threshold values to the momentum
 	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
 	_momentumScrolling.isBounceEnabled = opt.isBounceEnabled
+	_momentumScrolling.scrollBarAutoHide = opt.scrollBarAutoHide
 			
 	-------------------------------------------------------
 	-- Assign properties/objects to the scrollView
@@ -248,7 +249,7 @@ local function createScrollView( scrollView, options )
 					--[[
 					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
 					--]]								
-					if not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
+					if not self._view._scrollBar and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
 						self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
 					end
 				end)
@@ -360,7 +361,7 @@ local function createScrollView( scrollView, options )
 					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
 					--]]
 															
-					if not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
+					if not self._view._scrollBar and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
 						self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
 					end
 				end)
@@ -521,6 +522,10 @@ function M.new( options )
 	opt.isBounceEnabled = true
 	if nil ~= customOptions.isBounceEnabled and customOptions.isBounceEnabled == false then 
 	    opt.isBounceEnabled = false
+	end
+	opt.scrollBarAutoHide = true
+	if nil ~= customOptions.scrollBarAutoHide and customOptions.scrollBarAutoHide == false then
+		opt.scrollBarAutoHide = false
 	end
 	
 	-- Set the scrollView to locked if both horizontal and vertical scrolling are disabled

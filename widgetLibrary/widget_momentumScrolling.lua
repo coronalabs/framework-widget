@@ -327,10 +327,14 @@ function M._touch( view, event )
 					-- If the view is more than the limits
 					if view.y < M.upperLimit or view.y > M.bottomLimit then
 						view.y = view.y + ( view._delta * 0.5 )
+						-- shrink the scrollbar if the view is out of bounds
+						if view._scrollBar then
+							--view._scrollBar.yScale = 0.1 * - ( view.y - M.bottomLimit )
+						end
 					else
 						view.y = view.y + view._delta 
 						
-												if view._listener then
+						if view._listener then
 						
 							local newEvent = {}
 						
@@ -456,7 +460,7 @@ function M._runtime( view, event )
 			view._updateRuntime = false
 			
 			-- Hide the scrollBar
-			if view._scrollBar then
+			if view._scrollBar and M.scrollBarAutoHide then
 				view._scrollBar:hide()
 			end
 		end
@@ -557,7 +561,7 @@ function M._runtime( view, event )
 				-- Top
 				if "top" == limit then					
 					-- Hide the scrollBar
-					if view._scrollBar then
+					if view._scrollBar and M.scrollBarAutoHide then
 						view._scrollBar:hide()
 					end
 					
@@ -583,7 +587,7 @@ function M._runtime( view, event )
 				-- Bottom
 				elseif "bottom" == limit then				
 					-- Hide the scrollBar
-					if view._scrollBar then
+					if view._scrollBar and M.scrollBarAutoHide then
 						view._scrollBar:hide()
 					end
 										
@@ -787,6 +791,10 @@ function M.createScrollBar( view, options )
 	view._fixedGroup:setReferencePoint( display.CenterReferencePoint )
 	view._fixedGroup.x = view._width - scrollBarWidth * 0.5
 	view._fixedGroup.y = view.parent.y - view._top + ( M.scrollBar.contentHeight * 0.5 )
+	
+	if not M.scrollBarAutoHide then
+		M.scrollBar:show()
+	end
 	
 	return M.scrollBar
 end
