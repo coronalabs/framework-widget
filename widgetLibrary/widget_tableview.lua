@@ -50,6 +50,7 @@ local lineCatColorIos7 = { 0.78, 0.78, 0.80, 1 }
 local rowColorDefault = { 1, 1, 1, 1 }
 local rowColorOver = { 0.11, 0.56, 1, 1 }
 local whiteColor = { 1, 1, 1, 1 }
+local pickerRowColor = { 0.60 }
 
 if isGraphicsV1 then
 	_widget._convertColorToV1( rowColorIos6.default )
@@ -64,6 +65,7 @@ if isGraphicsV1 then
 	_widget._convertColorToV1( rowColorDefault )
 	_widget._convertColorToV1( rowColorOver )
 	_widget._convertColorToV1( whiteColor )
+	_widget._convertColorToV1( pickerRowColor )
 end
 
 -- Localize math functions
@@ -333,7 +335,7 @@ local function createTableView( tableView, options )
 				for i = 1, #self._rows do
 					-- if the row is on screen, set it to the default color
 					if nil ~= self._rows[ i ]._view then
-						self._rows[ i ]._view[ 2 ]:setFillColor( 155 )
+						self._rows[ i ]._view[ 2 ]:setFillColor( unpack( pickerRowColor ) )
 					end
 				end
 			end
@@ -1286,8 +1288,7 @@ local function createTableView( tableView, options )
 		-- The calculation needs altering for pickerWheels
 		if self._isUsedInPickerWheel then
 			-- TODO: this is just because we have a single theme for all the pickers, we'll have to add a real solution here.
-			-- TODO: for ios6, we have to go with - 89
-			newPosition = - 102 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
+			newPosition = - 89 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 		end
 		
 		--Check if a category is displayed, so we adjust the position with the height of the category
