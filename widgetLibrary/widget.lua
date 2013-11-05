@@ -102,7 +102,11 @@ function widget._newContainer( options )
 
 	local newWidget
 
-	newWidget = display.newContainer( display.contentWidth, display.contentHeight ) -- All Widget* objects are display groups, except scrollview and tableview
+	if isGraphicsV1 then
+		newWidget = display._newContainer( display.contentWidth, display.contentHeight ) -- All Widget* objects are display groups, except scrollview and tableview
+	else
+		newWidget = display.newContainer( display.contentWidth, display.contentHeight )
+	end
 	newWidget.id = options.id or "widget*"
 	newWidget.baseDir = options.baseDir or system.ResourceDirectory
 	newWidget._isWidget = true
