@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 local _momentumScrolling = require( "widget_momentumScrolling" )
+-- TODO: this is temporary, because the tableview view height is calculated wrong. we need to pass in the widget type to know how to position the scrollbar
+_momentumScrolling.widgetType = "scrollView"
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
