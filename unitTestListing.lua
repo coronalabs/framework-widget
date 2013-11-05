@@ -62,8 +62,10 @@ function scene:createScene( event )
 	{
 		left = 0,
 		top = 40,
+		x = 160,
+		y = 260,
 		width = display.contentWidth,
-		height = display.contentHeight - 50,
+		height = display.contentHeight - 40,
 		horizontalScrollDisabled = true,
 		hideScrollBar = false,
 		hideBackground = true,
@@ -126,12 +128,26 @@ function scene:createScene( event )
 		return true
 	end
 
+	local buttonX = 0
+	if isGraphicsV1 then
+		buttonX = 160
+	end
+	
+	local function yCoord( coord )
+		if isGraphicsV1 then
+			coord = coord + scrollView.contentHeight * 0.5
+		end
+		return coord
+	end
+
 	-- spinner unit test
 	local spinnerButton = widget.newButton
 	{
 	    id = "spinner",
 	    left = -100,
 	    top = - 230,
+	    x = buttonX,
+	    y = yCoord( -190 ),
 	    label = "Spinner",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -143,8 +159,8 @@ function scene:createScene( event )
 	local switchButton = widget.newButton
 	{
 	    id = "switch",
-	    left = -100,
-	    top = spinnerButton.y + 50,
+	    x = buttonX,
+	    y = spinnerButton.y + 50,
 	    label = "Switch",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -158,6 +174,8 @@ function scene:createScene( event )
 	    id = "stepper",
 	    left = -100,
 	    top = switchButton.y + 50,
+	    x = buttonX,
+	    y = switchButton.y + 50,
 	    label = "Stepper",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -172,6 +190,8 @@ function scene:createScene( event )
 	    id = "searchField",
 	    left = -100,
 	    top = stepperButton.y + 50,
+	    x = buttonX,
+	    y = stepperButton.y + 50,
 	    label = "Search Field",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -185,6 +205,8 @@ function scene:createScene( event )
 	    id = "progressView",
 	    left = -100,
 	    top = searchFieldButton.y + 50,
+	    x = buttonX,
+	    y = searchFieldButton.y + 50,
 	    label = "Progress View",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -198,6 +220,8 @@ function scene:createScene( event )
 	    id = "segmentedControl",
 	    left = -100,
 	    top = progressViewButton.y + 50,
+	    x = buttonX,
+	    y = progressViewButton.y + 50,
 	    label = "Segmented Control",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -211,6 +235,8 @@ function scene:createScene( event )
 	    id = "button",
 	    left = -100,
 	    top = segmentedControlButton.y + 50,
+	    x = buttonX,
+	    y = segmentedControlButton.y + 50,
 	    label = "Button",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -224,6 +250,8 @@ function scene:createScene( event )
 	    id = "tabBar",
 	    left = -100,
 	    top = buttonButton.y + 50,
+	    x = buttonX,
+	    y = buttonButton.y + 50,
 	    label = "TabBar",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -237,6 +265,8 @@ function scene:createScene( event )
 	    id = "slider",
 	    left = -100,
 	    top = tabBarButton.y + 50,
+	    x = buttonX,
+	    y = tabBarButton.y + 50,
 	    label = "Slider",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -250,6 +280,8 @@ function scene:createScene( event )
 	    id = "picker",
 	    left = -100,
 	    top = sliderButton.y + 50,
+	    x = buttonX,
+	    y = sliderButton.y + 50,
 	    label = "Picker",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -263,6 +295,8 @@ function scene:createScene( event )
 	    id = "tableView",
 	    left = -100,
 	    top = pickerButton.y + 50,
+	    x = buttonX,
+	    y = pickerButton.y + 50,
 	    label = "TableView",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
@@ -276,6 +310,8 @@ function scene:createScene( event )
 	    id = "scrollView",
 	    left = -100,
 	    top = tableViewButton.y + 50,
+	    x = buttonX,
+	    y = tableViewButton.y + 50,
 	    label = "ScrollView",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
