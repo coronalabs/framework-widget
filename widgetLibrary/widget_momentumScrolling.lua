@@ -627,12 +627,18 @@ function M.createScrollBar( view, options )
 	
 	-- Function to move the scrollBar
 	function M.scrollBar:move()
-		local moveFactor = ( view.y * 100 ) / ( self._viewContentHeight - self._viewHeight )		
+	
+		local viewY = view.y
+		if isGraphicsV1 then
+			viewY = viewY + view.parent.contentHeight * 0.5
+		end
+	
+		local moveFactor = ( viewY * 100 ) / ( self._viewContentHeight - self._viewHeight )		
 		local moveQuantity = ( moveFactor * ( self._viewHeight - self.contentHeight ) ) / 100
 				
-		if view.y < 0 then
+		if viewY < 0 then
 			-- Only move if not over the bottom limit
-			if mAbs( view.y ) < ( self._viewContentHeight - self._viewHeight ) then
+			if mAbs( view.y ) < ( self._viewContentHeight ) then
 				self.y = view.parent.y - view._top - moveQuantity
 			end
 		end		
@@ -670,7 +676,17 @@ function M.createScrollBar( view, options )
 	view._fixedGroup:insert( M.scrollBar )
 	
 	view._fixedGroup.x = view._width * 0.5 - scrollBarWidth * 0.5
-	view._fixedGroup.y = view.parent.y - view._top - view._height * 0.5
+	--local viewFixedGroupY = view.parent.y - view._top - view._height * 0.5
+	
+	-- this has to be positioned at the yCoord - half the height, no matter what.
+	local viewFixedGroupY = - view.parent.contentHeight * 0.5
+	view._fixedGroup.y = viewFixedGroupY
+	
+	-- calculate the limits. Fixes placement errors for the scrollbar.
+	setLimits( M, view )
+	
+	-- set the widget y coord according to the calculated limits
+	view.y = M.bottomLimit
 	
 	return M.scrollBar
 end
