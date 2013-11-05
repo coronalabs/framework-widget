@@ -36,7 +36,17 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local labelColor = { 0.60 }
+local defaultRowColor = { 1 }
+local blackColor = { 0 }
+
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+
+if isGraphicsV1 then
+	_widget._convertColorToV1( labelColor )
+	_widget._convertColorToV1( defaultRowColor )
+	_widget._convertColorToV1( blackColor )
+end
 
 -- Creates a new pickerWheel
 local function createPickerWheel( pickerWheel, options )
@@ -53,12 +63,17 @@ local function createPickerWheel( pickerWheel, options )
 		local themeData = require( opt.themeData )
 		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
-
+	
 	-- Create the view
 	view = display.newGroup()
-	
+	if isGraphicsV1 then
+		view.x = - pickerWheel.width * 0.5; view.y = -pickerWheel.height * 0.5
+	end
+		
 	-- The view's background
 	viewOverlay = display.newImageRect( pickerWheel, imageSheet, opt.overlayFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
+	viewOverlay.x = 0
+	viewOverlay.y = 0
 	
 	----------------------------------
 	-- Properties
@@ -125,13 +140,28 @@ local function createPickerWheel( pickerWheel, options )
 	    end
 		
 		-- Align the text as requested
+		local rowX
 		if "center" == alignment then
-			rowTitle.x = row.x * 0.5
+			--rowTitle.x = row.x + row.contentWidth * 0.5
+			rowX = row.contentWidth * 0.5 - rowTitle.contentWidth * 0.5
+			if isGraphicsV1 then
+				rowX = view.parent.contentWidth - rowTitle.contentWidth
+			end
 		elseif "left" == alignment then
-			rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 6
+			--rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 6
+			rowX = 10 + rowTitle.contentWidth * 0.5
+			if isGraphicsV1 then
+				rowX = rowX + row.contentWidth + 20
+			end
 		elseif "right" == alignment then
-			rowTitle.x =  row.contentWidth - ( rowTitle.contentWidth * 0.5 ) - 6
+			rowX = row.contentWidth - rowTitle.contentWidth - 10
+			if isGraphicsV1 then
+				rowX = view.parent.contentWidth - rowTitle.contentWidth * 0.5 - 10
+			end
 		end
+		
+		rowTitle.x = rowX
+		
 	end
 	
 	-- Create a background to sit behind the pickerWheel
@@ -164,10 +194,8 @@ local function createPickerWheel( pickerWheel, options )
 	for i = 1, #opt.columnData do
 		viewColumns[i] = _widget.newTableView
 		{
-			--left = -164,
-			--top = -110,
-			x = - 84,
-			y = 0,
+			left = -164,
+			top = -110,
 			width = opt.columnData[i].width or availableWidth / #opt.columnData,
 			height = opt.overlayFrameHeight,
 			topPadding = 90,
@@ -178,16 +206,22 @@ local function createPickerWheel( pickerWheel, options )
 			friction = 0.92,
 			rowColor = opt.columnColor,
 			onRowRender = _renderColumns,
+			maskFile = opt.maskFile,
 			listener = nil,
 			onRowTouch = didTapValue
 		}
 		viewColumns[i]._view._isUsedInPickerWheel = true
-		 		
+		
+		if isGraphicsV1 then
+			viewColumns[i].x = viewColumns[i].x + view.parent.contentWidth * 0.5
+			viewColumns[i].y = viewColumns[i].y + view.parent.contentHeight * 0.5
+		end
+		 	
 		-- Position the columns
 		if i > 1 then
-			viewColumns[i].x = viewColumns[i-1].x + viewColumns[i-1]._view._width - 10
+			viewColumns[i].x = viewColumns[i-1].x + viewColumns[i-1]._view._width
 		end
-		
+
 		-- Column properties
 		viewColumns[i]._align = opt.columnData[i].align
 		viewColumns[i]._fontSize = opt.fontSize
@@ -205,8 +239,8 @@ local function createPickerWheel( pickerWheel, options )
 			{
 				rowHeight = 40,
 				rowColor = { 
-				default = { 255, 255, 255, 255 },
-    			over = { 255, 255, 255, 255 }, 
+				default = defaultRowColor,
+    			over = defaultRowColor, 
     			},
 				label = opt.columnData[i].labels[j],
 				id = i
@@ -366,13 +400,13 @@ function M.new( options, theme )
 	opt.maskFile = customOptions.maskFile or themeOptions.maskFile
 	opt.font = customOptions.font or native.systemFontBold
 	opt.fontSize = customOptions.fontSize or 22
-	opt.fontColor = customOptions.fontColor or { 0, 0, 0 }
-	opt.columnColor = customOptions.columnColor or { 255, 255, 255 }
+	opt.fontColor = customOptions.fontColor or blackColor
+	opt.columnColor = customOptions.columnColor or defaultRowColor
 	
 	if _widget.isSeven() then
 		opt.font = customOptions.font or themeOptions.font or "HelveticaNeue-Medium"
 		opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 20
-		opt.fontColor = { 155, 155, 155 }
+		opt.fontColor = labelColor
 	end
 		
 	-- Properties
@@ -401,7 +435,7 @@ function M.new( options, theme )
 	-------------------------------------------------------
 		
 	-- Create the pickerWheel object
-	local pickerWheel = _widget._new
+	local pickerWheel = _widget._newContainer
 	{
 		left = opt.left,
 		top = opt.top,
@@ -411,7 +445,10 @@ function M.new( options, theme )
 
 	-- Create the pickerWheel
 	createPickerWheel( pickerWheel, opt )
-
+	
+	pickerWheel.width = opt.width
+	pickerWheel.height = pickerWheel._view._overlay.contentHeight
+	
 	local x, y = opt.x, opt.y
 	if not opt.x or not opt.y then
 		x = opt.left + pickerWheel.contentWidth * 0.5
