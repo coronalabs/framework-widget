@@ -36,6 +36,8 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 local _momentumScrolling = require( "widget_momentumScrolling" )
+-- TODO: this is temporary, because the tableview view height is calculated wrong. we need to pass in the widget type to know how to position the scrollbar
+_momentumScrolling.widgetType = "tableView"
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
@@ -669,7 +671,7 @@ local function createTableView( tableView, options )
 			-- Insert the category into the group
 			local catGroupY = - self._height * 0.5 - category.contentHeight * 0.5
 			if isGraphicsV1 then
-				catGroupY = - self._height * 0.5
+				catGroupY = - self._height * 0.5 - 1
 			end
 			self._categoryGroup.y = catGroupY
 			
@@ -1089,7 +1091,7 @@ local function createTableView( tableView, options )
 		-- Calculate and set the row's y position
 		
 		if table.maxn(self._rows) <= 1 then
-			local rowPos = - self.parent.contentHeight * 0.5 + ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1
+			local rowPos = - self.parent.contentHeight * 0.5 + ( self._rows[table.maxn(self._rows)]._height * 0.5 )
 			if isGraphicsV1 then
 				rowPos = rowPos + self.parent.contentHeight * 0.5
 			end 
@@ -1284,7 +1286,8 @@ local function createTableView( tableView, options )
 		-- The calculation needs altering for pickerWheels
 		if self._isUsedInPickerWheel then
 			-- TODO: this is just because we have a single theme for all the pickers, we'll have to add a real solution here.
-			newPosition = 89 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
+			-- TODO: for ios6, we have to go with - 89
+			newPosition = - 102 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 		end
 		
 		--Check if a category is displayed, so we adjust the position with the height of the category
