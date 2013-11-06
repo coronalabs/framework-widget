@@ -139,7 +139,12 @@ local function createPickerWheel( pickerWheel, options )
 		elseif "left" == alignment then
 			rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 6
 		elseif "right" == alignment then
-			rowTitle.x = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 6
+			local rowTitleX = row.contentWidth - 10 - rowTitle.contentWidth
+			if isGraphicsV1 then
+				rowTitleX = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 6
+			end
+			rowTitle.x = rowTitleX
+
 		end
 		
 		
@@ -172,6 +177,12 @@ local function createPickerWheel( pickerWheel, options )
 	end
 	
 	-- Create the pickerWheel Columns (which are tableView's)
+	local topPadding = 84
+	local bottomPadding = 98
+	if isGraphicsV1 then
+		topPadding = 90
+		bottomPadding = 92
+	end
 	for i = 1, #opt.columnData do
 		viewColumns[i] = _widget.newTableView
 		{
@@ -179,8 +190,8 @@ local function createPickerWheel( pickerWheel, options )
 			top = -110,
 			width = opt.columnData[i].width or availableWidth / #opt.columnData,
 			height = opt.overlayFrameHeight,
-			topPadding = 90,
-			bottomPadding = 92,
+			topPadding = topPadding,
+			bottomPadding = bottomPadding,
 			noLines = true,
 			hideBackground = true,
 			hideScrollBar = true,
@@ -289,7 +300,11 @@ local function createPickerWheel( pickerWheel, options )
 		
 			if "ended" == self._columns[i]._view._phase and not self._columns[i]._view._updateRuntime then
 			    if not self._didTap then
-				    self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( self._yPosition )
+			    	local calculatePosition = self._yPosition - self.parent.contentHeight * 0.5
+			    	if isGraphicsV1 then
+			    		calculatePosition = self._yPosition
+			    	end
+				    self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( calculatePosition )
 				else
 				    self._columns[i]._values = self._columns[i]._view:_getRowAtIndex( self._columns[ i ]._view._lastRowIndex )
 				    self._didTap = false
