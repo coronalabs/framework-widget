@@ -54,8 +54,13 @@ local function createScrollView( scrollView, options )
 	
 	-- Create the view
 	view = display.newGroup()
-	if isGraphicsV1 then
+	--if isGraphicsV1 then
 		view.x = - scrollView.width * 0.5; view.y = -scrollView.height * 0.5
+	--end
+
+	if not isGraphicsV1 then
+		view.anchorX = 0
+		view.anchorY = 0
 	end
 
 	viewFixed = display.newGroup()
