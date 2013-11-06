@@ -80,11 +80,9 @@ local function createTableView( tableView, options )
 
 	-- Create the view
 	view = display.newGroup()
+
+	view.x = - opt.width * 0.5
 	if isGraphicsV1 then
-		view.x = - opt.width * 0.5
-		view.y = - opt.height * 0.5
-	else
-		view.x = - opt.width
 		view.y = - opt.height * 0.5
 	end
 	
@@ -103,7 +101,7 @@ local function createTableView( tableView, options )
 	-- Create the view's category group
 	categoryGroup = display.newGroup()
 	if not isGraphicsV1 then
-		categoryGroup.anchorX = 0; categoryGroup.anchorY = 0
+		--categoryGroup.anchorX = 0; categoryGroup.anchorY = 0
 	end
 	
 	----------------------------------
@@ -695,13 +693,15 @@ local function createTableView( tableView, options )
 				else
 					rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
 				end
-				rowLine.x = rowCell.x 
+				rowLine.x = 0
 				rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
 				rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
 			end
 
 			-- Set the row's id
 			category.id = currentRow.id
+
+
 			
 			-- Set the categories index
 			category.index = currentRow.index
@@ -719,6 +719,11 @@ local function createTableView( tableView, options )
 				catGroupY = - self.parent.height * 0.5
 			end
 			self._categoryGroup.y = catGroupY
+			local rowX = 0
+			if isGraphicsV1 then
+				rowX = 0
+			end
+			self._categoryGroup.x = rowX
 			self._categoryGroup:insert( category )
 			
 			return category
@@ -739,7 +744,11 @@ local function createTableView( tableView, options )
 			else
 				self._currentCategory.anchorX = 0.5; self._currentCategory.anchorY = 0.5
 			end
-			self._currentCategory.x = self.x + ( currentRow._width * 0.5 )
+			local catX = self.x
+			if isGraphicsV1 then
+				catX = catX + self.parent.width * 0.5
+			end
+			self._currentCategory.x = catX
 			self._currentCategory.y = self._currentCategory.contentHeight * 0.5
 			
 			-- Create the rowRender event
@@ -985,7 +994,12 @@ local function createTableView( tableView, options )
 				end
 
 				-- Position the row
-				currentRow._view.x = currentRow._width * 0.5
+				local rowX = 0
+				if isGraphicsV1 then
+					rowX = currentRow._width * 0.5
+				end
+				currentRow._view.x = rowX
+		
 				local curY = currentRow.y - currentRow._view.contentHeight * 0.5
 				if isGraphicsV1 then
 					curY = currentRow.y 
