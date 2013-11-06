@@ -36,8 +36,6 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 local _momentumScrolling = require( "widget_momentumScrolling" )
--- TODO: this is temporary, because the tableview view height is calculated wrong. we need to pass in the widget type to know how to position the scrollbar
-_momentumScrolling.widgetType = "tableView"
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
@@ -83,19 +81,30 @@ local function createTableView( tableView, options )
 	-- Create the view
 	view = display.newGroup()
 	if isGraphicsV1 then
-		view.x = - tableView.width * 0.5; view.y = - tableView.height * 0.5
+		view.x = - opt.width * 0.5
+		view.y = - opt.height * 0.5
+	else
+		view.x = - opt.width
+		view.y = - opt.height * 0.5
 	end
-
+	
 	-- Create the fixed view
 	viewFixed = display.newGroup()
 		
 	-- Create the view's background
-	viewBackground = display.newRect( tableView, 0, 0, opt.width, opt.height )
-	viewBackground.x = 0
-	viewBackground.y = 0
+	local bgPositionX = 0
+	local bgPositionY = 0
+	if isGraphicsV1 then
+		bgPositionX = - opt.width * 0.5
+		bgPositionY = - opt.height * 0.5		
+	end
+	viewBackground = display.newRect( tableView, bgPositionX, bgPositionY, opt.width, opt.height )
 	
 	-- Create the view's category group
 	categoryGroup = display.newGroup()
+	if not isGraphicsV1 then
+		categoryGroup.anchorX = 0; categoryGroup.anchorY = 0
+	end
 	
 	----------------------------------
 	-- Properties
@@ -162,6 +171,7 @@ local function createTableView( tableView, options )
 	-- assign the momentum property
 	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
 	_momentumScrolling.isBounceEnabled = opt.isBounceEnabled
+	_momentumScrolling.scrollBarAutoHide = opt.scrollBarAutoHide
 		
 	-------------------------------------------------------
 	-- Assign properties/objects to the tableView
@@ -219,6 +229,11 @@ local function createTableView( tableView, options )
 	-- Function to retrieve the row (view) at the specific index
 	function tableView:getRowAtIndex( index )
 		return self._view:_getRowAtIndex( index )
+	end
+	
+	-- Function to reload tableView data
+	function tableView:reloadData()
+		return self._view:_reloadData()
 	end
 	
 	----------------------------------------------------------
@@ -335,7 +350,7 @@ local function createTableView( tableView, options )
 				for i = 1, #self._rows do
 					-- if the row is on screen, set it to the default color
 					if nil ~= self._rows[ i ]._view then
-						self._rows[ i ]._view[ 2 ]:setFillColor( unpack( pickerRowColor ) )
+						self._rows[ i ]._view[ 2 ]:setTextColor( unpack( pickerRowColor ) )
 					end
 				end
 			end
@@ -401,7 +416,7 @@ local function createTableView( tableView, options )
 		self._targetRow = event.target
 		
 		-- Handle swipe events on the tableView
-		if "ended" == phase or "cancelled" == phase then
+		if "moved" == phase or "ended" == phase or "cancelled" == phase then
 			-- This wasn't the initial touch
 			self._initialTouch = false
 			
@@ -490,7 +505,7 @@ local function createTableView( tableView, options )
 		if self._hasRenderedRows then			
 			-- Create the scrollBar
 			if not self._hideScrollBar then
-				if not self._isLocked and not self._scrollBar then
+				if not self._scrollBar and not self._isLocked and not self._scrollBar then
 					self._scrollBar = _momentumScrolling.createScrollBar( view, opt.scrollBarOptions )
 				end
 			end
@@ -582,8 +597,7 @@ local function createTableView( tableView, options )
 		return true
 	end
 	
-	Runtime:addEventListener( "enterFrame", view )
-	
+	Runtime:addEventListener( "enterFrame", view )	
 		
 	-- Function to set all tableView categories (if any)
 	function view:_gatherCategories()
@@ -630,6 +644,10 @@ local function createTableView( tableView, options )
 		-- Function to create a new category
 		local function newCategory()
 			local category = display.newGroup()
+			if not isGraphicsV1 then
+				category.anchorX = 0; category.anchorY = 0
+			end
+			
 			-- Create the row's cell
 			local rowCell = display.newRect( category, 0, 0, currentRow._width, currentRow._height )
 			rowCell.x = rowCell.contentWidth * 0.5
@@ -646,14 +664,13 @@ local function createTableView( tableView, options )
 				else
 					rowLine = display.newLine( category, 0, rowCell.y, currentRow._width, rowCell.y )
 				end
-				
 				if isGraphicsV1 then
 					rowLine:setReferencePoint( display.CenterReferencePoint )
+				else
+					rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
 				end
-				
 				rowLine.x = rowCell.x 
 				rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
-
 				rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
 			end
 
@@ -671,20 +688,11 @@ local function createTableView( tableView, options )
 			category:addEventListener( "tap", function() return true end )
 			
 			-- Insert the category into the group
-			local catGroupY = - self._height * 0.5 - category.contentHeight * 0.5
+			local catGroupY = - self.parent.height * 0.5 - category.contentHeight * 0.5
 			if isGraphicsV1 then
-				catGroupY = - self._height * 0.5 - 1
+				catGroupY = - self.parent.height * 0.5
 			end
 			self._categoryGroup.y = catGroupY
-			
-			local catGroupX = - self.width + 2
-			
-			if isGraphicsV1 then
-				catGroupX = 0
-			end
-			
-			self._categoryGroup.x = catGroupX
-			
 			self._categoryGroup:insert( category )
 			
 			return category
@@ -700,14 +708,14 @@ local function createTableView( tableView, options )
 						
 			-- Create the category
 			self._currentCategory = newCategory()
-			
 			if isGraphicsV1 then
 				self._currentCategory:setReferencePoint( display.CenterReferencePoint )
+			else
+				self._currentCategory.anchorX = 0.5; self._currentCategory.anchorY = 0.5
 			end
-
-			self._currentCategory.x = self.x + ( currentRow._width * 0.5 ) 
-			self._currentCategory.y = self._currentCategory.contentHeight * 0.5	 			
-
+			self._currentCategory.x = self.x + ( currentRow._width * 0.5 )
+			self._currentCategory.y = self._currentCategory.contentHeight * 0.5
+			
 			-- Create the rowRender event
 			local rowEvent = 
 			{
@@ -774,7 +782,7 @@ local function createTableView( tableView, options )
 					-- Set the rows top position
 					local rowTop = self.y + currentRow._view.y + view._height * 0.5
 					if isGraphicsV1 then
-						rowTop = self.y + currentRow._view.y - currentRow._view.contentHeight * 0.5 + view._height * 0.5
+						rowTop = self.y + currentRow._view.y - currentRow._view.contentHeight * 0.5 + self.parent.height * 0.5
 					end
 					currentRow._top = rowTop
 							
@@ -890,18 +898,24 @@ local function createTableView( tableView, options )
 		-- If the row is within the bounds of the view, create it
 		if isRowWithinBounds then
 			-- If the row's view property doesn't exist
+			
+			if isReRender then
+					if currentRow._view then 
+						display.remove( currentRow._view )
+						currentRow._view = nil
+					end
+			end
+			
 			if type( currentRow._view ) ~= "table" then
 
 				-- We haven't finished rendering all rows yet
 				self._hasRenderedRows = false
 								
 				-- Create the row's view (a row is a display group)
-				local view = display.newGroup()
-
-				currentRow._view = view
+				currentRow._view = display.newGroup()
 				
 				-- Create the row's cell
-				local rowCell = display.newRect( view, 0, 0, currentRow._width, currentRow._height )
+				local rowCell = display.newRect( currentRow._view, 0, 0, currentRow._width, currentRow._height )
 				rowCell.x = rowCell.contentWidth * 0.5
 				rowCell.y = rowCell.contentHeight * 0.5
 				rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
@@ -911,22 +925,11 @@ local function createTableView( tableView, options )
 					-- Create the row's dividing line
 					local rowLine 
 					
-					-- TODO: Verify that this works. And use this instead
-					--[[
-					local y = 0
 					if _widget.isSeven() then
-						if not( view._rows[ row.index + 1] and view._rows[ row.index + 1 ].isCategory ) then
-							y = 15
-						end
-					end
-
-					rowLine = display.newLine( currentRow._view, y, rowCell.y, currentRow._width, rowCell.y )
-					--]]
-					if _widget.isSeven() then
-						if view._rows and view._rows[ row.index + 1] and view._rows[ row.index + 1 ].isCategory then
+						if view._rows[ row.index + 1] and view._rows[ row.index + 1 ].isCategory then
 							rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
 						else
-							rowLine = display.newLine( currentRow._view, 15, rowCell.y, currentRow._width, rowCell.y )
+							rowLine = display.newLine( currentRow._view, 15, rowCell.y, currentRow._width - 2, rowCell.y )
 						end
 					else
 						rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
@@ -936,50 +939,50 @@ local function createTableView( tableView, options )
 						---rowLine:setReferencePoint( display.RightReferencePoint )
 						--rowLine.x = rowCell.x 
 					else
-						
 						if isGraphicsV1 then
 							rowLine:setReferencePoint( display.CenterReferencePoint )
+						else
+							rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
 						end
-						
 						rowLine.x = rowCell.x 
 					end
 
-					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) + 0.5
+					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 )
 					rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
 				end
 			
 				-- Set the row's reference point to it's center point (just incase)
 				if isGraphicsV1 then
-					view:setReferencePoint( display.CenterReferencePoint )
+					currentRow._view:setReferencePoint( display.CenterReferencePoint )
+				else
+					currentRow._view.anchorX = 0.5; currentRow._view.anchorY = 0.5
 				end
+
 				-- Position the row
-				local rowX = - view.contentWidth * 0.5
-				local rowY = currentRow.y - view.contentHeight * 0.5
+				currentRow._view.x = currentRow._width * 0.5
+				local curY = currentRow.y - currentRow._view.contentHeight * 0.5
 				if isGraphicsV1 then
-					rowX = self.x + currentRow._width
-					rowY = currentRow.y
+					curY = currentRow.y 
 				end
-				
-				view.x = rowX
-				view.y = rowY
+				currentRow._view.y = curY
 
 				-- Assign properties to the row
-				view._cell = rowCell
-				view._rowColor = currentRow._rowColor
-				view.index = currentRow.index
-				view.id = currentRow.id
+				currentRow._view._cell = rowCell
+				currentRow._view._rowColor = currentRow._rowColor
+				currentRow._view.index = currentRow.index
+				currentRow._view.id = currentRow.id
 				-- add the custom params to the row
-				view.params = currentRow.params
-				view._label = currentRow._label
-				view.isCategory = currentRow.isCategory
+				currentRow._view.params = currentRow.params
+				currentRow._view._label = currentRow._label
+				currentRow._view.isCategory = currentRow.isCategory
 				
 				-- Insert the row into the view
-				self:insert( view )				
+				self:insert( currentRow._view )		
 				
 				-- Add event listener to the row
 				if not currentRow.isCategory then
-					view:addEventListener( "touch", _handleRowTouch )
-					view:addEventListener( "tap", _handleRowTap )
+					currentRow._view:addEventListener( "touch", _handleRowTouch )
+					currentRow._view:addEventListener( "tap", _handleRowTap )
 				else
 					-- If the row is a category, pass the touch event back to the view
 					local function scrollList( event )
@@ -991,11 +994,11 @@ local function createTableView( tableView, options )
 						return true
 					end
 
-					view:addEventListener( "touch", scrollList )
+					currentRow._view:addEventListener( "touch", scrollList )
 				end
 				
 				-- Row methods
-				function view:setRowColor( options )
+				function currentRow._view:setRowColor( options )
 					if "table" == type( options ) then
 						if "table" == type( options.default ) then
 							self._rowColor.default = options.default
@@ -1013,7 +1016,7 @@ local function createTableView( tableView, options )
 				local rowEvent = 
 				{
 					name = "rowRender",
-					row = view,
+					row = currentRow._view,
 					target = self.parent,
 				}
 
@@ -1093,11 +1096,11 @@ local function createTableView( tableView, options )
 		-- Calculate and set the row's y position
 		
 		if table.maxn(self._rows) <= 1 then
-			local rowPos = - self.parent.contentHeight * 0.5 + ( self._rows[table.maxn(self._rows)]._height * 0.5 )
+			local rowY = ( self._rows[table.maxn(self._rows)]._height * 0.5 ) - self.parent.height * 0.5
 			if isGraphicsV1 then
-				rowPos = rowPos + self.parent.contentHeight * 0.5
-			end 
-			self._rows[table.maxn(self._rows)].y = rowPos 
+				rowY = ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1
+			end
+			self._rows[table.maxn(self._rows)].y = rowY
 		else
 		    if ( self._rows[table.maxn(self._rows) - 1].y ) then
 			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows) - 1].y + ( self._rows[table.maxn(self._rows) - 1]._height * 0.5 ) )
@@ -1312,6 +1315,22 @@ local function createTableView( tableView, options )
 		transition.to( self, { y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
 	end
 	
+	-- Function to re-render the rows
+	function view:_reloadData()
+		
+		-- calculate the view limits
+		local upperLimit = self._background.y - ( self._background.contentHeight * 0.5 )
+		local lowerLimit = self._background.y + ( self._background.contentHeight * 0.5 )
+	
+		for i, row in pairs( self._rows ) do
+			local isRowWithinBounds = ( row.y + self.y ) + row._height > upperLimit and ( row.y + self.y ) - row._height * 2 < lowerLimit
+			-- if the row is visible, re-render it
+			if isRowWithinBounds then
+				self:_createRow( row, true )
+			end
+		end
+	end
+	
 	-- Finalize function for the tableView
 	function tableView:_finalize()
 		Runtime:removeEventListener( "enterFrame", self._view )
@@ -1378,6 +1397,10 @@ function M.new( options )
 	opt.onRowUpdate = customOptions.onRowUpdate
 	opt.onRowTouch = customOptions.onRowTouch
 	opt.scrollStopThreshold = customOptions.scrollStopThreshold or 250
+	opt.scrollBarAutoHide = true
+	if nil ~= customOptions.scrollBarAutoHide and customOptions.scrollBarAutoHide == false then
+		opt.scrollBarAutoHide = false
+	end
 	opt.isBounceEnabled = true
 	if nil ~= customOptions.isBounceEnabled and customOptions.isBounceEnabled == false then 
 	    opt.isBounceEnabled = false
