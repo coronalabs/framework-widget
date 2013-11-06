@@ -32,15 +32,14 @@ local M =
 	_widgetName = "widget.newPickerWheel",
 }
 
-
 -- Require needed widget files
 local _widget = require( "widget" )
+
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 local labelColor = { 0.60 }
 local defaultRowColor = { 1 }
 local blackColor = { 0 }
-
-local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 if isGraphicsV1 then
 	_widget._convertColorToV1( labelColor )
@@ -66,14 +65,9 @@ local function createPickerWheel( pickerWheel, options )
 	
 	-- Create the view
 	view = display.newGroup()
-	if isGraphicsV1 then
-		view.x = - pickerWheel.width * 0.5; view.y = -pickerWheel.height * 0.5
-	end
-		
+	
 	-- The view's background
 	viewOverlay = display.newImageRect( pickerWheel, imageSheet, opt.overlayFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
-	viewOverlay.x = 0
-	viewOverlay.y = 0
 	
 	----------------------------------
 	-- Properties
@@ -140,27 +134,14 @@ local function createPickerWheel( pickerWheel, options )
 	    end
 		
 		-- Align the text as requested
-		local rowX
 		if "center" == alignment then
-			--rowTitle.x = row.x + row.contentWidth * 0.5
-			rowX = row.contentWidth * 0.5 - rowTitle.contentWidth * 0.5
-			if isGraphicsV1 then
-				rowX = view.parent.contentWidth - rowTitle.contentWidth
-			end
+			rowTitle.x = row.x
 		elseif "left" == alignment then
-			--rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 6
-			rowX = 10 + rowTitle.contentWidth * 0.5
-			if isGraphicsV1 then
-				rowX = rowX + row.contentWidth + 20
-			end
+			rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 6
 		elseif "right" == alignment then
-			rowX = row.contentWidth - rowTitle.contentWidth - 10
-			if isGraphicsV1 then
-				rowX = view.parent.contentWidth - rowTitle.contentWidth * 0.5 - 10
-			end
+			rowTitle.x = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 6
 		end
 		
-		rowTitle.x = rowX
 		
 	end
 	
@@ -172,7 +153,7 @@ local function createPickerWheel( pickerWheel, options )
 	-- Function to create the column seperator
 	function view:_createSeperator( x )		
 		local seperator = display.newImageRect( self, imageSheet, opt.seperatorFrame, opt.seperatorFrameWidth + 4, opt.backgroundFrameHeight )
-		seperator.x = x - 70
+		seperator.x = x
 		
 		return seperator
 	end
@@ -194,7 +175,7 @@ local function createPickerWheel( pickerWheel, options )
 	for i = 1, #opt.columnData do
 		viewColumns[i] = _widget.newTableView
 		{
-			left = -164,
+			left = -170,
 			top = -110,
 			width = opt.columnData[i].width or availableWidth / #opt.columnData,
 			height = opt.overlayFrameHeight,
@@ -211,12 +192,6 @@ local function createPickerWheel( pickerWheel, options )
 			onRowTouch = didTapValue
 		}
 		viewColumns[i]._view._isUsedInPickerWheel = true
-		
-		if isGraphicsV1 then
-			viewColumns[i].x = viewColumns[i].x + view.parent.contentWidth * 0.5
-			viewColumns[i].y = viewColumns[i].y + view.parent.contentHeight * 0.5
-		end
-		 	
 		-- Position the columns
 		if i > 1 then
 			viewColumns[i].x = viewColumns[i-1].x + viewColumns[i-1]._view._width
@@ -256,7 +231,7 @@ local function createPickerWheel( pickerWheel, options )
 
 	-- Create the column seperators
 	for i = 1, #opt.columnData - 1 do
-		view:_createSeperator( viewColumns[i].x + viewColumns[i]._view._width ) 
+		view:_createSeperator( viewColumns[i].x + viewColumns[i]._view._width )
 	end
 
 	-- Push the view's background to the front.
@@ -435,7 +410,7 @@ function M.new( options, theme )
 	-------------------------------------------------------
 		
 	-- Create the pickerWheel object
-	local pickerWheel = _widget._newContainer
+	local pickerWheel = _widget._new
 	{
 		left = opt.left,
 		top = opt.top,
@@ -454,7 +429,11 @@ function M.new( options, theme )
 		x = opt.left + pickerWheel.contentWidth * 0.5
 		y = opt.top + pickerWheel.contentHeight * 0.5
 	end
-	pickerWheel.x, pickerWheel.y = x, y	
+	pickerWheel.x, pickerWheel.y = x, y
+
+	if isGraphicsV1 then
+		pickerWheel:setReferencePoint( display.TopLeftReferencePoint )
+	end
 	
 	return pickerWheel
 end

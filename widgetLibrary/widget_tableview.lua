@@ -1291,7 +1291,11 @@ local function createTableView( tableView, options )
 		-- The calculation needs altering for pickerWheels
 		if self._isUsedInPickerWheel then
 			-- TODO: this is just because we have a single theme for all the pickers, we'll have to add a real solution here.
-			newPosition = - 89 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
+			local jumpY = - 26 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
+			if isGraphicsV1 then
+				jumpY =  - self._rows[rowIndex]._height * 0.5 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
+			end
+			newPosition = jumpY
 		end
 		
 		--Check if a category is displayed, so we adjust the position with the height of the category
