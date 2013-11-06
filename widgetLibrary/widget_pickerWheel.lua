@@ -135,7 +135,11 @@ local function createPickerWheel( pickerWheel, options )
 		
 		-- Align the text as requested
 		if "center" == alignment then
-			rowTitle.x = row.x
+			rowTitleX = row.x + rowTitle.contentWidth * 0.5
+			if isGraphicsV1 then
+				rowTitleX = row.x
+			end
+			rowTitle.x = rowTitleX
 		elseif "left" == alignment then
 			rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 6
 		elseif "right" == alignment then
