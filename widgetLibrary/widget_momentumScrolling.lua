@@ -480,7 +480,7 @@ function M._runtime( view, event )
 			view._updateRuntime = false
 			
 			-- Hide the scrollBar
-			if view._scrollBar and M.scrollBarAutoHide then
+			if view._scrollBar and M.autoHideScrollBar then
 				view._scrollBar:hide()
 			end
 		end
@@ -581,7 +581,7 @@ function M._runtime( view, event )
 				-- Top
 				if "top" == limit then					
 					-- Hide the scrollBar
-					if view._scrollBar and M.scrollBarAutoHide then
+					if view._scrollBar and M.autoHideScrollBar then
 						view._scrollBar:hide()
 					end
 					
@@ -607,7 +607,7 @@ function M._runtime( view, event )
 				-- Bottom
 				elseif "bottom" == limit then				
 					-- Hide the scrollBar
-					if view._scrollBar and M.scrollBarAutoHide then
+					if view._scrollBar and M.autoHideScrollBar then
 						view._scrollBar:hide()
 					end
 										
@@ -828,7 +828,7 @@ function M.createScrollBar( view, options )
 	-- set the widget y coord according to the calculated limits
 	view.y = M.bottomLimit
 	
-	if not M.scrollBarAutoHide then
+	if not M.autoHideScrollBar then
 		M.scrollBar:show()
 	end
 	
