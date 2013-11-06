@@ -128,7 +128,8 @@ local function createScrollView( scrollView, options )
 	-- assign the threshold values to the momentum
 	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
 	_momentumScrolling.isBounceEnabled = opt.isBounceEnabled
-			
+	_momentumScrolling.autoHideScrollBar = opt.autoHideScrollBar
+
 	-------------------------------------------------------
 	-- Assign properties/objects to the scrollView
 	-------------------------------------------------------
@@ -249,7 +250,7 @@ local function createScrollView( scrollView, options )
 					--[[
 					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
 					--]]								
-					if not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
+					if not self._view._scrollBar and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
 						self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
 					end
 				end)
@@ -361,7 +362,7 @@ local function createScrollView( scrollView, options )
 					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
 					--]]
 															
-					if not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
+					if not self._view._scrollBar and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
 						self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
 					end
 				end)
@@ -410,8 +411,9 @@ local function createScrollView( scrollView, options )
 			_momentumScrolling._touch( self, event )
 		end
 		
+		-- Overriden by the listener call in momentumScrolling
 		-- Execute the listener if one is specified
-		if self._listener then
+		--[[if self._listener then
 			local newEvent = {}
 			
 			for k, v in pairs( event ) do
@@ -423,7 +425,7 @@ local function createScrollView( scrollView, options )
 			
 			-- Execute the listener
 			self._listener( newEvent )
-		end
+		end]]--
 				
 		-- Set the view's phase so we can access it in the enterFrame listener below
 		self._phase = event.phase
@@ -501,8 +503,8 @@ function M.new( options )
 		opt.left = 0
 		opt.top = 0
 	end
-	opt.width = customOptions.width
-	opt.height = customOptions.height
+	opt.width = customOptions.width or display.contentWidth
+	opt.height = customOptions.height or display.contentHeight
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.maskFile = customOptions.maskFile
@@ -527,6 +529,10 @@ function M.new( options )
 	opt.isBounceEnabled = true
 	if nil ~= customOptions.isBounceEnabled and customOptions.isBounceEnabled == false then 
 	    opt.isBounceEnabled = false
+	end
+	opt.autoHideScrollBar = true
+	if nil ~= customOptions.autoHideScrollBar and customOptions.autoHideScrollBar == false then
+		opt.autoHideScrollBar = false
 	end
 	
 	-- Set the scrollView to locked if both horizontal and vertical scrolling are disabled
