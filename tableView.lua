@@ -152,33 +152,23 @@ function scene:createScene( event )
 			rowTitle = display.newText( row, rowTitleText, 0, 0, nil, 14 )
 		end
 
-		rowTitle.x = 38
 		
-		local rowY = row.contentHeight * 0.4
 		
-		if isGraphicsV1 then
-			rowY = row.contentHeight * 0.5
-		end
 		
-		if row.isCategory then
-			rowY = row.contentHeight * 0.3
-		end
-		
-		rowTitle.y = rowY
-		
+		rowTitle.x = ( rowTitle.contentWidth * 0.5 + 15 )
+		rowTitle.y = row.contentHeight * 0.5
+		rowTitle.anchorY = 0.8
 		rowTitle:setFillColor( 0, 0, 0 )
 		
 		if not row.isCategory then
 			--print( row.index )
 			local spinner = widget.newSpinner{}
-			spinner.x = row.x + ( row.contentWidth ) - 20
+			spinner.x = row.x + ( row.contentWidth * 0.5 ) - ( spinner.contentWidth * 0.5 )
 			spinner.y = row.contentHeight * 0.5
 			spinner:scale( 0.5, 0.5 )
 			row:insert( spinner ) 
 			--spinner:start()
 		end
-		
-		
 		
 	end
 
@@ -307,6 +297,9 @@ function scene:createScene( event )
 			params = rowParams
 		}
 	end
+
+	print("view bounds: ", tableView._view.contentBounds.xMin, tableView._view.contentBounds.xMax, tableView._view.contentBounds.yMin, tableView._view.contentBounds.yMax)
+	print("container bounds: ", tableView.contentBounds.xMin, tableView.contentBounds.xMax, tableView.contentBounds.yMin, tableView.contentBounds.yMax)
 
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
