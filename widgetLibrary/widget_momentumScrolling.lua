@@ -103,7 +103,8 @@ local function handleSnapBackVertical( self, view, snapBack )
 					end
 					
 					-- Put the view back to the top
-					view._tween = transition.to( view, { time = bounceTime, y = self.bottomLimit, transition = easing.outQuad } )						
+					view._snapping = true
+					view._tween = transition.to( view, { time = bounceTime, y = self.bottomLimit, transition = easing.outQuad, onComplete = function() view._snapping = false; end } )						
 				end
 			end
 			
@@ -121,7 +122,8 @@ local function handleSnapBackVertical( self, view, snapBack )
 					end
 					
 					-- Put the view back to the bottom
-					view._tween = transition.to( view, { time = bounceTime, y = self.upperLimit, transition = easing.outQuad } )
+					view._snapping = true
+					view._tween = transition.to( view, { time = bounceTime, y = self.upperLimit, transition = easing.outQuad, onComplete = function() view._snapping = false; end } )
 				end
 			end
 		end
@@ -131,7 +133,7 @@ local function handleSnapBackVertical( self, view, snapBack )
 end
 	
 -- Function to handle horizontal "snap back" on the view
-local function handleSnapBackHorizontal( self, view )
+local function handleSnapBackHorizontal( self, view, snapBack )
 
 	-- Set the limits now
 	setLimits( M, view )
@@ -150,14 +152,26 @@ local function handleSnapBackHorizontal( self, view )
 			limitHit = "left"
 			
 			-- Transition the view back to it's maximum position
-			view._tween = transition.to( view, { time = bounceTime, x = self.leftLimit, transition = easing.outQuad } )
+			if "boolean" == type( snapBack ) then
+				if snapBack == true then
+					view._snapping = true
+					view._tween = transition.to( view, { time = bounceTime, x = self.leftLimit, transition = easing.outQuad, onComplete = function() view._snapping = false; end } )
+					
+				end
+			end
+		
 		-- Put the view back to the right if it isn't already there ( and should be )
 		elseif view.x > self.rightLimit then
 			-- Set the hit limit
 			limitHit = "right"
 			
 			-- Transition the view back to it's maximum position
-			view._tween = transition.to( view, { time = bounceTime, x = self.rightLimit, transition = easing.outQuad } )
+			if "boolean" == type( snapBack ) then
+				if snapBack == true then
+					view._snapping = true
+					view._tween = transition.to( view, { time = bounceTime, x = self.rightLimit, transition = easing.outQuad, onComplete = function() view._snapping = false; end } )
+				end
+			end
 		end
 	end
 	
@@ -199,9 +213,11 @@ function M._touch( view, event )
 		setLimits( M, view )
 		
 		-- Cancel any active tween on the view
-		if view._tween then
+		if view._tween and false == view._snapping then
 			transition.cancel( view._tween )
 			view._tween = nil
+		else 
+			transition.pause( view._tween )
 		end				
 		
 		-- Set focus
@@ -256,9 +272,68 @@ function M._touch( view, event )
 						view.x = view.x + ( view._delta * 0.5 )
 					else
 						view.x = view.x + view._delta
+						
+						if view._listener then
+						
+							local newEvent = {}
+						
+							if view._delta < 0 then
+						
+							newEvent = 
+							{
+								direction = "left",
+								limitReached = false,
+								target = view,
+							}
+						
+							elseif view._delta > 0 then
+
+							newEvent = 
+							{
+								direction = "right",
+								limitReached = false,
+								target = view,
+							}
+							
+							elseif view._delta == 0 then
+							
+								if view._prevDeltaX and view._prevDeltaX < 0 then
+									newEvent = 
+									{
+										direction = "left",
+										limitReached = false,
+										target = view,
+									}
+								elseif view._prevDeltaX and view._prevDeltaX > 0 then
+									newEvent = 
+									{
+										direction = "right",
+										limitReached = false,
+										target = view,
+									}
+								end
+						
+							end
+							view._listener( newEvent )
+						end
+
 					end
 					
-					local limit = handleSnapBackHorizontal( M, view, true )
+					view._prevDeltaX = view._delta
+					
+					local limit
+					
+					if M.isBounceEnabled == true then 
+					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
+					    if view._isUsedInPickerWheel == true then
+					        limit = handleSnapBackHorizontal( M, view, true )
+					    else
+					    -- if not used in picker, we don't need snap back so we don't lose elastic behaviour on the tableview
+					        limit = handleSnapBackHorizontal( M, view, false )
+					    end
+					else
+					    limit = handleSnapBackHorizontal( M, view, true )
+					end
 					
 				end
 				
@@ -272,9 +347,63 @@ function M._touch( view, event )
 					-- If the view is more than the limits
 					if view.y < M.upperLimit or view.y > M.bottomLimit then
 						view.y = view.y + ( view._delta * 0.5 )
+						-- shrink the scrollbar if the view is out of bounds
+						if view._scrollBar then
+							--view._scrollBar.yScale = 0.1 * - ( view.y - M.bottomLimit )
+						end
 					else
 						view.y = view.y + view._delta 
+						
+						if view._listener then
+						
+							local newEvent = {}
+						
+							if view._delta < 0 then
+						
+							newEvent = 
+							{
+								direction = "up",
+								limitReached = false,
+								target = view,
+							}
+						
+							elseif view._delta > 0 then
+
+							newEvent = 
+							{
+								direction = "down",
+								limitReached = false,
+								target = view,
+							}
+							
+							elseif view._delta == 0 then
+							
+								if view._prevDeltaY and view._prevDeltaY < 0 then
+									newEvent = 
+									{
+										direction = "up",
+										limitReached = false,
+										target = view,
+									}
+								elseif view._prevDeltaY and view._prevDeltaY > 0 then
+									newEvent = 
+									{
+										direction = "down",
+										limitReached = false,
+										target = view,
+									}
+								end
+						
+							end
+							view._listener( newEvent )
+						
+						
+						
+						end
+						
 					end
+					
+					view._prevDeltaY = view._delta
 					
 					-- Handle limits
 					-- if bounce is true, then the snapback parameter has to be true, otherwise false
@@ -327,6 +456,12 @@ function M._touch( view, event )
 			-- Remove focus								
 			display.getCurrentStage():setFocus( nil )
 			view._isFocus = nil
+		
+		-- if we have a snap transition that's paused, resume it
+		if view._tween and true == view._snapping then
+			transition.resume( view._tween )
+		end	
+			
 		end
 	end
 end
@@ -345,7 +480,7 @@ function M._runtime( view, event )
 			view._updateRuntime = false
 			
 			-- Hide the scrollBar
-			if view._scrollBar then
+			if view._scrollBar and M.scrollBarAutoHide then
 				view._scrollBar:hide()
 			end
 		end
@@ -368,7 +503,12 @@ function M._runtime( view, event )
 				view.x = view.x + view._velocity * timePassed
 			
 				-- Handle limits
-				local limit = handleSnapBackHorizontal( M, view )
+				local limit
+				if "horizontal" == view._moveDirection then
+                    limit = handleSnapBackHorizontal( M, view, true )
+                else
+                    limit = handleSnapBackHorizontal( M, view, false )
+                end
 			
 				-- Left
 				if "left" == limit then					
@@ -441,7 +581,7 @@ function M._runtime( view, event )
 				-- Top
 				if "top" == limit then					
 					-- Hide the scrollBar
-					if view._scrollBar then
+					if view._scrollBar and M.scrollBarAutoHide then
 						view._scrollBar:hide()
 					end
 					
@@ -467,7 +607,7 @@ function M._runtime( view, event )
 				-- Bottom
 				elseif "bottom" == limit then				
 					-- Hide the scrollBar
-					if view._scrollBar then
+					if view._scrollBar and M.scrollBarAutoHide then
 						view._scrollBar:hide()
 					end
 										
@@ -687,6 +827,10 @@ function M.createScrollBar( view, options )
 	
 	-- set the widget y coord according to the calculated limits
 	view.y = M.bottomLimit
+	
+	if not M.scrollBarAutoHide then
+		M.scrollBar:show()
+	end
 	
 	return M.scrollBar
 end
