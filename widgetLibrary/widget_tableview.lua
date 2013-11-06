@@ -289,7 +289,7 @@ local function createTableView( tableView, options )
 				local bounds = currentRow._view.contentBounds
 			
 				local isWithinBounds = yPosition > bounds.yMin and yPosition < bounds.yMax + 1
-			
+
 				-- If we have hit the bottom limit, return the first row
 				if self._hasHitBottomLimit then
 					return self._rows[1]._view
@@ -301,8 +301,12 @@ local function createTableView( tableView, options )
 				end
 			
 				-- If the row is within bounds
-				if isWithinBounds then								
-					transition.to( self, { time = 280, y = - currentRow.y - self.parent.y, transition = easing.outQuad } )
+				if isWithinBounds then
+				local translateToPos = - currentRow.y - self.parent.y - 6
+				if isGraphicsV1 then
+					translateToPos = - currentRow.y - self.parent.y
+				end								
+					transition.to( self, { time = 280, y = translateToPos, transition = easing.outQuad } )
 					
 					return currentRow._view
 				end
@@ -350,7 +354,7 @@ local function createTableView( tableView, options )
 				for i = 1, #self._rows do
 					-- if the row is on screen, set it to the default color
 					if nil ~= self._rows[ i ]._view then
-						self._rows[ i ]._view[ 2 ]:setTextColor( unpack( pickerRowColor ) )
+						self._rows[ i ]._view[ 2 ]:setFillColor( unpack( pickerRowColor ) )
 					end
 				end
 			end
