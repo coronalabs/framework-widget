@@ -954,6 +954,7 @@ local function createTableView( tableView, options )
 				rowCell.x = rowCell.contentWidth * 0.5
 				rowCell.y = rowCell.contentHeight * 0.5
 				rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
+				rowCell.isHitTestable = true
 
 				-- If the user want's lines between rows, create a line to seperate them
 				if not self._noLines and not ( _widget.isSeven() and currentRow.isCategory ) then
