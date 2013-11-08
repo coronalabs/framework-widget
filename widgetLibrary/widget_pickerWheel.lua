@@ -387,8 +387,6 @@ function M.new( options, theme )
 		opt.left = 0
 		opt.top = 0
 	end
-	opt.width = display.contentWidth
-	opt.height = 0
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.maskFile = customOptions.maskFile or themeOptions.maskFile
@@ -439,9 +437,6 @@ function M.new( options, theme )
 
 	-- Create the pickerWheel
 	createPickerWheel( pickerWheel, opt )
-	
-	pickerWheel.width = opt.width
-	pickerWheel.height = pickerWheel._view._overlay.contentHeight
 	
 	local x, y = opt.x, opt.y
 	if not opt.x or not opt.y then
