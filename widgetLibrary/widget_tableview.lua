@@ -674,7 +674,11 @@ local function createTableView( tableView, options )
 			
 			-- Create the row's cell
 			local rowCell = display.newRect( category, 0, 0, currentRow._width, currentRow._height )
-			rowCell.x = rowCell.contentWidth * 0.5
+			local rowCellX = rowCell.contentWidth * 0.5
+			if isGraphicsV1 then
+				rowCellX = 0
+			end
+			rowCell.x = rowCellX
 			rowCell.y = rowCell.contentHeight * 0.5
 			rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
 			
@@ -720,9 +724,6 @@ local function createTableView( tableView, options )
 			end
 			self._categoryGroup.y = catGroupY
 			local rowX = 0
-			if isGraphicsV1 then
-				rowX = 0
-			end
 			self._categoryGroup.x = rowX
 			self._categoryGroup:insert( category )
 			
