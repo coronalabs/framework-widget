@@ -272,48 +272,39 @@ function M._touch( view, event )
 						view.x = view.x + ( view._delta * 0.5 )
 					else
 						view.x = view.x + view._delta
+						if view._listener and M._widgetType == "scrollView" then
 						
-						if view._listener then
-						
-							local newEvent = {}
+							local actualDirection
 						
 							if view._delta < 0 then
 						
-							newEvent = 
-							{
-								direction = "left",
-								limitReached = false,
-								target = view,
-							}
+								actualDirection = "left"
 						
 							elseif view._delta > 0 then
 
-							newEvent = 
-							{
-								direction = "right",
-								limitReached = false,
-								target = view,
-							}
+								actualDirection = "right"
 							
 							elseif view._delta == 0 then
 							
 								if view._prevDeltaX and view._prevDeltaX < 0 then
-									newEvent = 
-									{
-										direction = "left",
-										limitReached = false,
-										target = view,
-									}
+							
+									actualDirection = "left"
+							
 								elseif view._prevDeltaX and view._prevDeltaX > 0 then
-									newEvent = 
-									{
-										direction = "right",
-										limitReached = false,
-										target = view,
-									}
+							
+									actualDirection = "right"
+							
 								end
 						
 							end
+
+							local newEvent = 
+							{
+								direction = actualDirection,
+								limitReached = false,
+								target = view,
+							}
+
 							view._listener( newEvent )
 						end
 
@@ -354,51 +345,40 @@ function M._touch( view, event )
 					else
 						view.y = view.y + view._delta 
 						
-						if view._listener then
+						if view._listener and M._widgetType == "scrollView" then
 						
-							local newEvent = {}
+							local actualDirection
 						
 							if view._delta < 0 then
 						
-							newEvent = 
-							{
-								direction = "up",
-								limitReached = false,
-								target = view,
-							}
+								actualDirection = "up"
 						
 							elseif view._delta > 0 then
 
-							newEvent = 
-							{
-								direction = "down",
-								limitReached = false,
-								target = view,
-							}
+								actualDirection = "down"
 							
 							elseif view._delta == 0 then
 							
 								if view._prevDeltaY and view._prevDeltaY < 0 then
-									newEvent = 
-									{
-										direction = "up",
-										limitReached = false,
-										target = view,
-									}
+									
+									actualDirection = "up"
+
 								elseif view._prevDeltaY and view._prevDeltaY > 0 then
-									newEvent = 
-									{
-										direction = "down",
-										limitReached = false,
-										target = view,
-									}
+									
+									actualDirection = "down"
+
 								end
 						
 							end
+
+							local newEvent = 
+							{
+								direction = actualDirection,
+								limitReached = false,
+								target = view,
+							}
+
 							view._listener( newEvent )
-						
-						
-						
 						end
 						
 					end
@@ -469,6 +449,7 @@ end
 
 -- Handle runtime momentum scrolling events.
 function M._runtime( view, event )
+
 	-- If we are tracking runtime
 	if view._updateRuntime then		
 		local timePassed = event.time - view._lastTime

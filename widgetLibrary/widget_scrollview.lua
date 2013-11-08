@@ -129,6 +129,7 @@ local function createScrollView( scrollView, options )
 	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
 	_momentumScrolling.isBounceEnabled = opt.isBounceEnabled
 	_momentumScrolling.autoHideScrollBar = opt.autoHideScrollBar
+	_momentumScrolling._widgetType = "scrollView"
 
 	-------------------------------------------------------
 	-- Assign properties/objects to the scrollView
