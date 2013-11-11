@@ -141,11 +141,11 @@ local function createPickerWheel( pickerWheel, options )
 			end
 			rowTitle.x = rowTitleX
 		elseif "left" == alignment then
-			rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 6
+			rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 10
 		elseif "right" == alignment then
-			local rowTitleX = row.contentWidth - 10 - rowTitle.contentWidth
+			local rowTitleX = row.x + row.contentWidth * 0.5 - rowTitle.contentWidth * 0.5
 			if isGraphicsV1 then
-				rowTitleX = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 6
+				rowTitleX = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 10
 			end
 			rowTitle.x = rowTitleX
 
@@ -190,10 +190,10 @@ local function createPickerWheel( pickerWheel, options )
 	for i = 1, #opt.columnData do
 		viewColumns[i] = _widget.newTableView
 		{
-			left = -170,
+			left = -160,
 			top = -110,
 			width = opt.columnData[i].width or availableWidth / #opt.columnData,
-			height = opt.overlayFrameHeight,
+			height = opt.overlayFrameHeight - 1,
 			topPadding = topPadding,
 			bottomPadding = bottomPadding,
 			noLines = true,

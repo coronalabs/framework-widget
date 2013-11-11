@@ -38,6 +38,20 @@ local _widget = require( "widget" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
+-- define a default color set for both graphics modes
+local labelDefault
+if isGraphicsV1 then
+    labelDefault = { default = { 220, 220, 220 }, over = { 255, 255, 255 } }
+    if _widget.isSeven() then
+    	labelDefault = { default = { 146 }, over = { 21, 125, 251, 255 } }
+	end
+else
+    labelDefault = { default = { 0.86, 0.86, 0.86 }, over = { 1, 1, 1 } }
+    if _widget.isSeven() then
+    	labelDefault = { default = { 0.57 }, over = { 0.08, 0.49, 0.98, 1 } }
+	end
+end
+
 ------------------------------------------------------------------------
 -- Image Files TabBar
 ------------------------------------------------------------------------
@@ -707,7 +721,7 @@ function M.new( options, theme )
 	opt.tabButtons = customOptions.buttons
 	opt.defaultLabelFont = native.systemFontBold
 	opt.defaultLabelSize = 8
-	opt.defaultLabelColor = { default = { 220, 220, 220 }, over = { 255, 255, 255 } }
+	opt.defaultLabelColor = labelDefault
 	opt.onPress = customOptions.onPress
 	
 	-- Frames & Images
