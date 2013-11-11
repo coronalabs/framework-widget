@@ -61,6 +61,15 @@ local function createScrollView( scrollView, options )
 		view.y = - scrollView.height * 0.5
 	end
 
+	-- TODO: this has to be replaced by correct behavior. Right now, it's a temporary group in which we place objects inserted in the scrollview
+	-- in graphics2.0
+	local collectorGroup = display.newGroup()
+	collectorGroup.x = - opt.width * 0.5
+	collectorGroup.y = - opt.height * 0.5
+	view:insert( collectorGroup )
+	scrollView._collectorGroup = collectorGroup
+
+
 	viewFixed = display.newGroup()
 		
 	-- Create the view's background
@@ -299,9 +308,17 @@ local function createScrollView( scrollView, options )
         end
         
         if index then
-            self._view:insert( index, obj )
+        	if isGraphicsV1 then
+            	self._view:insert( index, obj )
+            else
+            	self._collectorGroup:insert( index, obj )
+            end
         else
-            self._view:insert( obj )
+        	if isGraphicsV1 then
+            	self._view:insert( obj )
+        	else
+        		self._collectorGroup:insert( obj )
+        	end
         end
 
 		local function updateScrollAreaSize()
