@@ -40,10 +40,13 @@ local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 -- define a default color set for both graphics modes
 local labelDefault
+local whiteColor
 if isGraphicsV1 then
     labelDefault = { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
+    whiteColor = { 255 }
 else
     labelDefault = { default = { 0, 0, 0 }, over = { 1, 1, 1 } }
+    whiteColor = { 1 }
 end
 
 -- Creates a new segmentedControl from an image
@@ -198,7 +201,7 @@ local function initWithImage( segmentedControl, options )
 			end
 		else
 			label = display.newEmbossedText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
-			label:setFillColor( 255 )
+			label:setFillColor( unpack( whiteColor ) )
 		end
 		
 		
@@ -372,7 +375,7 @@ local function initWithImage( segmentedControl, options )
 				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
 			
-			view._segmentLabels[1]:setFillColor( 255 )
+			view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
 			
 		end
 		
@@ -402,7 +405,7 @@ local function initWithImage( segmentedControl, options )
 				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
 			
-			view._segmentLabels[ #view._segmentLabels ]:setFillColor( 255 )
+			view._segmentLabels[ #view._segmentLabels ]:setFillColor( unpack( whiteColor ) )
 			
 		end
 		
@@ -432,7 +435,7 @@ local function initWithImage( segmentedControl, options )
 				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
 			
-			view._segmentLabels[ segmentNum ]:setFillColor( 255 )
+			view._segmentLabels[ segmentNum ]:setFillColor( unpack( whiteColor ) )
 			
 		end
 		
