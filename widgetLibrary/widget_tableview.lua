@@ -982,7 +982,11 @@ local function createTableView( tableView, options )
 						else
 							rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
 						end
-						rowLine.x = rowCell.x 
+						rowLine.x = rowCell.x
+						if not isGraphicsV1 and not _widget.isSeven() then
+							rowLine.x = 0
+						end
+
 					end
 
 					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 )
