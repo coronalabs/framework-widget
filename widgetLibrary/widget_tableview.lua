@@ -983,6 +983,8 @@ local function createTableView( tableView, options )
 							rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
 						end
 						rowLine.x = rowCell.x
+						-- TODO: rewrite this as part of the above if clause.
+						-- For g2.0 non-compatibility and just on the ios6 theme, the row has to be positioned back to 0, because otherwise the row starts at tableRow * 0.5
 						if not isGraphicsV1 and not _widget.isSeven() then
 							rowLine.x = 0
 						end
