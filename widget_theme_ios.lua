@@ -234,7 +234,7 @@ theme.segmentedControl =
 {
 	sheet = sheetFile,
 	data = sheetData,
-	width = 12,
+	width = 11,
 	height = 29,
 	leftSegmentFrame = "segmentedControl_left",
 	leftSegmentSelectedFrame = "segmentedControl_leftOn",
