@@ -135,17 +135,34 @@ local function createPickerWheel( pickerWheel, options )
 		
 		-- Align the text as requested
 		if "center" == alignment then
-			rowTitleX = row.x + rowTitle.contentWidth * 0.5
+
+			local rowTitleX
 			if isGraphicsV1 then
 				rowTitleX = row.x
+			else
+				rowTitleX = row.x + columnWidth * 0.5
 			end
 			rowTitle.x = rowTitleX
+
 		elseif "left" == alignment then
-			rowTitle.x = ( rowTitle.contentWidth * 0.5 ) + 10
-		elseif "right" == alignment then
-			local rowTitleX = row.x + row.contentWidth * 0.5 - rowTitle.contentWidth * 0.5
+
+			local rowTitleX
 			if isGraphicsV1 then
-				rowTitleX = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 10
+				rowTitleX = ( rowTitle.contentWidth * 0.5 ) + 6
+			else
+				rowTitleX = row.x + 6
+				rowTitle.anchorX = 0
+			end
+			rowTitle.x = rowTitleX
+
+		elseif "right" == alignment then
+			
+			local rowTitleX
+			if isGraphicsV1 then
+				rowTitleX = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 6
+			else
+				rowTitleX = row.x + columnWidth - 6
+				rowTitle.anchorX = 1
 			end
 			rowTitle.x = rowTitleX
 
@@ -187,10 +204,19 @@ local function createPickerWheel( pickerWheel, options )
 		topPadding = 90
 		bottomPadding = 92
 	end
+
+	local initialX = 0
+	local initialPos = - 144
+
 	for i = 1, #opt.columnData do
+
+		if i > 1 then
+			initialPos = viewColumns[i-1].x + viewColumns[i-1]._view._width * 0.5
+		end
+
 		viewColumns[i] = _widget.newTableView
 		{
-			left = -160,
+			left = initialPos,
 			top = -110,
 			width = opt.columnData[i].width or availableWidth / #opt.columnData,
 			height = opt.overlayFrameHeight - 1,
@@ -207,10 +233,6 @@ local function createPickerWheel( pickerWheel, options )
 			onRowTouch = didTapValue
 		}
 		viewColumns[i]._view._isUsedInPickerWheel = true
-		-- Position the columns
-		if i > 1 then
-			viewColumns[i].x = viewColumns[i-1].x + viewColumns[i-1]._view._width
-		end
 
 		-- Column properties
 		viewColumns[i]._align = opt.columnData[i].align
@@ -246,7 +268,7 @@ local function createPickerWheel( pickerWheel, options )
 
 	-- Create the column seperators
 	for i = 1, #opt.columnData - 1 do
-		view:_createSeperator( viewColumns[i].x + viewColumns[i]._view._width )
+		view:_createSeperator( viewColumns[i].x + viewColumns[i]._view._width * 0.5 )
 	end
 
 	-- Push the view's background to the front.
