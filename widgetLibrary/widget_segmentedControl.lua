@@ -151,42 +151,30 @@ local function initWithImage( segmentedControl, options )
 	
 	-- The left segment edge
 	local leftSegment = display.newSprite( segmentedControl, imageSheet, leftSegmentOptions )
-	leftSegment.x = segmentedControl.x + ( leftSegment.contentWidth * 0.5 )
+	leftSegment.x = segmentedControl.x + ( opt.width * 0.5 )
 	leftSegment.y = segmentedControl.y + ( leftSegment.contentHeight * 0.5 )
 	leftSegment:setSequence( "leftSegmentOff" )
 	leftSegment.width = opt.width
-	
+	print("leftx:",leftSegment.x)
+	print("leftw:",leftSegment.width)
 	-- The segment fill
 	local middleSegment = display.newSprite( segmentedControl, imageSheet, middleSegmentOptions )
 	middleSegment:setSequence( "middleSegmentOff" )
-	
-	if isGraphicsV1 then
-		--middleSegment:setReferencePoint( display.CenterLeftReferencePoint )
-	end
-	
-	middleSegment.width = ( overallControlWidth ) - ( opt.width + opt.width * 0.5 )
-	middleSegment.x = leftSegment.x + ( middleSegment.width * 0.5 )
+		
+	middleSegment.width = ( overallControlWidth ) - ( opt.width * 2 )
+	middleSegment.x = leftSegment.x + leftSegment.contentWidth * 0.5 + ( middleSegment.width * 0.5 )
 	middleSegment.y = segmentedControl.y + ( middleSegment.contentHeight * 0.5 )
-	
-	if not isGraphicsV1 then
-		middleSegment.anchorX = 0.5
-	end
+	print("midx:",middleSegment.x)
+	print("midw:",middleSegment.width)
 	
 	-- The right segment edge
 	local rightSegment = display.newSprite( segmentedControl, imageSheet, rightSegmentOptions )
 	rightSegment:setSequence( "rightSegmentOff" )
-	rightSegment.width = opt.width
-	
-	if isGraphicsV1 then
-		rightSegment:setReferencePoint( display.CenterRightReferencePoint )
-	end
-	
-	rightSegment.x = middleSegment.x + ( middleSegment.width * 0.5 ) + rightSegment.contentWidth * 0.5
+	rightSegment.width = opt.width	
+	rightSegment.x = middleSegment.x + ( middleSegment.width * 0.5 ) + opt.width * 0.5
 	rightSegment.y = segmentedControl.y + ( rightSegment.contentHeight * 0.5 )
-	
-	if not isGraphicsV1 then
-		rightSegment.anchorX = 1
-	end
+	print("rightx:", rightSegment.x)
+	print("rightw:", rightSegment.width)
 	
 	-- Create the segment labels & dividers
 	for i = 1, #segments do
@@ -223,10 +211,6 @@ local function initWithImage( segmentedControl, options )
 	-- The "over" frame
 	local segmentOver = display.newSprite( segmentedControl, imageSheet, middleSegmentOptions )	
 	segmentOver:setSequence( "middleSegmentOn" )
-	
-	if isGraphicsV1 then
-		segmentOver:setReferencePoint( display.CenterReferencePoint )
-	end
 	
 	segmentOver.width = opt.width
 	segmentOver.y = leftSegment.y
@@ -388,9 +372,9 @@ local function initWithImage( segmentedControl, options )
 		-- Turn on the right segment
 		self._rightSegment:setSequence( "rightSegmentOn" )
 		-- Set the over segment's width
-		segmentOver.width = view._segmentWidth - self._rightSegment.width + 0.5
+		segmentOver.width = view._segmentWidth - self._rightSegment.width
 		-- Set the over segment's position
-		segmentOver.x = self._rightSegment.x - self._rightSegment.width - segmentOver.width * 0.5
+		segmentOver.x = self._rightSegment.x - self._rightSegment.width * 0.5 - segmentOver.width * 0.5
 	
 		-- Set the segment's name
 		self._segmentLabel = self._segmentLabels[self._totalSegments].text
