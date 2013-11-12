@@ -155,8 +155,6 @@ local function initWithImage( segmentedControl, options )
 	leftSegment.y = segmentedControl.y + ( leftSegment.contentHeight * 0.5 )
 	leftSegment:setSequence( "leftSegmentOff" )
 	leftSegment.width = opt.width
-	print("leftx:",leftSegment.x)
-	print("leftw:",leftSegment.width)
 	-- The segment fill
 	local middleSegment = display.newSprite( segmentedControl, imageSheet, middleSegmentOptions )
 	middleSegment:setSequence( "middleSegmentOff" )
@@ -164,8 +162,6 @@ local function initWithImage( segmentedControl, options )
 	middleSegment.width = ( overallControlWidth ) - ( opt.width * 2 )
 	middleSegment.x = leftSegment.x + leftSegment.contentWidth * 0.5 + ( middleSegment.width * 0.5 )
 	middleSegment.y = segmentedControl.y + ( middleSegment.contentHeight * 0.5 )
-	print("midx:",middleSegment.x)
-	print("midw:",middleSegment.width)
 	
 	-- The right segment edge
 	local rightSegment = display.newSprite( segmentedControl, imageSheet, rightSegmentOptions )
@@ -173,8 +169,6 @@ local function initWithImage( segmentedControl, options )
 	rightSegment.width = opt.width	
 	rightSegment.x = middleSegment.x + ( middleSegment.width * 0.5 ) + opt.width * 0.5
 	rightSegment.y = segmentedControl.y + ( rightSegment.contentHeight * 0.5 )
-	print("rightx:", rightSegment.x)
-	print("rightw:", rightSegment.width)
 	
 	-- Create the segment labels & dividers
 	for i = 1, #segments do
