@@ -1389,6 +1389,7 @@ local function createTableView( tableView, options )
 	-- Finalize function for the tableView
 	function tableView:_finalize()
 		Runtime:removeEventListener( "enterFrame", self._view )
+		Runtime:removeEventListener( "system", _handleSuspendResume )
 		
 		display.remove( self._view._categoryGroup )
 	
