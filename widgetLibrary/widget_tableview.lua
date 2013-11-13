@@ -419,7 +419,9 @@ local function createTableView( tableView, options )
 		self._targetRow = event.target
 		
 		-- Handle swipe events on the tableView
-		if "moved" == phase or "ended" == phase or "cancelled" == phase then
+		-- TODO: removed "moved" == phase from the if, which made swipe events to be propagated instantly, instead of at the end phase.
+		-- This conflicted however with the ability to tap, hold and then scroll the tableview
+		if "ended" == phase or "cancelled" == phase then
 			-- This wasn't the initial touch
 			self._initialTouch = false
 			
