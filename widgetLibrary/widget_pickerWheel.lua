@@ -199,7 +199,7 @@ local function createPickerWheel( pickerWheel, options )
 	
 	-- Create the pickerWheel Columns (which are tableView's)
 	local topPadding = 84
-	local bottomPadding = 98
+	local bottomPadding = 96
 	if isGraphicsV1 then
 		topPadding = 90
 		bottomPadding = 92
