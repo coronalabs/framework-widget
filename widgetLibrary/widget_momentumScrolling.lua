@@ -213,15 +213,12 @@ function M._touch( view, event )
 		setLimits( M, view )
 		
 		-- Cancel any active tween on the view
-		
-		-- TODO: revisit this and see why the second snap was instant.
-		-- this was the codeblock in which if we had a snapping in place the view transition was paused instead of being cancelled
-		--if view._tween and false == view._snapping then
+		if view._tween and false == view._snapping then
 			transition.cancel( view._tween )
 			view._tween = nil
-		--else 
-		--	transition.pause( view._tween )
-		--end				
+		else 
+			transition.pause( view._tween )
+		end				
 		
 		-- Set focus
 		display.getCurrentStage():setFocus( event.target, event.id )
@@ -441,12 +438,9 @@ function M._touch( view, event )
 			view._isFocus = nil
 		
 		-- if we have a snap transition that's paused, resume it
-
-		-- TODO: revisit this and see why the second snap is instant.
-		-- This was the code block that resumed a view snapping transition if one existed
-		--if view._tween and true == view._snapping then
-		--	transition.resume( view._tween )
-		--end	
+		if view._tween and true == view._snapping then
+			transition.resume( view._tween )
+		end	
 			
 		end
 	end
