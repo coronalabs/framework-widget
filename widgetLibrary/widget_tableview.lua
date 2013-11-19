@@ -165,6 +165,7 @@ local function createTableView( tableView, options )
 	view._trackVelocity = false	
 	view._updateRuntime = false
 	view._numberOfRows = 0
+	view._rowTouchDelay = opt.rowTouchDelay
 	
 	-- assign the momentum property
 	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
@@ -549,7 +550,7 @@ local function createTableView( tableView, options )
 			end
 			
 			-- If a finger was held down
-			if timeHeld >= 110 then				
+			if timeHeld >= self._rowTouchDelay then				
 				-- If there is a onRowTouch listener
 				if self._onRowTouch and self._permitRowTouches then
 					-- If the row isn't a category
@@ -1466,6 +1467,7 @@ function M.new( options )
 	if nil ~= customOptions.isBounceEnabled and customOptions.isBounceEnabled == false then 
 		opt.isBounceEnabled = false
 	end
+	opt.rowTouchDelay = customOptions.rowTouchDelay or 110
 	
 	-- ScrollBar options
 	if customOptions.scrollBarOptions then
