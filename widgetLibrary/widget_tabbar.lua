@@ -221,6 +221,7 @@ local function initWithImageFiles( tabBar, options )
 	tabBar._view = view
 	tabBar._viewSelected = view._selected
 	tabBar._viewButtons = view._tabs
+	tabBar._left = opt.left or 0
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -237,7 +238,7 @@ local function initWithImageFiles( tabBar, options )
 				local currentTab = self._tabs[i]
 				
 				-- Have we pressed within the current tab?
-				local pressedWithinRange = event.x >= ( currentTab.x - tabSize * 0.5 ) and event.x <= ( currentTab.x + tabSize * 0.5 )
+				local pressedWithinRange = event.x >= ( ( tabBar._left + currentTab.x ) - tabSize * 0.5 ) and event.x <= ( ( tabBar._left + currentTab.x ) + tabSize * 0.5 )
 				
 				-- If we have pressed a tab
 				if pressedWithinRange then
@@ -265,7 +266,7 @@ local function initWithImageFiles( tabBar, options )
 				local currentTab = view._tabs[i]
 				
 				-- Have we pressed within the current tab?
-				local pressedWithinRange = event.x >= ( currentTab.x - tabSize * 0.5 ) and event.x <= ( currentTab.x + tabSize * 0.5 )
+				local pressedWithinRange = event.x >= ( ( tabBar._left + currentTab.x ) - tabSize * 0.5 ) and event.x <= ( ( tabBar._left + currentTab.x ) + tabSize * 0.5 )
 				
 				-- If we have pressed a tab
 				if pressedWithinRange then
@@ -557,6 +558,7 @@ local function initWithImageSheet( tabBar, options )
 	tabBar._view = view
 	tabBar._viewSelected = view._selected
 	tabBar._viewButtons = view._tabs
+	tabBar._left = opt.left or 0
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -573,7 +575,7 @@ local function initWithImageSheet( tabBar, options )
 				local currentTab = self._tabs[i]
 				
 				-- Have we pressed within the current tab?
-				local pressedWithinRange = event.x >= ( currentTab.x - tabSize * 0.5 ) and event.x <= ( currentTab.x + tabSize * 0.5 )
+				local pressedWithinRange = event.x >= ( ( tabBar._left + currentTab.x ) - tabSize * 0.5 ) and event.x <= ( ( tabBar._left + currentTab.x ) + tabSize * 0.5 )
 				
 				-- If we have pressed a tab
 				if pressedWithinRange then
@@ -601,7 +603,7 @@ local function initWithImageSheet( tabBar, options )
 				local currentTab = view._tabs[i]
 				
 				-- Have we pressed within the current tab?
-				local pressedWithinRange = event.x >= ( currentTab.x - tabSize * 0.5 ) and event.x <= ( currentTab.x + tabSize * 0.5 )
+				local pressedWithinRange = event.x >= ( ( tabBar._left + currentTab.x ) - tabSize * 0.5 ) and event.x <= ( ( tabBar._left + currentTab.x ) + tabSize * 0.5 )
 				
 				-- If we have pressed a tab
 				if pressedWithinRange then
