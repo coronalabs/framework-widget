@@ -959,6 +959,11 @@ local function createTableView( tableView, options )
 				rowCell.y = rowCell.contentHeight * 0.5
 				rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
 				rowCell.isHitTestable = true
+				
+				-- if graphics 2.0, anchor the row cell to 0.5 / 0.5
+				if not isGraphicsV1 then
+					rowCell.anchorX = 0.5; rowCell.anchorY = 0.5
+				end
 
 				-- If the user want's lines between rows, create a line to seperate them
 				if not self._noLines and not ( _widget.isSeven() and currentRow.isCategory ) then
