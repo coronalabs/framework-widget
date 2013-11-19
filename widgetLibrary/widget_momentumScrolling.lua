@@ -35,6 +35,8 @@ local mFloor = math.floor
 
 -- configuration variables
 M.scrollStopThreshold = 250
+-- direction variable that has a non-nil value only as long as the scrollview is scrolled
+M._direction = nil
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
@@ -297,15 +299,9 @@ function M._touch( view, event )
 								end
 						
 							end
-
-							local newEvent = 
-							{
-								direction = actualDirection,
-								limitReached = false,
-								target = view,
-							}
-
-							view._listener( newEvent )
+							-- if the scrollview is moving, assign the actual direction to the M._direction variable
+							M._direction = actualDirection
+							
 						end
 
 					end
@@ -370,15 +366,9 @@ function M._touch( view, event )
 								end
 						
 							end
-
-							local newEvent = 
-							{
-								direction = actualDirection,
-								limitReached = false,
-								target = view,
-							}
-
-							view._listener( newEvent )
+							-- if the scrollview is moving, assign the actual direction to the M._direction variable
+							M._direction = actualDirection
+							
 						end
 						
 					end
@@ -419,6 +409,7 @@ function M._touch( view, event )
 			view._lastTime = event.time
 			view._trackVelocity = false			
 			view._updateRuntime = true
+			M._direction = nil
 			if event.time - view._timeHeld > M.scrollStopThreshold then
 			    view._velocity = 0
 			end

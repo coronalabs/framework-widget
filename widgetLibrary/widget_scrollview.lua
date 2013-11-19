@@ -427,13 +427,17 @@ local function createScrollView( scrollView, options )
 			_momentumScrolling._touch( self, event )
 		end
 		
-		-- Overriden by the listener call in momentumScrolling
 		-- Execute the listener if one is specified
-		--[[if self._listener then
+		if self._listener then
 			local newEvent = {}
 			
 			for k, v in pairs( event ) do
 				newEvent[k] = v
+			end
+			
+			-- check if the momentum scrolling module has a non-nil direction variable
+			if _momentumScrolling._direction then
+				newEvent.direction = _momentumScrolling._direction
 			end
 			
 			-- Set event.target to the scrollView object, not the view
@@ -441,7 +445,7 @@ local function createScrollView( scrollView, options )
 			
 			-- Execute the listener
 			self._listener( newEvent )
-		end]]--
+		end
 				
 		-- Set the view's phase so we can access it in the enterFrame listener below
 		self._phase = event.phase
