@@ -287,9 +287,8 @@ local function createTableView( tableView, options )
 			-- If the current row exists on screen
 			if "table" == type( currentRow._view ) then
 				local bounds = currentRow._view.contentBounds
-			
-				local isWithinBounds = yPosition > bounds.yMin and yPosition < bounds.yMax + 1
-
+				
+				local isWithinBounds = yPosition >= bounds.yMin and yPosition <= bounds.yMax + 1
 				-- If we have hit the bottom limit, return the first row
 				if self._hasHitBottomLimit then
 					return self._rows[1]._view
@@ -302,10 +301,10 @@ local function createTableView( tableView, options )
 			
 				-- If the row is within bounds
 				if isWithinBounds then
-				local translateToPos = - currentRow.y - self.parent.y - 6
-				if isGraphicsV1 then
-					translateToPos = - currentRow.y - self.parent.y
-				end								
+					local translateToPos = - currentRow.y - self.parent.y - 6
+					if isGraphicsV1 then
+						translateToPos = - currentRow.y - self.parent.y
+					end								
 					transition.to( self, { time = 280, y = translateToPos, transition = easing.outQuad } )
 					
 					return currentRow._view
