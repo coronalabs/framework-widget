@@ -326,6 +326,13 @@ local function createTableView( tableView, options )
 	function view:touch( event )
 		local phase = event.phase
 
+		-- the event.target is the tableView row. however, the row has calculations in the enterFrame listener that prevent the table from scrolling
+		-- when the limit is hit. In this case, only if the view is used in picker, we set the target to the tableview's background, and that will allow
+		-- free movement independently.
+		if self._isUsedInPickerWheel then
+			event.target = view._background
+		end
+		
 		-- Set the time held
 		if "began" == phase then
 			self._timeHeld = event.time
