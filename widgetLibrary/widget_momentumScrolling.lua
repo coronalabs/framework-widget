@@ -215,11 +215,13 @@ function M._touch( view, event )
 		setLimits( M, view )
 		
 		-- Cancel any active tween on the view
-		if view._tween and false == view._snapping then
-			transition.cancel( view._tween )
-			view._tween = nil
-		else 
-			transition.pause( view._tween )
+		if view._tween then
+			if not view._snapping then
+				transition.cancel( view._tween )
+				view._tween = nil
+			else
+				transition.pause( view._tween )
+			end
 		end				
 		
 		-- Set focus
