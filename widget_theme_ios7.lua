@@ -11,7 +11,7 @@ local sheetData = "widget_theme_ios7_sheet"
 
 -- Check for graphics V1 compatibility mode set
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
-local isByteColorRange = ( 1 == display.getDefault( "isByteColorRange" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 -- conversion function
 local function convertToV1( channels )

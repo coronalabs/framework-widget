@@ -37,7 +37,7 @@ local M =
 local _widget = require( "widget" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
-local isByteColorRange = ( 1 == display.getDefault( "isByteColorRange" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 -- define a default color set for both graphics modes
 local buttonDefault

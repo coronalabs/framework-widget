@@ -36,7 +36,7 @@ local M =
 local _widget = require( "widget" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
-local isByteColorRange = ( 1 == display.getDefault( "isByteColorRange" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 local labelColor = { 0.60 }
 local defaultRowColor = { 1 }

@@ -38,7 +38,7 @@ local _widget = require( "widget" )
 local _momentumScrolling = require( "widget_momentumScrolling" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
-local isByteColorRange = ( 1 == display.getDefault( "isByteColorRange" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 local rowColorIos6 = { default = { 1, 1, 1, 1 }, over = { 0.11, 0.56, 1, 1 } }
 local lineColorIos6 = { 0.86, 0.86, 0.86, 1 }
