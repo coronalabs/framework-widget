@@ -123,7 +123,9 @@ local newWidgetV2 = function( newWidget, ... )
 
 	-- we obtain the old anchorpoints first
 	local oldAnchorX = display.getDefault( "anchorX" )
+	widget._oldAnchorX = oldAnchorX
 	local oldAnchorY = display.getDefault( "anchorY" )
+	widget._oldAnchorY = oldAnchorY
 	
 	-- then we set the anchors to 0.5 for the widget
 	display.setDefault( "anchorX", 0.5 )
