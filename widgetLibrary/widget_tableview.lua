@@ -38,6 +38,7 @@ local _widget = require( "widget" )
 local _momentumScrolling = require( "widget_momentumScrolling" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = ( 1 == display.getDefault( "isByteColorRange" ) )
 
 local rowColorIos6 = { default = { 1, 1, 1, 1 }, over = { 0.11, 0.56, 1, 1 } }
 local lineColorIos6 = { 0.86, 0.86, 0.86, 1 }
@@ -50,7 +51,7 @@ local rowColorOver = { 0.11, 0.56, 1, 1 }
 local whiteColor = { 1, 1, 1, 1 }
 local pickerRowColor = { 0.60 }
 
-if isGraphicsV1 then
+if isByteColorRange then
 	_widget._convertColorToV1( rowColorIos6.default )
 	_widget._convertColorToV1( rowColorIos6.over )
 	_widget._convertColorToV1( lineColorIos6 )

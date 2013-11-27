@@ -11,6 +11,7 @@ local sheetData = "widget_theme_ios7_sheet"
 
 -- Check for graphics V1 compatibility mode set
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = ( 1 == display.getDefault( "isByteColorRange" ) )
 
 -- conversion function
 local function convertToV1( channels )
@@ -63,7 +64,7 @@ theme.button =
 }
 
 -- convert to v1 style values if it's the case
-if isGraphicsV1 then
+if isByteColorRange then
 	convertToV1( theme.button.labelColor.default )
 	convertToV1( theme.button.labelColor.over )
 end
@@ -270,7 +271,7 @@ theme.segmentedControl =
 }
 
 -- convert to v1 style values if it's the case
-if isGraphicsV1 then
+if isByteColorRange then
 	convertToV1( theme.segmentedControl.labelColor.default )
 	convertToV1( theme.segmentedControl.labelColor.over )
 end

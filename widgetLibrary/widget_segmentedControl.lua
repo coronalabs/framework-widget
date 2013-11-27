@@ -37,11 +37,12 @@ local M =
 local _widget = require( "widget" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = ( 1 == display.getDefault( "isByteColorRange" ) )
 
 -- define a default color set for both graphics modes
 local labelDefault
 local whiteColor
-if isGraphicsV1 then
+if isByteColorRange then
     labelDefault = { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
     whiteColor = { 255 }
 else
