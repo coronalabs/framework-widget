@@ -460,16 +460,12 @@ function M.new( options, theme )
 	-- Create the pickerWheel
 	createPickerWheel( pickerWheel, opt )
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + pickerWheel.contentWidth * 0.5
-		y = opt.top + pickerWheel.contentHeight * 0.5
-	end
-	pickerWheel.x, pickerWheel.y = x, y
-
 	if isGraphicsV1 then
 		pickerWheel:setReferencePoint( display.TopLeftReferencePoint )
 	end
+
+	local x, y = _widget._calculatePosition( pickerWheel, opt )
+	pickerWheel.x, pickerWheel.y = x, y
 	
 	return pickerWheel
 end

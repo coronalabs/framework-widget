@@ -804,11 +804,7 @@ function M.new( options, theme )
 		tabBar:setReferencePoint( display.CenterReferencePoint )
 	end
 
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + tabBar.contentWidth * 0.5
-		y = opt.top + tabBar.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( tabBar, opt )
 	tabBar.x, tabBar.y = x, y
 
 	return tabBar

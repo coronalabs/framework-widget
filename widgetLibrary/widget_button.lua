@@ -1410,12 +1410,8 @@ function M.new( options, theme )
 		button:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + button.contentWidth * 0.5
-		y = opt.top + button.contentHeight * 0.5
-	end
-	button.x, button.y = x, y	
+	local x, y = _widget._calculatePosition( button, opt )
+	button.x, button.y = x, y
 
 	return button
 end

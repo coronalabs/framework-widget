@@ -260,20 +260,7 @@ function M.new( options, theme )
 		spinner:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	local x, y = opt.x, opt.y
-	local leftPos = opt.left
-	local topPos = opt.top
-	if not opt.x or not opt.y then
-		x = leftPos + spinner.contentWidth * 0.5
-		y = topPos + spinner.contentHeight * 0.5
-		-- left and top values have to be adjusted in non-compatibility mode
-		if not isGraphicsV1 then
-			leftPos = leftPos - ( ( 0.5 - _widget._oldAnchorX ) * spinner.contentWidth )
-			x = leftPos
-			topPos = topPos - ( ( 0.5 - _widget._oldAnchorY ) * spinner.contentHeight )
-			y = topPos
-		end
-	end
+	local x, y = _widget._calculatePosition( spinner, opt )
 	spinner.x, spinner.y = x, y
 	
 	return spinner

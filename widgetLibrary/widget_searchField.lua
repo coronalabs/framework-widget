@@ -313,12 +313,8 @@ function M.new( options, theme )
 		searchField:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + searchField.contentWidth * 0.5
-		y = opt.top + searchField.contentHeight * 0.5
-	end
-	searchField.x, searchField.y = x, y
+	local x, y = _widget._calculatePosition( searchField, opt )
+	searchField.x, searchField.y = x, y	
 	
 	return searchField
 end

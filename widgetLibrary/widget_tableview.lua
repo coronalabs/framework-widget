@@ -1511,11 +1511,7 @@ function M.new( options )
 	tableView.width = opt.width
 	tableView.height = opt.height
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + tableView.contentWidth * 0.5
-		y = opt.top + tableView.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( tableView, opt )
 	tableView.x, tableView.y = x, y
 	
 	return tableView

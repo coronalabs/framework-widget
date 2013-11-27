@@ -607,11 +607,7 @@ function M.new( options )
 	scrollView.width = opt.width
 	scrollView.height = opt.height
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + scrollView.contentWidth * 0.5
-		y = opt.top + scrollView.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( scrollView, opt )
 	scrollView.x, scrollView.y = x, y	
 	
 	return scrollView

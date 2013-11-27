@@ -524,12 +524,8 @@ function M.new( options, theme )
 		segmentedControl:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + segmentedControl.contentWidth * 0.5
-		y = opt.top + segmentedControl.contentHeight * 0.5
-	end
-	segmentedControl.x, segmentedControl.y = x, y
+	local x, y = _widget._calculatePosition( segmentedControl, opt )
+	segmentedControl.x, segmentedControl.y = x, y	
 	
 	return segmentedControl
 end

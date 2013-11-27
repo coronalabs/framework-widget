@@ -549,11 +549,7 @@ function M.new( options, theme )
 		slider:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + slider.contentWidth * 0.5
-		y = opt.top + slider.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( slider, opt )
 	slider.x, slider.y = x, y
 		
 	return slider
