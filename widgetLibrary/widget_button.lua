@@ -46,6 +46,20 @@ else
     buttonDefault = { default = { 0, 0, 0 }, over = { 1, 1, 1 } }
 end
 
+local shapeStrokeDefault;
+if isGraphicsV1 then
+    shapeStrokeDefault = { default = { 0, 0, 0 }, over = { 0, 0, 0 } }
+else
+    shapeStrokeDefault = { default = { 0, 0, 0 }, over = { 0, 0, 0 } }
+end
+
+local shapeFillDefault;
+if isGraphicsV1 then
+    shapeFillDefault = { default = { 204, 204, 204 }, over = { 153, 153, 153} }
+else
+    shapeFillDefault = { default = { 0.8, 0.8, 0.8  }, over = { 0.6, 0.6, 0.6 } }
+end
+
 -- Function to handle touches on a widget button, function is common to all widget button creation types (ie image files, imagesheet, and 9 slice button creation)
 local function manageButtonTouch( view, event )
 	local phase = event.phase
@@ -139,30 +153,68 @@ end
 -- Text only button
 ------------------------------------------------------------------------
 local function createUsingText( button, options )
+  
 	-- Create a local reference to our options table
 	local opt = options
 	
 	-- Forward references
 	local view
-	
+  
+  local rect = nil;
+  local shape = opt.shape;
+  if shape then	
+     
+      rect = display.newRoundedRect( button, button.x, button.y, opt.width , opt.height , shape.cornerRadius);
+      rect.strokeWidth = shape.strokeWidth or 1;
+      rect:setStrokeColor(unpack(shape.strokeColor.default));
+      rect:setFillColor(unpack(shape.fillColor.default));
+  end
+  local viewLabel;
+  
 	-- Create the label (either embossed or standard)
 	if opt.embossedLabel then
-		view = display.newEmbossedText( button, opt.label, 0, 0, opt.font, opt.fontSize )
+		viewLabel = display.newEmbossedText( button, opt.label, 0, 0, opt.font, opt.fontSize )
 	else
-		view = display.newText( button, opt.label, 0, 0, opt.font, opt.fontSize )
+		viewLabel = display.newText( button, opt.label, 0, 0, opt.font, opt.fontSize )
 	end
 	
+  if rect then
+    view = rect;
+    view._shapeColor = shape.fillColor;
+    view._strokeColor = shape.strokeColor;
+    view._label = viewLabel;
+ 
+  else
+    view = viewLabel;
+  end  
 	-- Set the view's color
-	view:setFillColor( unpack( opt.labelColor.default ) )
+	viewLabel:setFillColor( unpack( opt.labelColor.default ) )
 	view._labelColor = opt.labelColor
 	
 	----------------------------------
 	-- Positioning
 	----------------------------------
 	
-	-- The view
-	view.x = button.x + ( view.contentWidth * 0.5 )
-	view.y = button.y + ( view.contentHeight * 0.5 )
+  	-- Labels position
+	if "center" == opt.labelAlign then
+		viewLabel.x = view.x + opt.labelXOffset
+	elseif "left" == opt.labelAlign then
+		viewLabel.x = view.x - ( view.contentWidth * 0.5 ) + ( viewLabel.contentWidth * 0.5 )  + opt.labelXOffset
+	elseif "right" == opt.labelAlign then
+		viewLabel.x = view.x + ( view.contentWidth * 0.5 ) - ( viewLabel.contentWidth * 0.5 )  + opt.labelXOffset
+	end
+	
+  
+  if "center" == opt.labelAlignY then
+		viewLabel.y = view.y + opt.labelYOffset
+	elseif "top" == opt.labelAlignY then
+		viewLabel.y = view.y - ( view.contentHeight * 0.5 ) + ( viewLabel.contentHeight * 0.5 ) + opt.labelYOffset
+	elseif "bottom" == opt.labelAlignY then
+    
+		viewLabel.y = view.y + ( view.contentHeight * 0.5 ) - ( viewLabel.contentHeight * 0.5 )  + opt.labelYOffset
+	end
+  
+	
 
 	-------------------------------------------------------
 	-- Assign properties/objects to the view
@@ -170,8 +222,8 @@ local function createUsingText( button, options )
 	
 	view._isEnabled = opt.isEnabled
 	view._pressedState = "default"
-	view._fontSize = opt.fontSize
-	view._labelColor = view._labelColor
+  viewLabel._fontSize = opt.fontSize
+	viewLabel._labelColor = view._labelColor
 	
 	-- Methods
 	view._onPress = opt.onPress
@@ -191,7 +243,11 @@ local function createUsingText( button, options )
 	
 	-- Function to set the buttons text color
 	function button:setFillColor( ... )
-		self._view:setFillColor( ... )
+    if self._label then
+      self._view._label:setFillColor( ... )
+    else  
+      self._view:setFillColor( ... )
+    end;  
 	end
 	
 	-- Function to set the button's label
@@ -219,9 +275,11 @@ local function createUsingText( button, options )
 		
 		return true
 	end
+  
+ 
 	
 	view:addEventListener( "touch" )
-	
+  
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -229,8 +287,12 @@ local function createUsingText( button, options )
 	-- Function to set the button's label
 	function view:_setLabel( newLabel )
 		-- Update the label's text
-		if "function" == type( self.setText ) then
-			self:setText( newLabel )
+		if "function" == type( self.setText ) or self._label then
+      if self._label then
+        self._label:setText( newLabel )
+      else  
+        self:setText( newLabel )
+      end  
 		else
 			self.text = newLabel
 		end
@@ -238,17 +300,22 @@ local function createUsingText( button, options )
 	
 	-- Function to get the button's label
 	function view:_getLabel()
-		return self._label.text
+  	return self._label.text
 	end
 	
 	-- Function to set the buttons current state
 	function view:_setState( state )
 		local newState = state
-		
-		if "over" == newState then
+     if "over" == newState then
 			-- Set the label to it's over color
 			if "table" == type( self ) then
-				self:setFillColor( unpack( self._labelColor.over ) )
+        if self._label then
+          self:setFillColor( unpack( self._shapeColor.over ) );
+          self:setStrokeColor(unpack( self._strokeColor.over ) );
+				  self._label:setFillColor( unpack( self._labelColor.over ) )
+        else   
+          self:setFillColor( unpack( self._labelColor.over ) )
+        end  
 			end
 			
 			-- The pressedState is now "over"
@@ -256,8 +323,15 @@ local function createUsingText( button, options )
 		
 		elseif "default" == newState then
 			-- Set the label back to it's default color
+      
 			if "table" == type( self ) then
-				self:setFillColor( unpack( self._labelColor.default ) )
+         if self._label then
+           self:setFillColor( unpack( self._shapeColor.default ) )
+           self:setStrokeColor(unpack( self._strokeColor.default ) );
+				   self._label:setFillColor( unpack( self._labelColor.default  ) )
+         else  
+           self:setFillColor( unpack( self._labelColor.default ) )
+         end 
 			end
 			
 			-- The pressedState is now "default"
@@ -1248,12 +1322,23 @@ function M.new( options, theme )
 	end
 	
 	opt.labelAlign = customOptions.labelAlign or "center"
+  opt.labelAlignY = customOptions.labelAlignY or "center"
+  
 	opt.labelXOffset = customOptions.labelXOffset or 0
 	opt.labelYOffset = customOptions.labelYOffset or 0
 	opt.embossedLabel = customOptions.emboss or themeOptions.emboss or false
 	opt.isEnabled = customOptions.isEnabled
+  
 	opt.textOnlyButton = customOptions.textOnly or false
-	
+  opt.shape = customOptions.shape or nil;
+  if opt.shape then
+    
+    opt.shape.cornerRadius = opt.shape.cornerRadius or 0;
+    opt.shape.strokeWidth = opt.shape.strokeWidth or 1;
+    opt.shape.strokeColor = opt.shape.strokeColor or shapeStrokeDefault;
+    opt.shape.fillColor = opt.shape.fillColor or shapeFillDefault;
+  end;  
+  
 	-- If the user didn't pass in a isEnabled flag, set it to true
 	if nil == opt.isEnabled then
 		opt.isEnabled = true
@@ -1306,7 +1391,7 @@ function M.new( options, theme )
 	opt.bottomMiddleOverFrame = customOptions.bottomMiddleOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.bottomMiddleOverFrame )
 
 	-- Are we using a nine piece button?
-	local using9PieceButton = not opt.defaultFrame and not opt.overFrame and not opt.defaultFile and not opt.overFile and not opt.textOnlyButton and opt.topLeftFrame and opt.topLeftOverFrame and opt.middleLeftFrame and opt.middleLeftOverFrame and opt.bottomLeftFrame and opt.bottomLeftOverFrame and 
+	local using9PieceButton = not opt.defaultFrame and not opt.overFrame and not opt.defaultFile and not opt.overFile and not opt.textOnlyButton and not opt.shape and opt.topLeftFrame and opt.topLeftOverFrame and opt.middleLeftFrame and opt.middleLeftOverFrame and opt.bottomLeftFrame and opt.bottomLeftOverFrame and 
 							opt.topRightFrame and opt.topRightOverFrame and opt.middleRightFrame and opt.middleRightOverFrame and opt.bottomRightFrame and opt.bottomRightOverFrame and
 							opt.topMiddleFrame and opt.topMiddleOverFrame and opt.middleFrame and opt.middleOverFrame and opt.bottomMiddleFrame and opt.bottomMiddleOverFrame
 	
@@ -1383,7 +1468,6 @@ function M.new( options, theme )
 		baseDir = opt.baseDir,
 		widgetType = "button",
 	}
-	
 	-- Create the button
 	if using9PieceButton then
 		-- If we are using a 9 piece button
@@ -1400,7 +1484,7 @@ function M.new( options, theme )
 		end
 		
 		-- Text only button
-		if opt.textOnlyButton then
+		if opt.textOnlyButton or opt.shape then
 			createUsingText( button, opt )
 		end
 	end
