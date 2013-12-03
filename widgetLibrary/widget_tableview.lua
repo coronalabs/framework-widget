@@ -484,8 +484,10 @@ local function createTableView( tableView, options )
 					row = self._targetRow,
 				}
 				
-				-- Set the row cell's fill color
-				self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
+				-- Set the row cell's fill color, if the row's view still exists (not being deleted)
+				if self._targetRow._cell then
+					self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
+				end
 				
 				-- Execute the row's touch event 
 				self._onRowTouch( newEvent )
@@ -1254,7 +1256,10 @@ local function createTableView( tableView, options )
 			
 			-- Re calculate the scrollHeight
 			self._scrollHeight = self._scrollHeight - self._rows[rowIndex]._height
-			self._scrollBar:repositionY()
+			-- only if the scrollbar exists, reposition it
+			if self._scrollBar then
+				self._scrollBar:repositionY()
+			end
 			
 			-- transition the row
 			transition.to( self._rows[rowIndex]._view, { x = - ( self._rows[rowIndex]._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = removeRow } )
