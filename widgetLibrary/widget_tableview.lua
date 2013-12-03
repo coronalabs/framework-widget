@@ -732,6 +732,8 @@ local function createTableView( tableView, options )
 			local catGroupY = - self.parent.height * 0.5 - category.contentHeight * 0.5
 			if isGraphicsV1 then
 				catGroupY = - self.parent.height * 0.5
+			else
+				rowCell.anchorX = 0.5; rowCell.anchorY = 0.5
 			end
 			self._categoryGroup.y = catGroupY
 			local rowX = 0
@@ -989,21 +991,19 @@ local function createTableView( tableView, options )
 					end
 
 					if _widget.isSeven() then
-						---rowLine:setReferencePoint( display.RightReferencePoint )
-						--rowLine.x = rowCell.x 
-					else
 						if isGraphicsV1 then
 							rowLine:setReferencePoint( display.CenterReferencePoint )
 						else
 							rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
 						end
-						rowLine.x = rowCell.x
-						-- TODO: rewrite this as part of the above if clause.
-						-- For g2.0 non-compatibility and just on the ios6 theme, the row has to be positioned back to 0, because otherwise the row starts at tableRow * 0.5
-						if not isGraphicsV1 and not _widget.isSeven() then
+					else
+						if isGraphicsV1 then
+							rowLine:setReferencePoint( display.CenterReferencePoint )
+							rowLine.x = rowCell.x
+						else
+							rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
 							rowLine.x = 0
 						end
-
 					end
 
 					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 )
