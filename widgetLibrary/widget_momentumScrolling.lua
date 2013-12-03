@@ -705,13 +705,19 @@ function M.createScrollBar( view, options )
 	
 	-- Create the scrollBar frames ( 3 slice )
 	M.topFrame = display.newImageRect( M.scrollBar, imageSheet, opt.topFrame, opt.width, opt.height )
-	M.topFrame.anchorX = 0.5; M.topFrame.anchorY = 0.5
+	if not isGraphicsV1 then
+		M.topFrame.anchorX = 0.5; M.topFrame.anchorY = 0.5
+	end
 	
 	M.middleFrame = display.newImageRect( M.scrollBar, imageSheet, opt.middleFrame, opt.width, opt.height )
-	M.middleFrame.anchorX = 0.5; M.middleFrame.anchorY = 0.5
+	if not isGraphicsV1 then
+		M.middleFrame.anchorX = 0.5; M.middleFrame.anchorY = 0.5
+	end
 	
 	M.bottomFrame = display.newImageRect( M.scrollBar, imageSheet, opt.bottomFrame, opt.width, opt.height )
-	M.bottomFrame.anchorX = 0.5; M.bottomFrame.anchorY = 0.5
+	if not isGraphicsV1 then
+		M.bottomFrame.anchorX = 0.5; M.bottomFrame.anchorY = 0.5
+	end
 	
 	-- Set the middle frame's width
 	M.middleFrame.height = scrollBarHeight - ( M.topFrame.contentHeight + M.bottomFrame.contentHeight )
