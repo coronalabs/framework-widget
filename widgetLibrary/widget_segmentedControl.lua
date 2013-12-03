@@ -271,11 +271,7 @@ local function initWithImage( segmentedControl, options )
 				-- for g2, we have to take into account the current anchorX for this position 
 				if not isGraphicsV1 then
 					local oldAnchorX = _widget._oldAnchorX
-					if 0 == oldAnchorX then
-						segmentedControlXPosition = segmentedControlXPosition + self.contentWidth * 0.5
-					elseif 1 == oldAnchorX then
-						segmentedControlXPosition = segmentedControlXPosition - self.contentWidth * 0.5
-					end
+					segmentedControlXPosition = segmentedControlXPosition + ( 0.5 - oldAnchorX ) * self.contentWidth
 				end
 				
 				local currentSegment = i
