@@ -204,11 +204,29 @@ local function initWithImage( searchField, options )
 		return function()
 			if self.x ~= self._view._originalX then
 				self._view._textField.x = self.x - self._view._magnifyingGlass.contentWidth + self._view._textField._xOffset
+				-- TODO: does the native textfield not respond to anchor settings?
+				if not isGraphicsV1 then
+					local oldAnchorX = _widget._oldAnchorX
+					if 0 == oldAnchorX then
+						self._view._textField.x = self._view._textField.x + self.contentWidth * 0.5
+					elseif 1 == oldAnchorX then
+						self._view._textField.x = self._view._textField.x - self.contentWidth * 0.5		
+					end	
+				end
+				
 				self._view._originalX = self.x
 			end
 			
 			if self.y ~= self._view._originalY then
 				self._view._textField.y = self.y + self._view._textField._yOffset
+				if not isGraphicsV1 then
+					local oldAnchorY = _widget._oldAnchorY
+					if 0 == oldAnchorY then
+						self._view._textField.y = self._view._textField.y + self.contentHeight * 0.5
+					elseif 1 == oldAnchorY then
+						self._view._textField.y = self._view._textField.y - self.contentHeight * 0.5		
+					end			
+				end
 				self._view._originalY = self.y
 			end
 		end
