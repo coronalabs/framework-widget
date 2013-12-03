@@ -1355,9 +1355,13 @@ local function createTableView( tableView, options )
 		-- The new position to scroll to
 		local newPosition = 0
 
-		-- Set the new position to scroll to
+		-- Set the new position to scroll to. Accounting for the 0.5 anchor of the widget
 		newPosition = -self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 
+		if not isGraphicsV1 then
+			newPosition = newPosition - self.parent.contentHeight * 0.5
+		end
+		
 		-- The calculation needs altering for pickerWheels
 		if self._isUsedInPickerWheel then
 			-- TODO: this is just because we have a single theme for all the pickers, we'll have to add a real solution here.
