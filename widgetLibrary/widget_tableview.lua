@@ -1008,7 +1008,8 @@ local function createTableView( tableView, options )
 						end
 					end
 
-					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 )
+					rowLine.y = math.ceil( rowCell.y + ( rowCell.contentHeight * 0.5 ) )
+					
 					rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
 				end
 			
@@ -1026,7 +1027,7 @@ local function createTableView( tableView, options )
 				end
 				currentRow._view.x = rowX
 		
-				local curY = currentRow.y - currentRow._view.contentHeight * 0.5
+				local curY = math.ceil( currentRow.y - currentRow._view.contentHeight * 0.5 )
 				if isGraphicsV1 then
 					curY = currentRow.y 
 				end
@@ -1170,7 +1171,7 @@ local function createTableView( tableView, options )
 		else
 			if ( self._rows[table.maxn(self._rows) - 1].y ) then
 			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows) - 1].y + ( self._rows[table.maxn(self._rows) - 1]._height * 0.5 ) )
-			 + ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1	
+			 + ( self._rows[table.maxn(self._rows)]._height * 0.5 )
 			end
 		end
 		
