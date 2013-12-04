@@ -71,6 +71,8 @@ local function initWithImage( segmentedControl, options )
 
 	view._segmentWidth = M.segmentWidth
 	view._labelColor = opt.labelColor
+        view._isSeven = _widget.isSeven()
+        view._labelNotEmbossed = opt.labelNotEmbossed
       
 	-- Create the sequenceData table
 	local leftSegmentOptions = 
@@ -176,7 +178,7 @@ local function initWithImage( segmentedControl, options )
 	for i = 1, #segments do
 		-- Create the labels
 		local label
-		if (opt.labelNotEmbossed == true) or _widget.isSeven() then
+		if (view._labelNotEmbossed == true) or view._isSeven then
 			label = display.newText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
 			if view._segmentNumber == i or opt.defaultSegment == i then
 				label:setFillColor( unpack( view._labelColor.over ) )
@@ -349,13 +351,13 @@ local function initWithImage( segmentedControl, options )
 		self._segmentNumber = 1
 		
 		-- Reset the colors if ios7
-		if _widget.isSeven() then
+		if self._labelNotEmbossed == true or self._isSeven then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setFillColor( unpack( view._labelColor.default ) )
+				currentSegment:setFillColor( unpack( self._labelColor.default ) )
 			end
 			
-			view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
+			view._segmentLabels[1]:setFillColor( unpack( self._labelColor.over ) )
 			
 		end
 		
@@ -379,13 +381,13 @@ local function initWithImage( segmentedControl, options )
 		self._segmentNumber = self._totalSegments
 		
 		-- Reset the colors if ios7
-		if _widget.isSeven() then
+		if self._labelNotEmbossed == true or self._isSeven then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setFillColor( unpack( view._labelColor.default ) )
+				currentSegment:setFillColor( unpack( self._labelColor.default ) )
 			end
 			
-			view._segmentLabels[ #view._segmentLabels ]:setFillColor( unpack( whiteColor ) )
+			view._segmentLabels[ #view._segmentLabels ]:setFillColor( unpack( self._labelColor.over ) )
 			
 		end
 		
@@ -409,13 +411,13 @@ local function initWithImage( segmentedControl, options )
 		self._segmentNumber = segmentNum
 		
 		-- Reset the colors if ios7
-		if _widget.isSeven() then
+		if self._labelNotEmbossed == true or self._isSeven then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setFillColor( unpack( view._labelColor.default ) )
+				currentSegment:setFillColor( unpack( self._labelColor.default ) )
 			end
 			
-			view._segmentLabels[ segmentNum ]:setFillColor( unpack( whiteColor ) )
+			view._segmentLabels[ segmentNum ]:setFillColor( unpack( self._labelColor.over ) )
 			
 		end
 		
