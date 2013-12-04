@@ -67,9 +67,11 @@ local function initWithImage( segmentedControl, options )
 	
 	-- The view is the segmentedControl (group)
 	view = segmentedControl
+        
+
 	view._segmentWidth = M.segmentWidth
 	view._labelColor = opt.labelColor
-	
+      
 	-- Create the sequenceData table
 	local leftSegmentOptions = 
 	{ 
@@ -174,7 +176,7 @@ local function initWithImage( segmentedControl, options )
 	for i = 1, #segments do
 		-- Create the labels
 		local label
-		if _widget.isSeven() then
+		if (opt.labelNotEmbossed == true) or _widget.isSeven() then
 			label = display.newText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
 			if view._segmentNumber == i or opt.defaultSegment == i then
 				label:setFillColor( unpack( view._labelColor.over ) )
@@ -479,6 +481,7 @@ function M.new( options, theme )
 	opt.defaultSegment = customOptions.defaultSegment or 1
 	opt.labelSize = customOptions.labelSize or 12
 	opt.labelFont = customOptions.labelFont or native.systemFont
+        opt.labelNotEmbossed = customOptions.labelNotEmbossed or false;
 	-- TODO: document this in the API
 	opt.labelColor = customOptions.labelColor or themeOptions.labelColor or buttonDefault
 	
@@ -526,12 +529,13 @@ function M.new( options, theme )
 	end
 	
 	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
+	if (not opt.x) or (not opt.y) then
 		x = opt.left + segmentedControl.contentWidth * 0.5
 		y = opt.top + segmentedControl.contentHeight * 0.5
 	end
 	segmentedControl.x, segmentedControl.y = x, y
-	
+        
+        
 	return segmentedControl
 end
 
