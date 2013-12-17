@@ -862,6 +862,8 @@ local function createTableView( tableView, options )
 						display.remove( self._currentCategory )
 						self._currentCategory = nil
 						self._currentCategoryIndex = nil
+					elseif currentRow.isCategory and currentRow._top >= 0 then
+						currentRow._view.isVisible = true
 					end
 				end	
 			end
