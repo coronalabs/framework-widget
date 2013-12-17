@@ -1179,6 +1179,11 @@ local function createTableView( tableView, options )
 		
 		-- Create the row
 		self:_createRow( self._rows[table.maxn(self._rows)], reRender )
+		
+		-- Recalculate the categories if we inserted one
+		if self._rows[table.maxn(self._rows)].isCategory then
+			self._categories, self._numCategories = self:_gatherCategories()
+		end
 	end
 	
 	
