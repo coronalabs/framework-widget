@@ -1221,21 +1221,21 @@ local function createTableView( tableView, options )
 				if nil~= self._rows[i]._view and "table" == type( self._rows[i]._view ) then
 					if self._rows[i].isCategory then
 						if nil ~= self._rows[i-1] then
-							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i-1]._view.contentHeight ) + 1, transition = easing.outQuad } )
+							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ) + 1, transition = easing.outQuad } )
 							self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1 
 						end
 					else
-						transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i]._view.contentHeight ) + 1, transition = easing.outQuad } )
-						self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
+						transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ) + 1, transition = easing.outQuad } )
+						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
 					end
 				-- We are now moving up the off screen rows
 				else
 					if self._rows[i].isCategory then
 						if nil ~= self._rows[i-1] then
-							self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1
+							self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
 						end
 					else
-						self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
+						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
 					end
 				end
 				end
