@@ -1179,6 +1179,11 @@ local function createTableView( tableView, options )
 		-- Update the scrollHeight of our view
 		self._scrollHeight = self._scrollHeight + self._rows[table.maxn(self._rows)]._height + 1
 		
+		-- Reposition the scrollbar, if it exists
+		if self._scrollBar then
+			self._scrollBar:repositionY()
+		end
+		
 		-- Create the row
 		self:_createRow( self._rows[table.maxn(self._rows)], reRender )
 		
