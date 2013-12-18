@@ -739,7 +739,7 @@ function M.createScrollBar( view, options )
 	    self._viewContentHeight = view._scrollHeight
 	    -- Set the scrollbar Height
 	    
-	    local scrollBarHeight = ( viewHeight * 100 ) / viewContentHeight
+	    local scrollBarHeight = ( self._viewHeight * 100 ) / self._viewContentHeight
 	    
 	    -- If the calculated scrollBar height is below the minimum height, set it to it
 	    if scrollBarHeight < minimumScrollBarHeight then
@@ -748,6 +748,9 @@ function M.createScrollBar( view, options )
 	
         M.middleFrame.height = scrollBarHeight - ( M.topFrame.contentHeight + M.bottomFrame.contentHeight ) 
     
+    	-- Positioning of the middle and bottom frames according to the new scrollbar height
+		M.middleFrame.y = M.topFrame.y + M.topFrame.contentHeight * 0.5 + M.middleFrame.contentHeight * 0.5
+		M.bottomFrame.y = M.middleFrame.y + M.middleFrame.contentHeight * 0.5 + M.bottomFrame.contentHeight * 0.5
 	end
 	
 	-- Function to move the scrollBar
