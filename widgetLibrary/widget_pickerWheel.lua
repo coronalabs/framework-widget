@@ -249,13 +249,14 @@ local function createPickerWheel( pickerWheel, options )
 		for j = 1, #opt.columnData[i].labels do
 			viewColumns[i]:insertRow
 			{
-				rowHeight = 40,
+				rowHeight = opt.rowHeight,
 				rowColor = { 
-				default = defaultRowColor,
-    			over = defaultRowColor, 
+				default = opt.columnColor,
+    			over = opt.columnColor, 
     			},
 				label = opt.columnData[i].labels[j],
-				id = i
+				id = i,
+                                lineColor = opt.columnColor,
 			}
 		end
 		
