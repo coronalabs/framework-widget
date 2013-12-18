@@ -385,6 +385,11 @@ local function createScrollView( scrollView, options )
 			end
 		end	
     end
+    
+    -- isLocked setter function
+	function scrollView:setIsLocked( lockedState )
+		return self._view:_setIsLocked( lockedState )
+	end
 
 	-- Transfer touch from the view's background to the view's content
 	function viewBackground:touch( event )		
@@ -486,6 +491,13 @@ local function createScrollView( scrollView, options )
 	end
 	
 	Runtime:addEventListener( "enterFrame", view )
+	
+	-- isLocked variable setter function
+	function view:_setIsLocked( lockedState )
+		if type( lockedState ) ~= "boolean" then return end
+		self._isVerticalScrollingDisabled = lockedState
+		self._isLocked = lockedState
+	end
 		
 	-- Finalize function for the scrollView
 	function scrollView:_finalize()		
