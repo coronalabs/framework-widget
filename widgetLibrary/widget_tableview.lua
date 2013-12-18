@@ -237,6 +237,11 @@ local function createTableView( tableView, options )
 		return self._view:_reloadData()
 	end
 	
+	-- isLocked setter function
+	function tableView:setIsLocked( lockedState )
+		return self._view:_setIsLocked( lockedState )
+	end
+	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -1424,6 +1429,13 @@ local function createTableView( tableView, options )
 				self:_createRow( row, true )
 			end
 		end
+	end
+	
+	-- isLocked variable setter function
+	function view:_setIsLocked( lockedState )
+		if type( lockedState ) ~= "boolean" then return end
+		self._isVerticalScrollingDisabled = lockedState
+		self._isLocked = lockedState
 	end
 	
 	-- Finalize function for the tableView
