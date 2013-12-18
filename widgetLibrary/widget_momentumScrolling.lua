@@ -239,8 +239,11 @@ function M._touch( view, event )
 	            if dx > moveThresh or dy > moveThresh then
 					-- If there is a scrollBar, show it
 					if view._scrollBar then
-						-- Show the scrollBar
-						view._scrollBar:show()
+						-- Show the scrollBar, only if we need to (if the content height is higher than the view's height)
+						-- TODO: when the diagonal scrolling comes to place, we have to treat the horizontal case as well here.
+						if view._scrollBar._viewHeight < view._scrollBar._viewContentHeight then
+							view._scrollBar:show()
+						end
 					end
 		
 	                if dx > dy then
