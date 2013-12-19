@@ -651,7 +651,8 @@ local function createTableView( tableView, options )
 		-- Loop through all rows and set categories
 		for i = 1, #self._rows do
 			local currentRow = self._rows[i]
-
+			
+			-- added a check for currentRow because this method can get called while deleting a row, so we have a race condition.
 			if currentRow and currentRow.isCategory then
 				if not previousCategory then
 					categories["cat-" .. i] = "first"
@@ -1182,13 +1183,7 @@ local function createTableView( tableView, options )
 		end
 		
 		-- Update the scrollHeight of our view
-		local newScrollHeight = 0
-		for i = 1, table.maxn(self._rows) do
-			if nil ~= self._rows[i] then
-				newScrollHeight = newScrollHeight + self._rows[i]._height + 1
-			end
-		end
-		self._scrollHeight = newScrollHeight
+		self._scrollHeight = self._scrollHeight + self._rows[table.maxn(self._rows)]._height + 1
 		
 		-- Reposition the scrollbar, if it exists
 		if self._scrollBar then
