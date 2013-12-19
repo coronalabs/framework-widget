@@ -224,10 +224,11 @@ local function createPickerWheel( pickerWheel, options )
 			topPadding = topPadding,
 			bottomPadding = bottomPadding,
 			noLines = true,
-			hideBackground = true,
+			hideBackground = false,
 			hideScrollBar = true,
 			friction = 0.92,
 			rowColor = opt.columnColor,
+			backgroundColor = opt.backgroundColor or defaultRowColor,
 			onRowRender = _renderColumns,
 			maskFile = opt.maskFile,
 			listener = nil,
@@ -252,8 +253,8 @@ local function createPickerWheel( pickerWheel, options )
 			{
 				rowHeight = 40,
 				rowColor = { 
-				default = defaultRowColor,
-    			over = defaultRowColor, 
+					default = opt.columnColor,
+    				over = opt.columnColor, 
     			},
 				label = opt.columnData[i].labels[j],
 				id = i
@@ -417,6 +418,7 @@ function M.new( options, theme )
 	opt.fontSize = customOptions.fontSize or 22
 	opt.fontColor = customOptions.fontColor or blackColor
 	opt.columnColor = customOptions.columnColor or defaultRowColor
+	opt.backgroundColor = customOptions.backgroundColor or defaultRowColor
 	
 	if _widget.isSeven() then
 		opt.font = customOptions.font or themeOptions.font or "HelveticaNeue-Medium"
