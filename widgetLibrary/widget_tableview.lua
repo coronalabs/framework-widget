@@ -375,7 +375,7 @@ local function createTableView( tableView, options )
 		if "moved" == phase and not self._isUsedInPickerWheel then
 			if dy < moveThresh and self._initialTouch then
 				if event.phase ~= "ended" and event.phase ~= "cancelled" then
-					event.phase = "moved"
+					event.phase = "began"
 				end
 			else
 				-- This wasn't the initial touch
