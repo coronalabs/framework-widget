@@ -262,12 +262,12 @@ local function initWithImage( segmentedControl, options )
 	-- Touch listener for our segmented control
 	function view:touch( event )
 		local phase = event.phase
-		local _segmentedControl = self.parent
-		event.target = _segmentedControl
+		local _segmentedControl = self
 		local firstSegment = 1
 		local lastSegment = self._totalSegments
 
 		if "began" == phase then
+                        native.setKeyboardFocus(nil)
 			-- Loop through the segments
 			for i = 1, self._totalSegments do
 				local segmentedControlXPosition = self.x - ( self.contentWidth * 0.5 )
@@ -275,23 +275,12 @@ local function initWithImage( segmentedControl, options )
 				local currentSegment = i
 				local segmentWidth = self._segmentWidth
 				
-				-- Work out the current segments position
-
-				local parentOffsetX = 0
-
-				-- First, we check if the widget is in a group
-				if nil ~= self.parent and nil ~= self.parent.x then
-				    parentOffsetX = self.parent.x
-			    end
-			
-				--local currentSegmentLeftEdge = ( segmentedControlXPosition * 0.5 ) * currentSegment + parentOffsetX
-				--local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) + parentOffsetX
-
-                local currentSegmentLeftEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) - segmentWidth + parentOffsetX
-                local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) + parentOffsetX	
+                local x,y = view:contentToLocal(event.x, event.y);
+                local currentSegmentLeftEdge = ( segmentWidth * currentSegment ) - segmentWidth 
+                local currentSegmentRightEdge = ( segmentWidth * currentSegment ) 	
 				
 				-- If the touch is within the segments range
-				if event.x >= currentSegmentLeftEdge and event.x <= currentSegmentRightEdge then
+				if x >= currentSegmentLeftEdge and x <= currentSegmentRightEdge then
 					-- First segment (Near left)
 					if firstSegment == i then
 						self:setLeftSegmentActive()
@@ -311,6 +300,7 @@ local function initWithImage( segmentedControl, options )
 					
 					-- Execute onPress listener
 					if self._onPress and "function" == type( self._onPress ) then
+                                                event.target = _segmentedControl
 						self._onPress( event )
 					end
 					
@@ -422,7 +412,16 @@ local function initWithImage( segmentedControl, options )
 		end
 		
 	end
-	
+        
+        function segmentedControl:getDefaultSegment(  )
+           return self._view._segmentNumber;
+        end   
+        function segmentedControl:getValue(  )
+           return self._view._segmentNumber;
+        end   
+        function segmentedControl:setValue( segmentNum )
+           self:setDefaultSegment( segmentNum )
+        end   
 	-- Set the intial segment to active
 	function segmentedControl:setDefaultSegment( segmentNum )
 		if 1 == segmentNum then
