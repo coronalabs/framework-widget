@@ -275,7 +275,7 @@ local function initWithImage( segmentedControl, options )
 				local currentSegment = i
 				local segmentWidth = self._segmentWidth
 				
-                local x,y = view:contentToLocal(event.x, event.y);
+                local x,y = self:contentToLocal(event.x, event.y);
                 local currentSegmentLeftEdge = ( segmentWidth * currentSegment ) - segmentWidth 
                 local currentSegmentRightEdge = ( segmentWidth * currentSegment ) 	
 				
