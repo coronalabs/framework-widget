@@ -96,7 +96,7 @@ local function initWithSprite( stepper, options )
 		local themeData = require( opt.themeData )
 		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
-	
+
 	-- Create the view
 	view = display.newSprite( stepper, imageSheet, sheetOptions )
 	view:setSequence( "default" )
@@ -122,6 +122,8 @@ local function initWithSprite( stepper, options )
 	-------------------------------------------------------
 	
 	-- Assign to the view
+        
+        view._isEnabled = opt.isEnabled
 	view._timerIncrementSpeed = opt.timerIncrementSpeed or 1000
 	view._changeIncrementSpeedAtTime = view._timerIncrementSpeed
 	view._increments = 0
@@ -164,6 +166,11 @@ local function initWithSprite( stepper, options )
 	function stepper:setValue( newValue )
 		return self._view:_setValue( newValue )
 	end
+        
+	-- Function to set a button as active
+	function stepper:setEnabled( isEnabled )
+		self._view._isEnabled = isEnabled
+	end        
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
@@ -174,6 +181,11 @@ local function initWithSprite( stepper, options )
 		local phase = event.phase
 		local _stepper = self.parent
 		event.target = _stepper
+                
+                -- If the button isn't active, just return
+                if not view._isEnabled then
+                        return
+                end
 		
 		-- The content bounds of our increment/decrement segments
 		local decrementBounds = self._decrementOverlay.contentBounds
@@ -421,7 +433,13 @@ function M.new( options, theme )
 	opt.onHold = customOptions.onHold
 	opt.timerIncrementSpeed = customOptions.timerIncrementSpeed or 1000
 	opt.changeSpeedAtIncrement = customOptions.changeSpeedAtIncrement or 5
-	
+	opt.isEnabled = customOptions.isEnabled
+        
+	-- If the user didn't pass in a isEnabled flag, set it to true
+	if nil == opt.isEnabled then
+		opt.isEnabled = true
+	end
+        
 	-- Frames & Images
 	opt.sheet = customOptions.sheet
 	opt.themeSheetFile = themeOptions.sheet
