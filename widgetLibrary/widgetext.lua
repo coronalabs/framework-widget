@@ -65,8 +65,14 @@ end
 
 widget.newPageSlider = newPageSlider;
 
+
 local function newEditField( options )
-    local theme = _getTheme( "editField", options );
+    local theme;
+    if options.theme then
+        theme = require(options.theme)["editField"]
+    else
+        theme = _getTheme( "editField", options );
+    end    
     if theme == nil then
         --if the current theme does not have a editfield, revert to searchfield
         theme = _getTheme( "searchField", options )
@@ -121,7 +127,7 @@ end
 widget.newSwitch = newSwitch;
 
 
-function newPickerWheel( options )
+local function newPickerWheel( options )
 	local theme = _getTheme( "pickerWheel", options )
 	local _pickerWheel = require( "widgets.widget_pickerWheel" )
 	return _pickerWheel.new( options, theme )	
