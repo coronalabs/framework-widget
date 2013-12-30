@@ -1,11 +1,13 @@
+-- Require needed widget files
+local _widget = require( "widget" )
 local _storyboard = require("storyboard")
+local efDefaults = require("widgets.editfield_defaults")
 
 local M = 
 {
     _options = {},
     _widgetName = "widget.newEditField",
 }
-
 
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
@@ -43,8 +45,6 @@ end
 
 
 
--- Require needed widget files
-local _widget = require( "widget" )
 local _focusedField = nil;
 
 local function getKeyboardHeight()
@@ -69,7 +69,7 @@ local function getKeyboardHeight()
         
     else
         --dear android
-        return 350;
+        return math.min(350, display.contentHeight / 2);
     end
 end
 -- Creates a new edit field from an image
@@ -82,6 +82,7 @@ local function initEditField( editField, options )
     local themeData = require( opt.themeData ) 
     
     local yCenter = opt.height / 2 
+    local imageSheet
     
     --default values for start, end
     local xStart = 0;
@@ -91,7 +92,7 @@ local function initEditField( editField, options )
         local viewTopLeft, viewMiddleLeft, viewBottomLeft
 	local viewTopMiddle, viewMiddle, viewBottomMiddle
 	local viewTopRight, viewMiddleRight, viewBottomRight  
-        local imageSheet,sheet
+        local sheet
         
         
 	local themeData = require( opt.themeData )
@@ -169,11 +170,10 @@ local function initEditField( editField, options )
         
         xStart = viewMiddleLeft.contentWidth ;
         xEnd   = opt.width -  viewMiddleRight.contentWidth ;
-        
+        height = opt.height - (viewBottomMiddle.height + viewTopMiddle.height) + 2;
     end
     
     local function create3SliceFrame()
-        local imageSheet
         -- Create the imageSheet
         if opt.sheet then
             imageSheet = opt.sheet
@@ -203,6 +203,7 @@ local function initEditField( editField, options )
         
         xStart = viewLeft.x + viewLeft.contentWidth / 2 ;
         xEnd   = viewRight.x - viewRight.contentWidth / 2 ;
+        height = opt.height - 2*4 ;
     end
     
     local function createErrorFrame()
@@ -226,7 +227,7 @@ local function initEditField( editField, options )
         rect:setFillColor(unpack(frame.fillColor));
         xStart = math.max(frame.strokeWidth, frame.cornerRadius);
         xEnd   = opt.width - math.max(frame.strokeWidth, frame.cornerRadius);
-        
+        height = opt.height - 2*frame.strokeWidth - 2;
     end
     
     --if there is an "validation error" frame, create it and subtract from height/width
@@ -310,7 +311,7 @@ local function initEditField( editField, options )
         fieldDescription:setFillColor(unpack(opt.labelColor));
         fieldDescription.anchorX = 0;
         fieldDescription.x = xStart + widgetsWidthLeft + opt.spacing ;
-        fieldDescription.y = yCenter
+        fieldDescription.y = yCenter + opt.fakeLabelYOffset
         textLabelX = fieldDescription.x;
         textLabelWidth = fieldDescription.contentWidth
     end;   
@@ -320,20 +321,27 @@ local function initEditField( editField, options )
         textFieldWidth = (xEnd - xStart) - widgetsWidthLeft - widgetsWidthRight -opt.textFieldXOffset 
         - textLabelWidth - 2* opt.spacing;
     end
-    local textFieldHeight = (opt.height - 8) --* fontScale;
-    local tHeight = textFieldHeight;
-    if "Android" == system.getInfo("platformName") then
-        tHeight = tHeight + 10; 
-    end
-    viewTextField = native.newTextField( -1000, -1000, textFieldWidth,tHeight )
+    local textFieldHeight = height;
+    local tmpField = display.newText("W",0,0,opt.editFont,opt.editFontSize)
+    local lineHeight = tmpField.contentHeight;
+    tmpField:removeSelf();
+    editField._xOriginal = textLabelX + textLabelWidth + opt.textFieldXOffset + widgetsWidthLeft 
+    editField._yOriginal = yCenter + opt.textFieldYOffset
+    if opt.native then
+        viewTextField = native.newTextField(editField._xOriginal, editField._yOriginal, textFieldWidth,lineHeight + opt.textFieldHeightAdjust )
+        viewTextField.placeholder = opt.placeholder;
+    else
+        viewTextField = native.newTextField( -1000, -1000, textFieldWidth,lineHeight + opt.textFieldHeightAdjust )
+    end    
+    
     viewTextField.anchorX = 0;
     editField:insert(viewTextField);
     
-    viewTextField.anchorX = 0;
     viewTextField.isEditable = true
     viewTextField.hasBackground = false
     viewTextField.align = "left"
     viewTextField.inputType = opt.inputType;
+    
     editField.inputType = opt.inputType;
     
     viewTextField.isSecure  = opt.isSecure;
@@ -345,24 +353,28 @@ local function initEditField( editField, options )
     editField.required = opt.required;
     
     editField.slideGroup = opt.slideGroup
+    editField.keyboardSlideTime = opt.keyboardSlideTime
+    editField.calibrating = opt.calibrating
+    editField.native = opt.native;
+    editField.fontScale = opt.fontScale;
     
-    editField._yOriginal = yCenter + opt.textFieldYOffset
-    editField._xOriginal = textLabelX + textLabelWidth + opt.textFieldXOffset + widgetsWidthLeft 
-    local deviceScale = ( display.pixelWidth / display.contentWidth ) * 0.5
     viewTextField.font = native.newFont( opt.editFont )
-    viewTextField.size = opt.editFontSize * deviceScale
+    viewTextField.size = opt.editFontSize * opt.fontScale --deviceScale
     
     viewTextField:setTextColor(opt.editFontColor[1]*255, opt.editFontColor[2]*255,
-    opt.editFontColor[3]*255, opt.editFontColor[4]*255);	
-    local fakeTextField = display.newText(editField, "", 0, 0, textFieldWidth-2*opt.fakeLabelShiftX, 
-    textFieldHeight - 2* opt.fakeLabelShiftY , opt.editFont, opt.editFontSize)
-    fakeTextField.anchorX = 0;
-    fakeTextField.x = textLabelX + textLabelWidth + widgetsWidthLeft + opt.fakeLabelShiftX ;
-    fakeTextField.y = yCenter + opt.fakeLabelShiftY;
-    fakeTextField:setFillColor(unpack(opt.editFontColor));	
-    fakeTextField._viewTextField = viewTextField;
-    fakeTextField._placeholder = opt.placeholder;
-    editField._fakeTextField = fakeTextField;
+    opt.editFontColor[3]*255, opt.editFontColor[4]*255);
+    local fakeTextField
+    if not opt.native then
+        fakeTextField = display.newText(editField, "", 0, 0, textFieldWidth, 
+        lineHeight, opt.editFont, opt.editFontSize)
+        fakeTextField.anchorX = 0;
+        fakeTextField.x = textLabelX + textLabelWidth + widgetsWidthLeft + opt.fakeLabelXOffset ;
+        fakeTextField.y = yCenter + opt.fakeLabelYOffset ;
+        fakeTextField:setFillColor(unpack(opt.editFontColor));	
+        fakeTextField._viewTextField = viewTextField;
+        fakeTextField._placeholder = opt.placeholder;
+        editField._fakeTextField = fakeTextField;
+    end;    
     if ( opt.listener and type(opt.listener) == "function" ) then
         viewTextField._listener = opt.listener
     end
@@ -375,6 +387,9 @@ local function initEditField( editField, options )
     editField._textLabelWidth = textLabelWidth
     editField.submitOnClear = opt.submitOnClear;
     editField.maxChars = opt.maxChars;
+    editField.allowedChars = opt.allowedChars;
+    
+    viewTextField._editField = editField;
     
     if "function" == type(opt.onClick) then
         editField._onClick = opt.onClick;
@@ -391,21 +406,17 @@ local function initEditField( editField, options )
     end
     
     local function onClearTap(event)
-        local function onClearClicked(event)
-            editField._clearButton.isVisible = false;
-            editField:updateFakeContent()
-            editField._clearClicked = false;
-            event.target = editField;
-            if editField._submitOnClear and editField._onSubmit then
-                editField._onSubmit(event);
-            end
-            
-            
-        end
+        
         editField._clearClicked = true;
         editField._textField.text = "";
-        --android async handling of events
-        timer.performWithDelay(5, onClearClicked, 1)
+        
+        editField._clearButton.isVisible = false;
+        editField:updateFakeContent("")
+        editField._clearClicked = false;
+        event.target = editField;
+        if editField._submitOnClear and editField._onSubmit then
+            editField._onSubmit(event);
+        end
         
         return true;
     end
@@ -416,89 +427,174 @@ local function initEditField( editField, options )
     ----------------------------------------------------------
     --	PUBLIC METHODS	
     ----------------------------------------------------------
-    function editField:updateFakeContent()
+    function editField:updateFakeContent(value)
         if self._fakingIt then
             local fakeTextField =  self._fakeTextField; 
-            local viewTextField = self._textField;
-            local text = viewTextField.text;
+            local text = value;
             if text:len() > 0 then
-                fakeTextField:setFillColor(unpack(opt.editFontColor));
-                fakeTextField.text = viewTextField.text;
+                if not self.calibrating then
+                    fakeTextField:setFillColor(unpack(opt.editFontColor));
+                else
+                    fakeTextField:setFillColor(1,0,0,1);
+                    fakeTextField:toFront();
+                end    
+                if self.isSecure then
+                    fakeTextField.text = string.rep("•", string.len(text));
+                else    
+                    fakeTextField.text = text;
+                end    
             else    
-                fakeTextField:setFillColor(unpack(opt.editHintColor));
-                fakeTextField.text = fakeTextField._placeholder;
+                if not self.calibrating then
+                    fakeTextField:setFillColor(unpack(opt.editHintColor));
+                    fakeTextField.text = fakeTextField._placeholder;
+                else
+                    fakeTextField:setFillColor(1,0,0,1);
+                    fakeTextField:toFront();
+                end    
+                
             end
         end;     
     end
     
-    function editField:_swapFakeField( fakeIt )
-        local function onTransition(event)
-            self._slideTrans = nil;
+    function editField:slideBackKeyboard()
+        local slideGroup = self.slideGroup
+        
+        if slideGroup then
+            --check if we are in a scrollview
+            if self == slideGroup._slidingField then
+                if slideGroup.getContentPosition and slideGroup.scrollToPosition then
+                    slideGroup:scrollToPosition({y=self._originalSlideY,time = self.keyboardSlideTime})
+                else
+                    transition.to(self.slideGroup,{y = self._originalSlideY,time=self.keyboardSlideTime})
+                end  
+                slideGroup._slidingField = nil;
+            else
+                if slideGroup._slidingField then
+                   slideGroup._slidingField._originalSlideY = self._originalSlideY;
+                end    
+            end
+            
+        end      
+    end
+    
+    
+    function editField:slideForKeyboard()
+        local slideGroup =  self.slideGroup;
+        if slideGroup  then
+            local y = self.y;
+            local parent = self.parent;
+            while parent and parent.y do
+                y = y + parent.y;
+                parent = parent.parent
+            end
+            local top = y - self.contentHeight * self.anchorY; 
+            local kbHeight = getKeyboardHeight();
+            local desiredTop = display.contentHeight - kbHeight - self.contentHeight;
+            if top > desiredTop   then
+                --check if we are in a scrollview
+                slideGroup._slidingField = self
+                if slideGroup.getContentPosition and slideGroup.scrollToPosition then
+                    local xGroup, yGroup = slideGroup:getContentPosition()
+                    local y = yGroup - (top - desiredTop)
+                    self._originalSlideY = yGroup
+                    slideGroup:scrollToPosition({y=y,time = self.keyboardSlideTime})
+                else
+                    local y = slideGroup.y - (top - desiredTop)
+                    self._originalSlideY = slideGroup.y
+                    transition.to(slideGroup,{y = y,time=self.keyboardSlideTime} )
+                end
+            end  
         end
+    end
+    
+    function editField:_swapFakeField( fakeIt )
+        
+        
         local fakeTextField =  self._fakeTextField; 
         local viewTextField = self._textField;
-        if fakeIt then
-            if not self._fakingIt then
-                self._fakingIt = true;
-                self:updateFakeContent()
-                if self._originalSlideY and self.slideGroup then
-                    transition.to(self.slideGroup,{y = self._originalSlideY,time=300, onComplete = onTransition})
-                    self._originalSlideY = nil;
-                end    
-                fakeTextField.isVisible = true;
-                display.getCurrentStage():insert(viewTextField)
-                viewTextField.x = -1000;
-                viewTextField.y = -1000;
-            end      
-        else    
+        
+        local function showEditField(event)
             
-            _focusedField = viewTextField;
             self:insert(viewTextField)
             viewTextField.x = self._xOriginal;
             viewTextField.y = self._yOriginal;
             native.setKeyboardFocus( viewTextField )
-            fakeTextField.isVisible = false;
+            fakeTextField.isVisible = self.calibrating;
             self._fakingIt = false;
             if self._clearButton then
-                self._clearButton.isVisible = string.len(viewTextField.text) == 0
+                self._clearButton.isVisible = string.len(viewTextField.text) ~= 0
             end;
-            --check if we need to slide
-            if self.slideGroup and self._originalSlideY == nil then
-                local y = self.y;
-                local parent = self.parent;
-                while parent and parent.y do
-                    y = y + parent.y;
-                    parent = parent.parent
-                end
-                local top = y - self.contentHeight / 2; 
-                local kbHeight = getKeyboardHeight();
-                local desiredTop = display.contentHeight - kbHeight - self.contentHeight;
-                if top > desiredTop   then
-                    self._originalSlideY = self.slideGroup.y;
-                    transition.to(self.slideGroup,{y = self.slideGroup.y - (top - desiredTop),time=300})
-                end
-            end
+        end
+        
+        if fakeIt  then
+            if not self._fakingIt then
+                self._fakingIt = true;
+                self:updateFakeContent(viewTextField.text)
+                fakeTextField.isVisible = true;
+                
+                if not self.calibrating then
+                    display.getCurrentStage():insert(viewTextField)
+                    viewTextField.x = -1000;
+                    viewTextField.y = -1000;
+                else
+                    viewTextField.x = self._xOriginal;
+                    viewTextField.y = self._yOriginal;                    
+                end;    
+            end      
+        else    
+            showEditField()
         end
         
     end
     
-    function fakeTextField:touch(event)
-        local editField = self.parent;
-        if "began" == event.phase then  
+    local function touchFakeLabel(event)
+        local phase = event.phase;
+        if "began" == phase then  
+            --keep focus, since the field can be scrolling up
+            display.getCurrentStage():setFocus(fakeTextField);
             if editField._onClick == nil then
                 editField:_swapFakeField( false )
             else    
                 editField._onClick(event)
             end
+        elseif ( "ended" == phase or "off" == phase or "cancelled" == phase )  then
+            --release focus
+            display.getCurrentStage():setFocus(nil);
+            
         end;  
         return true
     end
     
+    local function touchLabelText(event)
+       if editField._onClick then
+           editField._onClick(event)
+       end
+    end
+    local function onBackgroundTouch(event)
+        local phase = event.phase;
+        if "began" == phase then
+            --keep focus, since the field can be scrolling up
+            display.getCurrentStage():setFocus(editField);
+        elseif ( "ended" == phase or "off" == phase or "cancelled" == phase )  then
+            --release focus
+            display.getCurrentStage():setFocus(nil);
+        end
+        return true
+    end
+    if fakeTextField then
+        fakeTextField:addEventListener( "touch", touchFakeLabel )
+    end;
     
-    fakeTextField:addEventListener( "touch" )
+    if fieldDescription then
+        fieldDescription:addEventListener( "touch", touchLabelText )
+    end
+    
     editField._fakingIt = false;
-    editField:_swapFakeField( true )
+    if not editField.native then
+        editField:_swapFakeField( true )
+    end    
     
+    editField:addEventListener( "touch", onBackgroundTouch  )
     
     -- Function to listen for textbox events
     function viewTextField:_inputListener( event )
@@ -507,15 +603,28 @@ local function initEditField( editField, options )
         end
         
         local phase = event.phase
-        local editField  = self.parent;
-        if "editing" == phase then
+        local editField  = self._editField;
+        
+        if "began" == phase then
+            _focusedField = self;
+            editField:slideForKeyboard()
+        elseif "editing" == phase then
             -- If there is one or more characters in the textField show the cancel button, if not hide it
-            local sText = editField._textField.text; 
+            local sText = self.text; 
             local textLen = string.len(sText);
+            if editField.allowedChars and event.newCharacters  then
+                if not string.match(editField.allowedChars, event.newCharacters) then
+                    --remove the offending character
+                    self.text = string.gsub(sText, event.newCharacters,"");
+                end
+            end
             if editField.maxChars > 0 then
                 if textLen > editField.maxChars then
                     self.text = string.sub(sText, 1, editField.maxChars)
                 end 
+            end
+            if editField.calibrating then
+                editField._fakeTextField.text = self.text;
             end
             if editField._clearButton then
                 editField._clearButton.isVisible = textLen > 0
@@ -527,11 +636,15 @@ local function initEditField( editField, options )
         elseif "submitted" == phase or 
             "ended" == phase then
             -- Hide keyboard
-            if _focusedField == nil or _focusedField == self then
+            if _focusedField == nil or _focusedField == self and not editField.native then
                 native.setKeyboardFocus( nil )
             end;   
             _focusedField = nil;
-            editField:_swapFakeField( true )
+            if not editField.native then
+                editField:_swapFakeField( true )
+            end    
+            --if another sliding editField taes focus, leave him time to slide up 
+            timer.performWithDelay(100, function () editField:slideBackKeyboard() end,1)
             if editField._onSubmit and (editField._clearButton == nil or phase == "submitted") then
                 event.target = editField;
                 editField._onSubmit(event);
@@ -555,11 +668,21 @@ local function initEditField( editField, options )
     
     function editField:setText(value)
         self._textField.text = value 
-        self:updateFakeContent()
+        self:updateFakeContent(value)
+        --android sets text asynchroneously
+        
     end
     
     function editField:getText()
         return self._textField.text
+    end
+    
+    function editField:setValue(value)
+        self:setText(value)
+    end
+    
+    function editField:getValue()
+        return self:getText()
     end
     
     function editField:setReturnKey(value)
@@ -615,6 +738,12 @@ local function initEditField( editField, options )
         
     end
     
+    --create a hidden background to "eat" the touch events"
+    local bg = display.newRect(editField, opt.width / 2, opt.height / 2, opt.width, opt.height)
+    bg:setFillColor(0,0,0,0);
+    bg.isHitTestable = true;
+    bg:toBack()
+    bg:addEventListener("touch", function (event) return true; end)
     return editField
 end
 
@@ -639,11 +768,11 @@ function M.new( options, theme )
     opt.x = customOptions.x or nil
     opt.y = customOptions.y or nil
     if customOptions.x and customOptions.y then
-	opt.left = 0
-	opt.top = 0
+        opt.left = 0
+        opt.top = 0
     end    
     opt.width = customOptions.width or 150
-    opt.height = customOptions.height or 29
+    
     opt.frame  = customOptions.frame
     if opt.frame then
         
@@ -663,24 +792,19 @@ function M.new( options, theme )
     end;  
     
     opt.id = customOptions.id
-    opt.baseDir = customOptions.baseDir or system.ResourceDirectory
     opt.placeholder = customOptions.placeholder or "";
     opt.inputType  = customOptions.inputType or "default"
     opt.isSecure    = customOptions.isSecure or false;
     opt.returnKey    = customOptions.returnKey or "done";
     opt.onClick      = customOptions.onClick;
     opt.required   = customOptions.required or false;
-    if "Android" == system.getInfo("platformName") then
-        opt.textFieldYOffset = customOptions.textFieldYOffset or 4
-        opt.textFieldXOffset = customOptions.textFieldXOffset or -5
-        opt.fakeLabelShiftY = customOptions.fakeLabelShiftY or 0;
-        opt.fakeLabelShiftX = customOptions.fakeLabelShiftX or 4;
-    else
-        opt.textFieldYOffset = customOptions.textFieldYOffset or -2
-        opt.textFieldXOffset = customOptions.textFieldXOffset or 0
-        opt.fakeLabelShiftX = customOptions.fakeLabelShiftX or 2;
-        opt.fakeLabelShiftY = customOptions.fakeLabelShiftY or 1;
-    end
+    opt.textFieldYOffset = customOptions.textFieldYOffset or efDefaults.textFieldYOffset
+    opt.textFieldXOffset = customOptions.textFieldXOffset or efDefaults.textFieldXOffset
+    opt.fakeLabelYOffset = customOptions.fakeLabelYOffset or efDefaults.fakeLabelYOffset
+    opt.fakeLabelXOffset = customOptions.fakeLabelXOffset or efDefaults.fakeLabelXOffset
+    opt.textFieldHeightAdjust = customOptions.textFieldHeightAdjust or efDefaults.textFieldHeightAdjust
+    opt.fontScale = customOptions.fontScale or efDefaults.fontScale;
+    opt.calibrating = customOptions.calibrating
     
     opt.textFieldWidth = customOptions.textFieldWidth or 0;
     opt.listener = customOptions.listener
@@ -704,12 +828,19 @@ function M.new( options, theme )
     opt.widgets = customOptions.widgets or {};
     opt.listButton = customOptions.listButton or false;
     opt.maxChars = customOptions.maxChars or 0;
+    opt.allowedChars = customOptions.allowedChars or nil;
+    if opt.allowedChars and string.len(opt.allowedChars)== 0 then
+        opt.allowedChars = nil;
+    end
     opt.buttonXOffset = customOptions.buttonXOffset or 0
     opt.buttonYOffset = customOptions.buttonYOffset or 0
     
     opt.editFont = customOptions.editFont or opt.labelFont
     opt.editFontSize = customOptions.editFontSize or opt.labelFontSize
+    opt.height = customOptions.height or (opt.editFontSize and opt.editFontSize + 12 or 29)
+    opt.native = customOptions.native or false
     opt.slideGroup = customOptions.slideGroup
+    opt.keyboardSlideTime = customOptions.keyboardSlideTime or 200
     
     -- Left ( 9 piece set )
     opt.topLeftFrame = customOptions.topLeftFrame or _widget._getFrameIndex( themeOptions, themeOptions.topLeftFrame )
@@ -745,7 +876,6 @@ function M.new( options, theme )
         left = opt.left,
         top = opt.top,
         id = opt.id or "widget_editField",
-        baseDir = opt.baseDir,
     }
     
     
