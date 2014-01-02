@@ -909,11 +909,7 @@ function M.new( options, theme )
 	
 	end
 		
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + switch.contentWidth * 0.5
-		y = opt.top + switch.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( switch, opt )
 	switch.x, switch.y = x, y
 	
 	

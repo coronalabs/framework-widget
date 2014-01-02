@@ -37,10 +37,11 @@ local M =
 local _widget = require( "widget" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 -- define a default color set for both graphics modes
 local labelDefault
-if isGraphicsV1 then
+if isByteColorRange then
     labelDefault = { default = { 220, 220, 220 }, over = { 255, 255, 255 } }
     if _widget.isSeven() then
     	labelDefault = { default = { 146 }, over = { 21, 125, 251, 255 } }
@@ -221,6 +222,7 @@ local function initWithImageFiles( tabBar, options )
 	tabBar._view = view
 	tabBar._viewSelected = view._selected
 	tabBar._viewButtons = view._tabs
+	tabBar._left = opt.left or 0
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -237,7 +239,7 @@ local function initWithImageFiles( tabBar, options )
 				local currentTab = self._tabs[i]
 				
 				-- Have we pressed within the current tab?
-				local pressedWithinRange = event.x >= ( currentTab.x - tabSize * 0.5 ) and event.x <= ( currentTab.x + tabSize * 0.5 )
+				local pressedWithinRange = event.x >= ( ( tabBar._left + currentTab.x ) - tabSize * 0.5 ) and event.x <= ( ( tabBar._left + currentTab.x ) + tabSize * 0.5 )
 				
 				-- If we have pressed a tab
 				if pressedWithinRange then
@@ -265,7 +267,7 @@ local function initWithImageFiles( tabBar, options )
 				local currentTab = view._tabs[i]
 				
 				-- Have we pressed within the current tab?
-				local pressedWithinRange = event.x >= ( currentTab.x - tabSize * 0.5 ) and event.x <= ( currentTab.x + tabSize * 0.5 )
+				local pressedWithinRange = event.x >= ( ( tabBar._left + currentTab.x ) - tabSize * 0.5 ) and event.x <= ( ( tabBar._left + currentTab.x ) + tabSize * 0.5 )
 				
 				-- If we have pressed a tab
 				if pressedWithinRange then
@@ -557,6 +559,7 @@ local function initWithImageSheet( tabBar, options )
 	tabBar._view = view
 	tabBar._viewSelected = view._selected
 	tabBar._viewButtons = view._tabs
+	tabBar._left = opt.left or 0
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -573,7 +576,7 @@ local function initWithImageSheet( tabBar, options )
 				local currentTab = self._tabs[i]
 				
 				-- Have we pressed within the current tab?
-				local pressedWithinRange = event.x >= ( currentTab.x - tabSize * 0.5 ) and event.x <= ( currentTab.x + tabSize * 0.5 )
+				local pressedWithinRange = event.x >= ( ( tabBar._left + currentTab.x ) - tabSize * 0.5 ) and event.x <= ( ( tabBar._left + currentTab.x ) + tabSize * 0.5 )
 				
 				-- If we have pressed a tab
 				if pressedWithinRange then
@@ -601,7 +604,7 @@ local function initWithImageSheet( tabBar, options )
 				local currentTab = view._tabs[i]
 				
 				-- Have we pressed within the current tab?
-				local pressedWithinRange = event.x >= ( currentTab.x - tabSize * 0.5 ) and event.x <= ( currentTab.x + tabSize * 0.5 )
+				local pressedWithinRange = event.x >= ( ( tabBar._left + currentTab.x ) - tabSize * 0.5 ) and event.x <= ( ( tabBar._left + currentTab.x ) + tabSize * 0.5 )
 				
 				-- If we have pressed a tab
 				if pressedWithinRange then
@@ -802,11 +805,7 @@ function M.new( options, theme )
 		tabBar:setReferencePoint( display.CenterReferencePoint )
 	end
 
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + tabBar.contentWidth * 0.5
-		y = opt.top + tabBar.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( tabBar, opt )
 	tabBar.x, tabBar.y = x, y
 
 	return tabBar

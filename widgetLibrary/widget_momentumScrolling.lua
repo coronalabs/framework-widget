@@ -35,6 +35,8 @@ local mFloor = math.floor
 
 -- configuration variables
 M.scrollStopThreshold = 250
+-- direction variable that has a non-nil value only as long as the scrollview is scrolled
+M._direction = nil
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
@@ -213,11 +215,13 @@ function M._touch( view, event )
 		setLimits( M, view )
 		
 		-- Cancel any active tween on the view
-		if view._tween and false == view._snapping then
-			transition.cancel( view._tween )
-			view._tween = nil
-		else 
-			transition.pause( view._tween )
+		if view._tween then
+			if not view._snapping then
+				transition.cancel( view._tween )
+				view._tween = nil
+			else
+				transition.pause( view._tween )
+			end
 		end				
 		
 		-- Set focus
@@ -235,8 +239,11 @@ function M._touch( view, event )
 	            if dx > moveThresh or dy > moveThresh then
 					-- If there is a scrollBar, show it
 					if view._scrollBar then
-						-- Show the scrollBar
-						view._scrollBar:show()
+						-- Show the scrollBar, only if we need to (if the content height is higher than the view's height)
+						-- TODO: when the diagonal scrolling comes to place, we have to treat the horizontal case as well here.
+						if view._scrollBar._viewHeight < view._scrollBar._viewContentHeight then
+							view._scrollBar:show()
+						end
 					end
 		
 	                if dx > dy then
@@ -297,15 +304,9 @@ function M._touch( view, event )
 								end
 						
 							end
-
-							local newEvent = 
-							{
-								direction = actualDirection,
-								limitReached = false,
-								target = view,
-							}
-
-							view._listener( newEvent )
+							-- if the scrollview is moving, assign the actual direction to the M._direction variable
+							M._direction = actualDirection
+							
 						end
 
 					end
@@ -370,15 +371,9 @@ function M._touch( view, event )
 								end
 						
 							end
-
-							local newEvent = 
-							{
-								direction = actualDirection,
-								limitReached = false,
-								target = view,
-							}
-
-							view._listener( newEvent )
+							-- if the scrollview is moving, assign the actual direction to the M._direction variable
+							M._direction = actualDirection
+							
 						end
 						
 					end
@@ -419,6 +414,7 @@ function M._touch( view, event )
 			view._lastTime = event.time
 			view._trackVelocity = false			
 			view._updateRuntime = true
+			M._direction = nil
 			if event.time - view._timeHeld > M.scrollStopThreshold then
 			    view._velocity = 0
 			end
@@ -712,8 +708,19 @@ function M.createScrollBar( view, options )
 	
 	-- Create the scrollBar frames ( 3 slice )
 	M.topFrame = display.newImageRect( M.scrollBar, imageSheet, opt.topFrame, opt.width, opt.height )
+	if not isGraphicsV1 then
+		M.topFrame.anchorX = 0.5; M.topFrame.anchorY = 0.5
+	end
+	
 	M.middleFrame = display.newImageRect( M.scrollBar, imageSheet, opt.middleFrame, opt.width, opt.height )
+	if not isGraphicsV1 then
+		M.middleFrame.anchorX = 0.5; M.middleFrame.anchorY = 0.5
+	end
+	
 	M.bottomFrame = display.newImageRect( M.scrollBar, imageSheet, opt.bottomFrame, opt.width, opt.height )
+	if not isGraphicsV1 then
+		M.bottomFrame.anchorX = 0.5; M.bottomFrame.anchorY = 0.5
+	end
 	
 	-- Set the middle frame's width
 	M.middleFrame.height = scrollBarHeight - ( M.topFrame.contentHeight + M.bottomFrame.contentHeight )
@@ -735,7 +742,7 @@ function M.createScrollBar( view, options )
 	    self._viewContentHeight = view._scrollHeight
 	    -- Set the scrollbar Height
 	    
-	    local scrollBarHeight = ( viewHeight * 100 ) / viewContentHeight
+	    local scrollBarHeight = ( self._viewHeight * 100 ) / self._viewContentHeight
 	    
 	    -- If the calculated scrollBar height is below the minimum height, set it to it
 	    if scrollBarHeight < minimumScrollBarHeight then
@@ -744,6 +751,9 @@ function M.createScrollBar( view, options )
 	
         M.middleFrame.height = scrollBarHeight - ( M.topFrame.contentHeight + M.bottomFrame.contentHeight ) 
     
+    	-- Positioning of the middle and bottom frames according to the new scrollbar height
+		M.middleFrame.y = M.topFrame.y + M.topFrame.contentHeight * 0.5 + M.middleFrame.contentHeight * 0.5
+		M.bottomFrame.y = M.middleFrame.y + M.middleFrame.contentHeight * 0.5 + M.bottomFrame.contentHeight * 0.5
 	end
 	
 	-- Function to move the scrollBar

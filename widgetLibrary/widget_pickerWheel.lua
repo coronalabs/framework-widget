@@ -36,12 +36,13 @@ local M =
 local _widget = require( "widget" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 local labelColor = { 0.60 }
 local defaultRowColor = { 1 }
 local blackColor = { 0 }
 
-if isGraphicsV1 then
+if isByteColorRange then
 	_widget._convertColorToV1( labelColor )
 	_widget._convertColorToV1( defaultRowColor )
 	_widget._convertColorToV1( blackColor )
@@ -223,10 +224,11 @@ local function createPickerWheel( pickerWheel, options )
 			topPadding = topPadding,
 			bottomPadding = bottomPadding,
 			noLines = true,
-			hideBackground = true,
+			hideBackground = false,
 			hideScrollBar = true,
 			friction = 0.92,
 			rowColor = opt.columnColor,
+			backgroundColor = opt.backgroundColor or defaultRowColor,
 			onRowRender = _renderColumns,
 			maskFile = opt.maskFile,
 			listener = nil,
@@ -251,8 +253,8 @@ local function createPickerWheel( pickerWheel, options )
 			{
 				rowHeight = 40,
 				rowColor = { 
-				default = defaultRowColor,
-    			over = defaultRowColor, 
+					default = opt.columnColor,
+    				over = opt.columnColor, 
     			},
 				label = opt.columnData[i].labels[j],
 				id = i
@@ -416,6 +418,7 @@ function M.new( options, theme )
 	opt.fontSize = customOptions.fontSize or 22
 	opt.fontColor = customOptions.fontColor or blackColor
 	opt.columnColor = customOptions.columnColor or defaultRowColor
+	opt.backgroundColor = customOptions.backgroundColor or defaultRowColor
 	
 	if _widget.isSeven() then
 		opt.font = customOptions.font or themeOptions.font or "HelveticaNeue-Medium"
@@ -460,16 +463,12 @@ function M.new( options, theme )
 	-- Create the pickerWheel
 	createPickerWheel( pickerWheel, opt )
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + pickerWheel.contentWidth * 0.5
-		y = opt.top + pickerWheel.contentHeight * 0.5
-	end
-	pickerWheel.x, pickerWheel.y = x, y
-
 	if isGraphicsV1 then
 		pickerWheel:setReferencePoint( display.TopLeftReferencePoint )
 	end
+
+	local x, y = _widget._calculatePosition( pickerWheel, opt )
+	pickerWheel.x, pickerWheel.y = x, y
 	
 	return pickerWheel
 end

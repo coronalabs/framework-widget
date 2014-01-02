@@ -37,11 +37,12 @@ local M =
 local _widget = require( "widget" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 -- define a default color set for both graphics modes
 local labelDefault
 local whiteColor
-if isGraphicsV1 then
+if isByteColorRange then
     labelDefault = { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
     whiteColor = { 255 }
 else
@@ -267,7 +268,12 @@ local function initWithImage( segmentedControl, options )
 			-- Loop through the segments
 			for i = 1, self._totalSegments do
 				local segmentedControlXPosition = self.x - ( self.contentWidth * 0.5 )
-
+				-- for g2, we have to take into account the current anchorX for this position 
+				if not isGraphicsV1 then
+					local oldAnchorX = self.anchorX
+					segmentedControlXPosition = segmentedControlXPosition + ( 0.5 - oldAnchorX ) * self.contentWidth
+				end
+				
 				local currentSegment = i
 				local segmentWidth = self._segmentWidth
 				
@@ -524,12 +530,8 @@ function M.new( options, theme )
 		segmentedControl:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + segmentedControl.contentWidth * 0.5
-		y = opt.top + segmentedControl.contentHeight * 0.5
-	end
-	segmentedControl.x, segmentedControl.y = x, y
+	local x, y = _widget._calculatePosition( segmentedControl, opt )
+	segmentedControl.x, segmentedControl.y = x, y	
 	
 	return segmentedControl
 end

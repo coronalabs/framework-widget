@@ -385,6 +385,11 @@ local function createScrollView( scrollView, options )
 			end
 		end	
     end
+    
+    -- isLocked setter function
+	function scrollView:setIsLocked( lockedState )
+		return self._view:_setIsLocked( lockedState )
+	end
 
 	-- Transfer touch from the view's background to the view's content
 	function viewBackground:touch( event )		
@@ -427,13 +432,17 @@ local function createScrollView( scrollView, options )
 			_momentumScrolling._touch( self, event )
 		end
 		
-		-- Overriden by the listener call in momentumScrolling
 		-- Execute the listener if one is specified
-		--[[if self._listener then
+		if self._listener then
 			local newEvent = {}
 			
 			for k, v in pairs( event ) do
 				newEvent[k] = v
+			end
+			
+			-- check if the momentum scrolling module has a non-nil direction variable
+			if _momentumScrolling._direction then
+				newEvent.direction = _momentumScrolling._direction
 			end
 			
 			-- Set event.target to the scrollView object, not the view
@@ -441,7 +450,7 @@ local function createScrollView( scrollView, options )
 			
 			-- Execute the listener
 			self._listener( newEvent )
-		end]]--
+		end
 				
 		-- Set the view's phase so we can access it in the enterFrame listener below
 		self._phase = event.phase
@@ -482,6 +491,13 @@ local function createScrollView( scrollView, options )
 	end
 	
 	Runtime:addEventListener( "enterFrame", view )
+	
+	-- isLocked variable setter function
+	function view:_setIsLocked( lockedState )
+		if type( lockedState ) ~= "boolean" then return end
+		self._isVerticalScrollingDisabled = lockedState
+		self._isLocked = lockedState
+	end
 		
 	-- Finalize function for the scrollView
 	function scrollView:_finalize()		
@@ -603,11 +619,7 @@ function M.new( options )
 	scrollView.width = opt.width
 	scrollView.height = opt.height
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + scrollView.contentWidth * 0.5
-		y = opt.top + scrollView.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( scrollView, opt )
 	scrollView.x, scrollView.y = x, y	
 	
 	return scrollView
