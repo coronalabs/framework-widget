@@ -69,7 +69,7 @@ local function getKeyboardHeight()
         
     else
         --dear android
-        return math.min(350, display.contentHeight / 2);
+        return math.min(efDefaults.androidKeyboardHeight, display.contentHeight / 2);
     end
 end
 -- Creates a new edit field from an image
@@ -321,12 +321,12 @@ local function initEditField( editField, options )
         textFieldWidth = (xEnd - xStart) - widgetsWidthLeft - widgetsWidthRight -opt.textFieldXOffset 
         - textLabelWidth - 2* opt.spacing;
     end
-    local textFieldHeight = height;
+    --calculate textheight for selected font
     local tmpField = display.newText("W",0,0,opt.editFont,opt.editFontSize)
     local lineHeight = tmpField.contentHeight;
     tmpField:removeSelf();
-    editField._xOriginal = textLabelX + textLabelWidth + opt.textFieldXOffset + widgetsWidthLeft 
-    editField._yOriginal = yCenter + opt.textFieldYOffset
+    editField._xOriginal = textLabelX - opt.textFieldHeightAdjust/2 + textLabelWidth + opt.textFieldXOffset + widgetsWidthLeft 
+    editField._yOriginal = yCenter + opt.textFieldHeightAdjust/2 + opt.textFieldYOffset
     if opt.native then
         viewTextField = native.newTextField(editField._xOriginal, editField._yOriginal, textFieldWidth,lineHeight + opt.textFieldHeightAdjust )
         viewTextField.placeholder = opt.placeholder;
@@ -407,14 +407,13 @@ local function initEditField( editField, options )
     
     local function onClearTap(event)
         
-        editField._clearClicked = true;
         editField._textField.text = "";
         
         editField._clearButton.isVisible = false;
         editField:updateFakeContent("")
-        editField._clearClicked = false;
+        editField._textField._originalText = ""
         event.target = editField;
-        if editField._submitOnClear and editField._onSubmit then
+        if editField.submitOnClear and editField._onSubmit then
             editField._onSubmit(event);
         end
         
@@ -462,23 +461,35 @@ local function initEditField( editField, options )
         if slideGroup then
             --check if we are in a scrollview
             if self == slideGroup._slidingField then
-                if slideGroup.getContentPosition and slideGroup.scrollToPosition then
-                    slideGroup:scrollToPosition({y=self._originalSlideY,time = self.keyboardSlideTime})
-                else
-                    transition.to(self.slideGroup,{y = self._originalSlideY,time=self.keyboardSlideTime})
-                end  
-                slideGroup._slidingField = nil;
+                self:setSlideGroupPosition(slideGroup._originalSlideY)
+                slideGroup._slidingField = nil
+                slideGroup._originalSlideY = nil
             else
-                if slideGroup._slidingField then
-                   slideGroup._slidingField._originalSlideY = self._originalSlideY;
-                end    
             end
-            
         end      
     end
     
+    function editField:getSlideGroupPosition()
+        local slideGroup =  self.slideGroup;
+        local xGroup, yGroup
+        if slideGroup.getContentPosition and slideGroup.scrollToPosition then
+            xGroup, yGroup = slideGroup:getContentPosition()  
+        else
+            yGroup = slideGroup.y;
+        end    
+        return yGroup
+    end
     
-    function editField:slideForKeyboard()
+    function editField:setSlideGroupPosition(yGroup)
+        local slideGroup =  self.slideGroup;
+        if slideGroup.getContentPosition and slideGroup.scrollToPosition then
+            slideGroup:scrollToPosition({y=yGroup,time = self.keyboardSlideTime})
+        else
+            transition.to(slideGroup,{y = yGroup,time=self.keyboardSlideTime} )
+        end    
+    end
+    
+    function editField:slideForKeyboard(neededHeight)
         local slideGroup =  self.slideGroup;
         if slideGroup  then
             local y = self.y;
@@ -487,22 +498,24 @@ local function initEditField( editField, options )
                 y = y + parent.y;
                 parent = parent.parent
             end
-            local top = y - self.contentHeight * self.anchorY; 
-            local kbHeight = getKeyboardHeight();
+            local yGroup = self:getSlideGroupPosition()
+            local groupOffset = 0
+            --if the group is already slid up, check difference
+            if slideGroup._originalSlideY then
+                groupOffset = (slideGroup._originalSlideY - yGroup)
+            end
+            local top = y - self.contentHeight * self.anchorY + groupOffset; 
+            
+            
+            local kbHeight = neededHeight or getKeyboardHeight();
             local desiredTop = display.contentHeight - kbHeight - self.contentHeight;
             if top > desiredTop   then
-                --check if we are in a scrollview
+                local y = yGroup - (top - desiredTop) + groupOffset
+                if not slideGroup._slidingField then
+                    slideGroup._originalSlideY = yGroup
+                end    
+                self:setSlideGroupPosition(y)
                 slideGroup._slidingField = self
-                if slideGroup.getContentPosition and slideGroup.scrollToPosition then
-                    local xGroup, yGroup = slideGroup:getContentPosition()
-                    local y = yGroup - (top - desiredTop)
-                    self._originalSlideY = yGroup
-                    slideGroup:scrollToPosition({y=y,time = self.keyboardSlideTime})
-                else
-                    local y = slideGroup.y - (top - desiredTop)
-                    self._originalSlideY = slideGroup.y
-                    transition.to(slideGroup,{y = y,time=self.keyboardSlideTime} )
-                end
             end  
         end
     end
@@ -566,9 +579,9 @@ local function initEditField( editField, options )
     end
     
     local function touchLabelText(event)
-       if editField._onClick then
-           editField._onClick(event)
-       end
+        if editField._onClick then
+            editField._onClick(event)
+        end
     end
     local function onBackgroundTouch(event)
         local phase = event.phase;
@@ -598,15 +611,29 @@ local function initEditField( editField, options )
     
     -- Function to listen for textbox events
     function viewTextField:_inputListener( event )
+        local editField  = self._editField;
+        local phase = event.phase
+        
+        --async called on Submit in case other edit field is taking focus
         local function onHideField(event)
-            
+           if _focusedField == nil or _focusedField == self then
+                native.setKeyboardFocus( nil )
+                _focusedField = nil;
+            end;   
+            editField:slideBackKeyboard()
+            --phase submitted
+            if editField._onSubmit and (phase == "submitted" or phase == "ended" and self.text ~= self._originalText) then
+                event.target = editField
+                self._originalText = self.text
+                editField._onSubmit(event)
+            end
+            --phase ended - send onSubmit only if the text is different
         end
         
-        local phase = event.phase
-        local editField  = self._editField;
-        
+        print(phase)
         if "began" == phase then
             _focusedField = self;
+            self._originalText = self.text
             editField:slideForKeyboard()
         elseif "editing" == phase then
             -- If there is one or more characters in the textField show the cancel button, if not hide it
@@ -636,19 +663,12 @@ local function initEditField( editField, options )
         elseif "submitted" == phase or 
             "ended" == phase then
             -- Hide keyboard
-            if _focusedField == nil or _focusedField == self and not editField.native then
-                native.setKeyboardFocus( nil )
-            end;   
-            _focusedField = nil;
+            timer.performWithDelay(100,onHideField ,1)
+
             if not editField.native then
                 editField:_swapFakeField( true )
             end    
-            --if another sliding editField taes focus, leave him time to slide up 
-            timer.performWithDelay(100, function () editField:slideBackKeyboard() end,1)
-            if editField._onSubmit and (editField._clearButton == nil or phase == "submitted") then
-                event.target = editField;
-                editField._onSubmit(event);
-            end
+            
         end
         
         -- If there is a listener defined, execute it

@@ -1,16 +1,19 @@
+local clbData = require("widgets.editfield_calibrationdb")
+
 local M = {}
+M.androidKeyboardHeight = 350
 
 if "Android" == system.getInfo("platformName") then
-    M.textFieldYOffset  = 6
-    M.textFieldXOffset  = -5
-    M.fakeLabelYOffset  = 1
-    M.fakeLabelXOffset  = 4
+    M.textFieldYOffset  = 0
+    M.textFieldXOffset  = 0
+    M.fakeLabelYOffset  = 2
+    M.fakeLabelXOffset  = 3
     M.textFieldHeightAdjust = 12
 elseif  system.getInfo("environment") == "simulator" then   
-    M.textFieldYOffset = -3
+    M.textFieldYOffset = -1
     M.textFieldXOffset = 0
     M.fakeLabelYOffset = 0
-    M.fakeLabelXOffset = 2
+    M.fakeLabelXOffset = 1
     M.textFieldHeightAdjust = 0;
 else
     M.textFieldYOffset = 0
@@ -20,15 +23,13 @@ else
     M.textFieldHeightAdjust = 0;
     
 end
-local function calcFontSize(targetFontSize)
+function M:calcFontSize()
     local sysType = system.getInfo("architectureInfo")
     local environment = system.getInfo("environment")
-    local fontScale = (display.pixelWidth / display.contentWidth) * display.contentScaleX;
-    if display.pixelWidth == display.contentWidth then
-        fontScale = 1;
-    end
+    --local fontScale = (display.pixelWidth / display.contentWidth) * display.contentScaleX;
+    local fontScale = (( display.contentWidth - (display.screenOriginX * 2) ) / display.contentScaleX) / display.contentWidth
     if system.getInfo("platformName") == "Android" then                
-       fontScale = (display.pixelWidth / display.contentWidth) * 0.5; 
+        fontScale = (display.pixelWidth / display.contentWidth) * 0.5; 
     elseif  environment ~= "simulator" then    
         if string.match(system.getInfo("model"),"iPa") then
             --iPads 
@@ -46,7 +47,7 @@ local function calcFontSize(targetFontSize)
 end
 
 function M:robMiracleCalcFontSize()
-  return ( display.pixelWidth / display.contentWidth ) * 0.5
+    return ( display.pixelWidth / display.contentWidth ) * 0.5
 end
 
 function M:mpappasCalcFontSize()
@@ -68,9 +69,9 @@ function M:mpappasCalcFontSize()
         --print(" -- original height == ", heightIn)
         if heightIn ~= nil then
             heightIn = heightIn - missingInches               
-        
-        --Make sure its not nil... e.g. the simulator will return nil, perhaps some bad devices will too...
-        
+            
+            --Make sure its not nil... e.g. the simulator will return nil, perhaps some bad devices will too...
+            
             -- heightIn is height of actual droid app is running on
             fontScale =  heightIn / 3.0 -- 3.0 is actual iPhone 3gs /4 /4s height
             --print(" -- fontsize set on actual droid screen inch height")
@@ -116,7 +117,19 @@ function M:mpappasCalcFontSize()
     
 end
 
-M.fontScale = calcFontSize()
+M.fontScale = M:calcFontSize()
+
+local calibration = clbData[system.getInfo( "environment").."-".. system.getInfo("model")]
+if calibration then
+    M.fontScale = calibration.fontScale
+    M.textFieldHeightAdjust = calibration.textFieldHeightAdjust
+    M.textFieldYOffset  = calibration.textFieldYOffset
+    M.textFieldXOffset  = calibration.textFieldXOffset
+    M.fakeLabelYOffset  = calibration.labelYoffset
+    M.fakeLabelXOffset  = calibration.labelXoffset
+    
+    
+end
 
 return M
 
