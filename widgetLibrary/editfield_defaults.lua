@@ -39,6 +39,8 @@ function M:calcFontSize()
             else
                 fontScale = 1 / display.contentScaleY
             end    
+        else    
+            fontScale = (display.pixelHeight / display.contentHeight) * 0.5;
         end
     end
     

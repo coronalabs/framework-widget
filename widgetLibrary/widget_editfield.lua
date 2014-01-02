@@ -630,7 +630,6 @@ local function initEditField( editField, options )
             --phase ended - send onSubmit only if the text is different
         end
         
-        print(phase)
         if "began" == phase then
             _focusedField = self;
             self._originalText = self.text
