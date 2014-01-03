@@ -430,7 +430,7 @@ local function initEditField( editField, options )
         if self._fakingIt then
             local fakeTextField =  self._fakeTextField; 
             local text = value;
-            if text:len() > 0 then
+            if text and text:len() > 0 then
                 if not self.calibrating then
                     fakeTextField:setFillColor(unpack(opt.editFontColor));
                 else
@@ -623,8 +623,8 @@ local function initEditField( editField, options )
             editField:slideBackKeyboard()
             --phase submitted
             if editField._onSubmit and (phase == "submitted" or phase == "ended" and self.text ~= self._originalText) then
-                event.target = editField
                 self._originalText = self.text
+                event.target = editField
                 editField._onSubmit(event)
             end
             --phase ended - send onSubmit only if the text is different
@@ -633,6 +633,7 @@ local function initEditField( editField, options )
         if "began" == phase then
             _focusedField = self;
             self._originalText = self.text
+            self._editing = true;
             editField:slideForKeyboard()
         elseif "editing" == phase then
             -- If there is one or more characters in the textField show the cancel button, if not hide it
@@ -662,7 +663,10 @@ local function initEditField( editField, options )
         elseif "submitted" == phase or 
             "ended" == phase then
             -- Hide keyboard
-            timer.performWithDelay(100,onHideField ,1)
+            if self._editing then
+                timer.performWithDelay(100,onHideField ,1)
+                self._editing = false;
+            end    
 
             if not editField.native then
                 editField:_swapFakeField( true )

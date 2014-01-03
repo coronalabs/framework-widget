@@ -30,7 +30,12 @@ function M:calcFontSize()
     local fontScale = (( display.contentWidth - (display.screenOriginX * 2) ) / display.contentScaleX) / display.contentWidth
     if system.getInfo("platformName") == "Android" then                
         fontScale = (display.pixelWidth / display.contentWidth) * 0.5; 
-    elseif  environment ~= "simulator" then    
+    elseif  environment == "simulator" then    
+        --in Corona simulator, check if its a tall device, which is probably Zoomed out
+        if display.pixelHeight > 1000 then
+            fontScale = fontScale * .5
+        end
+    else    
         if string.match(system.getInfo("model"),"iPa") then
             --iPads 
             if display.pixelHeight == 2048 then
@@ -42,6 +47,7 @@ function M:calcFontSize()
         else    
             fontScale = (display.pixelHeight / display.contentHeight) * 0.5;
         end
+        
     end
     
     return fontScale
