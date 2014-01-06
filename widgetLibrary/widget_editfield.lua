@@ -901,8 +901,14 @@ function M.new( options, theme )
         id = opt.id or "widget_editField",
     }
     
+    local defAnchorX = display.getDefault( "anchorX")
+    local defAnchorY = display.getDefault( "anchorY" )
+    display.setDefault( "anchorX", 0.5)
+    display.setDefault( "anchorY", 0.5 )
     
     initEditField( editField, opt )
+    display.setDefault( "anchorX", defAnchorX)
+    display.setDefault( "anchorY", defAnchorY)
     
     -- Set the editField's position ( set the reference point to center, just to be sure )
     
