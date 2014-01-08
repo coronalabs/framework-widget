@@ -1,4 +1,5 @@
 local widget = require("widget");
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 -- Function to retrieve a widget's theme settings
 local function _getTheme( widgetTheme, options )	
@@ -28,11 +29,33 @@ end
 
 -- Check if the theme is ios7
 local function isSeven()
-	return widget.themeName ~= "widget_theme_android" and
-        widget.themeName ~= "widget_theme_ios";
+    return widget.themeName ~= "widget_theme_android" and
+    widget.themeName ~= "widget_theme_ios";
 end
 
 --widget.isSeven = isSeven;
+
+local function createWidget(createFunction, ...)
+    local defAnchorX, defAnchorY
+    if not isGraphicsV1 then
+        defAnchorX = display.getDefault( "anchorX")
+        defAnchorY = display.getDefault( "anchorY" )
+        widget._oldAnchorX = defAnchorX
+        widget._oldAnchorY = defAnchorY
+        
+        display.setDefault( "anchorX", 0.5)
+        display.setDefault( "anchorY", 0.5 )
+  
+    end
+    local w = createFunction(...)
+    if not isGraphicsV1 then
+        display.setDefault( "anchorX", defAnchorX)
+        display.setDefault( "anchorY", defAnchorY )
+        w.anchorX = defAnchorX
+        w.anchorY = defAnchorY        
+    end
+    return w
+end
 
 local function newPanel( options )
     local theme = _getTheme( "panel", options );
@@ -41,7 +64,7 @@ local function newPanel( options )
         theme = _getTheme( "button", options )
     end;  
     local _panel = require( "widgets.widget_panel" )
-    return _panel.new( options, theme )
+    return createWidget(_panel.new, options, theme )
 end
 
 widget.newPanel = newPanel;
@@ -50,7 +73,7 @@ local function newButton( options )
     local theme = _getTheme( "button", options )
     
     local _button = require( "widgets.widget_button" )
-    return _button.new( options, theme )
+    return createWidget(_button.new, options, theme )
 end
 
 widget.newButton = newButton;
@@ -60,7 +83,7 @@ local function newPageSlider( options )
     local theme = _getTheme( "pageslider", options )
     
     local _pageslider = require( "widgets.widget_pageslider" )
-    return _pageslider.new( options, theme )
+    return createWidget(_pageslider.new, options, theme )
 end
 
 widget.newPageSlider = newPageSlider;
@@ -78,7 +101,7 @@ local function newEditField( options )
         theme = _getTheme( "searchField", options )
     end;  
     local _editField = require( "widgets.widget_editfield" )
-    return _editField.new( options, theme )
+    return createWidget(_editField.new, options, theme )
 end
 
 widget.newEditField = newEditField;
@@ -86,7 +109,7 @@ widget.newEditField = newEditField;
 local function newSegmentedControl( options )
     local theme = _getTheme( "segmentedControl", options )
     local _segmentedControl = require( "widgets.widget_segmentedControl" )
-    return _segmentedControl.new( options, theme )	
+    return createWidget(_segmentedControl.new, options, theme )	
 end
 
 widget.newSegmentedControl = newSegmentedControl;
@@ -97,8 +120,8 @@ widget.newSegmentedControl = newSegmentedControl;
 -----------------------------------------------------------------------------------------
 local old_newTableView = nil;
 local function newTableView( options )
-	local _tableView = require( "widgets.widget_tableviewext" )
-	return _tableView.new(old_newTableView, options )
+    local _tableView = require( "widgets.widget_tableviewext" )
+    return _tableView.new(old_newTableView, options )
 end
 
 if old_newTableView ~= widget.newTableView then
@@ -109,8 +132,8 @@ widget.newTableView = newTableView;
 
 local old_newScrollView = nil;
 local function newScrollView( options )
-	local _scrollView = require( "widgets.widget_scrollviewext" )
-	return _scrollView.new(old_newScrollView, options )
+    local _scrollView = require( "widgets.widget_scrollviewext" )
+    return _scrollView.new(old_newScrollView, options )
 end
 
 if old_newScrollView ~= widget.newScrollView then
@@ -128,9 +151,9 @@ widget.newSwitch = newSwitch;
 
 
 local function newPickerWheel( options )
-	local theme = _getTheme( "pickerWheel", options )
-	local _pickerWheel = require( "widgets.widget_pickerWheel" )
-	return _pickerWheel.new( options, theme )	
+    local theme = _getTheme( "pickerWheel", options )
+    local _pickerWheel = require( "widgets.widget_pickerWheel" )
+    return _pickerWheel.new( options, theme )	
 end
 widget.newPickerWheel = newPickerWheel;
 
