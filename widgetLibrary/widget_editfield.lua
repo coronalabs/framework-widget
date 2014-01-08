@@ -492,19 +492,20 @@ local function initEditField( editField, options )
     function editField:slideForKeyboard(neededHeight)
         local slideGroup =  self.slideGroup;
         if slideGroup  then
-            local y = self.y;
-            local parent = self.parent;
-            while parent and parent.y do
-                y = y + parent.y;
-                parent = parent.parent
-            end
+--            local y = self.y;
+--            local parent = self.parent;
+--            while parent and parent.y do
+--                y = y + parent.y;
+--                parent = parent.parent
+--            end
             local yGroup = self:getSlideGroupPosition()
             local groupOffset = 0
             --if the group is already slid up, check difference
             if slideGroup._originalSlideY then
                 groupOffset = (slideGroup._originalSlideY - yGroup)
             end
-            local top = y - self.contentHeight * self.anchorY + groupOffset; 
+            local  lx, ly = self:contentToLocal(0,0)
+            local top = -ly - self.contentHeight * self.anchorY + groupOffset; 
             
             
             local kbHeight = neededHeight or getKeyboardHeight();
