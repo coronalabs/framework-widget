@@ -1,3 +1,33 @@
+-- Copyright © 2014 Top Rank Software LLC. All Rights Reserved.
+-- This library includes code developed by Corona Labs Inc. (http://www.coronalabs.com).
+--
+-- Redistribution and use in source and binary forms, with or without
+-- modification, are permitted provided that the following conditions are met:
+--
+--    * Redistributions of source code must retain the above copyright
+--      notice, this list of conditions and the following disclaimer.
+--    * Redistributions in binary form must reproduce the above copyright
+--      notice, this list of conditions and the following disclaimer in the
+--      documentation and/or other materials provided with the distribution.
+--    * Neither the name of the company nor the names of its contributors
+--      may be used to endorse or promote products derived from this software
+--      without specific prior written permission.
+--    * Redistributions in any form whatsoever must retain the following
+--      acknowledgment visually in the program (e.g. the credits of the program): 
+--      'This product includes software developed by Top Rank Software LLC'
+--
+-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+-- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+-- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+-- DISCLAIMED. IN NO EVENT SHALL CORONA LABS INC. BE LIABLE FOR ANY
+-- DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+-- (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+-- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+-- ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+-- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+-- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 -- Require needed widget files
 local _widget = require( "widget" )
 local _storyboard = require("storyboard")
@@ -11,11 +41,12 @@ local M =
 
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 local labelDefault = {  0, 0, 0 }
 
 local frameStrokeDefault;
-if isGraphicsV1 then
+if isByteColorRange then
     frameStrokeDefault = { 0, 0, 0 }
 else
     frameStrokeDefault = { 0, 0, 0 }
@@ -23,21 +54,21 @@ end
 
 
 local frameFillDefault;
-if isGraphicsV1 then
+if isByteColorRange then
     frameFillDefault = {  255, 255, 255}
 else
     frameFillDefault = { 1, 1, 1 }
 end
 
 local frameErrorStrokeDefault;
-if isGraphicsV1 then
+if isByteColorRange then
     frameErrorStrokeDefault = { .9, 0, 0 }
 else
     frameErrorStrokeDefault = { 240, 0, 0 }
 end
 
 local frameErrorFillDefault;
-if isGraphicsV1 then
+if isByteColorRange then
     frameErrorFillDefault = { 0, 0, 0, 0 }
 else
     frameErrorFillDefault = { 0, 0, 0, 0 }
@@ -912,13 +943,13 @@ function M.new( options, theme )
     display.setDefault( "anchorY", defAnchorY)
     
     -- Set the editField's position ( set the reference point to center, just to be sure )
-    
-    local x, y = opt.x, opt.y
-    if not opt.x or not opt.y then
-        x = opt.left + editField.contentWidth * 0.5
-        y = opt.top + editField.contentHeight * 0.5
+    if ( isGraphicsV1 ) then
+        editField:setReferencePoint( display.CenterReferencePoint )
     end
+    local x, y = _widget._calculatePosition( editField, opt )
     editField.x, editField.y = x, y
+
+    
     
     return editField
 end
