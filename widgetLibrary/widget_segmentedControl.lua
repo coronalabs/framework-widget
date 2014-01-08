@@ -432,10 +432,17 @@ local function initWithImage( segmentedControl, options )
                 elseif #segments == segmentNum then
                         view:setRightSegmentActive()
                 else
-                        view:setMiddleSegmentActive( view._segmentNumber )
+                        view:setMiddleSegmentActive( segmentNum )
                 end
         end
         
+        function segmentedControl:setValue(segmentNum)
+            setDefaultSegment(segmentNum)
+        end
+        
+        function segmentedControl:getValue()
+           return self._view._segmentNumber
+        end
         -- Finalize function for the segmentedControl
         function segmentedControl:_finalize()
                 self._view._segments = nil
