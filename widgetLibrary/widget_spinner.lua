@@ -260,11 +260,7 @@ function M.new( options, theme )
 		spinner:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + spinner.contentWidth * 0.5
-		y = opt.top + spinner.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( spinner, opt )
 	spinner.x, spinner.y = x, y
 	
 	return spinner

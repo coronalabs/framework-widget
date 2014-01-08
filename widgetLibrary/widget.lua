@@ -123,7 +123,9 @@ local newWidgetV2 = function( newWidget, ... )
 
 	-- we obtain the old anchorpoints first
 	local oldAnchorX = display.getDefault( "anchorX" )
+	widget._oldAnchorX = oldAnchorX
 	local oldAnchorY = display.getDefault( "anchorY" )
+	widget._oldAnchorY = oldAnchorY
 	
 	-- then we set the anchors to 0.5 for the widget
 	display.setDefault( "anchorX", 0.5 )
@@ -442,6 +444,27 @@ function widget._convertColorToV1( channels )
         channels[i] = 255 * channels[i]
     end
 end
+
+-- widget position calculation based on defined anchor point
+function widget._calculatePosition( object, opt )
+	local x, y = opt.x, opt.y
+	if not opt.x or not opt.y then
+		local leftPos = opt.left
+		local topPos = opt.top
+
+		x = leftPos + object.contentWidth * 0.5
+		y = topPos + object.contentHeight * 0.5
+		-- left and top values have to be adjusted in non-compatibility mode
+		if not isGraphicsV1 then
+			leftPos = leftPos + ( widget._oldAnchorX * object.contentWidth )
+			x = math.floor( leftPos )
+			topPos = topPos + ( widget._oldAnchorY * object.contentHeight )
+			y = math.floor( topPos )
+		end
+	end
+	return x, y
+end
+
 
 -- Get platform
 local platformName = system.getInfo( "platformName" )

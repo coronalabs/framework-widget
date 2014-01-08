@@ -455,11 +455,7 @@ function M.new( options, theme )
 		stepper:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + stepper.contentWidth * 0.5
-		y = opt.top + stepper.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( stepper, opt )
 	stepper.x, stepper.y = x, y
 	
 	return stepper

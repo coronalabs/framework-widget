@@ -38,6 +38,7 @@ local _widget = require( "widget" )
 local _momentumScrolling = require( "widget_momentumScrolling" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 local rowColorIos6 = { default = { 1, 1, 1, 1 }, over = { 0.11, 0.56, 1, 1 } }
 local lineColorIos6 = { 0.86, 0.86, 0.86, 1 }
@@ -50,7 +51,7 @@ local rowColorOver = { 0.11, 0.56, 1, 1 }
 local whiteColor = { 1, 1, 1, 1 }
 local pickerRowColor = { 0.60 }
 
-if isGraphicsV1 then
+if isByteColorRange then
 	_widget._convertColorToV1( rowColorIos6.default )
 	_widget._convertColorToV1( rowColorIos6.over )
 	_widget._convertColorToV1( lineColorIos6 )
@@ -165,6 +166,7 @@ local function createTableView( tableView, options )
 	view._trackVelocity = false	
 	view._updateRuntime = false
 	view._numberOfRows = 0
+	view._rowTouchDelay = opt.rowTouchDelay
 	
 	-- assign the momentum property
 	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
@@ -235,6 +237,11 @@ local function createTableView( tableView, options )
 		return self._view:_reloadData()
 	end
 	
+	-- isLocked setter function
+	function tableView:setIsLocked( lockedState )
+		return self._view:_setIsLocked( lockedState )
+	end
+	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -286,9 +293,8 @@ local function createTableView( tableView, options )
 			-- If the current row exists on screen
 			if "table" == type( currentRow._view ) then
 				local bounds = currentRow._view.contentBounds
-			
-				local isWithinBounds = yPosition > bounds.yMin and yPosition < bounds.yMax + 1
-
+				
+				local isWithinBounds = yPosition >= bounds.yMin and yPosition <= bounds.yMax + 1
 				-- If we have hit the bottom limit, return the first row
 				if self._hasHitBottomLimit then
 					return self._rows[1]._view
@@ -301,10 +307,10 @@ local function createTableView( tableView, options )
 			
 				-- If the row is within bounds
 				if isWithinBounds then
-				local translateToPos = - currentRow.y - self.parent.y - 6
-				if isGraphicsV1 then
-					translateToPos = - currentRow.y - self.parent.y
-				end								
+					local translateToPos = - currentRow.y - self.parent.y - 6
+					if isGraphicsV1 then
+						translateToPos = - currentRow.y - self.parent.y
+					end								
 					transition.to( self, { time = 280, y = translateToPos, transition = easing.outQuad } )
 					
 					return currentRow._view
@@ -326,6 +332,13 @@ local function createTableView( tableView, options )
 	function view:touch( event )
 		local phase = event.phase
 
+		-- the event.target is the tableView row. however, the row has calculations in the enterFrame listener that prevent the table from scrolling
+		-- when the limit is hit. In this case, only if the view is used in picker, we set the target to the tableview's background, and that will allow
+		-- free movement independently.
+		if self._isUsedInPickerWheel then
+			event.target = view._background
+		end
+		
 		-- Set the time held
 		if "began" == phase then
 			self._timeHeld = event.time
@@ -476,8 +489,10 @@ local function createTableView( tableView, options )
 					row = self._targetRow,
 				}
 				
-				-- Set the row cell's fill color
-				self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
+				-- Set the row cell's fill color, if the row's view still exists (not being deleted)
+				if self._targetRow._cell then
+					self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
+				end
 				
 				-- Execute the row's touch event 
 				self._onRowTouch( newEvent )
@@ -549,7 +564,7 @@ local function createTableView( tableView, options )
 			end
 			
 			-- If a finger was held down
-			if timeHeld >= 110 then				
+			if timeHeld >= self._rowTouchDelay then				
 				-- If there is a onRowTouch listener
 				if self._onRowTouch and self._permitRowTouches then
 					-- If the row isn't a category
@@ -637,7 +652,8 @@ local function createTableView( tableView, options )
 		for i = 1, #self._rows do
 			local currentRow = self._rows[i]
 			
-			if currentRow.isCategory then
+			-- added a check for currentRow because this method can get called while deleting a row, so we have a race condition.
+			if currentRow and currentRow.isCategory then
 				if not previousCategory then
 					categories["cat-" .. i] = "first"
 					previousCategory = i
@@ -724,6 +740,8 @@ local function createTableView( tableView, options )
 			local catGroupY = - self.parent.height * 0.5 - category.contentHeight * 0.5
 			if isGraphicsV1 then
 				catGroupY = - self.parent.height * 0.5
+			else
+				rowCell.anchorX = 0.5; rowCell.anchorY = 0.5
 			end
 			self._categoryGroup.y = catGroupY
 			local rowX = 0
@@ -850,6 +868,8 @@ local function createTableView( tableView, options )
 						display.remove( self._currentCategory )
 						self._currentCategory = nil
 						self._currentCategoryIndex = nil
+					elseif currentRow.isCategory and currentRow._top >= 0 then
+						currentRow._view.isVisible = true
 					end
 				end	
 			end
@@ -959,6 +979,11 @@ local function createTableView( tableView, options )
 				rowCell.y = rowCell.contentHeight * 0.5
 				rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
 				rowCell.isHitTestable = true
+				
+				-- if graphics 2.0, anchor the row cell to 0.5 / 0.5
+				if not isGraphicsV1 then
+					rowCell.anchorX = 0.5; rowCell.anchorY = 0.5
+				end
 
 				-- If the user want's lines between rows, create a line to seperate them
 				if not self._noLines and not ( _widget.isSeven() and currentRow.isCategory ) then
@@ -976,21 +1001,19 @@ local function createTableView( tableView, options )
 					end
 
 					if _widget.isSeven() then
-						---rowLine:setReferencePoint( display.RightReferencePoint )
-						--rowLine.x = rowCell.x 
-					else
 						if isGraphicsV1 then
 							rowLine:setReferencePoint( display.CenterReferencePoint )
 						else
 							rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
 						end
-						rowLine.x = rowCell.x
-						-- TODO: rewrite this as part of the above if clause.
-						-- For g2.0 non-compatibility and just on the ios6 theme, the row has to be positioned back to 0, because otherwise the row starts at tableRow * 0.5
-						if not isGraphicsV1 and not _widget.isSeven() then
+					else
+						if isGraphicsV1 then
+							rowLine:setReferencePoint( display.CenterReferencePoint )
+							rowLine.x = rowCell.x
+						else
+							rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
 							rowLine.x = 0
 						end
-
 					end
 
 					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 )
@@ -1162,8 +1185,18 @@ local function createTableView( tableView, options )
 		-- Update the scrollHeight of our view
 		self._scrollHeight = self._scrollHeight + self._rows[table.maxn(self._rows)]._height + 1
 		
+		-- Reposition the scrollbar, if it exists
+		if self._scrollBar then
+			self._scrollBar:repositionY()
+		end
+		
 		-- Create the row
 		self:_createRow( self._rows[table.maxn(self._rows)], reRender )
+		
+		-- Recalculate the categories if we inserted one
+		if self._rows[table.maxn(self._rows)].isCategory then
+			self._categories, self._numCategories = self:_gatherCategories()
+		end
 	end
 	
 	
@@ -1199,21 +1232,21 @@ local function createTableView( tableView, options )
 				if nil~= self._rows[i]._view and "table" == type( self._rows[i]._view ) then
 					if self._rows[i].isCategory then
 						if nil ~= self._rows[i-1] then
-							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i-1]._view.contentHeight ) + 1, transition = easing.outQuad } )
+							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ) + 1, transition = easing.outQuad } )
 							self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1 
 						end
 					else
-						transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[i]._view.contentHeight ) + 1, transition = easing.outQuad } )
-						self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
+						transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ) + 1, transition = easing.outQuad } )
+						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
 					end
 				-- We are now moving up the off screen rows
 				else
 					if self._rows[i].isCategory then
 						if nil ~= self._rows[i-1] then
-							self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1
+							self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
 						end
 					else
-						self._rows[i].y = self._rows[i].y - ( self._rows[i]._height ) - 1
+						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
 					end
 				end
 				end
@@ -1241,7 +1274,10 @@ local function createTableView( tableView, options )
 			
 			-- Re calculate the scrollHeight
 			self._scrollHeight = self._scrollHeight - self._rows[rowIndex]._height
-			self._scrollBar:repositionY()
+			-- only if the scrollbar exists, reposition it
+			if self._scrollBar then
+				self._scrollBar:repositionY()
+			end
 			
 			-- transition the row
 			transition.to( self._rows[rowIndex]._view, { x = - ( self._rows[rowIndex]._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = removeRow } )
@@ -1336,9 +1372,13 @@ local function createTableView( tableView, options )
 		-- The new position to scroll to
 		local newPosition = 0
 
-		-- Set the new position to scroll to
+		-- Set the new position to scroll to. Accounting for the 0.5 anchor of the widget
 		newPosition = -self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 
+		if not isGraphicsV1 then
+			newPosition = newPosition - self.parent.contentHeight * 0.5
+		end
+		
 		-- The calculation needs altering for pickerWheels
 		if self._isUsedInPickerWheel then
 			-- TODO: this is just because we have a single theme for all the pickers, we'll have to add a real solution here.
@@ -1384,6 +1424,13 @@ local function createTableView( tableView, options )
 				self:_createRow( row, true )
 			end
 		end
+	end
+	
+	-- isLocked variable setter function
+	function view:_setIsLocked( lockedState )
+		if type( lockedState ) ~= "boolean" then return end
+		self._isVerticalScrollingDisabled = lockedState
+		self._isLocked = lockedState
 	end
 	
 	-- Finalize function for the tableView
@@ -1461,6 +1508,7 @@ function M.new( options )
 	if nil ~= customOptions.isBounceEnabled and customOptions.isBounceEnabled == false then 
 		opt.isBounceEnabled = false
 	end
+	opt.rowTouchDelay = customOptions.rowTouchDelay or 110
 	
 	-- ScrollBar options
 	if customOptions.scrollBarOptions then
@@ -1498,11 +1546,7 @@ function M.new( options )
 	tableView.width = opt.width
 	tableView.height = opt.height
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + tableView.contentWidth * 0.5
-		y = opt.top + tableView.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( tableView, opt )
 	tableView.x, tableView.y = x, y
 	
 	return tableView

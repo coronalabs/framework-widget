@@ -366,11 +366,7 @@ function M.new( options, theme )
 		progressView:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + progressView.contentWidth * 0.5
-		y = opt.top + progressView.contentHeight * 0.5
-	end
+	local x, y = _widget._calculatePosition( progressView, opt )
 	progressView.x, progressView.y = x, y	
 	
 	return progressView

@@ -37,10 +37,11 @@ local M =
 local _widget = require( "widget" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 -- define a default color set for both graphics modes
 local buttonDefault
-if isGraphicsV1 then
+if isByteColorRange then
     buttonDefault = { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
 else
     buttonDefault = { default = { 0, 0, 0 }, over = { 1, 1, 1 } }
@@ -1494,12 +1495,8 @@ function M.new( options, theme )
 		button:setReferencePoint( display.CenterReferencePoint )
 	end
 	
-	local x, y = opt.x, opt.y
-	if not opt.x or not opt.y then
-		x = opt.left + button.contentWidth * 0.5
-		y = opt.top + button.contentHeight * 0.5
-	end
-	button.x, button.y = x, y	
+	local x, y = _widget._calculatePosition( button, opt )
+	button.x, button.y = x, y
 
 	return button
 end
