@@ -9,11 +9,22 @@ local M =
 -- Require needed widget files
 local _widget = require( "widget" )
 
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
+
+
 -- define a default color set for both graphics modes
 local panelDefault = {  0, 0, 0 }
 
 local shapeStrokeDefault = {  0, 0, 0 };
-local shapeFillDefault = { 0.8, 0.8, 0.8  };
+
+local shapeFillDefault
+if isGraphicsV1 then
+    shapeFillDefault = { 204, 204, 204 }
+else
+    shapeFillDefault = { 0.8, 0.8, 0.8 }
+end
+ 
 
 
 -- Function to handle touches on a widget panel, function is common to all widget panel creation types (ie image files, imagesheet, and 9 slice panel creation)
@@ -1191,13 +1202,9 @@ function M.new( options, theme )
     if ( isGraphicsV1 ) then
         panel:setReferencePoint( display.CenterReferencePoint )
     end
-    
-    local x, y = opt.x, opt.y
-    if not opt.x or not opt.y then
-        x = opt.left + panel.contentWidth * 0.5
-        y = opt.top + panel.contentHeight * 0.5
-    end
-    panel.x, panel.y = x, y	
+    local x, y = _widget._calculatePosition( panel, opt )
+    panel.x, panel.y = x, y
+
     
     return panel
 end
