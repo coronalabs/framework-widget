@@ -101,11 +101,11 @@ local function getKeyboardHeight()
             
         else
             --dear android
-            return math.min(efDefaults.androidKeyboardHeight, display.contentHeight / 2);
+            return math.min(efDefaults.androidKeyboardHeight, display.pixelHeight / 2);
         end
     end
     
-    return getActualHeight()/math.floor((display.pixelHeight / display.contentHeight) * 0.5);
+    return getActualHeight()/math.floor(efDefaults.fontScale);
 end
 -- Creates a new edit field from an image
 local function initEditField( editField, options )

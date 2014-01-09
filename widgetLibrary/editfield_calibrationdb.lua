@@ -25,7 +25,14 @@ textFieldYOffset = 0,
 labelXoffset = 3,
 labelYoffset = 2,
 },
-
+["device-GT-I9000"] = {
+fontScale = 0.99,
+textFieldHeightAdjust = 12,
+textFieldXOffset = 0,
+textFieldYOffset = 1,
+labelXoffset = 4,
+labelYoffset = 2,
+},
 }
 
 return M
