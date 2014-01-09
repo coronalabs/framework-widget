@@ -79,29 +79,33 @@ end
 local _focusedField = nil;
 
 local function getKeyboardHeight()
-    local function isLandscape()
-        return system.orientation == "landscapeLeft" or 
-        system.orientation == "landscapeRight"
+    local function getActualHeight()
+        local function isLandscape()
+            return system.orientation == "landscapeLeft" or 
+            system.orientation == "landscapeRight"
+        end
+        local model = system.getInfo("model")
+        if model == "iPad" then
+            if isLandscape() then
+                return 352
+            else    
+                return 264
+            end
+        elseif model == "iPhone" or
+               model == "iPod"  then
+            if isLandscape() then
+                return 162
+            else    
+                return 216 
+            end
+            
+        else
+            --dear android
+            return math.min(efDefaults.androidKeyboardHeight, display.contentHeight / 2);
+        end
     end
     
-    if  system.getInfo("model") == "iPad" then
-        if isLandscape() then
-            return 352
-        else    
-            return 264
-        end
-    elseif system.getInfo("model") == "iPhone" or
-        system.getInfo("model") == "iPod"  then
-        if isLandscape() then
-            return 162
-        else    
-            return 216 
-        end
-        
-    else
-        --dear android
-        return math.min(efDefaults.androidKeyboardHeight, display.contentHeight / 2);
-    end
+    return getActualHeight()/math.floor((display.pixelHeight / display.contentHeight) * 0.5);
 end
 -- Creates a new edit field from an image
 local function initEditField( editField, options )
@@ -523,12 +527,12 @@ local function initEditField( editField, options )
     function editField:slideForKeyboard(neededHeight)
         local slideGroup =  self.slideGroup;
         if slideGroup  then
---            local y = self.y;
---            local parent = self.parent;
---            while parent and parent.y do
---                y = y + parent.y;
---                parent = parent.parent
---            end
+            --            local y = self.y;
+            --            local parent = self.parent;
+            --            while parent and parent.y do
+            --                y = y + parent.y;
+            --                parent = parent.parent
+            --            end
             local yGroup = self:getSlideGroupPosition()
             local groupOffset = 0
             --if the group is already slid up, check difference
@@ -648,7 +652,7 @@ local function initEditField( editField, options )
         
         --async called on Submit in case other edit field is taking focus
         local function onHideField(event)
-           if _focusedField == nil or _focusedField == self then
+            if _focusedField == nil or _focusedField == self then
                 native.setKeyboardFocus( nil )
                 _focusedField = nil;
             end;   
@@ -699,7 +703,7 @@ local function initEditField( editField, options )
                 timer.performWithDelay(100,onHideField ,1)
                 self._editing = false;
             end    
-
+            
             if not editField.native then
                 editField:_swapFakeField( true )
             end    
@@ -933,14 +937,7 @@ function M.new( options, theme )
         id = opt.id or "widget_editField",
     }
     
-    local defAnchorX = display.getDefault( "anchorX")
-    local defAnchorY = display.getDefault( "anchorY" )
-    display.setDefault( "anchorX", 0.5)
-    display.setDefault( "anchorY", 0.5 )
-    
     initEditField( editField, opt )
-    display.setDefault( "anchorX", defAnchorX)
-    display.setDefault( "anchorY", defAnchorY)
     
     -- Set the editField's position ( set the reference point to center, just to be sure )
     if ( isGraphicsV1 ) then
@@ -948,7 +945,7 @@ function M.new( options, theme )
     end
     local x, y = _widget._calculatePosition( editField, opt )
     editField.x, editField.y = x, y
-
+    
     
     
     return editField
