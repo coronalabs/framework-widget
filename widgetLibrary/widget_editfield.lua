@@ -105,7 +105,7 @@ local function getKeyboardHeight()
         end
     end
     
-    return getActualHeight()/math.floor(efDefaults.fontScale);
+    return getActualHeight()/efDefaults.fontScale;
 end
 -- Creates a new edit field from an image
 local function initEditField( editField, options )
@@ -527,20 +527,14 @@ local function initEditField( editField, options )
     function editField:slideForKeyboard(neededHeight)
         local slideGroup =  self.slideGroup;
         if slideGroup  then
-            --            local y = self.y;
-            --            local parent = self.parent;
-            --            while parent and parent.y do
-            --                y = y + parent.y;
-            --                parent = parent.parent
-            --            end
             local yGroup = self:getSlideGroupPosition()
             local groupOffset = 0
             --if the group is already slid up, check difference
             if slideGroup._originalSlideY then
                 groupOffset = (slideGroup._originalSlideY - yGroup)
             end
-            local  lx, ly = self:contentToLocal(0,0)
-            local top = -ly - self.contentHeight * self.anchorY + groupOffset; 
+            local lx, ly = self:contentToLocal(0,0)
+            local top = -ly + groupOffset; 
             
             
             local kbHeight = neededHeight or getKeyboardHeight();
