@@ -398,8 +398,8 @@ local function initEditField( editField, options )
     viewTextField.font = native.newFont( opt.editFont )
     viewTextField.size = opt.editFontSize * opt.fontScale --deviceScale
     
-    viewTextField:setTextColor(opt.editFontColor[1]*255, opt.editFontColor[2]*255,
-    opt.editFontColor[3]*255, opt.editFontColor[4]*255);
+    viewTextField:setTextColor(opt.editFontColor[1], opt.editFontColor[2],
+    opt.editFontColor[3], opt.editFontColor[4]);
     local fakeTextField
     if not opt.native then
         fakeTextField = display.newText(editField, "", 0, 0, textFieldWidth, 
