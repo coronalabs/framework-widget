@@ -101,7 +101,7 @@ local function getKeyboardHeight()
             
         else
             --dear android
-            return math.min(efDefaults.androidKeyboardHeight, display.pixelHeight / 2);
+            return math.min(efDefaults.androidKeyboardHeight, display.contentHeight*efDefaults.fontScale / 2);
         end
     end
     
@@ -392,6 +392,8 @@ local function initEditField( editField, options )
     editField.calibrating = opt.calibrating
     editField.native = opt.native;
     editField.fontScale = opt.fontScale;
+    editField.editFontColor = opt.editFontColor;
+    editField.editHintColor = opt.editHintColor;
     
     viewTextField.font = native.newFont( opt.editFont )
     viewTextField.size = opt.editFontSize * opt.fontScale --deviceScale
@@ -467,7 +469,7 @@ local function initEditField( editField, options )
             local text = value;
             if text and text:len() > 0 then
                 if not self.calibrating then
-                    fakeTextField:setFillColor(unpack(opt.editFontColor));
+                    fakeTextField:setFillColor(unpack(self.editFontColor));
                 else
                     fakeTextField:setFillColor(1,0,0,1);
                     fakeTextField:toFront();
@@ -479,7 +481,7 @@ local function initEditField( editField, options )
                 end    
             else    
                 if not self.calibrating then
-                    fakeTextField:setFillColor(unpack(opt.editHintColor));
+                    fakeTextField:setFillColor(unpack(self.editHintColor));
                     fakeTextField.text = fakeTextField._placeholder;
                 else
                     fakeTextField:setFillColor(1,0,0,1);
@@ -645,7 +647,7 @@ local function initEditField( editField, options )
         local phase = event.phase
         
         --async called on Submit in case other edit field is taking focus
-        local function onHideField(event)
+        local function onHideField(e)
             if _focusedField == nil or _focusedField == self then
                 native.setKeyboardFocus( nil )
                 _focusedField = nil;
