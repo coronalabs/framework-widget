@@ -284,51 +284,51 @@ local function initEditField( editField, options )
     end 
     local  fieldDescription, viewTextField
     
-    --add the widgets
-    local widgetsWidthLeft = 0;
-    local widgetsWidthRight = 0;
-    local widgets = opt.widgets;
-    for i = 1,#widgets do
-        local widget = widgets[i]
-        if widget.imageFrame or widget.style or widget.defaultFile then
-            local wgt = nil;
-            if (widget.kind == "icon") or (widget.kind == "clear") then
-                if widget.defaultFile then
-                    wgt = display.newImage(widget.defaultFile)
+    --add the buttons
+    local buttonsWidthLeft = 0;
+    local buttonsWidthRight = 0;
+    local buttons = opt.buttons;
+    for i = 1,#buttons do
+        local button = buttons[i]
+        if button.imageFrame or button.style or button.defaultFile then
+            local btn = nil;
+            if (button.kind == "icon") or (button.kind == "clear") then
+                if button.defaultFile then
+                    btn = display.newImage(button.defaultFile)
                 else
-                    wgt = display.newImage(widget.imageSheet or imageSheet, 
-                    widget.defaultFrame or themeData:getFrameIndex( opt.themeOptions[ widget.style] ))
+                    btn = display.newImage(button.imageSheet or imageSheet, 
+                    button.defaultFrame or themeData:getFrameIndex( opt.themeOptions[ button.style] ))
                 end    
-                if widget.kind == "clear" then
-                    editField._clearButton = wgt;
-                    wgt.isVisible = false;
+                if button.kind == "clear" then
+                    editField._clearButton = btn;
+                    btn.isVisible = false;
                     
                 end
             else
-                wgt = _widget.newButton( 
-                {sheet = widget.imageSheet or imageSheet,
-                    defaultFrame = widget.defaultFrame or themeData:getFrameIndex( opt.themeOptions[ widget.style] ),
-                    overFrame   = widget.overFrame or themeData:getFrameIndex( opt.themeOptions[tostring( widget.style).."_over"] ),
-                    defaultFile = widget.defaultFile,
-                    overFile = widget.overFile,
-                    onPress = widget.onPress,
-                    onRelease = widget.onRelease
+                btn = _widget.newButton( 
+                {sheet = button.imageSheet or imageSheet,
+                    defaultFrame = button.defaultFrame or themeData:getFrameIndex( opt.themeOptions[ button.style] ),
+                    overFrame   = button.overFrame or themeData:getFrameIndex( opt.themeOptions[tostring( button.style).."_over"] ),
+                    defaultFile = button.defaultFile,
+                    overFile = button.overFile,
+                    onPress = button.onPress,
+                    onRelease = button.onRelease
                 }
                 )
             end    
-            if wgt then
-                editField:insert(wgt)
-                wgt.y = yCenter + opt.buttonYOffset
-                if widget.align == "left" then
-                    wgt.x = xStart + widgetsWidthLeft + ( wgt.contentWidth * 0.5 )+ 
+            if btn then
+                editField:insert(btn)
+                btn.y = yCenter + opt.buttonYOffset
+                if button.align == "left" then
+                    btn.x = xStart + buttonsWidthLeft + ( btn.contentWidth * 0.5 )+ 
                     opt.spacing + opt.buttonXOffset
-                    widgetsWidthLeft = opt.spacing + wgt.contentWidth + widgetsWidthLeft;
+                    buttonsWidthLeft = opt.spacing + btn.contentWidth + buttonsWidthLeft;
                     
                 else   
                     --by default buttons are right aligned  
-                    wgt.x = xEnd  - widgetsWidthRight - opt.spacing -
-                    ( wgt.contentWidth * 0.5 ) + opt.buttonXOffset
-                    widgetsWidthRight = opt.spacing + wgt.contentWidth + widgetsWidthRight;
+                    btn.x = xEnd  - buttonsWidthRight - opt.spacing -
+                    ( btn.contentWidth * 0.5 ) + opt.buttonXOffset
+                    buttonsWidthRight = opt.spacing + btn.contentWidth + buttonsWidthRight;
                     
                 end
             end;    
@@ -339,13 +339,13 @@ local function initEditField( editField, options )
     local textLabelWidth = 0;
     local textLabelX = xStart;
     editField.label = opt.label;
-    editField.placeholder = opt.placeholder;
+    editField.hint = opt.hint;
     -- The label for the field
     if opt.label and opt.hideLabel == false then
         fieldDescription = display.newText( editField, opt.label, 0,0, opt.labelFont, opt.labelFontSize );
         fieldDescription:setFillColor(unpack(opt.labelColor));
         fieldDescription.anchorX = 0;
-        fieldDescription.x = xStart + widgetsWidthLeft + opt.spacing ;
+        fieldDescription.x = xStart + buttonsWidthLeft + opt.spacing ;
         fieldDescription.y = yCenter + opt.fakeLabelYOffset
         textLabelX = fieldDescription.x;
         textLabelWidth = fieldDescription.contentWidth
@@ -353,20 +353,20 @@ local function initEditField( editField, options )
     -- Create the textbox (that is contained within the editField)
     local textFieldWidth = opt.textFieldWidth;
     if textFieldWidth == 0 then
-        textFieldWidth = (xEnd - xStart) - widgetsWidthLeft - widgetsWidthRight -opt.textFieldXOffset 
+        textFieldWidth = (xEnd - xStart) - buttonsWidthLeft - buttonsWidthRight -opt.textFieldXOffset 
         - textLabelWidth - 2* opt.spacing;
     end
     --calculate textheight for selected font
     local tmpField = display.newText("W",0,0,opt.editFont,opt.editFontSize)
     local lineHeight = tmpField.contentHeight;
     tmpField:removeSelf();
-    editField._xOriginal = textLabelX - opt.textFieldHeightAdjust/2 + textLabelWidth + opt.textFieldXOffset + widgetsWidthLeft 
+    editField._xOriginal = textLabelX - opt.textFieldHeightAdjust/2 + textLabelWidth + opt.textFieldXOffset + buttonsWidthLeft 
     editField._yOriginal = yCenter + opt.textFieldHeightAdjust/2 + opt.textFieldYOffset
     if opt.native then
-        viewTextField = native.newTextField(editField._xOriginal, editField._yOriginal, textFieldWidth,lineHeight + opt.textFieldHeightAdjust )
-        viewTextField.placeholder = opt.placeholder;
+        viewTextField = native.newTextField(editField._xOriginal, editField._yOriginal, textFieldWidth+ opt.textFieldHeightAdjust,lineHeight + opt.textFieldHeightAdjust )
+        viewTextField.placeholder = opt.hint;
     else
-        viewTextField = native.newTextField( -1000, -1000, textFieldWidth,lineHeight + opt.textFieldHeightAdjust )
+        viewTextField = native.newTextField( -1000, -1000, textFieldWidth+ opt.textFieldHeightAdjust,lineHeight + opt.textFieldHeightAdjust )
     end    
     
     viewTextField.anchorX = 0;
@@ -397,19 +397,33 @@ local function initEditField( editField, options )
     
     viewTextField.font = native.newFont( opt.editFont )
     viewTextField.size = opt.editFontSize * opt.fontScale --deviceScale
-    
-    viewTextField:setTextColor(opt.editFontColor[1], opt.editFontColor[2],
-    opt.editFontColor[3], opt.editFontColor[4]);
+    viewTextField.align = opt.align
+    if system.getInfo("platformName") == "Android" then
+        viewTextField:setTextColor(opt.editFontColor[1]*255, opt.editFontColor[2]*255,
+        opt.editFontColor[3]*255, opt.editFontColor[4]*255);
+    else    
+        viewTextField:setTextColor(opt.editFontColor[1], opt.editFontColor[2],
+        opt.editFontColor[3], opt.editFontColor[4]);
+    end
     local fakeTextField
     if not opt.native then
-        fakeTextField = display.newText(editField, "", 0, 0, textFieldWidth, 
-        lineHeight, opt.editFont, opt.editFontSize)
+        fakeTextField = display.newText(
+          {parent=editField, 
+          text="", 
+          x=0, 
+          y=0, 
+          width=textFieldWidth -2*opt.fakeLabelXOffset+2*opt.textFieldXOffset, 
+          height=lineHeight, 
+          font=opt.editFont, 
+          fontSize=opt.editFontSize,
+          align = opt.align})
         fakeTextField.anchorX = 0;
-        fakeTextField.x = textLabelX + textLabelWidth + widgetsWidthLeft + opt.fakeLabelXOffset ;
+        fakeTextField.x = textLabelX + textLabelWidth +buttonsWidthLeft + opt.fakeLabelXOffset ;
         fakeTextField.y = yCenter + opt.fakeLabelYOffset ;
         fakeTextField:setFillColor(unpack(opt.editFontColor));	
         fakeTextField._viewTextField = viewTextField;
-        fakeTextField._placeholder = opt.placeholder;
+        fakeTextField._hint = opt.hint;
+        
         editField._fakeTextField = fakeTextField;
     end;    
     if ( opt.listener and type(opt.listener) == "function" ) then
@@ -482,7 +496,7 @@ local function initEditField( editField, options )
             else    
                 if not self.calibrating then
                     fakeTextField:setFillColor(unpack(self.editHintColor));
-                    fakeTextField.text = fakeTextField._placeholder;
+                    fakeTextField.text = fakeTextField._hint;
                 else
                     fakeTextField:setFillColor(1,0,0,1);
                     fakeTextField:toFront();
@@ -847,7 +861,7 @@ function M.new( options, theme )
     end;  
     
     opt.id = customOptions.id
-    opt.placeholder = customOptions.placeholder or "";
+    opt.hint = customOptions.hint or "";
     opt.inputType  = customOptions.inputType or "default"
     opt.isSecure    = customOptions.isSecure or false;
     opt.returnKey    = customOptions.returnKey or "done";
@@ -880,7 +894,7 @@ function M.new( options, theme )
     opt.labelFont = customOptions.labelFont or themeOptions.font or native.systemFont
     opt.labelFontSize = customOptions.labelFontSize or themeOptions.fontSize or 14
     opt.spacing = customOptions.spacing or 2;    
-    opt.widgets = customOptions.widgets or {};
+    opt.buttons = customOptions.buttons or {};
     opt.listButton = customOptions.listButton or false;
     opt.maxChars = customOptions.maxChars or 0;
     opt.allowedChars = customOptions.allowedChars or nil;
@@ -896,7 +910,7 @@ function M.new( options, theme )
     opt.native = customOptions.native or false
     opt.slideGroup = customOptions.slideGroup
     opt.keyboardSlideTime = customOptions.keyboardSlideTime or 200
-    
+    opt.align = customOptions.align or "left"
     -- Left ( 9 piece set )
     opt.topLeftFrame = customOptions.topLeftFrame or _widget._getFrameIndex( themeOptions, themeOptions.topLeftFrame )
     opt.middleLeftFrame = customOptions.middleLeftFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleLeftFrame )
