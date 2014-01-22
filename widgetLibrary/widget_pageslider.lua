@@ -60,21 +60,19 @@ local function createPageSlider( pageSlider, options )
     
     
     local view = display.newGroup();
-    
+    pageSlider:insert(view)
     
     local  rect = display.newRect( 0, 0,opt.width * opt.numPages, opt.height);
     rect:setFillColor(unpack(opt.fillColor));
-    rect.x =  rect.contentWidth / 2;
-    rect.y =  rect.contentHeight / 2;
+    rect.x =   rect.contentWidth / 2;
+    rect.y =   rect.contentHeight / 2;
     rect.isHitTestable = true;
     view:insert(rect)
     
-    view.x = -(opt.selectedPage-1) * opt.width
-    pageSlider:insert(view);
     
     pageSlider._view = view
     pageSlider._transition = 0;
-    pageSlider._numPages = opt.numPages;
+    view._numPages = opt.numPages;
 
     local dots = {};
     local dGroup = nil
@@ -180,7 +178,7 @@ local function createPageSlider( pageSlider, options )
     end
     
     function pageSlider:getSelected()
-        return self._ciew.selectedPage;
+        return self._view.selectedPage;
     end
     -- Function to set a pageSlider as active
     function pageSlider:setEnabled( isEnabled )
@@ -216,7 +214,7 @@ local function createPageSlider( pageSlider, options )
             local totalDistance = event.x - self._startX ; 
             local resist = 1;
             if (( currentPage == 1 and totalDistance > 0 ) or 
-                ( currentPage == self.parent._numPages and totalDistance < 0 ) ) then 
+                ( currentPage == self._numPages and totalDistance < 0 ) ) then 
                 resist = 0.3;
             end
             self.x = self.x + (movedDistance * resist) ; 
@@ -234,7 +232,7 @@ local function createPageSlider( pageSlider, options )
             if (totalSwipeTime <= fastSwipeTime and swipeDist >= self._fastSwipeDist) or
                ( totalSwipeTime > fastSwipeTime and swipeDist >= pageWidth*0.5 ) then 
                 if  totalDistance < 0  then 
-                    currentPage = math.min(self.parent._numPages, currentPage + 1);
+                    currentPage = math.min(self._numPages, currentPage + 1);
                 else 
                     currentPage = math.max(1, currentPage - 1) 
                 end
@@ -280,10 +278,11 @@ function M.new( options, theme )
     opt.dotStrokeColor = customOptions.dotStrokeColor or opt.dotFillColor
     opt.dotsMargin = customOptions.dotsMargin or 35;
     opt.fastSwipeTime = customOptions.fastSwipeTime or 300;
+    opt.fastSwipeDist = customOptions.fastSwipeDist or display.contentWidth/10
     opt.dotSegmentHeight = customOptions.dotSegmentHeight or 20;
     opt.dotRadius = customOptions.dotRadius or 6;
     
-    opt.fastSwipeDist = customOptions.fastSwipeDist or display.contentWidth/10
+
     opt.onChangePage = ( type(customOptions.onChangePage) == "function" )  and customOptions.onChangePage or nil;
     -- Create the pageslider object
     local pageSlider = _widget._new
