@@ -349,18 +349,22 @@ local function initEditField( editField, options )
         fieldDescription.y = yCenter + opt.fakeLabelYOffset
         textLabelX = fieldDescription.x;
         textLabelWidth = fieldDescription.contentWidth
-    end;   
+    end;
+    
+    local labelWidth = opt.labelWidth or textLabelWidth + buttonsWidthLeft
     -- Create the textbox (that is contained within the editField)
     local textFieldWidth = opt.textFieldWidth;
+    
     if textFieldWidth == 0 then
-        textFieldWidth = (xEnd - xStart) - buttonsWidthLeft - buttonsWidthRight -opt.textFieldXOffset 
-        - textLabelWidth - 2* opt.spacing;
+        textFieldWidth = (xEnd - xStart) - labelWidth - buttonsWidthRight -opt.textFieldXOffset 
+         - 2* opt.spacing;
     end
     --calculate textheight for selected font
     local tmpField = display.newText("W",0,0,opt.editFont,opt.editFontSize)
     local lineHeight = tmpField.contentHeight;
     tmpField:removeSelf();
-    editField._xOriginal = textLabelX - opt.textFieldHeightAdjust/2 + textLabelWidth + opt.textFieldXOffset + buttonsWidthLeft 
+    
+    editField._xOriginal = textLabelX - opt.textFieldHeightAdjust/2 + labelWidth + opt.textFieldXOffset  
     editField._yOriginal = yCenter + opt.textFieldHeightAdjust/2 + opt.textFieldYOffset
     if opt.native then
         viewTextField = native.newTextField(editField._xOriginal, editField._yOriginal, textFieldWidth+ opt.textFieldHeightAdjust,lineHeight + opt.textFieldHeightAdjust )
@@ -418,7 +422,7 @@ local function initEditField( editField, options )
           fontSize=opt.editFontSize,
           align = opt.align})
         fakeTextField.anchorX = 0;
-        fakeTextField.x = textLabelX + textLabelWidth +buttonsWidthLeft + opt.fakeLabelXOffset ;
+        fakeTextField.x = textLabelX + labelWidth + opt.fakeLabelXOffset ;
         fakeTextField.y = yCenter + opt.fakeLabelYOffset ;
         fakeTextField:setFillColor(unpack(opt.editFontColor));	
         fakeTextField._viewTextField = viewTextField;
@@ -435,7 +439,6 @@ local function initEditField( editField, options )
     
     editField._textField = viewTextField
     editField._textLabelX = textLabelX
-    editField._textLabelWidth = textLabelWidth
     editField.submitOnClear = opt.submitOnClear;
     editField.maxChars = opt.maxChars;
     editField.allowedChars = opt.allowedChars;
@@ -876,6 +879,7 @@ function M.new( options, theme )
     opt.calibrating = customOptions.calibrating
     
     opt.textFieldWidth = customOptions.textFieldWidth or 0;
+    opt.labelWidth = customOptions.labelWidth
     opt.listener = customOptions.listener
     opt.onSubmit = customOptions.onSubmit
     opt.submitOnClear = customOptions.submitOnClear or false;
@@ -895,7 +899,6 @@ function M.new( options, theme )
     opt.labelFontSize = customOptions.labelFontSize or themeOptions.fontSize or 14
     opt.spacing = customOptions.spacing or 2;    
     opt.buttons = customOptions.buttons or {};
-    opt.listButton = customOptions.listButton or false;
     opt.maxChars = customOptions.maxChars or 0;
     opt.allowedChars = customOptions.allowedChars or nil;
     if opt.allowedChars and string.len(opt.allowedChars)== 0 then
