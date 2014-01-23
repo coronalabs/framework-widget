@@ -686,17 +686,17 @@ local function initEditField( editField, options )
             editField:slideForKeyboard()
         elseif "editing" == phase then
             -- If there is one or more characters in the textField show the cancel button, if not hide it
-            local sText = self.text; 
+            local sText = event.text; 
             local textLen = string.len(sText);
             if editField.allowedChars and event.newCharacters  then
                 if not string.match(editField.allowedChars, event.newCharacters) then
                     --remove the offending character
-                    self.text = string.gsub(sText, event.newCharacters,"");
+                    event.target.text = string.gsub(sText, event.newCharacters,"");
                 end
             end
             if editField.maxChars > 0 then
                 if textLen > editField.maxChars then
-                    self.text = string.sub(sText, 1, editField.maxChars)
+                    event.target.text = string.sub(sText, 1, editField.maxChars)
                 end 
             end
             if editField.calibrating then
