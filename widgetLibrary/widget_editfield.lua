@@ -774,14 +774,13 @@ local function initEditField( editField, options )
     end;   
     
     function editField:validate()
+        local notValid = self.required and
+                            string.len(self._textField.text) == 0 
         if self._errorFrame then
             self.validating = true;
-            self._errorFrame.isVisible = 
-            self.required and
-            string.len(self._textField.text) == 0 
-            return self._errorFrame.isVisible
+            self._errorFrame.isVisible = notValid
         end 
-        return false
+        return notValid
     end
     
     function editField:setEditMode(value)
