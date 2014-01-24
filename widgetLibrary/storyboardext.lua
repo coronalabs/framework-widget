@@ -44,6 +44,21 @@ local function newScene()
         
     end
     
+    function scene.isModified()
+        for i,v in pairs(scene._editFields) do
+            if i:isModified() then
+                return i
+            end
+        end
+        return nil
+    end
+    function scene.setIsModified(value)
+        for i,v in pairs(scene._editFields) do
+            i:setIsModified(value)
+        end
+    end
+
+    
     scene:addEventListener( "exitScene", onExitScene )
     scene:addEventListener( "enterScene", onEnterScene )
     scene:addEventListener( "createScene", onCreateScene )

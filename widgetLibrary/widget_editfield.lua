@@ -442,6 +442,7 @@ local function initEditField( editField, options )
     editField.submitOnClear = opt.submitOnClear;
     editField.maxChars = opt.maxChars;
     editField.allowedChars = opt.allowedChars;
+    editField._isModified = false
     
     viewTextField._editField = editField;
     
@@ -699,6 +700,8 @@ local function initEditField( editField, options )
                     event.target.text = string.sub(sText, 1, editField.maxChars)
                 end 
             end
+            editField._isModified = self._originalText ~= self.text
+            
             if editField.calibrating then
                 editField._fakeTextField.text = self.text;
             end
@@ -790,6 +793,16 @@ local function initEditField( editField, options )
     function editField:getEditMode()
         return not self._fakingIt; 
     end
+    function editField:setIsModified(value)
+        self._isModified = value == nil and false or value
+    end
+    
+    function editField:isModified()
+        return self._isModified; 
+    end
+    
+    
+    
     -- Finalize function
     function editField:_finalize()
         --remove from storyboard
