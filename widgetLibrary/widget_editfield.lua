@@ -444,6 +444,7 @@ local function initEditField( editField, options )
     editField.allowedChars = opt.allowedChars;
     editField._isModified = false
     
+    
     viewTextField._editField = editField;
     
     if "function" == type(opt.onClick) then
@@ -461,7 +462,7 @@ local function initEditField( editField, options )
     end
     
     local function onClearTap(event)
-        
+        editField._isModified = editField._originalText and string.len(editField._originalText) > 0;
         editField._textField.text = "";
         
         editField._clearButton.isVisible = false;
@@ -700,7 +701,7 @@ local function initEditField( editField, options )
                     event.target.text = string.sub(sText, 1, editField.maxChars)
                 end 
             end
-            editField._isModified = self._originalText ~= self.text
+            editField._isModified = editField._originalText ~= self.text
             
             if editField.calibrating then
                 editField._fakeTextField.text = self.text;
@@ -744,6 +745,7 @@ local function initEditField( editField, options )
     function editField:setText(value)
         self._textField.text = value 
         self:updateFakeContent(value)
+        self:setIsModified(false)
         --android sets text asynchroneously
         
     end
@@ -794,7 +796,11 @@ local function initEditField( editField, options )
         return not self._fakingIt; 
     end
     function editField:setIsModified(value)
-        self._isModified = value == nil and false or value
+        local isModified = value == nil and false or value;
+        if not isModified then
+            self._originalText = self:getText()
+        end
+        self._isModified = isModified
     end
     
     function editField:isModified()
