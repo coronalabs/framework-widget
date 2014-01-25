@@ -463,16 +463,18 @@ local function initEditField( editField, options )
     
     local function onClearTap(event)
         editField._isModified = editField._originalText and string.len(editField._originalText) > 0;
-        editField._textField.text = "";
+        if string.len(editField._textField.text) > 0 then
+            editField._textField.text = "";
         
-        editField._clearButton.isVisible = false;
-        editField:updateFakeContent("")
-        editField._textField._originalText = ""
-        event.target = editField;
-        if editField.submitOnClear and editField._onSubmit then
-            editField._onSubmit(event);
-        end
-        
+            editField._clearButton.isVisible = false;
+            editField:updateFakeContent("")
+            editField._textField._originalText = ""
+            event.target = editField;
+            if editField.submitOnClear and editField._onSubmit then
+                event.phase = "submitted"
+                editField._onSubmit(event);
+            end
+        end;
         return true;
     end
     

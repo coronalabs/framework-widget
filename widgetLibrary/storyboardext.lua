@@ -36,21 +36,31 @@ local function newScene()
     end
     
     function scene.validateEditFields()
-        local retVal = false
+        local retVal = {}
         for i,v in pairs(scene._editFields) do
-            retVal = i:validate() or retVal;
+            if i:validate() then
+                table.insert(retVal, i)
+            end
         end
-        return retVal
-        
+        if #retVal > 0 then
+            return retVal
+        else
+            return nil
+        end    
     end
     
     function scene.isModified()
+        local retVal = {}
         for i,v in pairs(scene._editFields) do
             if i:isModified() then
-                return i
+                table.insert(retVal, i)
             end
         end
-        return nil
+        if #retVal > 0 then
+           return retVal 
+        else
+            return nil
+        end    
     end
     function scene.setIsModified(value)
         for i,v in pairs(scene._editFields) do
