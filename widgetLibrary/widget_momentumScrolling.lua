@@ -54,9 +54,13 @@ local function setLimits( self, view )
 	-- Set the upper limit
 	if view._scrollHeight then
 		local upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
-		if isGraphicsV1 then
-			upperLimit = upperLimit - view._height * 0.5
-		end
+		
+		-- the lower limit calculation is not necessary. We shift the view up with half its height, so the only thing we need to calculate
+		-- is the upper limit.
+		
+		--if isGraphicsV1 then
+		--	upperLimit = upperLimit - view._height * 0.5
+		--end
 		self.upperLimit = upperLimit
 	end
 	
