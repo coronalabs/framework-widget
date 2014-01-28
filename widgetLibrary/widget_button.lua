@@ -413,8 +413,15 @@ local function createUsingImageFiles( button, options )
 		return true
 	end
 	
-	view:addEventListener( "touch" )
+	-- Touch listener for the label
+	function view._label:touch( event )
+		view:touch( event )
+	end
 	
+	view:addEventListener( "touch" )
+	-- add the touch to the label as well
+	view._label:addEventListener( "touch" )
+		
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -627,7 +634,14 @@ local function createUsingImageSheet( button, options )
 		return true
 	end
 	
+	-- Touch listener for the label
+	function view._label:touch( event )
+		view:touch( event )
+	end
+	
 	view:addEventListener( "touch" )
+	-- add the touch to the label as well
+	view._label:addEventListener( "touch" )
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
