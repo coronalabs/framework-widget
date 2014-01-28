@@ -403,15 +403,24 @@ local function createUsingImageFiles( button, options )
 	end
 	
 	-- Touch listener for our button
-	function self:touch( event )
-	
+	function view:touch( event )
+		-- Set the target to the view's parent group (the button object)
+		event.target = self.parent
+		
 		-- Manage touch events on the button
 		manageButtonTouch( self, event )
 		
 		return true
 	end
 	
-	self:addEventListener( "touch" )
+	-- Touch listener for the label
+	function view._label:touch( event )
+		view:touch( event )
+	end
+	
+	view:addEventListener( "touch" )
+	-- add the touch to the label as well
+	view._label:addEventListener( "touch" )
 		
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
@@ -615,7 +624,9 @@ local function createUsingImageSheet( button, options )
 	end
 
 	-- Touch listener for our button
-	function self:touch( event )
+	function view:touch( event )
+		-- Set the target to the view's parent group (the button object)
+		event.target = self.parent
 		
 		-- Manage touch events on the button
 		manageButtonTouch( self, event )
@@ -623,7 +634,14 @@ local function createUsingImageSheet( button, options )
 		return true
 	end
 	
-	self:addEventListener( "touch" )
+	-- Touch listener for the label
+	function view._label:touch( event )
+		view:touch( event )
+	end
+	
+	view:addEventListener( "touch" )
+	-- add the touch to the label as well
+	view._label:addEventListener( "touch" )
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
