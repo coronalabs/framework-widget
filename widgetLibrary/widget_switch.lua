@@ -580,31 +580,53 @@ local function createOnOffSwitch( switch, options )
 		-- Set the switches transition time
 		local switchTransitionTime = 200
 		
-		-- Set the switch to on/off visually
-		if _isSwitchOn then
-			if _isAnimated then
-				self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnComplete } )
-				self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
-			else
-				self.x = self._endRange
-				self._handle.x = self._endRange
-				self.maskX = self._startRange
+		-- Temporary until we wrap up theme definition of ios7 
+		
+		if not _widget.isSeven() then
+		
+			-- Set the switch to on/off visually
+			if _isSwitchOn then
+				if _isAnimated then
+					self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnComplete } )
+					self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
+				else
+					self.x = self._endRange
+					self._handle.x = self._endRange
+					self.maskX = self._startRange
 				
-				-- Execute the onComplete listener
-				executeOnComplete()
+					-- Execute the onComplete listener
+					executeOnComplete()
+				end
+			else
+				if _isAnimated then
+					self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnComplete } )
+					self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+				else
+					self.x = self._startRange
+					self._handle.x = self._startRange
+					self.maskX = self._endRange
+				
+					-- Execute the onComplete listener
+					executeOnComplete()
+				end
 			end
+		
 		else
-			if _isAnimated then
-				self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnComplete } )
-				self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+		
+			if _isSwitchOn then
+				view._handle.x = view.x + view.contentWidth * 0.5 - view._handle.contentWidth * 0.5 + 4 
+				offView.isVisible = false
+				interView.isVisible = false
+				onView.isVisible = true
 			else
-				self.x = self._startRange
-				self._handle.x = self._startRange
-				self.maskX = self._endRange
-				
-				-- Execute the onComplete listener
-				executeOnComplete()
+				view._handle.x = view.x - view.contentWidth * 0.5 + view._handle.contentWidth * 0.5 - 4
+				interView.isVisible = false
+				onView.isVisible = false
+				offView.isVisible = true
 			end
+			-- Execute the onComplete listener
+			executeOnComplete()
+		
 		end
 	end
 	
