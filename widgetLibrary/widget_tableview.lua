@@ -169,10 +169,10 @@ local function createTableView( tableView, options )
 	view._rowTouchDelay = opt.rowTouchDelay
 	
 	-- assign the momentum property
-	_momentumScrolling.scrollStopThreshold = opt.scrollStopThreshold
-	_momentumScrolling.isBounceEnabled = opt.isBounceEnabled
-	_momentumScrolling.autoHideScrollBar = opt.autoHideScrollBar
-	_momentumScrolling._widgetType = "tableView"
+	view.scrollStopThreshold = opt.scrollStopThreshold
+	view.isBounceEnabled = opt.isBounceEnabled
+	view.autoHideScrollBar = opt.autoHideScrollBar
+	view._widgetType = "tableView"
 		
 	-------------------------------------------------------
 	-- Assign properties/objects to the tableView
