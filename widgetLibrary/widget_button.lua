@@ -403,7 +403,7 @@ local function createUsingImageFiles( button, options )
 	end
 	
 	-- Touch listener for our button
-	function self:touch( event )
+	function button:touch( event )
 	
 		-- Manage touch events on the button
 		manageButtonTouch( self, event )
@@ -615,7 +615,7 @@ local function createUsingImageSheet( button, options )
 	end
 
 	-- Touch listener for our button
-	function self:touch( event )
+	function button:touch( event )
 		
 		-- Manage touch events on the button
 		manageButtonTouch( self, event )
