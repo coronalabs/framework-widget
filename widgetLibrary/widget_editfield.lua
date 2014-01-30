@@ -290,7 +290,7 @@ local function initEditField( editField, options )
     local buttons = opt.buttons;
     for i = 1,#buttons do
         local button = buttons[i]
-        if button.imageFrame or button.style or button.defaultFile then
+        if button.imageFrame or button.style or button.defaultFile or button.label then
             local btn = nil;
             if (button.kind == "icon") or (button.kind == "clear") then
                 if button.defaultFile then
@@ -312,6 +312,11 @@ local function initEditField( editField, options )
                     defaultFile = button.defaultFile,
                     overFile = button.overFile,
                     onPress = button.onPress,
+                    label = button.label,
+                    labelColor = button.labelColor,
+                    fontSize = button.fontSize,
+                    width = button.width,
+                    height = button.height,
                     onRelease = button.onRelease
                 }
                 )
@@ -364,7 +369,7 @@ local function initEditField( editField, options )
     local lineHeight = tmpField.contentHeight;
     tmpField:removeSelf();
     
-    editField._xOriginal = textLabelX - opt.textFieldHeightAdjust/2 + labelWidth + opt.textFieldXOffset  
+    editField._xOriginal = textLabelX - opt.textFieldHeightAdjust/2 + labelWidth + opt.textFieldXOffset + opt.spacing
     editField._yOriginal = yCenter + opt.textFieldHeightAdjust/2 + opt.textFieldYOffset
     if opt.native then
         viewTextField = native.newTextField(editField._xOriginal, editField._yOriginal, textFieldWidth+ opt.textFieldHeightAdjust,lineHeight + opt.textFieldHeightAdjust )
@@ -422,7 +427,7 @@ local function initEditField( editField, options )
           fontSize=opt.editFontSize,
           align = opt.align})
         fakeTextField.anchorX = 0;
-        fakeTextField.x = textLabelX + labelWidth + opt.fakeLabelXOffset ;
+        fakeTextField.x = textLabelX + labelWidth + opt.fakeLabelXOffset + opt.spacing;
         fakeTextField.y = yCenter + opt.fakeLabelYOffset ;
         fakeTextField:setFillColor(unpack(opt.editFontColor));	
         fakeTextField._viewTextField = viewTextField;
@@ -439,7 +444,6 @@ local function initEditField( editField, options )
     
     editField._textField = viewTextField
     editField._textLabelX = textLabelX
-    editField.submitOnClear = opt.submitOnClear;
     editField.maxChars = opt.maxChars;
     editField.allowedChars = opt.allowedChars;
     editField._isModified = false
@@ -470,8 +474,8 @@ local function initEditField( editField, options )
             editField:updateFakeContent("")
             editField._textField._originalText = ""
             event.target = editField;
-            if editField.submitOnClear and editField._onSubmit then
-                event.phase = "submitted"
+            if editField._onSubmit then
+                event.phase = "cleared"
                 editField._onSubmit(event);
             end
         end;
@@ -902,7 +906,6 @@ function M.new( options, theme )
     opt.labelWidth = customOptions.labelWidth
     opt.listener = customOptions.listener
     opt.onSubmit = customOptions.onSubmit
-    opt.submitOnClear = customOptions.submitOnClear or false;
     opt.editFontColor = customOptions.editFontColor or themeOptions.editTextColor or {0,0,0,1}
     opt.editHintColor = customOptions.editHintColor or {0.5,0.5,0.5,1}
     
