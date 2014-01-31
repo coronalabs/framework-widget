@@ -57,6 +57,14 @@ textFieldYOffset = 0,
 labelXoffset = 3,
 labelYoffset = 1,
 },
+["device-X10i"] = {
+fontScale = 1,
+textFieldHeightAdjust = 12,
+textFieldXOffset = 0,
+textFieldYOffset = -1,
+labelXoffset = 4,
+labelYoffset = 0,
+},
 }
 
 return M
