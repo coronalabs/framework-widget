@@ -366,7 +366,7 @@ local function initEditField( editField, options )
     end
     --calculate textheight for selected font
     local tmpField = display.newText("W",0,0,opt.editFont,opt.editFontSize)
-    local lineHeight = tmpField.contentHeight;
+    local lineHeight = tmpField.contentHeight + 2;
     tmpField:removeSelf();
     
     editField._xOriginal = textLabelX - opt.textFieldHeightAdjust/2 + labelWidth + opt.textFieldXOffset + opt.spacing

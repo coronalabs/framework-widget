@@ -65,6 +65,14 @@ textFieldYOffset = -1,
 labelXoffset = 4,
 labelYoffset = 0,
 },
+["device-GT-I9100"] = {
+fontScale = 1,
+textFieldHeightAdjust = 14,
+textFieldXOffset = -4,
+textFieldYOffset = -1,
+labelXoffset = 0,
+labelYoffset = 0,
+},
 }
 
 return M
