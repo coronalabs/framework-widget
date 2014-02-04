@@ -305,19 +305,34 @@ local function initEditField( editField, options )
                     
                 end
             else
+                local onPress  
+                if button.onPress then
+                    onPress = function (event)
+                        event.target = editField
+                        button.onPress(event)
+                    end
+                end
+                local onRelease  
+                if button.onRelease then
+                    onRelease = function (event)
+                        event.target = editField
+                        button.onRelease(event)
+                    end
+                end
+                
                 btn = _widget.newButton( 
                 {sheet = button.imageSheet or imageSheet,
                     defaultFrame = button.defaultFrame or themeData:getFrameIndex( opt.themeOptions[ button.style] ),
                     overFrame   = button.overFrame or themeData:getFrameIndex( opt.themeOptions[tostring( button.style).."_over"] ),
                     defaultFile = button.defaultFile,
                     overFile = button.overFile,
-                    onPress = button.onPress,
+                    onPress = onPress,
                     label = button.label,
                     labelColor = button.labelColor,
                     fontSize = button.fontSize,
                     width = button.width,
                     height = button.height,
-                    onRelease = button.onRelease
+                    onRelease = onRelease
                 }
                 )
             end    
@@ -625,6 +640,7 @@ local function initEditField( editField, options )
             if editField._onClick == nil then
                 editField:_swapFakeField( false )
             else    
+                event.target = editField
                 editField._onClick(event)
             end
         elseif ( "ended" == phase or "off" == phase or "cancelled" == phase )  then
