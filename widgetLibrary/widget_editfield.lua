@@ -365,8 +365,8 @@ local function initEditField( editField, options )
          - 2* opt.spacing;
     end
     --calculate textheight for selected font
-    local tmpField = display.newText("W",0,0,opt.editFont,opt.editFontSize)
-    local lineHeight = tmpField.contentHeight + 2;
+    local tmpField = display.newText("qÖ",0,0,opt.editFont,opt.editFontSize)
+    local lineHeight = tmpField.contentHeight + efDefaults.textLineAdjust;
     tmpField:removeSelf();
     
     editField._xOriginal = textLabelX - opt.textFieldHeightAdjust/2 + labelWidth + opt.textFieldXOffset + opt.spacing
@@ -697,9 +697,10 @@ local function initEditField( editField, options )
             local sText = event.text; 
             local textLen = string.len(sText);
             if editField.allowedChars and event.newCharacters  then
-                if not string.match(editField.allowedChars, event.newCharacters) then
-                    --remove the offending character
-                    event.target.text = string.gsub(sText, event.newCharacters,"");
+                if not string.find(editField.allowedChars, event.newCharacters,1,true) then
+                    --remove escape characters
+                    local plainChars = string.gsub(event.newCharacters,"(%W)","%%%1")
+                    event.target.text = string.gsub(sText, plainChars, "")
                 end
             end
             if editField.maxChars > 0 then

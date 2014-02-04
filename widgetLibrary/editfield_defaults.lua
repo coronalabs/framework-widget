@@ -1,38 +1,49 @@
-local clbData = require("widgets.editfield_calibrationdb")
 
 local M = {}
 M.androidKeyboardHeight = 350
 
 if "Android" == system.getInfo("platformName") then
-    M.textFieldYOffset  = 0
-    M.textFieldXOffset  = 0
-    M.fakeLabelYOffset  = 2
-    M.fakeLabelXOffset  = 3
-    M.textFieldHeightAdjust = 12
-elseif  system.getInfo("environment") == "simulator" then   
+    M.textFieldHeightAdjust = 18
+    M.textLineAdjust    = 0
+    M.textFieldYOffset  = - (M.textFieldHeightAdjust / 3)
+    M.textFieldXOffset  = -1
+    M.fakeLabelYOffset  = 0
+    M.fakeLabelXOffset  = 0
+    
+elseif "simulator" == system.getInfo("environment")  then   
+    M.textLineAdjust    = 0
     M.textFieldYOffset = -1
     M.textFieldXOffset = 0
     M.fakeLabelYOffset = 0
     M.fakeLabelXOffset = 1
     M.textFieldHeightAdjust = 0;
 else
+    M.textLineAdjust   = 0
     M.textFieldYOffset = 0
     M.textFieldXOffset = 0
-    M.fakeLabelYOffset = 0
+    M.fakeLabelYOffset = M.textLineAdjust / 2
     M.fakeLabelXOffset = 0
     M.textFieldHeightAdjust = 0;
     
 end
 function M:calcFontSize()
-    local sysType = system.getInfo("architectureInfo")
     local environment = system.getInfo("environment")
-    --local fontScale = (display.pixelWidth / display.contentWidth) * display.contentScaleX;
+    --default scaing for simulator
     local fontScale = (( display.contentWidth - (display.screenOriginX * 2) ) / display.contentScaleX) / display.contentWidth
-    if system.getInfo("platformName") == "Android" then                
+    if system.getInfo("platformName") == "Android" then       
+        --default font scaling for all versions
         fontScale = (display.pixelWidth / display.contentWidth) * 0.5; 
+       --check if its an Android version 2 device
+        local osVersion = system.getInfo("platformVersion")
+        if osVersion then
+            local pos = string.find(osVersion,"2.")
+            if pos == 1 then
+               fontScale = 1 
+          end   
+        end    
     elseif  environment == "simulator" then    
         --in Corona simulator, check if its a tall device, which is probably Zoomed out
-        if display.pixelHeight > 1000 then
+        if display.pixelHeight > 800 then
             fontScale = fontScale * .5
         end
     else    
@@ -127,17 +138,6 @@ end
 
 M.fontScale = M:calcFontSize()
 
-local calibration = clbData[system.getInfo( "environment").."-".. system.getInfo("model")]
-if calibration then
-    M.fontScale = calibration.fontScale
-    M.textFieldHeightAdjust = calibration.textFieldHeightAdjust
-    M.textFieldYOffset  = calibration.textFieldYOffset
-    M.textFieldXOffset  = calibration.textFieldXOffset
-    M.fakeLabelYOffset  = calibration.labelYoffset
-    M.fakeLabelXOffset  = calibration.labelXoffset
-    
-    
-end
 
 return M
 
