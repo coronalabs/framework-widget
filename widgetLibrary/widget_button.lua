@@ -274,6 +274,10 @@ local function createUsingText( button, options )
 	-- Lose focus function
 	function button:_loseFocus()
 		self._view:_setState( "default" )
+		-- Create the alpha fade if ios7
+		if _widget.isSeven() then
+			transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+		end
 	end
 	
 	-- Finalize function
@@ -485,6 +489,10 @@ local function createUsingImageFiles( button, options )
 	-- Lose focus function
 	function button:_loseFocus()
 		self._view:_setState( "default" )
+		-- Create the alpha fade if ios7
+		if _widget.isSeven() then
+			transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+		end
 	end
 	
 	-- Finalize function
@@ -696,6 +704,10 @@ local function createUsingImageSheet( button, options )
 	-- Lose focus function
 	function button:_loseFocus()
 		self._view:_setState( "default" )
+		-- Create the alpha fade if ios7
+		if _widget.isSeven() then
+			transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+		end
 	end
 	
 	-- Finalize function
@@ -1195,6 +1207,10 @@ local function createUsing9Slice( button, options )
 	-- Lose focus function
 	function button:_loseFocus()
 		self._view:_setState( "default" )
+		-- Create the alpha fade if ios7
+		if _widget.isSeven() then
+			transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+		end
 	end
 		
 	-- Finalize function
