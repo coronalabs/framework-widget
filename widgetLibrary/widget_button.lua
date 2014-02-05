@@ -80,7 +80,7 @@ local function manageButtonTouch( view, event )
 		
 	elseif view._isFocus then
 		if "moved" == phase then
-			if not _widget._isWithinBounds( view, event ) then
+			if not _widget._isWithinBounds( view.parent, event ) then
 				-- Set the button to it's default image state
 				view:_setState( "default" )
 				
@@ -103,7 +103,7 @@ local function manageButtonTouch( view, event )
 			end
 		
 		elseif "ended" == phase or "cancelled" == phase then
-			if _widget._isWithinBounds( view, event ) then
+			if _widget._isWithinBounds( view.parent, event ) then
 				-- If there is a onRelease method ( and not a onEvent method )
 				if view._onRelease and not view._onEvent then
 					view._onRelease( event )
@@ -126,7 +126,8 @@ local function manageButtonTouch( view, event )
 	
 	-- If there is a onEvent method ( and not a onPress or onRelease method )
 	if view._onEvent and not view._onPress and not view._onRelease then
-		if not _widget._isWithinBounds( view, event ) and "ended" == phase then
+		-- corrected: phase becomes cancelled if outside the bounds of the widget, not the view's.
+		if not _widget._isWithinBounds( view.parent, event ) and "ended" == phase then
 			event.phase = "cancelled"
 			
 		end
@@ -211,17 +212,16 @@ local function createUsingText( button, options )
 	end
 	
 	-- Touch listener for our button
-	function view:touch( event )
+	function button:touch( event )
 		-- Set the target to the view's parent group (the button object)
-		event.target = self.parent
+		event.target = self
 		
 		-- Manage touch events on the button
-		manageButtonTouch( self, event )
-		
+		manageButtonTouch( self._view, event )
 		return true
 	end
 	
-	view:addEventListener( "touch" )
+	button:addEventListener( "touch", button )
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
@@ -403,24 +403,16 @@ local function createUsingImageFiles( button, options )
 	end
 	
 	-- Touch listener for our button
-	function view:touch( event )
+	function button:touch( event )
 		-- Set the target to the view's parent group (the button object)
-		event.target = self.parent
-		
+		event.target = self
 		-- Manage touch events on the button
-		manageButtonTouch( self, event )
+		manageButtonTouch( self._view, event )
 		
 		return true
 	end
 	
-	-- Touch listener for the label
-	function view._label:touch( event )
-		view:touch( event )
-	end
-	
-	view:addEventListener( "touch" )
-	-- add the touch to the label as well
-	view._label:addEventListener( "touch" )
+	button:addEventListener( "touch", button )
 		
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
@@ -624,24 +616,16 @@ local function createUsingImageSheet( button, options )
 	end
 
 	-- Touch listener for our button
-	function view:touch( event )
+	function button:touch( event )
 		-- Set the target to the view's parent group (the button object)
-		event.target = self.parent
+		event.target = self
 		
 		-- Manage touch events on the button
-		manageButtonTouch( self, event )
-				
+		manageButtonTouch( self._view, event )
 		return true
 	end
 	
-	-- Touch listener for the label
-	function view._label:touch( event )
-		view:touch( event )
-	end
-	
-	view:addEventListener( "touch" )
-	-- add the touch to the label as well
-	view._label:addEventListener( "touch" )
+	button:addEventListener( "touch", button )
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
@@ -749,7 +733,8 @@ local function createUsing9Slice( button, options )
 	end
 	
 	-- The view is the button (group)
-	view = button
+	view = display.newGroup()
+	button:insert( view )
 	
 	-- Imagesheet options
 	local sheetOptions =
@@ -1102,14 +1087,13 @@ local function createUsing9Slice( button, options )
 	end
 
 	-- Touch listener for our button
-	function view:touch( event )
+	function button:touch( event )
 		-- Manage touch events on the button
-		manageButtonTouch( self, event )
-		
+		manageButtonTouch( self._view, event )
 		return true
 	end
 	
-	view:addEventListener( "touch" )
+	button:addEventListener( "touch", button )
 	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
