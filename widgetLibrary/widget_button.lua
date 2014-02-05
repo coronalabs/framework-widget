@@ -887,25 +887,25 @@ local function createUsing9Slice( button, options )
 	
 	
 	-- Create the left portion of the button
-	viewTopLeft = display.newSprite( button, imageSheet, sheetOptions.viewTopLeft )
-	viewMiddleLeft = display.newSprite( button, imageSheet, sheetOptions.viewMiddleLeft )
-	viewBottomLeft = display.newSprite( button, imageSheet, sheetOptions.viewBottomLeft )
+	viewTopLeft = display.newSprite( view, imageSheet, sheetOptions.viewTopLeft )
+	viewMiddleLeft = display.newSprite( view, imageSheet, sheetOptions.viewMiddleLeft )
+	viewBottomLeft = display.newSprite( view, imageSheet, sheetOptions.viewBottomLeft )
 
 	-- Create the right portion of the button
-	viewTopRight = display.newSprite( button, imageSheet, sheetOptions.viewTopRight )
-	viewMiddleRight = display.newSprite( button, imageSheet, sheetOptions.viewMiddleRight )
-	viewBottomRight = display.newSprite( button, imageSheet, sheetOptions.viewBottomRight )
+	viewTopRight = display.newSprite( view, imageSheet, sheetOptions.viewTopRight )
+	viewMiddleRight = display.newSprite( view, imageSheet, sheetOptions.viewMiddleRight )
+	viewBottomRight = display.newSprite( view, imageSheet, sheetOptions.viewBottomRight )
 	
 	-- Create the middle portion of the button
-	viewTopMiddle = display.newSprite( button, imageSheet, sheetOptions.viewTopMiddle )
-	viewMiddle = display.newSprite( button, imageSheet, sheetOptions.viewMiddle )
-	viewBottomMiddle = display.newSprite( button, imageSheet, sheetOptions.viewBottomMiddle )
+	viewTopMiddle = display.newSprite( view, imageSheet, sheetOptions.viewTopMiddle )
+	viewMiddle = display.newSprite( view, imageSheet, sheetOptions.viewMiddle )
+	viewBottomMiddle = display.newSprite( view, imageSheet, sheetOptions.viewBottomMiddle )
 
 	-- Create the label (either embossed or standard)
 	if opt.embossedLabel then
-		viewLabel = display.newEmbossedText( button, opt.label, 0, 0, opt.font, opt.fontSize )
+		viewLabel = display.newEmbossedText( view, opt.label, 0, 0, opt.font, opt.fontSize )
 	else
-		viewLabel = display.newText( button, opt.label, 0, 0, opt.font, opt.fontSize )
+		viewLabel = display.newText( view, opt.label, 0, 0, opt.font, opt.fontSize )
 	end
 	
 	----------------------------------
