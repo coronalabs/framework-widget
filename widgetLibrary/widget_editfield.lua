@@ -32,6 +32,7 @@
 local _widget = require( "widget" )
 local _storyboard = require("storyboard")
 local efDefaults = require("widgets.editfield_defaults")
+local version = "1.01"
 
 local M = 
 {
@@ -830,7 +831,9 @@ local function initEditField( editField, options )
         return self._isModified; 
     end
     
-    
+    function editField:getVersion()
+        return version
+    end
     
     -- Finalize function
     function editField:_finalize()
