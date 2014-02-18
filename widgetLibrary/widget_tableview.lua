@@ -1121,8 +1121,6 @@ local function createTableView( tableView, options )
 		
 		-- Import the colours definition from the theme params
 		local colours = self._themeParams.colours
-		local rowColor = colours.rowColor
-		local catColor = colours.catColor
 		
 		-- Retrieve passed in row customization variables
 		local rowId = options.id or table.maxn(self._rows)
@@ -1130,7 +1128,7 @@ local function createTableView( tableView, options )
 		local rowWidth = self._width
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
-		local rowColor = options.rowColor or rowColor
+		local rowColor = options.rowColor or colours.rowColor
 		local lineColor = options.lineColor or colours.lineColor
 		local noLines = self._noLines or false
 
@@ -1138,17 +1136,17 @@ local function createTableView( tableView, options )
 		local rowParams = options.params or {}
 		-- Set defaults for row's color
 		if not rowColor.default then
-			rowColor.default = rowColorDefault
+			rowColor.default = colours.rowColor.default
 		end
 		
 		-- Set defaults for row's over color
 		if not rowColor.over then
-			rowColor.over = rowColorOver
+			rowColor.over = colours.rowColor.over
 		end
 		
 		-- set the category colours
 		if isRowCategory then
-			rowColor = options.rowColor or catColor
+			rowColor = options.rowColor or colours.catColor
 		end
 		
 		-- Assign public properties to the row
