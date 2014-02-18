@@ -369,6 +369,13 @@ local function createTableView( tableView, options )
 							if self._targetRow._wasTouched then
 								-- Set the row cell's fill color
 								self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
+								-- Set back the separators
+								self._targetRow._separator.isVisible = true
+								if view._rows[ self._targetRow.index - 1 ] then
+									if view._rows[ self._targetRow.index - 1 ]._view._separator then
+										view._rows[ self._targetRow.index - 1 ]._view._separator.isVisible = true
+									end
+								end
 								-- The row was no longer touched
 								self._targetRow._wasTouched = false
 							
@@ -466,6 +473,12 @@ local function createTableView( tableView, options )
 				-- Set the row cell's fill color, if the row's view still exists (not being deleted)
 				if self._targetRow._cell then
 					self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
+					self._targetRow._separator.isVisible = true
+					if view._rows[ self._targetRow.index - 1 ] then
+						if view._rows[ self._targetRow.index - 1 ]._view._separator then
+							view._rows[ self._targetRow.index - 1 ]._view._separator.isVisible = true
+						end
+					end
 				end
 				
 				-- Execute the row's touch event 
@@ -553,6 +566,12 @@ local function createTableView( tableView, options )
 				
 						-- Set the row cell's fill color
 						self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.over ) )
+						self._targetRow._separator.isVisible = false
+						if view._rows[ self._targetRow.index - 1 ] then
+							if view._rows[ self._targetRow.index - 1 ]._view._separator then
+								view._rows[ self._targetRow.index - 1 ]._view._separator.isVisible = false
+							end
+						end
 				
 						-- Execute the row's onRowTouch listener
 						self._onRowTouch( newEvent )
@@ -670,7 +689,7 @@ local function createTableView( tableView, options )
 			local rightPadding = self._themeParams.separatorRightPadding
 			
 			-- Create the row's cell
-			local rowCell = display.newRect( category, leftPadding, 0, currentRow._width - rightPadding, currentRow._height )
+			local rowCell = display.newRect( category, 0, 0, currentRow._width, currentRow._height )
 			local rowCellX = rowCell.contentWidth * 0.5
 			if isGraphicsV1 then
 				rowCellX = 0
@@ -905,11 +924,23 @@ local function createTableView( tableView, options )
 
 				-- Set the row cell's fill color
 				row._cell:setFillColor( unpack( row._rowColor.over ) )
+				row._separator.isVisible = false
+				if view._rows[ row.index - 1 ] then
+					if view._rows[ row.index - 1 ]._view._separator then
+						view._rows[ row.index - 1 ]._view._separator.isVisible = false
+					end
+				end
 		
 				-- After a little delay, set the row's fill color back to default
 				--timer.performWithDelay( 100, function()
 					-- Set the row cell's fill color
 					row._cell:setFillColor( unpack( row._rowColor.default ) )
+					row._separator.isVisible = true
+					if view._rows[ row.index - 1 ] then
+						if view._rows[ row.index - 1 ]._view._separator then
+							view._rows[ row.index - 1 ]._view._separator.isVisible = true
+						end
+					end
 				--end)
 
 				-- Execute the row's onRowTouch listener
@@ -949,7 +980,7 @@ local function createTableView( tableView, options )
 				currentRow._view = display.newGroup()
 				
 				-- Create the row's cell
-				local rowCell = display.newRect( currentRow._view, 0, 0, currentRow._width, currentRow._height )
+				local rowCell = display.newRect( currentRow._view, 0, 0, currentRow._width, currentRow._height ) 
 				rowCell.x = rowCell.contentWidth * 0.5
 				rowCell.y = rowCell.contentHeight * 0.5
 				rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
@@ -967,18 +998,20 @@ local function createTableView( tableView, options )
 					local leftPadding = view._themeParams.separatorLeftPadding
 					local rightPadding = view._themeParams.separatorRightPadding
 					
-					rowLine = display.newLine( currentRow._view, leftPadding, rowCell.y, currentRow._width - rightPadding, rowCell.y )
-
+					rowLine = display.newRect( currentRow._view, leftPadding, rowCell.y, currentRow._width - rightPadding - leftPadding, 1 )
 					if isGraphicsV1 then
 						rowLine:setReferencePoint( display.CenterReferencePoint )
 						rowLine.x = rowCell.x + math.floor( leftPadding * 0.5 )
 					else
 						rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
-						rowLine.x = leftPadding
+						rowLine.x = leftPadding + rowLine.contentWidth * 0.5
 					end
 
-					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 )
-					rowLine:setStrokeColor( unpack( currentRow._lineColor ) )					
+					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 ) - rowLine.contentHeight * 0.5
+					rowLine:setFillColor( unpack( currentRow._lineColor ) )	
+					
+					-- assign the reference to the view
+					currentRow._view._separator = rowLine				
 				end
 			
 				-- Set the row's reference point to it's center point (just incase)
@@ -1132,18 +1165,18 @@ local function createTableView( tableView, options )
 		if table.maxn(self._rows) <= 1 then
 			local rowY = ( self._rows[table.maxn(self._rows)]._height * 0.5 ) - self.parent.height * 0.5
 			if isGraphicsV1 then
-				rowY = ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1
+				rowY = ( self._rows[table.maxn(self._rows)]._height * 0.5 )
 			end
 			self._rows[table.maxn(self._rows)].y = rowY
 		else
 			if ( self._rows[table.maxn(self._rows) - 1].y ) then
 			self._rows[table.maxn(self._rows)].y = ( self._rows[table.maxn(self._rows) - 1].y + ( self._rows[table.maxn(self._rows) - 1]._height * 0.5 ) )
-			 + ( self._rows[table.maxn(self._rows)]._height * 0.5 ) + 1	
+			 + ( self._rows[table.maxn(self._rows)]._height * 0.5 )
 			end
 		end
 		
 		-- Update the scrollHeight of our view
-		self._scrollHeight = self._scrollHeight + self._rows[table.maxn(self._rows)]._height + 1
+		self._scrollHeight = self._scrollHeight + self._rows[table.maxn(self._rows)]._height
 		
 		-- Reposition the scrollbar, if it exists
 		if self._scrollBar then
