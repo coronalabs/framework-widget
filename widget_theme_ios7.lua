@@ -61,6 +61,7 @@ theme.button =
     },
 
 	emboss = false,
+	alphaFade = true,
 }
 
 -- convert to v1 style values if it's the case
@@ -317,5 +318,18 @@ theme.tableView =
 		pickerRowColor = { 0.60 },
 	},
 }
+
+-- convert to v1 style values if it's the case
+if isByteColorRange then
+	convertToV1( theme.tableView.colours.rowColor.default )
+	convertToV1( theme.tableView.colours.rowColor.over )
+	convertToV1( theme.tableView.colours.catColor.default )
+	convertToV1( theme.tableView.colours.catColor.over )
+	convertToV1( theme.tableView.colours.lineColor )
+	convertToV1( theme.tableView.colours.rowColorDefault )
+	convertToV1( theme.tableView.colours.rowColorOver )
+	convertToV1( theme.tableView.colours.whiteColor )
+	convertToV1( theme.tableView.colours.pickerRowColor )
+end
 
 return theme

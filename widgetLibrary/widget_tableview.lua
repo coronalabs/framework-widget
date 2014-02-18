@@ -38,7 +38,6 @@ local _widget = require( "widget" )
 local _momentumScrolling = require( "widget_momentumScrolling" )
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
-local isByteColorRange = display.getDefault( "isByteColorRange" )
 
 -- Localize math functions
 local mAbs = math.abs
@@ -1418,19 +1417,6 @@ end
 function M.new( options, theme )	
 	local customOptions = options or {}
 	local themeOptions = theme or {}
-	
-	-- if we are in compatibility mode, convert the colours
-	if isByteColorRange then
-		_widget._convertColorToV1( themeOptions.colours.whiteColor )
-		_widget._convertColorToV1( themeOptions.colours.rowColor.default )
-		_widget._convertColorToV1( themeOptions.colours.rowColor.over )
-		_widget._convertColorToV1( themeOptions.colours.catColor.default )
-		_widget._convertColorToV1( themeOptions.colours.catColor.over )
-		_widget._convertColorToV1( themeOptions.colours.lineColor )
-		_widget._convertColorToV1( themeOptions.colours.rowColorDefault )
-		_widget._convertColorToV1( themeOptions.colours.rowColorOver )
-		_widget._convertColorToV1( themeOptions.colours.pickerRowColor )
-	end
 	
 	-- Create a local reference to our options table
 	local opt = M._options

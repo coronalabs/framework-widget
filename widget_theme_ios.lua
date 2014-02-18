@@ -9,6 +9,17 @@ local imageSuffix = display.imageSuffix or ""
 local sheetFile = "widget_theme_ios.png"
 local sheetData = "widget_theme_ios_sheet"
 
+-- Check for graphics V1 compatibility mode set
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
+
+-- conversion function
+local function convertToV1( channels )
+    for i=1,#channels do
+        channels[i] = 255 * channels[i]
+    end
+end
+
 -----------------------------------------------------------------------------------------
 -- button
 -----------------------------------------------------------------------------------------
@@ -49,8 +60,14 @@ theme.button =
 		over = { 0, 0, 0 },
 	},
 	emboss = true,
+	alphaFade = false,
 }
 
+-- convert to v1 style values if it's the case
+if isByteColorRange then
+	convertToV1( theme.button.labelColor.default )
+	convertToV1( theme.button.labelColor.over )
+end
 
 -----------------------------------------------------------------------------------------
 -- slider
@@ -286,5 +303,21 @@ theme.tableView =
 		pickerRowColor = { 0.60 },
 	},
 }
+
+-- convert to v1 style values if it's the case
+if isByteColorRange then
+	convertToV1( theme.tableView.colours.rowColor.default )
+	convertToV1( theme.tableView.colours.rowColor.over )
+	for i = 1, #theme.tableView.colours.rowColor.over do
+		print( theme.tableView.colours.rowColor.over[ i ] )
+	end
+	convertToV1( theme.tableView.colours.catColor.default )
+	convertToV1( theme.tableView.colours.catColor.over )
+	convertToV1( theme.tableView.colours.lineColor )
+	convertToV1( theme.tableView.colours.rowColorDefault )
+	convertToV1( theme.tableView.colours.rowColorOver )
+	convertToV1( theme.tableView.colours.whiteColor )
+	convertToV1( theme.tableView.colours.pickerRowColor )
+end
 
 return theme
