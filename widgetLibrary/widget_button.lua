@@ -39,14 +39,6 @@ local _widget = require( "widget" )
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 local isByteColorRange = display.getDefault( "isByteColorRange" )
 
--- define a default color set for both graphics modes
-local buttonDefault
-if isByteColorRange then
-    buttonDefault = { default = { 0, 0, 0 }, over = { 255, 255, 255 } }
-else
-    buttonDefault = { default = { 0, 0, 0 }, over = { 1, 1, 1 } }
-end
-
 -- Function to handle touches on a widget button, function is common to all widget button creation types (ie image files, imagesheet, and 9 slice button creation)
 local function manageButtonTouch( view, event )
 	local phase = event.phase
@@ -60,9 +52,13 @@ local function manageButtonTouch( view, event )
 		-- Set the button to it's over image state
 		view:_setState( "over" )
 		
-		-- Create the alpha fade if ios7
-		if _widget.isSeven() then
-			transition.to( view._label, { time = 50, alpha = 0.5 } )
+		-- Create the alpha fade if the theme has it
+		if view._hasAlphaFade then
+			if view._label then
+				transition.to( view._label, { time = 50, alpha = 0.5 } )
+			else
+				transition.to( view, { time = 50, alpha = 0.5 } )
+			end
 		end
 
 		-- If there is a onPress method ( and not a onEvent method )
@@ -84,9 +80,13 @@ local function manageButtonTouch( view, event )
 				-- Set the button to it's default image state
 				view:_setState( "default" )
 				
-				-- Create the alpha fade if ios7
-				if _widget.isSeven() then
-					transition.to( view._label, { time = 50, alpha = 1.0 } )
+				-- Create the alpha fade if the theme has it
+				if view._hasAlphaFade then
+					if view._label then
+						transition.to( view._label, { time = 50, alpha = 1.0 } )
+					else
+						transition.to( view, { time = 50, alpha = 1.0 } )
+					end
 				end
 				
 			else
@@ -94,9 +94,13 @@ local function manageButtonTouch( view, event )
 					-- Set the button to it's over image state
 					view:_setState( "over" )
 					
-					-- Create the alpha fade if ios7
-					if _widget.isSeven() then
-						transition.to( view._label, { time = 50, alpha = 0.5 } )
+					-- Create the alpha fade if the theme has it
+					if view._hasAlphaFade then
+						if view._label then
+							transition.to( view._label, { time = 50, alpha = 0.5 } )
+						else
+							transition.to( view, { time = 50, alpha = 0.5 } )
+						end
 					end
 					
 				end
@@ -113,9 +117,13 @@ local function manageButtonTouch( view, event )
 			-- Set the button to it's default image state
 			view:_setState( "default" )
 
-			-- Create the alpha fade if ios7
-			if _widget.isSeven() then
-				transition.to( view._label, { time = 50, alpha = 1.0 } )
+			-- Create the alpha fade if the theme has it
+			if view._hasAlphaFade then
+				if view._label then
+					transition.to( view._label, { time = 50, alpha = 1.0 } )
+				else
+					transition.to( view, { time = 50, alpha = 1.0 } )
+				end
 			end
 			
 			-- Remove focus from the button
@@ -174,6 +182,7 @@ local function createUsingText( button, options )
 	view._pressedState = "default"
 	view._fontSize = opt.fontSize
 	view._labelColor = view._labelColor
+	view._hasAlphaFade = opt.hasAlphaFade
 	
 	-- Methods
 	view._onPress = opt.onPress
@@ -274,9 +283,13 @@ local function createUsingText( button, options )
 	-- Lose focus function
 	function button:_loseFocus()
 		self._view:_setState( "default" )
-		-- Create the alpha fade if ios7
-		if _widget.isSeven() then
-			transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+		-- Create the alpha fade if the theme has it
+		if self._view._hasAlphaFade then
+			if self._view._label then
+				transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+			else
+				transition.to( self._view, { time = 50, alpha = 1.0 } )
+			end
 		end
 	end
 	
@@ -368,6 +381,7 @@ local function createUsingImageFiles( button, options )
 	view._labelXOffset = opt.labelXOffset
 	view._labelYOffset = opt.labelYOffset
 	view._over = viewOver
+	view._hasAlphaFade = opt.hasAlphaFade
 	
 	-- Methods
 	view._onPress = opt.onPress
@@ -489,9 +503,13 @@ local function createUsingImageFiles( button, options )
 	-- Lose focus function
 	function button:_loseFocus()
 		self._view:_setState( "default" )
-		-- Create the alpha fade if ios7
-		if _widget.isSeven() then
-			transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+		-- Create the alpha fade if the theme has it
+		if self._view._hasAlphaFade then
+			if self._view._label then
+				transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+			else
+				transition.to( self._view, { time = 50, alpha = 1.0 } )
+			end
 		end
 	end
 	
@@ -585,6 +603,7 @@ local function createUsingImageSheet( button, options )
 	view._labelAlign = opt.labelAlign
 	view._labelXOffset = opt.labelXOffset
 	view._labelYOffset = opt.labelYOffset
+	view._hasAlphaFade = opt.hasAlphaFade
 	
 	-- Methods
 	view._onPress = opt.onPress
@@ -704,9 +723,13 @@ local function createUsingImageSheet( button, options )
 	-- Lose focus function
 	function button:_loseFocus()
 		self._view:_setState( "default" )
-		-- Create the alpha fade if ios7
-		if _widget.isSeven() then
-			transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+		-- Create the alpha fade if the theme has it
+		if self._view._hasAlphaFade then
+			if self._view._label then
+				transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+			else
+				transition.to( self._view, { time = 50, alpha = 1.0 } )
+			end
 		end
 	end
 	
@@ -1056,6 +1079,7 @@ local function createUsing9Slice( button, options )
 	view._topRight = viewTopRight
 	view._middleRight = viewMiddleRight
 	view._bottomRight = viewBottomRight
+	view._hasAlphaFade = opt.hasAlphaFade
 	
 	-- Methods
 	view._onPress = opt.onPress
@@ -1207,9 +1231,13 @@ local function createUsing9Slice( button, options )
 	-- Lose focus function
 	function button:_loseFocus()
 		self._view:_setState( "default" )
-		-- Create the alpha fade if ios7
-		if _widget.isSeven() then
-			transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+		-- Create the alpha fade if the theme has it
+		if self._view._hasAlphaFade then
+			if self._view._label then
+				transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+			else
+				transition.to( self._view, { time = 50, alpha = 1.0 } )
+			end
 		end
 	end
 		
@@ -1252,15 +1280,9 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.label = customOptions.label or ""
-	opt.labelColor = customOptions.labelColor or buttonDefault	
+	opt.labelColor = customOptions.labelColor or themeOptions.labelColor
 	opt.font = customOptions.font or themeOptions.font or native.systemFont
 	opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 14
-	
-	if _widget.isSeven() then
-		opt.font = customOptions.font or themeOptions.font or "HelveticaNeue-Light"
-		opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 17
-		opt.labelColor = customOptions.labelColor or themeOptions.labelColor or buttonDefault
-	end
 	
 	opt.labelAlign = customOptions.labelAlign or "center"
 	opt.labelXOffset = customOptions.labelXOffset or 0
@@ -1268,6 +1290,9 @@ function M.new( options, theme )
 	opt.embossedLabel = customOptions.emboss or themeOptions.emboss or false
 	opt.isEnabled = customOptions.isEnabled
 	opt.textOnlyButton = customOptions.textOnly or false
+	
+	-- set the alpha fade param if the theme declares it
+	opt.hasAlphaFade = themeOptions.alphaFade or false
 	
 	-- If the user didn't pass in a isEnabled flag, set it to true
 	if nil == opt.isEnabled then
