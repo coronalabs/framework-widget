@@ -268,4 +268,23 @@ theme.searchField =
 	textFieldHeight = 20,
 }
 
+-----------------------------------------------------------------------------------------
+-- tableView
+-----------------------------------------------------------------------------------------
+
+theme.tableView = 
+{
+    separatorLeftPadding = 0,
+    separatorRightPadding = 0,
+    colours = {
+		rowColor = { default = { 1, 1, 1, 1 }, over = { 0.11, 0.56, 1, 1 } },
+		lineColor = { 0.86, 0.86, 0.86, 1 },
+		catColor = { default = { 0.58, 0.62, 0.70, 0.78 }, over = { 0.58, 0.62, 0.70, 0.78 } },
+		rowColorDefault = { 1, 1, 1, 1 },
+		rowColorOver = { 0.11, 0.56, 1, 1 },
+		whiteColor = { 1, 1, 1, 1 },
+		pickerRowColor = { 0.60 },
+	},
+}
+
 return theme
