@@ -34,7 +34,6 @@ package.preload.widget_switch = onRequireWidgetLibrary
 package.preload.widget_tabbar = onRequireWidgetLibrary
 package.preload.widget_tableview = onRequireWidgetLibrary
 
-
 -- For xcode console output
 io.output():setvbuf( "no" )
 
