@@ -40,33 +40,6 @@ local _momentumScrolling = require( "widget_momentumScrolling" )
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 local isByteColorRange = display.getDefault( "isByteColorRange" )
 
-local rowColorIos6 = { default = { 1, 1, 1, 1 }, over = { 0.11, 0.56, 1, 1 } }
-local lineColorIos6 = { 0.86, 0.86, 0.86, 1 }
-local rowColorIos7 = { default = { 1, 1, 1, 1 }, over = { 0.85, 0.85, 0.85, 1 } }
-local catColorIos7 = { default = { 0.96, 0.96, 0.96, 1 }, over = { 0.96, 0.96, 0.96, 1 } }
-local lineColorIos7 = { 0.78, 0.78, 0.80, 1 }
-local lineCatColorIos7 = { 0.78, 0.78, 0.80, 1 }
-local rowColorDefault = { 1, 1, 1, 1 }
-local rowColorOver = { 0.11, 0.56, 1, 1 }
-local whiteColor = { 1, 1, 1, 1 }
-local pickerRowColor = { 0.60 }
-
-if isByteColorRange then
-	_widget._convertColorToV1( rowColorIos6.default )
-	_widget._convertColorToV1( rowColorIos6.over )
-	_widget._convertColorToV1( lineColorIos6 )
-	_widget._convertColorToV1( rowColorIos7.default )
-	_widget._convertColorToV1( rowColorIos7.over )
-	_widget._convertColorToV1( catColorIos7.default )
-	_widget._convertColorToV1( catColorIos7.over )
-	_widget._convertColorToV1( lineColorIos7 )
-	_widget._convertColorToV1( lineCatColorIos7 )
-	_widget._convertColorToV1( rowColorDefault )
-	_widget._convertColorToV1( rowColorOver )
-	_widget._convertColorToV1( whiteColor )
-	_widget._convertColorToV1( pickerRowColor )
-end
-
 -- Localize math functions
 local mAbs = math.abs
 
@@ -167,6 +140,8 @@ local function createTableView( tableView, options )
 	view._updateRuntime = false
 	view._numberOfRows = 0
 	view._rowTouchDelay = opt.rowTouchDelay
+	-- set the passed theme params on the view
+	view._themeParams = opt.themeParams
 	
 	-- assign the momentum property
 	view.scrollStopThreshold = opt.scrollStopThreshold
@@ -362,11 +337,11 @@ local function createTableView( tableView, options )
 				end
 			end	
 			
-			if _widget.isSeven() and self._isUsedInPickerWheel then
+			if self._isUsedInPickerWheel then
 				for i = 1, #self._rows do
 					-- if the row is on screen, set it to the default color
 					if nil ~= self._rows[ i ]._view then
-						self._rows[ i ]._view[ 2 ]:setFillColor( unpack( pickerRowColor ) )
+						self._rows[ i ]._view[ 2 ]:setFillColor( unpack( self._themeParams.colours.pickerRowColor ) )
 					end
 				end
 			end
@@ -691,8 +666,12 @@ local function createTableView( tableView, options )
 				category.anchorX = 0; category.anchorY = 0
 			end
 			
+			-- get the padding values
+			local leftPadding = self._themeParams.separatorLeftPadding
+			local rightPadding = self._themeParams.separatorRightPadding
+			
 			-- Create the row's cell
-			local rowCell = display.newRect( category, 0, 0, currentRow._width, currentRow._height )
+			local rowCell = display.newRect( category, leftPadding, 0, currentRow._width - rightPadding, currentRow._height )
 			local rowCellX = rowCell.contentWidth * 0.5
 			if isGraphicsV1 then
 				rowCellX = 0
@@ -701,16 +680,13 @@ local function createTableView( tableView, options )
 			rowCell.y = rowCell.contentHeight * 0.5
 			rowCell:setFillColor( unpack( currentRow._rowColor.default ) )
 			
-			-- If the user want's lines between rows, create a line to seperate them
-			if not currentRow._noLines and not ( _widget.isSeven() and currentRow.isCategory ) then
+			-- If the user want's lines between rows, create a line to separate them
+			if not currentRow._noLines and not currentRow.isCategory then
 				-- Create the row's dividing line
 				local rowLine 
 				
-				if _widget.isSeven() then
-					rowLine = display.newLine( category, 15, rowCell.y, currentRow._width, rowCell.y )
-				else
-					rowLine = display.newLine( category, 0, rowCell.y, currentRow._width, rowCell.y )
-				end
+				rowLine = display.newLine( category, 0, rowCell.y, currentRow._width, rowCell.y )
+
 				if isGraphicsV1 then
 					rowLine:setReferencePoint( display.CenterReferencePoint )
 				else
@@ -986,34 +962,20 @@ local function createTableView( tableView, options )
 				end
 
 				-- If the user want's lines between rows, create a line to seperate them
-				if not self._noLines and not ( _widget.isSeven() and currentRow.isCategory ) then
+				if not self._noLines and not currentRow.isCategory then
 					-- Create the row's dividing line
 					local rowLine 
+					local leftPadding = view._themeParams.separatorLeftPadding
+					local rightPadding = view._themeParams.separatorRightPadding
 					
-					if _widget.isSeven() then
-						if view._rows[ row.index + 1] and view._rows[ row.index + 1 ].isCategory then
-							rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
-						else
-							rowLine = display.newLine( currentRow._view, 15, rowCell.y, currentRow._width - 2, rowCell.y )
-						end
-					else
-						rowLine = display.newLine( currentRow._view, 0, rowCell.y, currentRow._width, rowCell.y )
-					end
+					rowLine = display.newLine( currentRow._view, leftPadding, rowCell.y, currentRow._width - rightPadding, rowCell.y )
 
-					if _widget.isSeven() then
-						if isGraphicsV1 then
-							rowLine:setReferencePoint( display.CenterReferencePoint )
-						else
-							rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
-						end
+					if isGraphicsV1 then
+						rowLine:setReferencePoint( display.CenterReferencePoint )
+						rowLine.x = rowCell.x + math.floor( leftPadding * 0.5 )
 					else
-						if isGraphicsV1 then
-							rowLine:setReferencePoint( display.CenterReferencePoint )
-							rowLine.x = rowCell.x
-						else
-							rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
-							rowLine.x = 0
-						end
+						rowLine.anchorX = 0.5; rowLine.anchorY = 0.5
+						rowLine.x = leftPadding
 					end
 
 					rowLine.y = rowCell.y + ( rowCell.contentHeight * 0.5 )
@@ -1115,27 +1077,21 @@ local function createTableView( tableView, options )
 		-- Are we re-rendering this row?
 		local isReRender = reRender
 		
+		-- Import the colours definition from the theme params
+		local colours = self._themeParams.colours
+		local rowColor = colours.rowColor
+		local catColor = colours.catColor
+		
 		-- Retrieve passed in row customization variables
 		local rowId = options.id or table.maxn(self._rows)
 		local rowIndex = table.maxn(self._rows)	
 		local rowWidth = self._width
 		local rowHeight = options.rowHeight or 40
 		local isRowCategory = options.isCategory or false
-		local rowColor = options.rowColor or rowColorIos6
-		local lineColor = options.lineColor or lineColorIos6
+		local rowColor = options.rowColor or rowColor
+		local lineColor = options.lineColor or colours.lineColor
 		local noLines = self._noLines or false
-		
-		if _widget.isSeven() then
-			rowColor = options.rowColor or rowColorIos7
-			lineColor = options.lineColor or lineColorIos7
-			
-			if isRowCategory then
-				rowColor = options.rowColor or catColorIos7
-				lineColor = options.lineColor or lineCatColorIos7
-			end
-			
-		end
-		
+
 		-- the passed row params
 		local rowParams = options.params or {}
 		-- Set defaults for row's color
@@ -1146,6 +1102,11 @@ local function createTableView( tableView, options )
 		-- Set defaults for row's over color
 		if not rowColor.over then
 			rowColor.over = rowColorOver
+		end
+		
+		-- set the category colours
+		if isRowCategory then
+			rowColor = options.rowColor or catColor
 		end
 		
 		-- Assign public properties to the row
@@ -1454,8 +1415,22 @@ end
 
 
 -- Function to create a new tableView object ( widget.newtableView )
-function M.new( options )	
+function M.new( options, theme )	
 	local customOptions = options or {}
+	local themeOptions = theme or {}
+	
+	-- if we are in compatibility mode, convert the colours
+	if isByteColorRange then
+		_widget._convertColorToV1( themeOptions.colours.whiteColor )
+		_widget._convertColorToV1( themeOptions.colours.rowColor.default )
+		_widget._convertColorToV1( themeOptions.colours.rowColor.over )
+		_widget._convertColorToV1( themeOptions.colours.catColor.default )
+		_widget._convertColorToV1( themeOptions.colours.catColor.over )
+		_widget._convertColorToV1( themeOptions.colours.lineColor )
+		_widget._convertColorToV1( themeOptions.colours.rowColorDefault )
+		_widget._convertColorToV1( themeOptions.colours.rowColorOver )
+		_widget._convertColorToV1( themeOptions.colours.pickerRowColor )
+	end
 	
 	-- Create a local reference to our options table
 	local opt = M._options
@@ -1482,7 +1457,7 @@ function M.new( options )
 		
 	-- Properties
 	opt.shouldHideBackground = customOptions.hideBackground or false
-	opt.backgroundColor = customOptions.backgroundColor or whiteColor
+	opt.backgroundColor = customOptions.backgroundColor or themeOptions.colours.whiteColor
 	opt.topPadding = customOptions.topPadding or 0
 	opt.bottomPadding = customOptions.bottomPadding or 0
 	opt.leftPadding = customOptions.leftPadding or 0
@@ -1504,6 +1479,7 @@ function M.new( options )
 	if nil ~= customOptions.autoHideScrollBar and customOptions.autoHideScrollBar == false then
 		opt.autoHideScrollBar = false
 	end
+	
 	opt.isBounceEnabled = true
 	if nil ~= customOptions.isBounceEnabled and customOptions.isBounceEnabled == false then 
 		opt.isBounceEnabled = false
@@ -1524,6 +1500,9 @@ function M.new( options )
 	else
 		opt.scrollBarOptions = {}
 	end
+	
+	-- set the theme params
+	opt.themeParams = themeOptions
 	
 
 	-------------------------------------------------------
