@@ -370,7 +370,9 @@ local function createTableView( tableView, options )
 								-- Set the row cell's fill color
 								self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
 								-- Set back the separators
-								self._targetRow._separator.isVisible = true
+								if self._targetRow._separator then
+									self._targetRow._separator.isVisible = true
+								end
 								if view._rows[ self._targetRow.index - 1 ] then
 									if view._rows[ self._targetRow.index - 1 ]._view._separator then
 										view._rows[ self._targetRow.index - 1 ]._view._separator.isVisible = true
@@ -473,7 +475,9 @@ local function createTableView( tableView, options )
 				-- Set the row cell's fill color, if the row's view still exists (not being deleted)
 				if self._targetRow._cell then
 					self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
-					self._targetRow._separator.isVisible = true
+					if self._targetRow._separator then
+						self._targetRow._separator.isVisible = true
+					end
 					if view._rows[ self._targetRow.index - 1 ] then
 						if view._rows[ self._targetRow.index - 1 ]._view._separator then
 							view._rows[ self._targetRow.index - 1 ]._view._separator.isVisible = true
@@ -566,7 +570,9 @@ local function createTableView( tableView, options )
 				
 						-- Set the row cell's fill color
 						self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.over ) )
-						self._targetRow._separator.isVisible = false
+						if self._targetRow._separator then
+							self._targetRow._separator.isVisible = false
+						end
 						if view._rows[ self._targetRow.index - 1 ] then
 							if view._rows[ self._targetRow.index - 1 ]._view._separator then
 								view._rows[ self._targetRow.index - 1 ]._view._separator.isVisible = false
@@ -924,7 +930,9 @@ local function createTableView( tableView, options )
 
 				-- Set the row cell's fill color
 				row._cell:setFillColor( unpack( row._rowColor.over ) )
-				row._separator.isVisible = false
+				if row._separator then
+					row._separator.isVisible = false
+				end
 				if view._rows[ row.index - 1 ] then
 					if view._rows[ row.index - 1 ]._view._separator then
 						view._rows[ row.index - 1 ]._view._separator.isVisible = false
@@ -935,7 +943,9 @@ local function createTableView( tableView, options )
 				--timer.performWithDelay( 100, function()
 					-- Set the row cell's fill color
 					row._cell:setFillColor( unpack( row._rowColor.default ) )
-					row._separator.isVisible = true
+					if row._separator then
+						row._separator.isVisible = true
+					end
 					if view._rows[ row.index - 1 ] then
 						if view._rows[ row.index - 1 ]._view._separator then
 							view._rows[ row.index - 1 ]._view._separator.isVisible = true
