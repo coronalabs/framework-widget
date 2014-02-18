@@ -723,8 +723,9 @@ local function createTableView( tableView, options )
 
 			-- Set the row's id
 			category.id = currentRow.id
-
-
+			
+			-- Reset the params, if they were set
+			category.params = currentRow.params
 			
 			-- Set the categories index
 			category.index = currentRow.index
