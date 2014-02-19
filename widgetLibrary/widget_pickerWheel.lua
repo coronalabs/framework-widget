@@ -381,6 +381,7 @@ local function createPickerWheel( pickerWheel, options )
 		
 		-- Set the ImageSheet to nil
 		self._imageSheet = nil
+		if imageSheet then imageSheet = nil; end
 	end
 			
 	return pickerWheel
