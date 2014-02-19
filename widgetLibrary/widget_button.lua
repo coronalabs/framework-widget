@@ -546,10 +546,10 @@ local function createUsingImageSheet( button, options )
 	}
 	
 	-- Forward references
-	local view, viewLabel, imageSheet
+	local view, viewLabel
 	
 	-- Create a reference to the imageSheet
-	imageSheet = opt.sheet
+	local imageSheet = opt.sheet
 		
 	-- Create the view
 	view = display.newSprite( button, imageSheet, sheetOptions )
@@ -737,6 +737,8 @@ local function createUsingImageSheet( button, options )
 	function button:_finalize()
 		-- Set the ImageSheet to nil
 		self._imageSheet = nil
+		if imageSheet then imageSheet = nil; end
+		if ( opt and opt.sheet ) then opt.sheet = nil; end
 	end
 	
 	return button
@@ -1245,6 +1247,8 @@ local function createUsing9Slice( button, options )
 	function button:_finalize()
 		-- Set the ImageSheet to nil
 		self._imageSheet = nil
+		if imageSheet then imageSheet = nil; end
+		if ( opt and opt.sheet ) then opt.sheet = nil; end
 	end
 		
 	return button
