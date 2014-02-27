@@ -504,6 +504,23 @@ local function initEditField( editField, options )
     ----------------------------------------------------------
     --	PUBLIC METHODS	
     ----------------------------------------------------------
+    
+    
+    local function adjustTextSize(textObject, limit)
+        local text = textObject.text
+        local extraWidth = textObject.width - limit
+        if extraWidth > 0  then
+            while extraWidth > 0 do
+                local percentReduction = limit / textObject.width
+                local totalChars = text:len()
+                local charactersToRemove = math.ceil(totalChars * (1-percentReduction) + 3)
+                text = text:sub(1,totalChars-charactersToRemove) .. "..."
+                textObject.text = text
+                extraWidth = textObject.width - limit
+            end
+        end
+    end
+    
     function editField:updateFakeContent(value)
         if self._fakingIt then
             local fakeTextField =  self._fakeTextField; 
@@ -517,8 +534,17 @@ local function initEditField( editField, options )
                 end    
                 if self.isSecure then
                     fakeTextField.text = string.rep("•", string.len(text));
-                else    
-                    fakeTextField.text = text;
+                else                    
+                    local widthMax = fakeTextField.contentWidth                    
+                    print("widthMax=", widthMax)
+                    --fakeTextField.text = text;
+                    
+                    local tempText = display.newText{text=text, font=opt.editFont, fontSize=opt.editFontSize}
+                    adjustTextSize(tempText,widthMax )
+                    fakeTextField.text = tempText.text;
+                    display.remove(tempText)
+                    print("fakeTextField.contentWidth=", fakeTextField.contentWidth)
+                    
                 end    
             else    
                 if not self.calibrating then
