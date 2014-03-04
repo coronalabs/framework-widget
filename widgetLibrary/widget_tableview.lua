@@ -1408,6 +1408,12 @@ local function createTableView( tableView, options )
 		local newY = options.y
 		local transitionTime = options.time or 400
 		local onTransitionComplete = options.onComplete
+		
+		-- Stop updating Runtime & tracking velocity
+		self._updateRuntime = false
+		self._trackVelocity = false
+		-- Reset velocity back to 0
+		self._velocity = 0		
 	
 		transition.to( self, { y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
 	end
