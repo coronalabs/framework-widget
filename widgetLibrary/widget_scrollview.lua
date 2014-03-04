@@ -322,6 +322,11 @@ local function createScrollView( scrollView, options )
         end
 
 		local function updateScrollAreaSize()
+				
+			-- we store the original coordinates		
+			local origY = self._view.y
+			local origX = self._view.x
+		
 			-- Update the scroll content area size (NOTE: Seems to need a 1ms delay for the group to reflect it's new content size? ) odd ...
 			timer.performWithDelay( 1, function()
 				-- Update the scrollWidth
@@ -344,6 +349,9 @@ local function createScrollView( scrollView, options )
 					end
 				end
 			end)
+			
+			-- after the contentWidth / Height updates are complete, scroll the view to the position it was at before inserting the new object
+			self:scrollToPosition( { x = origX, y = origY, time = 0 } )
 		end
 
 		-- Override the removeself method for this object (so we can recalculate the content size after it is removed)
