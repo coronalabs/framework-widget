@@ -35,8 +35,12 @@ local mFloor = math.floor
 
 -- configuration variables
 M.scrollStopThreshold = 250
+
 -- direction variable that has a non-nil value only as long as the scrollview is scrolled
 M._direction = nil
+
+-- variable that establishes if the view limits were set ( they have to be called one time to position the scrollview correctly )
+M._didSetLimits = false
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
@@ -825,7 +829,10 @@ function M.createScrollBar( view, options )
 	setLimits( M, view )
 	
 	-- set the widget y coord according to the calculated limits
-	view.y = M.bottomLimit
+	if not M._didSetLimits then
+		view.y = M.bottomLimit
+		M._didSetLimits = true
+	end
 	
 	if not view.autoHideScrollBar then
 		M.scrollBar:show()
