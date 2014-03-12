@@ -9,7 +9,8 @@ local scene = storyboard.newScene()
 local testTimer = nil
 
 local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = widget.isSeven()
+local USE_IOS7_THEME = true
+--widget.setTheme( "widget_theme_ios" )
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 local tableSeparatorColor = { 0.86, 0.86, 0.86, 1 }
@@ -206,20 +207,20 @@ function scene:createScene( event )
 					for i = 1, 20 do
 						local isCategory = false
 						local rowHeight = 40
-						local rowColor = 
-						{ 
-							default = { 255, 255, 255 }
-						}
+						--local rowColor = 
+						--{ 
+						--	default = { 255, 255, 255 }
+						--}
 						local lineColor = { 0.86, 0.86, 0.86, 1 }
 
 						-- Make some rows categories
 						if i == 8 or i == 25 or i == 50 or i == 75 then
 							isCategory = true
 							rowHeight = 24
-							rowColor = 
-							{
-								default = { 150, 160, 180, 200 },
-							}
+							--rowColor = 
+							--{
+							--	default = { 150, 160, 180, 200 },
+							--}
 						end
 
 						-- Insert the row into the tableView
@@ -257,11 +258,11 @@ function scene:createScene( event )
 		local rowHeight = 40
 		local rowColor = nil
 		
-		if not widget.isSeven() then
-			rowColor = { 
-				default = { 255, 255, 255 },
-				over = { 217, 217, 217 },
-			}
+		if not USE_IOS7_THEME then
+			--rowColor = { 
+			--	default = { 255, 255, 255 },
+			--	over = { 217, 217, 217 },
+			--}
 		end
 
 		local lineColor = tableSeparatorColor;
@@ -274,11 +275,11 @@ function scene:createScene( event )
 			rowHeight = 24
 			--rowHeight = 47
 			
-			if not widget.isSeven() then
-				rowColor = 
-				{ 
-					default = { 150, 160, 180, 200 },
-				}
+			if not USE_IOS7_THEME then
+				--rowColor = 
+				--{ 
+				--	default = { 150, 160, 180, 200 },
+				--}
 			end
 			
 		end
@@ -297,10 +298,7 @@ function scene:createScene( event )
 			params = rowParams
 		}
 	end
-
-	print("view bounds: ", tableView._view.contentBounds.xMin, tableView._view.contentBounds.xMax, tableView._view.contentBounds.yMin, tableView._view.contentBounds.yMax)
-	print("container bounds: ", tableView.contentBounds.xMin, tableView.contentBounds.xMax, tableView.contentBounds.yMin, tableView.contentBounds.yMax)
-
+	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------			

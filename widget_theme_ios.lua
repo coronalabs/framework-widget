@@ -9,6 +9,17 @@ local imageSuffix = display.imageSuffix or ""
 local sheetFile = "widget_theme_ios.png"
 local sheetData = "widget_theme_ios_sheet"
 
+-- Check for graphics V1 compatibility mode set
+local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
+local isByteColorRange = display.getDefault( "isByteColorRange" )
+
+-- conversion function
+local function convertToV1( channels )
+    for i=1,#channels do
+        channels[i] = 255 * channels[i]
+    end
+end
+
 -----------------------------------------------------------------------------------------
 -- button
 -----------------------------------------------------------------------------------------
@@ -49,8 +60,14 @@ theme.button =
 		over = { 0, 0, 0 },
 	},
 	emboss = true,
+	alphaFade = false,
 }
 
+-- convert to v1 style values if it's the case
+if isByteColorRange then
+	convertToV1( theme.button.labelColor.default )
+	convertToV1( theme.button.labelColor.over )
+end
 
 -----------------------------------------------------------------------------------------
 -- slider
@@ -267,5 +284,40 @@ theme.searchField =
 	textFieldWidth = 145,
 	textFieldHeight = 20,
 }
+
+-----------------------------------------------------------------------------------------
+-- tableView
+-----------------------------------------------------------------------------------------
+
+theme.tableView = 
+{
+    separatorLeftPadding = 0,
+    separatorRightPadding = 0,
+    colours = {
+		rowColor = { default = { 1, 1, 1, 1 }, over = { 0.11, 0.56, 1, 1 } },
+		lineColor = { 0.86, 0.86, 0.86, 1 },
+		catColor = { default = { 0.58, 0.62, 0.70, 0.78 }, over = { 0.58, 0.62, 0.70, 0.78 } },
+		rowColorDefault = { 1, 1, 1, 1 },
+		rowColorOver = { 0.11, 0.56, 1, 1 },
+		whiteColor = { 1, 1, 1, 1 },
+		pickerRowColor = { 0.60 },
+	},
+}
+
+-- convert to v1 style values if it's the case
+if isByteColorRange then
+	convertToV1( theme.tableView.colours.rowColor.default )
+	convertToV1( theme.tableView.colours.rowColor.over )
+	for i = 1, #theme.tableView.colours.rowColor.over do
+		print( theme.tableView.colours.rowColor.over[ i ] )
+	end
+	convertToV1( theme.tableView.colours.catColor.default )
+	convertToV1( theme.tableView.colours.catColor.over )
+	convertToV1( theme.tableView.colours.lineColor )
+	convertToV1( theme.tableView.colours.rowColorDefault )
+	convertToV1( theme.tableView.colours.rowColorOver )
+	convertToV1( theme.tableView.colours.whiteColor )
+	convertToV1( theme.tableView.colours.pickerRowColor )
+end
 
 return theme

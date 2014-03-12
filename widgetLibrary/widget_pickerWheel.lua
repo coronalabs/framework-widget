@@ -189,7 +189,7 @@ local function createPickerWheel( pickerWheel, options )
 	local availableWidth = viewOverlay.width - 28
 	
 	-- local method that handles scrolling to the tapped / touched index
-	function didTapValue( event )
+	local function didTapValue( event )
 		local phase = event.phase
 		local row = event.target
 		if "tap" == phase or "release" == phase then
@@ -381,6 +381,7 @@ local function createPickerWheel( pickerWheel, options )
 		
 		-- Set the ImageSheet to nil
 		self._imageSheet = nil
+		if imageSheet then imageSheet = nil; end
 	end
 			
 	return pickerWheel

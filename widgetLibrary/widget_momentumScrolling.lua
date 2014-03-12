@@ -35,8 +35,12 @@ local mFloor = math.floor
 
 -- configuration variables
 M.scrollStopThreshold = 250
+
 -- direction variable that has a non-nil value only as long as the scrollview is scrolled
 M._direction = nil
+
+-- variable that establishes if the view limits were set ( they have to be called one time to position the scrollview correctly )
+M._didSetLimits = false
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
@@ -54,9 +58,13 @@ local function setLimits( self, view )
 	-- Set the upper limit
 	if view._scrollHeight then
 		local upperLimit = ( -view._scrollHeight + view._height ) - view._bottomPadding
-		if isGraphicsV1 then
-			upperLimit = upperLimit - view._height * 0.5
-		end
+		
+		-- the lower limit calculation is not necessary. We shift the view up with half its height, so the only thing we need to calculate
+		-- is the upper limit.
+		
+		--if isGraphicsV1 then
+		--	upperLimit = upperLimit - view._height * 0.5
+		--end
 		self.upperLimit = upperLimit
 	end
 	
@@ -85,7 +93,7 @@ local function handleSnapBackVertical( self, view, snapBack )
 	
 	local limitHit = "none"
 	local bounceTime = 400
-	if not self.isBounceEnabled then
+	if not view.isBounceEnabled then
 	    bounceTime = 0
 	end
 	
@@ -142,7 +150,7 @@ local function handleSnapBackHorizontal( self, view, snapBack )
 
 	local limitHit = "none"
 	local bounceTime = 400
-	if not self.isBounceEnabled then
+	if not view.isBounceEnabled then
 	    bounceTime = 0
 	end
 	
@@ -279,7 +287,7 @@ function M._touch( view, event )
 						view.x = view.x + ( view._delta * 0.5 )
 					else
 						view.x = view.x + view._delta
-						if view._listener and M._widgetType == "scrollView" then
+						if view._listener and view._widgetType == "scrollView" then
 						
 							local actualDirection
 						
@@ -315,7 +323,7 @@ function M._touch( view, event )
 					
 					local limit
 					
-					if M.isBounceEnabled == true then 
+					if view.isBounceEnabled == true then 
 					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
 					    if view._isUsedInPickerWheel == true then
 					        limit = handleSnapBackHorizontal( M, view, true )
@@ -346,7 +354,7 @@ function M._touch( view, event )
 					else
 						view.y = view.y + view._delta 
 						
-						if view._listener and M._widgetType == "scrollView" then
+						if view._listener and view._widgetType == "scrollView" then
 						
 							local actualDirection
 						
@@ -384,7 +392,7 @@ function M._touch( view, event )
 					-- if bounce is true, then the snapback parameter has to be true, otherwise false
 					local limit
 					
-					if M.isBounceEnabled == true then 
+					if view.isBounceEnabled == true then 
 					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
 					    if view._isUsedInPickerWheel == true then
 					        limit = handleSnapBackVertical( M, view, true )
@@ -415,7 +423,11 @@ function M._touch( view, event )
 			view._trackVelocity = false			
 			view._updateRuntime = true
 			M._direction = nil
-			if event.time - view._timeHeld > M.scrollStopThreshold then
+			
+			-- we check if the view has a scrollStopThreshold value
+			local stopThreshold = view.scrollStopThreshold or M.scrollStopThreshold
+			
+			if event.time - view._timeHeld > stopThreshold then
 			    view._velocity = 0
 			end
 			view._timeHeld = 0
@@ -457,7 +469,7 @@ function M._runtime( view, event )
 			view._updateRuntime = false
 			
 			-- Hide the scrollBar
-			if view._scrollBar and M.autoHideScrollBar then
+			if view._scrollBar and view.autoHideScrollBar then
 				view._scrollBar:hide()
 			end
 		end
@@ -558,7 +570,7 @@ function M._runtime( view, event )
 				-- Top
 				if "top" == limit then					
 					-- Hide the scrollBar
-					if view._scrollBar and M.autoHideScrollBar then
+					if view._scrollBar and view.autoHideScrollBar then
 						view._scrollBar:hide()
 					end
 					
@@ -584,7 +596,7 @@ function M._runtime( view, event )
 				-- Bottom
 				elseif "bottom" == limit then				
 					-- Hide the scrollBar
-					if view._scrollBar and M.autoHideScrollBar then
+					if view._scrollBar and view.autoHideScrollBar then
 						view._scrollBar:hide()
 					end
 										
@@ -817,9 +829,12 @@ function M.createScrollBar( view, options )
 	setLimits( M, view )
 	
 	-- set the widget y coord according to the calculated limits
-	view.y = M.bottomLimit
+	if not M._didSetLimits then
+		view.y = M.bottomLimit
+		M._didSetLimits = true
+	end
 	
-	if not M.autoHideScrollBar then
+	if not view.autoHideScrollBar then
 		M.scrollBar:show()
 	end
 	
