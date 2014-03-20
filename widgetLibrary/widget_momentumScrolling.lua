@@ -113,8 +113,7 @@ local function handleSnapBackVertical( self, view, snapBack )
 					end
 					
 					-- Put the view back to the top
-					view._snapping = true
-					view._tween = transition.to( view, { time = bounceTime, y = self.bottomLimit, transition = easing.outQuad, onComplete = function() view._snapping = false; end } )						
+					view._tween = transition.to( view, { time = bounceTime, y = self.bottomLimit, transition = easing.outQuad } )						
 				end
 			end
 			
@@ -132,8 +131,7 @@ local function handleSnapBackVertical( self, view, snapBack )
 					end
 					
 					-- Put the view back to the bottom
-					view._snapping = true
-					view._tween = transition.to( view, { time = bounceTime, y = self.upperLimit, transition = easing.outQuad, onComplete = function() view._snapping = false; end } )
+					view._tween = transition.to( view, { time = bounceTime, y = self.upperLimit, transition = easing.outQuad } )
 				end
 			end
 		end
@@ -164,8 +162,7 @@ local function handleSnapBackHorizontal( self, view, snapBack )
 			-- Transition the view back to it's maximum position
 			if "boolean" == type( snapBack ) then
 				if snapBack == true then
-					view._snapping = true
-					view._tween = transition.to( view, { time = bounceTime, x = self.leftLimit, transition = easing.outQuad, onComplete = function() view._snapping = false; end } )
+					view._tween = transition.to( view, { time = bounceTime, x = self.leftLimit, transition = easing.outQuad } )
 					
 				end
 			end
@@ -178,8 +175,7 @@ local function handleSnapBackHorizontal( self, view, snapBack )
 			-- Transition the view back to it's maximum position
 			if "boolean" == type( snapBack ) then
 				if snapBack == true then
-					view._snapping = true
-					view._tween = transition.to( view, { time = bounceTime, x = self.rightLimit, transition = easing.outQuad, onComplete = function() view._snapping = false; end } )
+					view._tween = transition.to( view, { time = bounceTime, x = self.rightLimit, transition = easing.outQuad } )
 				end
 			end
 		end
@@ -224,12 +220,8 @@ function M._touch( view, event )
 		
 		-- Cancel any active tween on the view
 		if view._tween then
-			if not view._snapping then
-				transition.cancel( view._tween )
-				view._tween = nil
-			else
-				transition.pause( view._tween )
-			end
+			transition.cancel( view._tween )
+			view._tween = nil
 		end				
 		
 		-- Set focus
@@ -417,7 +409,6 @@ function M._touch( view, event )
 			end
 			
 		elseif "ended" == phase or "cancelled" == phase then
-		
 			-- Reset values				
 			view._lastTime = event.time
 			view._trackVelocity = false			
@@ -447,11 +438,6 @@ function M._touch( view, event )
 		
 			-- If on ended the scrollview is outside of the bounds, reposition it
 			limit = handleSnapBackVertical( M, view, true )
-			
-			-- if we have a snap transition that's paused, resume it
-			if view._tween and view._snapping then
-				transition.resume( view._tween )
-			end	
 			
 		end
 	end

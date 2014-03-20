@@ -296,9 +296,12 @@ local function createTableView( tableView, options )
 	function view:_getRowAtIndex( index )
 		local currentIndex = index
 		local currentRow = self._rows[currentIndex]
-
-		return currentRow._view
-	
+		
+		if currentRow and currentRow._view then
+			return currentRow._view
+		end
+		
+		return nil
 	end
 
 	
@@ -403,7 +406,13 @@ local function createTableView( tableView, options )
 		
 		-- Handle momentum scrolling (if the view isn't locked)
 		if not self._isLocked then
-			_momentumScrolling._touch( self, event )
+			-- only scroll if the dimension of the actual tableview is bigger than the height of the widget
+			if self._scrollHeight >= self.parent.height then
+				_momentumScrolling._touch( self, event )
+			else
+				-- we don't scroll, but we do position the table at the limit
+				
+			end
 		end
 				
 		-- Execute the listener if one is specified
@@ -1220,7 +1229,7 @@ local function createTableView( tableView, options )
 			print( "Warning: A row cannot be deleted whilst the tableView is scrolling" )
 			return
 		end
-				
+		
 		----------------------------------------------------------------
 		-- Check if the row we are deleting is on screen or off screen
 		----------------------------------------------------------------
@@ -1234,21 +1243,21 @@ local function createTableView( tableView, options )
 				if nil~= self._rows[i]._view and "table" == type( self._rows[i]._view ) then
 					if self._rows[i].isCategory then
 						if nil ~= self._rows[i-1] then
-							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ) + 1, transition = easing.outQuad } )
-							self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1 
+							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ), transition = easing.outQuad } )
+							self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height )
 						end
 					else
-						transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ) + 1, transition = easing.outQuad } )
-						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
+						transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ), transition = easing.outQuad } )
+						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height )
 					end
 				-- We are now moving up the off screen rows
 				else
 					if self._rows[i].isCategory then
 						if nil ~= self._rows[i-1] then
-							self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
+							self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height )
 						end
 					else
-						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
+						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height )
 					end
 				end
 				end
@@ -1262,6 +1271,11 @@ local function createTableView( tableView, options )
 							
 			-- Remove the row from the rows table
 			self._rows[rowIndex] = nil 
+
+			-- We calculate the total height of the tableView
+			if self._scrollHeight < self.parent.height then
+				self.y = _momentumScrolling.bottomLimit
+			end
 			
 		end
 		
@@ -1293,10 +1307,10 @@ local function createTableView( tableView, options )
 			-- decrement the table rows variable
 			self._numberOfRows =  self._numberOfRows - 1
 			removeRow()
+			
 		end
 		
 		-- NOTE: this was the previous location of the scrollHeight calculation. If we resize the scrollheight after the transition.to above, you get a funny motion effect on the tableview. This way, it does not happen.
-		
 	end
 	
 	-- Function to deleta all rows from the tableView
