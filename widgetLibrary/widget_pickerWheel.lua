@@ -203,7 +203,7 @@ local function createPickerWheel( pickerWheel, options )
 	local bottomPadding = 96
 	if isGraphicsV1 then
 		topPadding = 90
-		bottomPadding = 92
+		bottomPadding = pickerWheel.contentHeight - 20 -- 20 is half a row height
 	end
 
 	local initialX = 0
@@ -318,11 +318,11 @@ local function createPickerWheel( pickerWheel, options )
 	function view:enterFrame( event )
 		local _pickerWheel = self.parent
 		
-		-- Update the y position
-		self._yPosition = _pickerWheel.y + ( self._height * 0.5 )
-				
-
-				
+		-- Update the y position	
+		-- this has to be calculated in content coordinates to abstract the widget being in a group
+		local xPos, yPos = _pickerWheel:localToContent( 0, 0 )
+		self._yPosition = yPos + ( self._height * 0.5 )
+		
 		-- Manage the Picker Wheels columns
 		for i = 1, #self._columns do
 		
