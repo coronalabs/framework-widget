@@ -445,10 +445,13 @@ function M._touch( view, event )
 			display.getCurrentStage():setFocus( nil )
 			view._isFocus = nil
 		
-		-- if we have a snap transition that's paused, resume it
-		if view._tween and true == view._snapping then
-			transition.resume( view._tween )
-		end	
+			-- If on ended the scrollview is outside of the bounds, reposition it
+			limit = handleSnapBackVertical( M, view, true )
+			
+			-- if we have a snap transition that's paused, resume it
+			if view._tween and view._snapping then
+				transition.resume( view._tween )
+			end	
 			
 		end
 	end
