@@ -388,10 +388,22 @@ local function initEditField( editField, options )
     editField._xOriginal = textLabelX - opt.textFieldHeightAdjust/2 + labelWidth + opt.textFieldXOffset + opt.spacing
     editField._yOriginal = yCenter + opt.textFieldHeightAdjust/2 + opt.textFieldYOffset
     if opt.native then
-        viewTextField = native.newTextField(editField._xOriginal, editField._yOriginal, textFieldWidth+ opt.textFieldHeightAdjust,lineHeight + opt.textFieldHeightAdjust )
-        viewTextField.placeholder = opt.hint;
+        if opt.isTextBox then -- this option op.native with isTextBox was not tested. Please report any bug
+            editField._xOriginal = editField._xOriginal - 2
+            viewTextField = native.newTextBox( editField._xOriginal, editField._yOriginal, (xEnd-xStart)+2, opt.height)
+        else
+            viewTextField = native.newTextField(editField._xOriginal, editField._yOriginal, textFieldWidth+ opt.textFieldHeightAdjust,lineHeight + opt.textFieldHeightAdjust )                
+            viewTextField.placeholder = opt.hint;
+        end                
+        
     else
-        viewTextField = native.newTextField( -1000, -1000, textFieldWidth+ opt.textFieldHeightAdjust,lineHeight + opt.textFieldHeightAdjust )
+        if opt.isTextBox then
+            editField._xOriginal = editField._xOriginal - 2
+            viewTextField = native.newTextBox( editField._xOriginal, editField._yOriginal, (xEnd-xStart)+2, opt.height)
+        else
+            viewTextField = native.newTextField( -1000, -1000, textFieldWidth+ opt.textFieldHeightAdjust,lineHeight + opt.textFieldHeightAdjust )
+        end
+        
     end    
     
     viewTextField.anchorX = 0;
@@ -419,9 +431,12 @@ local function initEditField( editField, options )
     editField.fontScale = opt.fontScale;
     editField.editFontColor = opt.editFontColor;
     editField.editHintColor = opt.editHintColor;
+    --print("opt.editFontSize=", opt.editFontSize)
+    --print("opt.fontScale=", opt.fontScale)
     
     viewTextField.font = native.newFont( opt.editFont )
     viewTextField.size = opt.editFontSize * opt.fontScale --deviceScale
+    --print("viewTextField.size=", viewTextField.size)
     viewTextField.align = opt.align
     if system.getInfo("platformName") == "Android" then
         viewTextField:setTextColor(opt.editFontColor[1]*255, opt.editFontColor[2]*255,
@@ -432,13 +447,39 @@ local function initEditField( editField, options )
     end
     local fakeTextField
     if not opt.native then
+        
+        local fakeTextHeight = lineHeight
+
+        if opt.isTextBox then
+                                                
+            local mobileOS = system.getInfo("platformName") -- "Android", "iPhone OS",...
+            if mobileOS == "iPhone OS" then
+                opt.fakeLabelXOffset = opt.fakeLabelXOffset + 3  -- +3 is small adjustment to make the display.newText be aligned with the native.textBox
+                opt.fakeLabelYOffset = opt.fakeLabelYOffset + 8  -- +8 is small adjustment to make the display.newText be aligned with the native.textBox
+                
+                if string.match(system.getInfo("model"),"iPa") and display.pixelHeight == 2048 then
+                    opt.fakeLabelXOffset = opt.fakeLabelXOffset - 3
+                    opt.fakeLabelYOffset = opt.fakeLabelYOffset - 4
+                end
+                
+            elseif mobileOS == "Android" then
+                opt.fakeLabelXOffset = opt.fakeLabelXOffset - 2  -- +3 is small adjustment to make the display.newText be aligned with the native.textBox
+                opt.fakeLabelYOffset = opt.fakeLabelYOffset + 9
+            else
+                -- this is where Windows, HTML5,... will fall. Probably will need some adjustments also...
+                
+            end            
+            
+            fakeTextHeight = viewTextField.contentHeight  --- opt.fakeLabelYOffset
+        end
+
         fakeTextField = display.newText(
           {parent=editField, 
           text="", 
           x=0, 
           y=0, 
           width=textFieldWidth -2*opt.fakeLabelXOffset+2*opt.textFieldXOffset, 
-          height=lineHeight, 
+          height=fakeTextHeight, 
           font=opt.editFont, 
           fontSize=opt.editFontSize,
           align = opt.align})
@@ -466,6 +507,7 @@ local function initEditField( editField, options )
     
     
     viewTextField._editField = editField;
+    viewTextField._isTextBox = opt.isTextBox;
     
     if "function" == type(opt.onClick) then
         editField._onClick = opt.onClick;
@@ -536,15 +578,17 @@ local function initEditField( editField, options )
                     fakeTextField.text = string.rep("•", string.len(text));
                 else                    
                     local widthMax = fakeTextField.contentWidth                    
-                    print("widthMax=", widthMax)
-                    --fakeTextField.text = text;
-                    
-                    local tempText = display.newText{text=text, font=opt.editFont, fontSize=opt.editFontSize}
-                    adjustTextSize(tempText,widthMax )
-                    fakeTextField.text = tempText.text;
-                    display.remove(tempText)
-                    print("fakeTextField.contentWidth=", fakeTextField.contentWidth)
-                    
+
+                    if viewTextField._isTextBox then 
+                     fakeTextField.text = text;
+                    else
+                        local tempText = display.newText{text=text, font=opt.editFont, fontSize=opt.editFontSize}
+                        adjustTextSize(tempText,widthMax )
+                        fakeTextField.text = tempText.text;
+                        display.remove(tempText)                        
+                        --print("fakeTextField.contentWidth=", fakeTextField.contentWidth)
+                    end
+                                                                                
                 end    
             else    
                 if not self.calibrating then
@@ -932,6 +976,8 @@ function M.new( options, theme )
         opt.errorFrame.offset = opt.errorFrame.offset  or 3;
         
     end;  
+    
+    opt.isTextBox = customOptions.isTextBox
     
     opt.id = customOptions.id
     opt.hint = customOptions.hint or "";
