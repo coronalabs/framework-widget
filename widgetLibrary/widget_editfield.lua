@@ -429,6 +429,8 @@ local function initEditField( editField, options )
     editField.calibrating = opt.calibrating
     editField.native = opt.native;
     editField.fontScale = opt.fontScale;
+    editField.editFont = opt.editFont;
+    editField.editFontSize = opt.editFontSize;
     editField.editFontColor = opt.editFontColor;
     editField.editHintColor = opt.editHintColor;
     --print("opt.editFontSize=", opt.editFontSize)
@@ -454,16 +456,25 @@ local function initEditField( editField, options )
                                                 
             local mobileOS = system.getInfo("platformName") -- "Android", "iPhone OS",...
             if mobileOS == "iPhone OS" then
+                
+                --adjustments for iPhone 5
                 opt.fakeLabelXOffset = opt.fakeLabelXOffset + 3  -- +3 is small adjustment to make the display.newText be aligned with the native.textBox
                 opt.fakeLabelYOffset = opt.fakeLabelYOffset + 8  -- +8 is small adjustment to make the display.newText be aligned with the native.textBox
                 
+                -- extra adjustment for iPad Retina
                 if string.match(system.getInfo("model"),"iPa") and display.pixelHeight == 2048 then
                     opt.fakeLabelXOffset = opt.fakeLabelXOffset - 3
                     opt.fakeLabelYOffset = opt.fakeLabelYOffset - 4
+                    
+                -- extra adjustment for iPhone 4S
+                elseif string.match(system.getInfo("model"),"iPhone") then 
+                    opt.fakeLabelXOffset = opt.fakeLabelXOffset + 3 --2
+                    opt.fakeLabelYOffset = opt.fakeLabelYOffset + 1
+                    
                 end
                 
             elseif mobileOS == "Android" then
-                opt.fakeLabelXOffset = opt.fakeLabelXOffset - 2  -- +3 is small adjustment to make the display.newText be aligned with the native.textBox
+                opt.fakeLabelXOffset = opt.fakeLabelXOffset - 2
                 opt.fakeLabelYOffset = opt.fakeLabelYOffset + 9
             else
                 -- this is where Windows, HTML5,... will fall. Probably will need some adjustments also...
@@ -508,6 +519,7 @@ local function initEditField( editField, options )
     
     viewTextField._editField = editField;
     viewTextField._isTextBox = opt.isTextBox;
+    viewTextField._useMoreTextIndicator = opt.useMoreTextIndicator;
     
     if "function" == type(opt.onClick) then
         editField._onClick = opt.onClick;
@@ -547,18 +559,19 @@ local function initEditField( editField, options )
     --	PUBLIC METHODS	
     ----------------------------------------------------------
     
-    
-    local function adjustTextSize(textObject, limit)
+    -- reduces a newText obj to fit a max width/height and adds a "..." to the end of the text        
+    local function adjustTextSize(textObject, limit, limitingDimension)  -- limitingDimension = "width" or "height"
+        limitingDimension = limitingDimension or "width"
         local text = textObject.text
-        local extraWidth = textObject.width - limit
-        if extraWidth > 0  then
-            while extraWidth > 0 do
-                local percentReduction = limit / textObject.width
+        local extraWidthOrHeight = textObject[limitingDimension] - limit
+        if extraWidthOrHeight > 0  then
+            while extraWidthOrHeight > 0 do
+                local percentReduction = limit / textObject[limitingDimension]
                 local totalChars = text:len()
                 local charactersToRemove = math.ceil(totalChars * (1-percentReduction) + 3)
                 text = text:sub(1,totalChars-charactersToRemove) .. "..."
                 textObject.text = text
-                extraWidth = textObject.width - limit
+                extraWidthOrHeight = textObject[limitingDimension] - limit
             end
         end
     end
@@ -576,19 +589,28 @@ local function initEditField( editField, options )
                 end    
                 if self.isSecure then
                     fakeTextField.text = string.rep("•", string.len(text));
-                else                    
-                    local widthMax = fakeTextField.contentWidth                    
-
-                    if viewTextField._isTextBox then 
-                     fakeTextField.text = text;
-                    else
-                        local tempText = display.newText{text=text, font=opt.editFont, fontSize=opt.editFontSize}
-                        adjustTextSize(tempText,widthMax )
+                else           
+                    if viewTextField._useMoreTextIndicator then
+                        local limitingDimension
+                        local limitingSize
+                        local tempText
+                        if viewTextField._isTextBox then             
+                               limitingDimension = "height"
+                               limitingSize = fakeTextField.height  
+                               tempText = display.newText{text=text, font=editField.editFont, fontSize=editField.editFontSize, width = fakeTextField.width}                               
+                        else
+                            limitingDimension = "width"
+                            limitingSize = fakeTextField.contentWidth    
+                            tempText = display.newText{text=text, font= editField.editFont, fontSize=editField.editFontSize}                            
+                        end
+                        adjustTextSize(tempText,limitingSize, limitingDimension)
                         fakeTextField.text = tempText.text;
-                        display.remove(tempText)                        
-                        --print("fakeTextField.contentWidth=", fakeTextField.contentWidth)
+                        display.remove(tempText)                                               
+                    
+                    else
+                        fakeTextField.text = text;
                     end
-                                                                                
+                                                                                                                                                                
                 end    
             else    
                 if not self.calibrating then
@@ -977,8 +999,8 @@ function M.new( options, theme )
         
     end;  
     
-    opt.isTextBox = customOptions.isTextBox
-    
+    opt.isTextBox = customOptions.isTextBox                        -- makes the widget use textBox (which is multi-line) instead of textField
+    opt.useMoreTextIndicator = customOptions.useMoreTextIndicator  -- when set to true, adds "..." to the end of the inserted text to indicate that there is more text there
     opt.id = customOptions.id
     opt.hint = customOptions.hint or "";
     opt.inputType  = customOptions.inputType or "default"
