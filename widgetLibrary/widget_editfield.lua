@@ -468,8 +468,8 @@ local function initEditField( editField, options )
                     opt.fakeLabelYOffset = opt.fakeLabelYOffset - 4
                     
                 -- extra adjustment for iPhone 4S
-                elseif string.match(system.getInfo("model"),"iPhone") then 
-                    opt.fakeLabelXOffset = opt.fakeLabelXOffset + 3 --2
+                elseif string.match(system.getInfo("model"),"iPhone") and display.pixelHeight == 960 then 
+                    opt.fakeLabelXOffset = opt.fakeLabelXOffset + 3
                     opt.fakeLabelYOffset = opt.fakeLabelYOffset + 1
                     
                 end
