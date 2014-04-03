@@ -333,6 +333,7 @@ local function initEditField( editField, options )
                     fontSize = button.fontSize,
                     width = button.width,
                     height = button.height,
+                    textOnly = button.textOnly,
                     onRelease = onRelease
                 }
                 )
