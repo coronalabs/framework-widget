@@ -1104,7 +1104,7 @@ local function createUsing9Slice( button, options )
 	function button:setFillColor( ... )		
 		for i = self._view.numChildren, 1, -1 do
 			local child = self._view[i]
-			if child.setFillColor and "function" == type( child.setFillColor ) then
+			if child.setFillColor and "function" == type( child.setFillColor ) and not child._isLabel then
 				child:setFillColor( ... )
 			end
 		end
