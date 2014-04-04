@@ -1102,9 +1102,10 @@ local function createUsing9Slice( button, options )
 
 	-- Function to set the buttons fill color
 	function button:setFillColor( ... )		
-		for i = self.numChildren, 1, -1 do
-			if "function" == type( self[i].setFillColor ) then
-				self[i]:setFillColor( ... )
+		for i = self._view.numChildren, 1, -1 do
+			local child = self._view[i]
+			if child.setFillColor and "function" == type( child.setFillColor ) then
+				child:setFillColor( ... )
 			end
 		end
 	end
