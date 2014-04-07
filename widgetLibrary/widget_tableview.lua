@@ -406,13 +406,7 @@ local function createTableView( tableView, options )
 		
 		-- Handle momentum scrolling (if the view isn't locked)
 		if not self._isLocked then
-			-- only scroll if the dimension of the actual tableview is bigger than the height of the widget
-			if self._scrollHeight >= self.parent.height then
-				_momentumScrolling._touch( self, event )
-			else
-				-- we don't scroll, but we do position the table at the limit
-				
-			end
+			_momentumScrolling._touch( self, event )
 		end
 				
 		-- Execute the listener if one is specified
@@ -522,26 +516,41 @@ local function createTableView( tableView, options )
 		local _tableView = self.parent
 		
 		-- If we have finished rendering all rows
-		if self._hasRenderedRows then			
+		if self._hasRenderedRows then	
+		
+			-- calculate the total heights from the row table
+			local totalHeight = 0
+			for i, v in pairs( view._rows ) do
+				if v and v._height then
+					totalHeight = totalHeight + v._height
+				end
+			end
+				
 			-- Create the scrollBar
 			if not self._hideScrollBar then
-				if not self._scrollBar and not self._isLocked and not self._scrollBar then
+				if not self._scrollBar and not self._isLocked and not self._scrollBar and totalHeight > self._height then
 					self._scrollBar = _momentumScrolling.createScrollBar( view, opt.scrollBarOptions )
 				end
 			end
-			
+
 			-- If the calculated scrollHeight is less than the height of the tableView, set it to that.
 			if "number" == type( self._scrollHeight ) then
 				if not self._isUsedInPickerWheel then
-					if self._scrollHeight < self._height then
+
+
+					if totalHeight < self._height then
 						self._scrollHeight = self._height
+					else
+						self._scrollHeight = totalHeight
 					end
 				end
 			end
-
+			
 			-- Set the renderedRows back to false
 			self._hasRenderedRows = false
 		end
+		
+
 		
 		-- Handle momentum @ runtime
 		_momentumScrolling._runtime( self, event )
@@ -1311,6 +1320,8 @@ local function createTableView( tableView, options )
 		end
 		
 		-- NOTE: this was the previous location of the scrollHeight calculation. If we resize the scrollheight after the transition.to above, you get a funny motion effect on the tableview. This way, it does not happen.
+		-- set the did render variable to true
+		self._hasRenderedRows = true
 	end
 	
 	-- Function to deleta all rows from the tableView
