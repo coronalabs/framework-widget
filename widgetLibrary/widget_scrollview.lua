@@ -505,6 +505,25 @@ local function createScrollView( scrollView, options )
 		if type( lockedState ) ~= "boolean" then return end
 		self._isVerticalScrollingDisabled = lockedState
 		self._isLocked = lockedState
+		-- if we unlock the scrollview and the scrollview's content is bigger than the widget bounds, init the scrollbar.
+		if not opt.hideScrollBar then
+			if self._scrollBar then
+				display.remove( self._scrollBar )
+				self._scrollBar = nil
+			end
+			
+			if not self._isLocked then
+				-- Need a delay here also..
+				timer.performWithDelay( 2, function()
+					--[[
+					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
+					--]]								
+					if not self._scrollBar and not self._isVerticalScrollingDisabled and self._scrollHeight > self._height then
+						self._scrollBar = _momentumScrolling.createScrollBar( self, opt.scrollBarOptions )
+					end
+				end)
+			end
+		end			
 	end
 		
 	-- Finalize function for the scrollView
