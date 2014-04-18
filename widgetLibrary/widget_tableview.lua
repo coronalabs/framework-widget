@@ -945,6 +945,7 @@ local function createTableView( tableView, options )
 				{
 					phase = "tap",
 					target = row,
+					row = row,
 				}
 
 				-- Set the row cell's fill color
