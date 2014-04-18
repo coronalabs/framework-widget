@@ -228,7 +228,7 @@ theme.progressView =
 {
 	sheet = sheetFile,
 	data = sheetData,
-	fillXOffset = 4.5,
+	fillXOffset = 4.0, -- 4.5,
 	fillYOffset = 4,
 	fillOuterWidth = 12,
 	fillOuterHeight = 18,

@@ -233,9 +233,9 @@ theme.progressView =
 	data = sheetData,
 	fillXOffset = 0,
 	fillYOffset = 0,
-	fillOuterWidth = 12,
+	fillOuterWidth = 4,
 	fillOuterHeight = 4,
-	fillWidth = 8, 
+	fillWidth = 4, 
 	fillHeight = 4,
 	
 	fillOuterLeftFrame = "progressView_leftFillBorder",
