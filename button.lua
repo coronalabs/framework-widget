@@ -134,6 +134,9 @@ function scene:createScene( event )
 	buttonUsingFiles.oldLabel = "Files"	
 	group:insert( buttonUsingFiles )
 	
+	--buttonUsingFiles:setFillColor(255,0,0)
+	
+	
 	-- Set up sheet parameters for imagesheet button
 	local sheetInfo =
 	{
@@ -169,7 +172,8 @@ function scene:createScene( event )
 	buttonUsingImageSheet.x = display.contentCenterX
 	buttonUsingImageSheet.oldLabel = "ImageSheet"	
 	group:insert( buttonUsingImageSheet )
-		
+	
+	--buttonUsingImageSheet:setFillColor(255,0,0)
 
 	-- Theme button 
 	local buttonUsingTheme = widget.newButton
@@ -212,7 +216,103 @@ function scene:createScene( event )
 	buttonUsingTextOnly.oldLabel = "Text only button"
 	buttonUsingTextOnly.x = display.contentCenterX
 	group:insert( buttonUsingTextOnly )
+
+	-- Vector button
+	local buttonUsingVector = widget.newButton
+	{
+		id = "Vector button",
+		left = 0,
+		top = 390,
+		label = "Vector Button",
+		labelColor = 
+		{
+			default = { 0, 0, 0 },
+			over = { 0, 255, 0 },
+		},
+		shape="polygon",
+		width = 200,
+		height = 40,
+		cornerRadius = 2,
+		radius = 30,
+		vertices = { -20,-20,40,40,-10,20 },
+		backgroundColor = { default={ 255,0,0,255 }, over={ 255,40,160,100 } },
+		strokeColor = { default={ 255,255,0,255 }, over={ 200,200,255,255 } },
+		strokeWidth = 4,
+		--emboss = false,
+		onEvent = onButtonEvent
+	}
+	buttonUsingVector.oldLabel = "Vector button"
+	buttonUsingVector.x = display.contentCenterX
+	group:insert( buttonUsingVector )
 	
+	--buttonUsingVector:setFillColor(0,0,255)
+	--buttonUsingVector:setStrokeColor(0,255,0)
+
+
+
+
+
+
+
+	local options9Slice = {
+		frames =
+		{
+			{ x=0, y=0, width=21, height=21 },
+			{ x=21, y=0, width=198, height=21 },
+			{ x=219, y=0, width=21, height=21 },
+			{ x=0, y=21, width=21, height=78 },
+			{ x=21, y=21, width=198, height=78 },
+			{ x=219, y=21, width=21, height=78 },
+			{ x=0, y=99, width=21, height=21 },
+			{ x=21, y=99, width=198, height=21 },
+			{ x=219, y=99, width=21, height=21 },
+			{ x=240, y=0, width=21, height=21 },
+			{ x=261, y=0, width=198, height=21 },
+			{ x=459, y=0, width=21, height=21 },
+			{ x=240, y=21, width=21, height=78 },
+			{ x=261, y=21, width=198, height=78 },
+			{ x=459, y=21, width=21, height=78 },
+			{ x=240, y=99, width=21, height=21 },
+			{ x=261, y=99, width=198, height=21 },
+			{ x=459, y=99, width=21, height=21 }
+		},
+		sheetContentWidth = 480,
+		sheetContentHeight = 120
+	}
+	local sheet9Slice = graphics.newImageSheet( "unitTestAssets/buttonSheet.png", options9Slice )
+
+	local buttonUsing9Slice = widget.newButton
+	{
+		left= 50,
+		top = 40,
+		width = 220,
+		height = 70,
+		sheet = sheet9Slice,
+		topLeftFrame = 1,
+		topMiddleFrame = 2,
+		topRightFrame = 3,
+		middleLeftFrame = 4,
+		middleFrame = 5,
+		middleRightFrame = 6,
+		bottomLeftFrame = 7,
+		bottomMiddleFrame = 8,
+		bottomRightFrame = 9,
+		topLeftOverFrame = 10,
+		topMiddleOverFrame = 11,
+		topRightOverFrame = 12,
+		middleLeftOverFrame = 13,
+		middleOverFrame = 14,
+		middleRightOverFrame = 15,
+		bottomLeftOverFrame = 16,
+		bottomMiddleOverFrame = 17,
+		bottomRightOverFrame = 18,
+		label = "9-Slice"
+	}
+
+	group:insert( buttonUsing9Slice )
+
+	--buttonUsing9Slice:setFillColor(0,255,0,100)
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --
 	----------------------------------------------------------------------------------------------------------------

@@ -111,7 +111,41 @@ function scene:createScene( event )
 		
 		--print( newProgressView:getProgress() )
 	end, 0 )
-	
+
+
+
+	local progFrames = {
+		width = 64,
+		height = 64,
+		numFrames = 6,
+		sheetContentWidth = 384,
+		sheetContentHeight = 64
+	}
+	local progressSheet = graphics.newImageSheet( "unitTestAssets/progress.png", progFrames )
+
+	local skinnedProgressView = widget.newProgressView
+	{
+		sheet = progressSheet,
+		fillOuterLeftFrame = 1,
+		fillOuterMiddleFrame = 2,
+		fillOuterRightFrame = 3,
+		fillOuterWidth = 64,
+		fillOuterHeight = 64,
+		fillInnerLeftFrame = 4,
+		fillInnerMiddleFrame = 5,
+		fillInnerRightFrame = 6,
+		fillWidth = 64,
+		fillHeight = 64,
+		left = 20,
+		top = 300,
+		isAnimated = true,
+		width = 280
+	}
+	skinnedProgressView:setProgress( 1 )
+
+	group:insert( skinnedProgressView )
+
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------

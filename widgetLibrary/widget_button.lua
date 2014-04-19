@@ -146,7 +146,7 @@ end
 
 
 ------------------------------------------------------------------------
--- Text only button
+-- Text Button
 ------------------------------------------------------------------------
 local function createUsingText( button, options )
 	-- Create a local reference to our options table
@@ -300,7 +300,260 @@ local function createUsingText( button, options )
 	return button
 end
 	
+
+------------------------------------------------------------------------
+-- Vector Button
+------------------------------------------------------------------------
+
+-- Creates a new button using a vector object
+local function createUsingVectorObject( button, options )
+	-- Create a local reference to our options table
+	local opt = options
 	
+	-- Forward references
+	local view, viewLabel
+
+	-- Create the view
+	local vectType = string.lower( opt.shape )
+
+	-- rect
+	if ( vectType == "rect" or vectType == "rectangle" ) then
+		local w = opt.width or 150
+		local h = opt.height or 50
+		view = display.newRect( button, 0, 0, w, h )
+	-- roundedRect
+	elseif ( vectType == "roundedrect" or vectType == "roundedrectangle" ) then
+		local w = opt.width or 150
+		local h = opt.height or 50
+		local rad = opt.cornerRadius or 4
+		view = display.newRoundedRect( button, 0, 0, w, h, rad )
+	-- circle
+	elseif ( vectType == "circle" ) then
+		local rad = opt.radius or 50
+		view = display.newCircle( button, 0, 0, rad )
+	-- polygon
+	elseif ( vectType == "polygon" ) then
+		local vertices
+		if ( opt.vertices and type(opt.vertices) == "table" ) then vertices = opt.vertices else vertices = { -20,-25,20,0,-20,25 } end
+		view = display.newPolygon( button, 0, 0, vertices )
+	-- else, fall back to a rectangle of 150x50
+	else
+		view = display.newRect( button, 0, 0, 150, 50 )
+	end
+	
+	--Style the view
+	if ( opt.backgroundColor ) then
+		view:setFillColor( unpack( opt.backgroundColor.default ) )
+	end
+	if ( opt.strokeColor and tonumber(opt.strokeWidth) and tonumber(opt.strokeWidth) > 0 ) then
+		view:setStrokeColor( unpack( opt.strokeColor.default ) )
+		view.strokeWidth = opt.strokeWidth
+		view._hasStroke = true
+	end
+
+	-- Create the label (either embossed or standard)
+	if opt.embossedLabel then
+		viewLabel = display.newEmbossedText( button, opt.label, 0, 0, opt.font, opt.fontSize )
+	else
+		viewLabel = display.newText( button, opt.label, 0, 0, opt.font, opt.fontSize )
+	end
+	
+	----------------------------------
+	-- Positioning
+	----------------------------------
+	
+	-- The view
+	view.x = button.x + ( view.contentWidth * 0.5 )
+	view.y = button.y + ( view.contentHeight * 0.5 )
+	
+	-- Setup the label
+	viewLabel:setFillColor( unpack( opt.labelColor.default ) )
+	viewLabel._isLabel = true
+	viewLabel._labelColor = opt.labelColor
+	
+	-- If there isn't an over color defined, fall back to default label color
+	if not viewLabel._labelColor.over then
+		viewLabel._labelColor.over = viewLabel._labelColor.default
+	end
+	
+	-- Labels position
+	if "center" == opt.labelAlign then
+		viewLabel.x = view.x + opt.labelXOffset
+	elseif "left" == opt.labelAlign then
+		viewLabel.x = button.x + ( viewLabel.contentWidth * 0.5 ) + 10 + opt.labelXOffset
+	elseif "right" == opt.labelAlign then
+		viewLabel.x = view.x + ( view.contentWidth * 0.5 ) - ( viewLabel.contentWidth * 0.5 ) - 10 + opt.labelXOffset
+	end
+		
+	-- Set the labels y position
+	viewLabel.y = button.y + ( view.contentHeight * 0.5 ) + opt.labelYOffset
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the view
+	-------------------------------------------------------
+	
+	view._isEnabled = opt.isEnabled
+	view._pressedState = "default"
+	view._fontSize = opt.fontSize
+	view._backgroundColor = opt.backgroundColor or nil
+	view._strokeColor = opt.strokeColor or nil
+	view._label = viewLabel
+	view._labelColor = viewLabel._labelColor
+	view._labelAlign = opt.labelAlign
+	view._labelXOffset = opt.labelXOffset
+	view._labelYOffset = opt.labelYOffset
+	view._hasAlphaFade = opt.hasAlphaFade
+
+	-- Methods
+	view._onPress = opt.onPress
+	view._onRelease = opt.onRelease
+	view._onEvent = opt.onEvent
+	
+	-------------------------------------------------------
+	-- Assign properties/objects to the button
+	-------------------------------------------------------
+	
+	-- Assign objects to the button
+	button._view = view
+	
+	----------------------------------------------------------
+	--	PUBLIC METHODS	
+	----------------------------------------------------------
+	
+	-- Function to set the buttons fill color
+	function button:setFillColor( ... )
+		self._view:setFillColor( ... )
+	end
+
+	-- Function to set the buttons stroke color
+	function button:setStrokeColor( ... )
+		self._view:setStrokeColor( ... )
+	end
+
+	-- Function to set the button's label
+	function button:setLabel( newLabel )
+		return self._view:_setLabel( newLabel )
+	end
+	
+	-- Function to get the button's label
+	function button:getLabel()
+		return self._view:_getLabel()
+	end
+	
+	-- Function to set a button as active
+	function button:setEnabled( isEnabled )
+		self._view._isEnabled = isEnabled
+	end
+	
+	-- Touch listener for our button
+	function button:touch( event )
+		-- Set the target to the view's parent group (the button object)
+		event.target = self
+		-- Manage touch events on the button
+		manageButtonTouch( self._view, event )
+		
+		return true
+	end
+	
+	button:addEventListener( "touch", button )
+		
+	----------------------------------------------------------
+	--	PRIVATE METHODS	
+	----------------------------------------------------------
+	
+	-- Function to set the button's label
+	function view:_setLabel( newLabel )
+		-- Update the label's text
+		if "function" == type( self._label.setText ) then
+			self._label:setText( newLabel )
+		else
+			self._label.text = newLabel
+		end
+		
+		-- Labels position
+		if "center" == self._labelAlign then
+			self._label.x = self.x + self._labelXOffset
+		elseif "left" == self._labelAlign then
+			self._label.x = self.x - ( self.contentWidth * 0.5 ) + ( self._label.contentWidth * 0.5 ) + 10 + self._labelXOffset
+		elseif "right" == self._labelAlign then
+			self._label.x = self.x + ( self.contentWidth * 0.5 ) - ( self._label.contentWidth * 0.5 ) - 10 + self._labelXOffset
+		end		
+			
+		-- Update the label's y position
+		self._label.y = self._label.y
+	end
+	
+	-- Function to get the button's label
+	function view:_getLabel()
+		return self._label.text
+	end
+	
+	-- Function to set the buttons current state
+	function view:_setState( state )
+		local newState = state
+		
+		if "over" == newState then
+			-- Set the view to its over color
+			if "table" == type( self._backgroundColor ) then
+				self:setFillColor( unpack( self._backgroundColor.over ) )
+			end
+			if ( self._strokeColor and self._hasStroke == true and "table" == type(self._strokeColor) ) then
+				self:setStrokeColor( unpack( self._strokeColor.over ) )
+			end
+			
+			-- Set the label to its over color
+			if "table" == type( self._label ) then
+				self._label:setFillColor( unpack( self._label._labelColor.over ) )
+			end
+			
+			-- The pressedState is now "over"
+			self._pressedState = "over"
+		
+		elseif "default" == newState then
+			-- Set the view back to its default color
+			if "table" == type( self._backgroundColor ) then
+				self:setFillColor( unpack( self._backgroundColor.default ) )
+			end
+			if ( self._strokeColor and self._hasStroke == true and "table" == type(self._strokeColor) ) then
+				self:setStrokeColor( unpack( self._strokeColor.default ) )
+			end
+			
+			-- Set the label back to its default color
+			if "table" == type( self._label ) then
+				self._label:setFillColor( unpack( self._label._labelColor.default ) )
+			end
+			
+			-- The pressedState is now "default"
+			self._pressedState = "default"
+		end
+	end
+	
+	-- Function to get the buttons current state
+	function view:_getState()
+		return self._pressedState
+	end
+	
+	-- Lose focus function
+	function button:_loseFocus()
+		self._view:_setState( "default" )
+		-- Create the alpha fade if the theme has it
+		if self._view._hasAlphaFade then
+			if self._view._label then
+				transition.to( self._view._label, { time = 50, alpha = 1.0 } )
+			else
+				transition.to( self._view, { time = 50, alpha = 1.0 } )
+			end
+		end
+	end
+	
+	-- Finalize function
+	function button:_finalize()
+	end
+	
+	return button
+end
+
+
 ------------------------------------------------------------------------
 -- Image Files Button
 ------------------------------------------------------------------------
@@ -1101,10 +1354,10 @@ local function createUsing9Slice( button, options )
 	----------------------------------------------------------
 
 	-- Function to set the buttons fill color
-	function button:setFillColor( ... )		
-		for i = self.numChildren, 1, -1 do
-			if "function" == type( self[i].setFillColor ) then
-				self[i]:setFillColor( ... )
+	function button:setFillColor( ... )
+		for i = self._view.numChildren, 1, -1 do
+			if ( not self._view[i]._isLabel and "function" == type( self._view[i].setFillColor ) ) then
+				self._view[i]:setFillColor( ... )
 			end
 		end
 	end
@@ -1293,8 +1546,17 @@ function M.new( options, theme )
 	opt.labelYOffset = customOptions.labelYOffset or 0
 	opt.embossedLabel = customOptions.emboss or themeOptions.emboss or false
 	opt.isEnabled = customOptions.isEnabled
-	opt.textOnlyButton = customOptions.textOnly or false
 	
+	opt.shape = customOptions.shape or nil
+	opt.cornerRadius = customOptions.cornerRadius or nil
+	opt.radius = customOptions.radius or nil
+	opt.vertices = customOptions.vertices or nil
+	opt.backgroundColor = customOptions.backgroundColor or nil
+	opt.strokeColor = customOptions.strokeColor or nil
+	opt.strokeWidth = customOptions.strokeWidth or nil
+	
+	opt.textOnlyButton = customOptions.textOnly or false
+
 	-- set the alpha fade param if the theme declares it
 	opt.hasAlphaFade = themeOptions.alphaFade or false
 	
@@ -1350,10 +1612,8 @@ function M.new( options, theme )
 	opt.bottomMiddleOverFrame = customOptions.bottomMiddleOverFrame or _widget._getFrameIndex( themeOptions, themeOptions.bottomMiddleOverFrame )
 
 	-- Are we using a nine piece button?
-	local using9PieceButton = not opt.defaultFrame and not opt.overFrame and not opt.defaultFile and not opt.overFile and not opt.textOnlyButton and opt.topLeftFrame and opt.topLeftOverFrame and opt.middleLeftFrame and opt.middleLeftOverFrame and opt.bottomLeftFrame and opt.bottomLeftOverFrame and 
-							opt.topRightFrame and opt.topRightOverFrame and opt.middleRightFrame and opt.middleRightOverFrame and opt.bottomRightFrame and opt.bottomRightOverFrame and
-							opt.topMiddleFrame and opt.topMiddleOverFrame and opt.middleFrame and opt.middleOverFrame and opt.bottomMiddleFrame and opt.bottomMiddleOverFrame
-	
+	local using9PieceButton = not opt.defaultFrame and not opt.overFrame and not opt.defaultFile and not opt.overFile and not opt.textOnlyButton and not opt.shape and opt.topLeftFrame and opt.topLeftOverFrame and opt.middleLeftFrame and opt.middleLeftOverFrame and opt.bottomLeftFrame and opt.bottomLeftOverFrame and opt.topRightFrame and opt.topRightOverFrame and opt.middleRightFrame and opt.middleRightOverFrame and opt.bottomRightFrame and opt.bottomRightOverFrame and opt.topMiddleFrame and opt.topMiddleOverFrame and opt.middleFrame and opt.middleOverFrame and opt.bottomMiddleFrame and opt.bottomMiddleOverFrame
+
 	-- If we are using a 9-piece button and have not passed in an imageSheet, throw an error
 	local isUsingSheet = opt.sheet or opt.themeSheetFile
 	
@@ -1369,7 +1629,7 @@ function M.new( options, theme )
 	end
 	
 	-- Are we using a 2 frame button?
-	local using2FrameButton = not using9PieceButton and opt.defaultFrame
+	local using2FrameButton = not using9PieceButton and opt.defaultFrame and not opt.shape
 	
 	-- If we are using a 2 frame button and have not passed in an imageSheet, throw an error
 	if using2FrameButton and not opt.sheet then
@@ -1390,6 +1650,9 @@ function M.new( options, theme )
 	if not using9PieceButton and not using2FrameButton and opt.overFile and not opt.defaultFile then
 		error( "ERROR: " .. M._widgetName .. ": defaultFile definition expected, got nil", 3 )
 	end
+	
+	-- Are we using a vector button?
+	local usingVectorButton = opt.shape and not using9PieceButton and not using2FrameButton and not opt.textOnlyButton
 	
 	-- Turn off theme setting for text emboss if the user isn't using a theme
 	if "boolean" == type( customOptions.emboss ) then
@@ -1413,7 +1676,7 @@ function M.new( options, theme )
 		opt.defaultFile = nil
 		opt.overFile = nil
 	end
-	
+
 	-------------------------------------------------------
 	-- Create the button
 	-------------------------------------------------------
@@ -1427,23 +1690,29 @@ function M.new( options, theme )
 		baseDir = opt.baseDir,
 		widgetType = "button",
 	}
-	
+
 	-- Create the button
 	if using9PieceButton then
-		-- If we are using a 9 piece button
+		-- If using a 9-slice button
 		createUsing9Slice( button, opt )
+
 	else
-		-- If using a 2 frame button
+		-- If using a 2-frame button
 		if using2FrameButton then
 			createUsingImageSheet( button, opt )
 		end
 		
-		-- If using 2 images
-		if opt.defaultFile and opt.overFile then
+		-- If using a 2-image button
+		if opt.defaultFile and opt.overFile and not usingVectorButton then
 			createUsingImageFiles( button, opt )
 		end
+
+		-- If using a vector button
+		if usingVectorButton then
+			createUsingVectorObject( button, opt )
+		end
 		
-		-- Text only button
+		-- If using a text-only button
 		if opt.textOnlyButton then
 			createUsingText( button, opt )
 		end
