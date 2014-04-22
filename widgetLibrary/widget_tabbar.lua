@@ -531,6 +531,10 @@ local function initWithImageSheet( tabBar, options )
 		viewButtons[view._defaultTab]:setSequence( "over" )
 	end
 	
+	-- remove the touch event on the default tab
+	viewButtons[view._defaultTab]._onPressOriginal = viewButtons[view._defaultTab]._onPress
+	viewButtons[view._defaultTab]._onPress = nil
+	
 	-- Position the tab selected group
 	viewSelected.x = viewButtons[view._defaultTab].x - ( viewSelected.contentWidth * 0.5 ) - tabBar.x
 	--viewSelected.y = tabBar.y - viewSelected.contentHeight * 0.5
@@ -571,6 +575,15 @@ local function initWithImageSheet( tabBar, options )
 		local tabSize = ( self._width / #self._tabs ) 
 
 		if "began" == phase then
+		
+			-- Loop through the tabs and set back the touch listener
+			for i =1, #self._tabs do
+				local currentTab = self._tabs[i]
+				if currentTab._onPressOriginal then
+					currentTab._onPress = currentTab._onPressOriginal
+				end
+			end
+			
 			-- Loop through the tabs
 			for i = 1, #self._tabs do
 				local currentTab = self._tabs[i]
@@ -599,6 +612,14 @@ local function initWithImageSheet( tabBar, options )
 		local tabSize = ( view._width / #view._tabs ) 
 
 		if "tap" == phase then
+			-- Loop through the tabs and set back the touch listener
+			for i =1, #view._tabs do
+				local currentTab = view._tabs[i]
+				if currentTab._onPressOriginal then
+					currentTab._onPress = currentTab._onPressOriginal
+				end
+			end
+			
 			-- Loop through the tabs
 			for i = 1, #view._tabs do
 				local currentTab = view._tabs[i]
