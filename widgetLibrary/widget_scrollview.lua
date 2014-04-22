@@ -209,7 +209,11 @@ local function createScrollView( scrollView, options )
 		if "table" == type( target ) then
 			if "string" == type( target._widgetType ) then
 				-- Remove focus from the widget
-				target:_loseFocus()
+				if "scrollView" == target._widgetType then
+					target.parent:_loseFocus()
+				else
+					target:_loseFocus()
+				end
 			end
 		end
 		
