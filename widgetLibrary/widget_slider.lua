@@ -520,7 +520,7 @@ function M.new( options, theme )
 			error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
 		end
 	else
-		error( "ERROR: " .. M._widgetName .. ": Unexpected orientation" .. M._widgetName .. " supports either 'horizonal' or 'vertical' for the orientation", 3 )
+		error( "ERROR: " .. M._widgetName .. ": Unexpected orientation " .. M._widgetName .. " supports either 'horizontal' or 'vertical' for the orientation", 3 )
 	end
 	
 	-------------------------------------------------------
