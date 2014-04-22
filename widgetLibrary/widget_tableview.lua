@@ -176,6 +176,11 @@ local function createTableView( tableView, options )
 		return self._view:_deleteRow( rowIndex )
 	end
 	
+	-- Function to delete a set of rows from a tableView
+	function tableView:deleteRows( rowIndexesTable )
+		return self._view:_deleteRows( rowIndexesTable )
+	end
+	
 	-- Function to delete all rows from a tableView
 	function tableView:deleteAllRows()
 		return self._view:_deleteAllRows()
@@ -810,7 +815,7 @@ local function createTableView( tableView, options )
 		if not self._currentCategory then 
 			initNewCategory()
 		else
-			if ( self._currentCategory.index ~= currentRow.index ) or reloadDataInvocation then
+			if ( currentRow and self._currentCategory.index ~= currentRow.index ) or reloadDataInvocation then
 				initNewCategory()
 			end
 		end		
@@ -1273,8 +1278,6 @@ local function createTableView( tableView, options )
 				end
 			end
 			
-
-			
 			-- Remove the row from display
 			display.remove( self._rows[rowIndex]._view )
 			self._rows[rowIndex]._view = nil
@@ -1319,6 +1322,155 @@ local function createTableView( tableView, options )
 			removeRow()
 			
 		end
+		
+		-- NOTE: this was the previous location of the scrollHeight calculation. If we resize the scrollheight after the transition.to above, you get a funny motion effect on the tableview. This way, it does not happen.
+		-- set the did render variable to true
+		self._hasRenderedRows = true
+	end
+	
+	-- Function to delete a set of rows from the tableView
+	function view:_deleteRows( rowIndexesTable )
+		if "table" ~= type( rowIndexesTable ) then
+			print( "Warning: deleteRows accepts a table of row indexes as a parameter. Ex.: tableView:deleteRows( { 1, 3, 5 } )" )
+			return
+		else
+			if #rowIndexesTable < 1 then
+				print( "Warning: deleteRows accepts a table with at least one row index as a parameter. Ex.: tableView:deleteRows( { 1, 3, 5 } )" )
+				return				
+			end
+		end		
+		
+		for i = 1, #rowIndexesTable do
+			local row = self._rows[ rowIndexesTable[ i ] ]
+			if type( row ) ~= "table" then
+				print( "WARNING: deleteRows( " .. rowIndex .. " ) - Row does not exist" )
+				return
+			end
+			
+			-- Deleting categories isn't currently supported
+			if row.isCategory then
+				print( "Warning: deleteRows on rowIndex " .. rowIndex .. " - deleting categories is not supported" )
+				return
+			end
+		end
+		
+		-- If the view is scrolling, don't allow a row to be deleted
+		if mAbs( self._velocity ) > 0 then
+			print( "Warning: A row cannot be deleted whilst the tableView is scrolling" )
+			return
+		end
+
+		----------------------------------------------------------------
+		-- Check if the row we are deleting is on screen or off screen
+		----------------------------------------------------------------
+		
+		-- Function to remove the row from display
+		local function removeRows( theRows, deletedContentHeight )
+			local heightToBeDeleted = 0
+			for j = 1, #theRows do
+			
+				local currentRowIndex = theRows[ j ]
+				heightToBeDeleted = heightToBeDeleted + self._rows[ currentRowIndex ]._view.height
+				
+				-- Loop through the remaining rows, starting at the next row after the deleted one
+				for i = currentRowIndex + 1, table.maxn(self._rows) do
+					-- Move up the row's which are within our views visible bounds
+					if nil~= self._rows[i] then
+					if nil~= self._rows[i]._view and "table" == type( self._rows[i]._view ) then
+						if self._rows[i].isCategory then
+							if nil ~= self._rows[i-1] then
+								transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - heightToBeDeleted, transition = easing.outQuad } )
+								self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height )
+							end
+						else
+							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - heightToBeDeleted, transition = easing.outQuad } )
+							self._rows[i].y = self._rows[i].y - ( self._rows[ currentRowIndex ]._height )
+						end
+					-- We are now moving up the off screen rows
+					else
+						if self._rows[i].isCategory then
+							if nil ~= self._rows[i-1] then
+								self._rows[i].y = self._rows[i].y - ( self._rows[ currentRowIndex ]._height )
+							end
+						else
+							self._rows[i].y = self._rows[i].y - ( self._rows[ currentRowIndex ]._height )
+						end
+					end
+					end
+				end
+			
+				-- Remove the row from display
+				display.remove( self._rows[ currentRowIndex ]._view )
+				self._rows[ currentRowIndex ]._view = nil
+							
+				-- Remove the row from the rows table
+				self._rows[ currentRowIndex ] = nil 
+
+				-- We calculate the total height of the tableView
+				if self._scrollHeight < self.parent.height then
+					self.y = _momentumScrolling.bottomLimit
+				end
+			
+			end
+			
+		end
+		
+		-- main loop over the rows to be deleted
+		local rowsToBeRemoved = {}
+		
+		for i = 1, #rowIndexesTable do
+			local row = self._rows[ rowIndexesTable[ i ] ]
+			
+			-- If the row is within the visible view
+			if "table" == type( row._view ) then
+				-- Transition out & delete the row in question
+				-- decrement the table rows variable
+				self._numberOfRows =  self._numberOfRows - 1
+				-- remove the event listeners on the row before starting the transition
+				row._view:removeEventListener( "touch", _handleRowTouch )
+				row._view:removeEventListener( "tap", _handleRowTap )
+			
+				-- Re calculate the scrollHeight
+				self._scrollHeight = self._scrollHeight - row._height
+				-- only if the scrollbar exists, reposition it
+				if self._scrollBar then
+					self._scrollBar:repositionY()
+				end
+			
+				-- transition the row
+				rowsToBeRemoved[ #rowsToBeRemoved + 1 ] = rowIndexesTable[ i ]
+			-- The row isn't within the visible bounds of our view
+			else
+			
+				-- Re calculate the scrollHeight
+				self._scrollHeight = self._scrollHeight - row._height
+				self._scrollBar:repositionY()
+		
+				-- decrement the table rows variable
+				self._numberOfRows =  self._numberOfRows - 1
+				removeRow( i )
+			
+			end
+		
+		end
+		
+		local deletedContentHeight = 0
+		-- we calculate the total height we delete by deleting the rows
+		for i = 1, #rowsToBeRemoved do
+			local row = self._rows[ rowsToBeRemoved[ i ] ]
+			deletedContentHeight = deletedContentHeight + row._view.height
+		end
+
+		-- we transition the rows 
+		for i = 1, #rowsToBeRemoved do
+			local row = self._rows[ rowsToBeRemoved[ i ] ]
+			if i == #rowsToBeRemoved then
+				transition.to( row._view, { x = - ( row._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = function() removeRows( rowsToBeRemoved, deletedContentHeight ) end } )
+			else
+				transition.to( row._view, { x = - ( row._view.contentWidth * 0.5 ), transition = easing.inQuad } )
+			end
+		end
+
 		
 		-- NOTE: this was the previous location of the scrollHeight calculation. If we resize the scrollheight after the transition.to above, you get a funny motion effect on the tableview. This way, it does not happen.
 		-- set the did render variable to true
