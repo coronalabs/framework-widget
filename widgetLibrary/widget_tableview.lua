@@ -697,7 +697,7 @@ local function createTableView( tableView, options )
 
 
 	-- Function to render a category
-	function view:_renderCategory( row )
+	function view:_renderCategory( row, reloadDataInvocation )
 		-- Create a reference to the row
 		local currentRow = row
 		
@@ -810,7 +810,7 @@ local function createTableView( tableView, options )
 		if not self._currentCategory then 
 			initNewCategory()
 		else
-			if self._currentCategory.index ~= currentRow.index then
+			if ( self._currentCategory.index ~= currentRow.index ) or reloadDataInvocation then
 				initNewCategory()
 			end
 		end		
@@ -919,7 +919,7 @@ local function createTableView( tableView, options )
 		-- Render current category (if there are any categories)
 		if self._numCategories > 0 then
 			if self._currentCategoryIndex and self._currentCategoryIndex > 0 then
-				self:_renderCategory( self._rows[self._currentCategoryIndex] )
+				self:_renderCategory( self._rows[self._currentCategoryIndex], false )
 			end
 		end
 	end
@@ -1458,6 +1458,12 @@ local function createTableView( tableView, options )
 				self:_createRow( row, true )
 			end
 		end
+		
+		-- we have to rerender the stuck category on the top, if it exists
+		if ( self._rows[ 1 ].isCategory ) then
+			self:_renderCategory( self._rows[ 1 ], true )
+		end
+		
 	end
 	
 	-- isLocked variable setter function
