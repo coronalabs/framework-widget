@@ -1087,7 +1087,9 @@ local function createTableView( tableView, options )
 					currentRow._view:addEventListener( "touch", _handleRowTouch )
 					currentRow._view:addEventListener( "tap", _handleRowTap )
 				else
+					-- Obsolete: if the row is a category, just do nothing. This preserves the category rows ability to scroll with momentum like the normal rows
 					-- If the row is a category, pass the touch event back to the view
+					--[[
 					local function scrollList( event )
 						-- Handle momentum scrolling (if the view isn't locked)
 						if not self._isLocked then
@@ -1096,8 +1098,10 @@ local function createTableView( tableView, options )
 
 						return true
 					end
-
+					
 					currentRow._view:addEventListener( "touch", scrollList )
+					--]]
+
 				end
 				
 				-- Row methods
