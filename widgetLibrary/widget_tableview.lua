@@ -1578,6 +1578,11 @@ local function createTableView( tableView, options )
 			newPosition = newPosition + self._currentCategory.contentHeight
 		end
 			
+		-- if the y position is greater than the end of the table, we transition at the end of the table - the widget height
+		if math.abs( newPosition ) + self.parent.height > self._scrollHeight then
+			newPosition = - ( self._scrollHeight - self.parent.height ) 
+		end
+			
 		-- Transition the view to the row index	
 		transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad, onComplete = executeOnComplete } )
 		
