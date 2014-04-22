@@ -113,7 +113,7 @@ local function createPickerWheel( pickerWheel, options )
 		local rowTitle = display.newText( row, row._label, 0, 0, opt.font, fontSize )
 		rowTitle.y = row.contentHeight * 0.5
 		
-		if _widget.isSeven() and row.index == pickerWheel._view._columns[row.id]._values.index then
+		if row.index == pickerWheel._view._columns[row.id]._values.index then
 			rowTitle:setFillColor( 0 )
 		else
 			rowTitle:setFillColor( unpack( opt.fontColor ) )
@@ -340,7 +340,7 @@ local function createPickerWheel( pickerWheel, options )
 				self._columns[i]._view._phase = "none"
 				
 				-- update the actual values, by rerendering row
-				if _widget.isSeven() and nil ~= self._columns[i]._values then
+				if nil ~= self._columns[i]._values then
 					self._columns[i]._view._rows[self._columns[i]._values.index]._view[ 2 ]:setFillColor( 0 )
 				end
 			end
