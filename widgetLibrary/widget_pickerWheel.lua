@@ -116,7 +116,7 @@ local function createPickerWheel( pickerWheel, options )
 		if row.index == pickerWheel._view._columns[row.id]._values.index then
 			rowTitle:setFillColor( 0 )
 		else
-			rowTitle:setFillColor( unpack( opt.fontColor ) )
+			rowTitle:setFillColor( unpack( labelColor ) )
 		end
 
 		row.value = rowTitle.text
