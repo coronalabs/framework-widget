@@ -342,8 +342,8 @@ local function createUsingVectorObject( button, options )
 	end
 	
 	--Style the view
-	if ( opt.backgroundColor ) then
-		view:setFillColor( unpack( opt.backgroundColor.default ) )
+	if ( opt.fillColor ) then
+		view:setFillColor( unpack( opt.fillColor.default ) )
 	end
 	if ( opt.strokeColor and tonumber(opt.strokeWidth) and tonumber(opt.strokeWidth) > 0 ) then
 		view:setStrokeColor( unpack( opt.strokeColor.default ) )
@@ -395,7 +395,7 @@ local function createUsingVectorObject( button, options )
 	view._isEnabled = opt.isEnabled
 	view._pressedState = "default"
 	view._fontSize = opt.fontSize
-	view._backgroundColor = opt.backgroundColor or nil
+	view._fillColor = opt.fillColor or nil
 	view._strokeColor = opt.strokeColor or nil
 	view._label = viewLabel
 	view._labelColor = viewLabel._labelColor
@@ -494,8 +494,8 @@ local function createUsingVectorObject( button, options )
 		
 		if "over" == newState then
 			-- Set the view to its over color
-			if "table" == type( self._backgroundColor ) then
-				self:setFillColor( unpack( self._backgroundColor.over ) )
+			if "table" == type( self._fillColor ) then
+				self:setFillColor( unpack( self._fillColor.over ) )
 			end
 			if ( self._strokeColor and self._hasStroke == true and "table" == type(self._strokeColor) ) then
 				self:setStrokeColor( unpack( self._strokeColor.over ) )
@@ -511,8 +511,8 @@ local function createUsingVectorObject( button, options )
 		
 		elseif "default" == newState then
 			-- Set the view back to its default color
-			if "table" == type( self._backgroundColor ) then
-				self:setFillColor( unpack( self._backgroundColor.default ) )
+			if "table" == type( self._fillColor ) then
+				self:setFillColor( unpack( self._fillColor.default ) )
 			end
 			if ( self._strokeColor and self._hasStroke == true and "table" == type(self._strokeColor) ) then
 				self:setStrokeColor( unpack( self._strokeColor.default ) )
@@ -1551,7 +1551,7 @@ function M.new( options, theme )
 	opt.cornerRadius = customOptions.cornerRadius or nil
 	opt.radius = customOptions.radius or nil
 	opt.vertices = customOptions.vertices or nil
-	opt.backgroundColor = customOptions.backgroundColor or nil
+	opt.fillColor = customOptions.fillColor or nil
 	opt.strokeColor = customOptions.strokeColor or nil
 	opt.strokeWidth = customOptions.strokeWidth or nil
 	
