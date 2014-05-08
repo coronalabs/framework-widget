@@ -209,7 +209,7 @@ local function initWithImage( segmentedControl, options )
 		-- Create the dividers
 		if ( i < #segments ) then
 			local divider
-			if ( opt.dividerFrame ) then
+			if ( opt.dividerFrame and opt.dividerFrameWidth and opt.dividerFrameHeight ) then
 				divider = display.newImageRect( segmentedControl, imageSheet, opt.dividerFrame, opt.dividerFrameWidth, opt.dividerFrameHeight )
 			else
 				divider = display.newRect( segmentedControl, 0, 0, 1, 2 )
@@ -574,11 +574,17 @@ function M.new( options, theme )
 	opt.rightSegmentSelectedFrame = customOptions.rightSegmentSelectedFrame or _widget._getFrameIndex( themeOptions,themeOptions.rightSegmentSelectedFrame )
 	opt.middleSegmentFrame = customOptions.middleSegmentFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleSegmentFrame )
 	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleSegmentSelectedFrame)
-	opt.dividerFrame = customOptions.dividerFrame or _widget._getFrameIndex( themeOptions, themeOptions.dividerFrame ) or nil
 
-	if ( opt.dividerFrame ) then
-		opt.dividerFrameWidth = customOptions.dividerFrameWidth or themeOptions.dividerFrameWidth or error( "ERROR:" .. M._widgetName .. ": dividerFrameWidth expected, got nil", 3 )
-		opt.dividerFrameHeight = customOptions.dividerFrameHeight or themeOptions.dividerFrameHeight or error( "ERROR:" .. M._widgetName .. ": dividerFrameHeight expected, got nil", 3 )
+	if ( opt.dividerFrame and opt.dividerFrameWidth and opt.dividerFrameHeight ) then
+		-- User has defined divider frame info, use it...
+		opt.dividerFrame = customOptions.dividerFrame
+		opt.dividerFrameWidth = customOptions.dividerFrameWidth
+		opt.dividerFrameHeight = customOptions.dividerFrameHeight
+	else
+		-- Else, default to theme frame info
+		opt.dividerFrame = _widget._getFrameIndex( themeOptions, themeOptions.dividerFrame )
+		opt.dividerFrameWidth = themeOptions.dividerFrameWidth
+		opt.dividerFrameHeight = themeOptions.dividerFrameHeight
 	end
 	
 	-------------------------------------------------------
