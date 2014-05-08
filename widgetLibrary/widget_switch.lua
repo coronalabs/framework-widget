@@ -297,6 +297,11 @@ local function createOnOffSwitch( switch, options )
 	
 	-- Assign properties to the switch	
 	switch.isOn = opt.initialSwitchState
+	-- Add support for the new Android themes that have the off button reversed
+	-- or for skinned switches to flip the side.
+	if opt.offDirection == "left" or _widget.isHolo() then
+		switch.isOn = not switch.isOn
+	end
 	
 	-- For non-graphics v1 mode, the children have to be non-anchored
 	if not isGraphicsV1 then
@@ -375,6 +380,10 @@ local function createOnOffSwitch( switch, options )
 				
 		-- Set the switches transition time
 		local switchTransitionTime = 200
+		-- Modern Android switches have no apparent transition
+		if _widget.isHolo() then
+			switchTransitionTime = 2
+		end
 		
 		if not _widget.isSeven() then
 		
@@ -706,7 +715,28 @@ local function createStandardSwitch( switch, options )
 	
 	-- Function to set the switches state (on/off) programatically
 	function switch:setState( options )
-		return self._view:_setState( options )
+		-- If this is a radio button
+		local _switch = self
+		if "radio" == self._view._switchType then
+			-- Loop through all objects contained in the switches parent group
+			for i = 1, _switch.parent.numChildren do
+				local child = _switch.parent[i]
+				
+				-- Turn off all radio buttons in this group
+				if "table" == type( child._view ) then
+					if "string" == type( child._view._switchType ) then
+						if "radio" == child._view._switchType then
+							child._view:_setState( { isOn = false } )
+						end
+					end
+				end
+			end
+			
+			-- Set the pressed/selected radio switch to on
+			return self._view:_setState( { isOn = true } )
+		else
+			return self._view:_setState( options )
+		end
 	end
 
 	-- Handle touches on the switch
@@ -866,6 +896,7 @@ function M.new( options, theme )
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.switchType = customOptions.style or "onOff"
 	opt.initialSwitchState = customOptions.initialSwitchState or false
+	opt.offDirection = customOptions.offDirection or themeOptions.offDirection or "right"
 	opt.onPress = customOptions.onPress
 	opt.onRelease = customOptions.onRelease
 	opt.onEvent = customOptions.onEvent
