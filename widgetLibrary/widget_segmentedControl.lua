@@ -183,21 +183,39 @@ local function initWithImage( segmentedControl, options )
 				label:setFillColor( unpack( view._labelColor.default ) )
 			end
 		else
-			label = display.newEmbossedText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
-			label:setFillColor( unpack( whiteColor ) )
+			-- Use embossed text (or not) depending on theme definition
+			if ( opt.emboss ) then
+				label = display.newEmbossedText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
+			else
+				label = display.newText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
+			end
+			-- Use label "default" and "over" colors (else default to white)
+			if ( view._labelColor and view._labelColor.over and view._labelColor.default ) then
+				if view._segmentNumber == i or opt.defaultSegment == i then
+					label:setFillColor( unpack( view._labelColor.over ) )
+				else
+					label:setFillColor( unpack( view._labelColor.default ) )
+				end
+			else
+				label:setFillColor( unpack( whiteColor ) )
+			end
 		end
 		
-		
-		
-		label.x = leftSegment.x + ( segmentWidth * 0.5 + segmentWidth * ( i - 1 ) ) - leftSegment.width * 0.5
-		label.y = leftSegment.y
+		label.x = leftSegment.x + opt.labelXOffset + ( segmentWidth * 0.5 + segmentWidth * ( i - 1 ) ) - leftSegment.width * 0.5
+		label.y = leftSegment.y + opt.labelYOffset
 		label.segmentName = segments[i] 
 		segmentLabels[i] = label
 
 		-- Create the dividers
-		if i < #segments then
-			local divider = display.newImageRect( segmentedControl, imageSheet, opt.dividerFrame, 1, 29 )
-			divider.x = leftSegment.x + ( segmentWidth * i ) -  ( leftSegment.width * 0.5 )
+		if ( i < #segments ) then
+			local divider
+			if ( opt.dividerFrame ) then
+				divider = display.newImageRect( segmentedControl, imageSheet, opt.dividerFrame, opt.dividerFrameWidth, opt.dividerFrameHeight )
+			else
+				divider = display.newRect( segmentedControl, 0, 0, 1, 2 )
+				divider.isVisible = false
+			end
+			divider.x = leftSegment.x + ( segmentWidth * i ) - ( leftSegment.width * 0.5 )
 			divider.y = leftSegment.y
 			segmentDividers[i] = divider
 		end
@@ -279,18 +297,18 @@ local function initWithImage( segmentedControl, options )
 				
 				-- Work out the current segments position
 
-				local parentOffsetX = 0
-
+				--local parentOffsetX = 0
 				-- First, we check if the widget is in a group
-				if nil ~= self.parent and nil ~= self.parent.x then
+				--[[if nil ~= self.parent and nil ~= self.parent.x then
 				    parentOffsetX = self.parent.x
-			    end
-			
-				--local currentSegmentLeftEdge = ( segmentedControlXPosition * 0.5 ) * currentSegment + parentOffsetX
-				--local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) + parentOffsetX
+			    end--]]
 
-                local currentSegmentLeftEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) - segmentWidth + parentOffsetX
-                local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) + parentOffsetX	
+				--OLD VERSION (DID NOT WORK INSIDE SCROLLVIEW)
+                --local currentSegmentLeftEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) - segmentWidth + parentOffsetX
+                --local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) + parentOffsetX	
+				
+				local currentSegmentLeftEdge = self.contentBounds.xMin + ( segmentWidth * currentSegment ) - segmentWidth
+				local currentSegmentRightEdge = self.contentBounds.xMin + ( segmentWidth * currentSegment )
 				
 				-- If the touch is within the segments range
 				if event.x >= currentSegmentLeftEdge and event.x <= currentSegmentRightEdge then
@@ -348,21 +366,30 @@ local function initWithImage( segmentedControl, options )
 		
 		-- Set the segment's name
 		self._segmentLabel = self._segmentLabels[1].text
+		self.segmentLabel = self._segmentLabel
 		
 		-- Set the segment number
 		self._segmentNumber = 1
+		self.segmentNumber = self._segmentNumber
 		
-		-- Reset the colors if ios7
+		-- Reset the label colors
 		if _widget.isSeven() then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
 				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
-			
 			view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
-			
+		elseif ( view._labelColor and view._labelColor.default and view._labelColor.over ) then
+			for i = 1, #view._segmentLabels do
+				local currentSegment = view._segmentLabels[ i ]
+				currentSegment:setFillColor( unpack( view._labelColor.default ) )
+			end
+			view._segmentLabels[1]:setFillColor( unpack( view._labelColor.over ) )
+		else
+			for i = 1, #view._segmentLabels do
+				view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
+			end
 		end
-		
 	end
 	
 	-- Function to set the right segment active
@@ -378,19 +405,29 @@ local function initWithImage( segmentedControl, options )
 	
 		-- Set the segment's name
 		self._segmentLabel = self._segmentLabels[self._totalSegments].text
+		self.segmentLabel = self._segmentLabel
 		
 		-- Set the segment number
 		self._segmentNumber = self._totalSegments
+		self.segmentNumber = self._segmentNumber
 		
-		-- Reset the colors if ios7
+		-- Reset the label colors
 		if _widget.isSeven() then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
 				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
-			
 			view._segmentLabels[ #view._segmentLabels ]:setFillColor( unpack( whiteColor ) )
-			
+		elseif ( view._labelColor and view._labelColor.default and view._labelColor.over ) then
+			for i = 1, #view._segmentLabels do
+				local currentSegment = view._segmentLabels[ i ]
+				currentSegment:setFillColor( unpack( view._labelColor.default ) )
+			end
+			view._segmentLabels[ #view._segmentLabels ]:setFillColor( unpack( view._labelColor.over ) )
+		else
+			for i = 1, #view._segmentLabels do
+				view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
+			end
 		end
 		
 	end
@@ -408,34 +445,43 @@ local function initWithImage( segmentedControl, options )
 		
 		-- Set the segment's name
 		self._segmentLabel = self._segmentLabels[segmentNum].text
+		self.segmentLabel = self._segmentLabel
 		
 		-- Set the segment number
 		self._segmentNumber = segmentNum
+		self.segmentNumber = self._segmentNumber
 		
-		-- Reset the colors if ios7
+		-- Reset the label colors
 		if _widget.isSeven() then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
 				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
-			
 			view._segmentLabels[ segmentNum ]:setFillColor( unpack( whiteColor ) )
-			
+		elseif ( view._labelColor and view._labelColor.default and view._labelColor.over ) then
+			for i = 1, #view._segmentLabels do
+				local currentSegment = view._segmentLabels[ i ]
+				currentSegment:setFillColor( unpack( view._labelColor.default ) )
+			end
+			view._segmentLabels[ segmentNum ]:setFillColor( unpack( view._labelColor.over ) )
+		else
+			for i = 1, #view._segmentLabels do
+				view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
+			end
 		end
-		
 	end
 	
 	-- Set the intial segment to active
 	local function setDefaultSegment( segmentNum )
-			if 1 == segmentNum then
-					view:setLeftSegmentActive()
-			elseif #segments == segmentNum then
-					view:setRightSegmentActive()
-			else
-					view:setMiddleSegmentActive( segmentNum)
-			end
+		if 1 == segmentNum then
+			view:setLeftSegmentActive()
+		elseif #segments == segmentNum then
+			view:setRightSegmentActive()
+		else
+			view:setMiddleSegmentActive( segmentNum )
+		end
 	end
-	
+
 	-- Setter for the current segment
 	function segmentedControl:setActiveSegment(segmentNum)
 		setDefaultSegment(segmentNum)
@@ -485,25 +531,24 @@ function M.new( options, theme )
 		opt.left = 0
 		opt.top = 0
 	end
-	opt.width = customOptions.width or themeOptions.width or error( "ERROR:" .. M._widgetName .. ": width expected, got nil", 3 )
-	opt.height = customOptions.height or themeOptions.height or error( "ERROR:" .. M._widgetName .. ": height expected, got nil", 3 )
+	
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.segments = customOptions.segments or { "One", "Two" }
 	M.segmentWidth = customOptions.segmentWidth or 50
 	opt.defaultSegment = customOptions.defaultSegment or 1
-	opt.labelSize = customOptions.labelSize or 12
-	opt.labelFont = customOptions.labelFont or native.systemFont
-	-- TODO: document this in the API
-	opt.labelColor = customOptions.labelColor or themeOptions.labelColor or buttonDefault
-	
+	opt.labelSize = customOptions.labelSize or themeOptions.labelSize or 12
+	opt.labelFont = customOptions.labelFont or themeOptions.labelFont or native.systemFont
+	opt.labelColor = customOptions.labelColor or themeOptions.labelColor or nil
+	opt.emboss = customOptions.emboss or themeOptions.emboss or nil
+
 	if _widget.isSeven() then
 		opt.labelFont = customOptions.labelFont or "HelveticaNeue"
 		opt.labelSize = customOptions.labelSize or 13
 	end
 	
-	opt.labelXOffset = customOptions.labelXOffset or 0
-	opt.labelYOffset = customOptions.labelYOffset or 0
+	opt.labelXOffset = customOptions.labelXOffset or themeOptions.labelXOffset or 0
+	opt.labelYOffset = customOptions.labelYOffset or themeOptions.labelYOffset or 0
 	opt.onPress = customOptions.onPress
 	
 	-- Frames & Images
@@ -511,14 +556,31 @@ function M.new( options, theme )
 	opt.themeSheetFile = themeOptions.sheet
 	opt.themeData = themeOptions.data
 	
+	if ( customOptions.segmentFrameWidth or themeOptions.segmentFrameWidth ) then
+		opt.width = customOptions.segmentFrameWidth or themeOptions.segmentFrameWidth
+	else
+		opt.width = customOptions.width or themeOptions.width or error( "ERROR:" .. M._widgetName .. ": width or segmentFrameWidth expected, got nil", 3 )
+	end
+
+	if ( customOptions.segmentFrameHeight or themeOptions.segmentFrameHeight ) then
+		opt.height = customOptions.segmentFrameHeight or themeOptions.segmentFrameHeight
+	else
+		opt.height = customOptions.height or themeOptions.height or error( "ERROR:" .. M._widgetName .. ": height or segmentFrameHeight expected, got nil", 3 )
+	end
+
 	opt.leftSegmentFrame = customOptions.leftSegmentFrame or _widget._getFrameIndex( themeOptions, themeOptions.leftSegmentFrame )
 	opt.leftSegmentSelectedFrame = customOptions.leftSegmentSelectedFrame or _widget._getFrameIndex( themeOptions, themeOptions.leftSegmentSelectedFrame )
 	opt.rightSegmentFrame = customOptions.rightSegmentFrame or _widget._getFrameIndex( themeOptions, themeOptions.rightSegmentFrame )
 	opt.rightSegmentSelectedFrame = customOptions.rightSegmentSelectedFrame or _widget._getFrameIndex( themeOptions,themeOptions.rightSegmentSelectedFrame )
 	opt.middleSegmentFrame = customOptions.middleSegmentFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleSegmentFrame )
 	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleSegmentSelectedFrame)
-	opt.dividerFrame = customOptions.dividerFrame or _widget._getFrameIndex( themeOptions, themeOptions.dividerFrame)
+	opt.dividerFrame = customOptions.dividerFrame or _widget._getFrameIndex( themeOptions, themeOptions.dividerFrame ) or nil
 
+	if ( opt.dividerFrame ) then
+		opt.dividerFrameWidth = customOptions.dividerFrameWidth or themeOptions.dividerFrameWidth or error( "ERROR:" .. M._widgetName .. ": dividerFrameWidth expected, got nil", 3 )
+		opt.dividerFrameHeight = customOptions.dividerFrameHeight or themeOptions.dividerFrameHeight or error( "ERROR:" .. M._widgetName .. ": dividerFrameHeight expected, got nil", 3 )
+	end
+	
 	-------------------------------------------------------
 	-- Create the segmentedControl
 	-------------------------------------------------------

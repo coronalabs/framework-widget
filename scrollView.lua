@@ -129,7 +129,7 @@ function scene:createScene( event )
 		height = 350,
 		id = "onBottom",
 	}
-	group:insert( scrollView )	
+	group:insert( scrollView )
 	
 	-- insert image into scrollView widget
 	local background = display.newImageRect( "unitTestAssets/scrollimage.jpg", 768, 1024 )
@@ -138,9 +138,9 @@ function scene:createScene( event )
 	background.alpha = 0.3
 	scrollView:insert( background )
 	
-	print( "sc coords: ", scrollView._view.x, scrollView._view.y )
+	--print( "sc coords: ", scrollView._view.x, scrollView._view.y )
 	local vBounds = scrollView._view.contentBounds
-	print( vBounds.xMin, vBounds.xMax, vBounds.yMin, vBounds.yMax )
+	--print( vBounds.xMin, vBounds.xMax, vBounds.yMin, vBounds.yMax )
 	
 	local function test( event )
 		local phase = event.phase
@@ -165,6 +165,24 @@ function scene:createScene( event )
 	end
 
 
+	local newSegmentedControl = widget.newSegmentedControl
+	{
+		left = 25,
+		top = 10,
+		segments = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" },
+		defaultSegment = 1,
+		--segmentWidth = 25,
+		--[[
+		labelSize = 14,
+		labelFont = native.systemFontBold,
+		labelXOffset = 0,
+		labelYOffset = - 2,
+		--]]
+		onPress = onPress,
+	}
+	scrollView:insert( newSegmentedControl )
+	
+	
 	-- Standard button 
 	local buttonUsingFiles = widget.newButton
 	{

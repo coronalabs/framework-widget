@@ -252,8 +252,10 @@ theme.segmentedControl =
 {
 	sheet = sheetFile,
 	data = sheetData,
-	width = 11,
-	height = 29,
+	segmentFrameWidth = 11,
+	segmentFrameHeight = 29,
+	dividerFrameWidth = 1,
+	dividerFrameHeight = 27,
 	leftSegmentFrame = "segmentedControl_left",
 	leftSegmentSelectedFrame = "segmentedControl_leftOn",
 	rightSegmentFrame = "segmentedControl_right",
@@ -261,6 +263,12 @@ theme.segmentedControl =
 	middleSegmentFrame = "segmentedControl_middle",
 	middleSegmentSelectedFrame = "segmentedControl_middleOn",
 	dividerFrame = "segmentedControl_divider",
+	labelColor = 
+    { 
+        default = { 1 },
+        over = { 1 },
+    },
+	emboss = true
 }
 
 -----------------------------------------------------------------------------------------

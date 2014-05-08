@@ -60,7 +60,7 @@ function scene:createScene( event )
 	    left = 60,
 	    top = backButtonPosition,
 	    label = "Exit",
-	    width = 200, height = 40,
+	    width = 200, height = 34,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
 	returnToListing.x = display.contentCenterX
@@ -112,7 +112,7 @@ function scene:createScene( event )
 	-- Create a new Picker Wheel
 	local pickerWheel = widget.newPickerWheel
 	{
-		top = display.contentHeight - 222,
+		top = display.contentHeight - 422,
 		columns = columnData,
 	}
 	group:insert( pickerWheel )
@@ -139,13 +139,13 @@ function scene:createScene( event )
 	
 	local getValuesButton = widget.newButton{
 	    id = "getValues",
-	    left = display.contentWidth * 0.5 - 50,
-	    top = 60,
-	    label = "Values",
-	    width = 100, height = 52,
+	    --left = display.contentWidth * 0.5,
+	    top = 300,
+	    label = "print() values",
+	    width = 200, height = 34,
 	    onRelease = showValues;
 	}
-	returnToListing.x = display.contentCenterX
+	getValuesButton.x = display.contentCenterX
 	group:insert( getValuesButton )
 end
 
