@@ -535,13 +535,19 @@ local function initEditField( editField, options )
     
     function editField:slideBackKeyboard()
         local slideGroup = self.slideGroup
+        local function onSlideComplete(event)
+                slideGroup._restorePosition = nil
+            
+        end
         
         if slideGroup then
             --check if we are in a scrollview
             if self == slideGroup._slidingField then
-                self:setSlideGroupPosition(slideGroup._originalSlideY)
-                slideGroup._slidingField = nil
+                slideGroup._restorePosition = slideGroup._originalSlideY
+                self:setSlideGroupPosition(slideGroup._originalSlideY, onSlideComplete)
+                slideGroup._slidingField   = nil
                 slideGroup._originalSlideY = nil
+                
             else
             end
         end      
@@ -550,7 +556,9 @@ local function initEditField( editField, options )
     function editField:getSlideGroupPosition()
         local slideGroup =  self.slideGroup;
         local xGroup, yGroup
-        if slideGroup.getContentPosition and slideGroup.scrollToPosition then
+        if slideGroup._restorePosition then
+            yGroup = slideGroup._restorePosition
+        elseif slideGroup.getContentPosition and slideGroup.scrollToPosition then
             xGroup, yGroup = slideGroup:getContentPosition()  
         else
             yGroup = slideGroup.y;
@@ -558,12 +566,12 @@ local function initEditField( editField, options )
         return yGroup
     end
     
-    function editField:setSlideGroupPosition(yGroup)
+    function editField:setSlideGroupPosition(yGroup, onSlideComplete)
         local slideGroup =  self.slideGroup;
         if slideGroup.getContentPosition and slideGroup.scrollToPosition then
-            slideGroup:scrollToPosition({y=yGroup,time = self.keyboardSlideTime})
+            slideGroup:scrollToPosition({y=yGroup,time = self.keyboardSlideTime, onComplete = onSlideComplete})
         else
-            transition.to(slideGroup,{y = yGroup,time=self.keyboardSlideTime} )
+            transition.to(slideGroup,{y = yGroup,time=self.keyboardSlideTime, onComplete = onSlideComplete} )
         end    
     end
     

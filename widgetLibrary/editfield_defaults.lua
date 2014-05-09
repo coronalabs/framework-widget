@@ -1,4 +1,6 @@
 
+local clbData = require("widgets.editfield_calibrationdb")
+
 local M = {}
 M.androidKeyboardHeight = 350
 
@@ -138,6 +140,15 @@ end
 
 M.fontScale = M:calcFontSize()
 
+local calibration = clbData[system.getInfo( "environment").."-".. system.getInfo("model")]
+if calibration then
+    M.fontScale = calibration.fontScale
+    M.textFieldHeightAdjust = calibration.textFieldHeightAdjust
+    M.textFieldYOffset  = calibration.textFieldYOffset
+    M.textFieldXOffset  = calibration.textFieldXOffset
+    M.fakeLabelYOffset  = calibration.labelYoffset
+    M.fakeLabelXOffset  = calibration.labelXoffset
+end
 
 return M
 
