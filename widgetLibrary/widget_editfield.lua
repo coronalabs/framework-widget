@@ -32,7 +32,7 @@
 local _widget = require( "widget" )
 local _storyboard = require("storyboard")
 local efDefaults = require("widgets.editfield_defaults")
-local version = "1.01"
+local version = "1.03"
 
 local M = 
 {
@@ -93,7 +93,7 @@ local function getKeyboardHeight()
                 return 264
             end
         elseif model == "iPhone" or
-               model == "iPod"  then
+            model == "iPod"  then
             if isLandscape() then
                 return 162
             else    
@@ -378,7 +378,7 @@ local function initEditField( editField, options )
     
     if textFieldWidth == 0 then
         textFieldWidth = (xEnd - xStart) - labelWidth - buttonsWidthRight -opt.textFieldXOffset 
-         - 2* opt.spacing;
+        - 2* opt.spacing;
     end
     --calculate textheight for selected font
     local tmpField = display.newText("qÖ",0,0,opt.editFont,opt.editFontSize)
@@ -433,15 +433,15 @@ local function initEditField( editField, options )
     local fakeTextField
     if not opt.native then
         fakeTextField = display.newText(
-          {parent=editField, 
-          text="", 
-          x=0, 
-          y=0, 
-          width=textFieldWidth -2*opt.fakeLabelXOffset+2*opt.textFieldXOffset, 
-          height=lineHeight, 
-          font=opt.editFont, 
-          fontSize=opt.editFontSize,
-          align = opt.align})
+        {parent=editField, 
+            text="", 
+            x=0, 
+            y=0, 
+            width=textFieldWidth -2*opt.fakeLabelXOffset+2*opt.textFieldXOffset, 
+            height=lineHeight, 
+            font=opt.editFont, 
+            fontSize=opt.editFontSize,
+        align = opt.align})
         fakeTextField.anchorX = 0;
         fakeTextField.x = textLabelX + labelWidth + opt.fakeLabelXOffset + opt.spacing;
         fakeTextField.y = yCenter + opt.fakeLabelYOffset ;
@@ -485,7 +485,7 @@ local function initEditField( editField, options )
         editField._isModified = editField._originalText and string.len(editField._originalText) > 0;
         if string.len(editField._textField.text) > 0 then
             editField._textField.text = "";
-        
+            
             editField._clearButton.isVisible = false;
             editField:updateFakeContent("")
             editField._textField._originalText = ""
@@ -536,7 +536,7 @@ local function initEditField( editField, options )
     function editField:slideBackKeyboard()
         local slideGroup = self.slideGroup
         local function onSlideComplete(event)
-                slideGroup._restorePosition = nil
+            slideGroup._restorePosition = nil
             
         end
         
@@ -812,7 +812,7 @@ local function initEditField( editField, options )
     
     function editField:validate()
         local notValid = self.required and
-                            string.len(self._textField.text) == 0 
+        string.len(self._textField.text) == 0 
         if self._errorFrame then
             self.validating = true;
             self._errorFrame.isVisible = notValid
@@ -870,6 +870,9 @@ local function initEditField( editField, options )
     bg:addEventListener("touch", function (event) return true; end)
     return editField
 end
+
+
+
 
 
 -- Function to create a new editfield object ( widget.newEditField)
@@ -1010,6 +1013,52 @@ function M.new( options, theme )
     local x, y = _widget._calculatePosition( editField, opt )
     editField.x, editField.y = x, y
     
+    -- create metatable
+    local _editProxy = editField
+    
+    -- create proxy for property getters/setters
+    local editField = {}
+    
+    editField._class = _editProxy._class
+    editField._proxy = _editProxy._proxy
+    
+    local mt = {
+        __index = function (m,k)
+            if k == "text" then
+                return _editProxy:getText()
+            elseif k == "returnKey" then 
+                return _editProxy.returnKey
+            elseif k == "inputType" then
+                return _editProxy.inputType
+            elseif k == "isSecure" then
+                return _editProxy.isSecure
+            elseif k == "editMode" then
+                return not _editProxy._fakingIt
+            else
+                
+                return _editProxy[k] -- access the original table
+            end  
+        end,
+        
+        __newindex = function (m,k,v)
+            if k == "text" then
+                _editProxy:setText(v) 
+            elseif k == "returnKey" then 
+                _editProxy:setReturnKey(v) 
+            elseif k == "inputType " then    
+                _editProxy:setInputType(v)
+            elseif k == "isSecure" then    
+                _editProxy:setIsSecure(v)
+            elseif k == "editMode" then
+                _editProxy:_swapFakeField( not k )      
+            else
+                _editProxy[k] = v -- update original table
+            end    
+        end
+        
+    }
+    
+    setmetatable(editField, mt)
     
     
     return editField

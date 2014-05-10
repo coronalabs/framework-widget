@@ -59,10 +59,62 @@ function M:calcFontSize()
             end    
         else    
             fontScale = (display.pixelHeight / display.contentHeight) * 0.5;
+            end
+            
+        end
+            
+    return fontScale
+    
+end
+
+function M:renatoCalcFontSize()
+    local environment = system.getInfo("environment")
+    --default scaing for simulator
+    local fontScale = (( display.contentWidth - (display.screenOriginX * 2) ) / display.contentScaleX) / display.contentWidth
+    if system.getInfo("platformName") == "Android" then       
+        --default font scaling for all versions
+        fontScale = (display.pixelWidth / display.contentWidth) * 0.5; 
+       --check if its an Android version 2 device
+        local osVersion = system.getInfo("platformVersion")
+        if osVersion then
+            local pos = string.find(osVersion,"2.")
+            if pos == 1 then
+               fontScale = 1 
+          end   
+        end    
+    elseif  environment == "simulator" then    
+        --in Corona simulator, check if its a tall device, which is probably Zoomed out
+        --print("display.pixelHeight=", display.pixelHeight)
+        --print("display.contentScaleY=", display.contentScaleY)
+        fontScale = fontScale * display.contentScaleY
+--        if display.pixelHeight > 800 then  -- this was not working on iPad Retina Simulator, that need to be multplied by .25
+--            fontScale = fontScale * .5
+--        end
+
+    else    
+        if string.match(system.getInfo("model"),"iPa") then
+            --iPads 
+            if display.pixelHeight == 2048 then
+                --iPad retina
+                fontScale = (display.pixelHeight / display.contentHeight) * 0.5;
+            else
+                fontScale = 1 / display.contentScaleY
+            end    
+        else    
+            fontScale = (display.pixelHeight / display.contentHeight) * 0.5;
+            
+            -- checking what type of scalling mode used by the user
+            local config = require "config" -- this makes the config content be available on the _G.application variable
+            local configContent = _G.application.content
+            local configContentScale = configContent.scale
+            print("configContent.scale=", configContentScale)
+            if configContentScale == "letterBox" then -- if letterBox was used on a iPhone contentScalling, no need to have fontScale. If used, the fontScale calculated above, it will make the inputFontSize bigger than the fakeText font Size
+                fontScale = 1
+            end
+            
         end
         
     end
-    
     return fontScale
     
 end
@@ -138,6 +190,7 @@ function M:mpappasCalcFontSize()
     
 end
 
+<<<<<<< HEAD
 M.fontScale = M:calcFontSize()
 
 local calibration = clbData[system.getInfo( "environment").."-".. system.getInfo("model")]
@@ -149,6 +202,10 @@ if calibration then
     M.fakeLabelYOffset  = calibration.labelYoffset
     M.fakeLabelXOffset  = calibration.labelXoffset
 end
+=======
+--M.fontScale = M:calcFontSize()
+M.fontScale = M:renatoCalcFontSize()
+>>>>>>> FETCH_HEAD
 
 return M
 
