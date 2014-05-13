@@ -460,7 +460,10 @@ local function createOnOffSwitch( switch, options )
 	function view:touch( event )
 		local phase = event.phase
 	
-		if not _widget.isSeven() then
+		-- Android onOff switch doesn't do sliding
+		if _widget.isSeven() or _widget.isHolo() then
+			return true
+		end
 	
 		if "began" == phase then
 			-- Cancel current view transition if there is one
@@ -517,7 +520,11 @@ local function createOnOffSwitch( switch, options )
 				
 				-- Set the switches transition time
 				local switchTransitionTime = 200
-				
+				-- Modern Android switches have no apparent transition
+				if _widget.isHolo() then
+					switchTransitionTime = 2
+				end
+
 				-- Transition the switch from on>off and vice versa
 				if self._handle.x < 0 then
 					_switch.isOn = false
@@ -536,10 +543,6 @@ local function createOnOffSwitch( switch, options )
 				display.getCurrentStage():setFocus( nil )
 				self._isFocus = false
 			end
-		end
-		
-		else
-		
 		end
 		
 		-- If self has a _onEvent method execute it
@@ -588,6 +591,10 @@ local function createOnOffSwitch( switch, options )
 		
 		-- Set the switches transition time
 		local switchTransitionTime = 200
+		-- Modern Android switches have no apparent transition
+		if _widget.isHolo() then
+			switchTransitionTime = 2
+		end
 		
 		-- Temporary until we wrap up theme definition of ios7 
 		
