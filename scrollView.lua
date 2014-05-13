@@ -126,16 +126,16 @@ function scene:createScene( event )
 		x = 160,
 		y = 270,
 		width = 300,
-		height = 350,
+		height = 380,
 		id = "onBottom",
 	}
 	group:insert( scrollView )
 	
 	-- insert image into scrollView widget
-	local background = display.newImageRect( "unitTestAssets/scrollimage.jpg", 768, 1024 )
+	local background = display.newImageRect( "unitTestAssets/scrollimage2.jpg", 768, 1024 )
 	background.x = 240
 	background.y = 340
-	background.alpha = 0.3
+	--background.alpha = 0.3
 	scrollView:insert( background )
 	
 	--print( "sc coords: ", scrollView._view.x, scrollView._view.y )
@@ -164,14 +164,14 @@ function scene:createScene( event )
 		return true
 	end
 
-
+	-- Segmented control
 	local newSegmentedControl = widget.newSegmentedControl
 	{
-		left = 25,
-		top = 10,
-		segments = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" },
+		left = 10,
+		top = 5,
+		segments = { "Item1", "Item2", "Item3", "Item4", "Item5" },
 		defaultSegment = 1,
-		--segmentWidth = 25,
+		segmentWidth = 56,
 		--[[
 		labelSize = 14,
 		labelFont = native.systemFontBold,
@@ -181,7 +181,106 @@ function scene:createScene( event )
 		onPress = onPress,
 	}
 	scrollView:insert( newSegmentedControl )
+
+	-- Radio button set
+	local radioGroup = display.newGroup()
+	local radioButton = widget.newSwitch
+	{
+		left = 15,
+		top = 40,
+		style = "radio",
+		id = "Radio button1",
+		initialSwitchState = true
+	}
+	radioGroup:insert( radioButton )
+
+	local radioButton2 = widget.newSwitch
+	{
+		left = 40,
+		top = 40,
+		style = "radio",
+		id = "Radio button2"
+	}
+	radioGroup:insert( radioButton2 )
+	scrollView:insert( radioGroup )
 	
+	-- Checkbox
+	local checkboxButton = widget.newSwitch
+	{
+		left = 80,
+		top = 40,
+		style = "checkbox",
+		id = "Checkbox button"
+	}
+	scrollView:insert( checkboxButton )
+	
+	-- On/off switch
+	local onOffSwitch = widget.newSwitch
+	{
+		left = 105,
+		top = 45,
+		style = "onOff",
+		initialSwitchState = false
+	}
+	scrollView:insert( onOffSwitch )
+	
+	-- Stepper
+	local newStepper = widget.newStepper
+	{
+		id = "dy",
+		left = 20,
+		top = 80,
+		initialValue = 4,
+		minimumValue = 0,
+		maximumValue = 25
+	}
+	scrollView:insert( newStepper )
+	
+	-- Progress view
+	local newProgressView = widget.newProgressView
+	{
+		left = 120,
+		top = 92,
+		width = 100,
+		isAnimated = true,
+	}
+	scrollView:insert( newProgressView )
+	local currentProgress = 0.0
+	testTimer = timer.performWithDelay( 100, function( event )
+		currentProgress = currentProgress + 0.01
+		newProgressView:setProgress( currentProgress )
+	end, 50 )
+	
+	local spinnerDefault = widget.newSpinner
+	{
+		left = 235,
+		top = 50,
+		deltaAngle = 20
+	}
+	scrollView:insert( spinnerDefault )
+	spinnerDefault:start()
+	
+
+
+	local tabButtons = {
+    {
+        label = "Tab1",
+        selected = true,
+    },
+    {
+        label = "Tab2",
+    },
+    {
+        label = "Tab3",
+    }
+	}
+	local tabBar2 = widget.newTabBar
+	{
+		top = 320,
+		width = 300,
+		buttons = tabButtons
+	}
+	scrollView:insert( tabBar2 )
 	
 	-- Standard button 
 	local buttonUsingFiles = widget.newButton
@@ -192,7 +291,7 @@ function scene:createScene( event )
 		overFile = "unitTestAssets/over.png",
 	    id = "Left Label Button",
 	    left = 0,
-	    top = 120,
+	    top = 115,
 	    label = "Files",
 		labelAlign = "left",
 		fontSize = 18,
@@ -205,7 +304,7 @@ function scene:createScene( event )
 		isEnabled = true,
 	    onEvent = test,
 	}
-	buttonUsingFiles.x = display.contentCenterX
+	buttonUsingFiles.x = display.contentCenterX-10
 	buttonUsingFiles.oldLabel = "Files"	
 	scrollView:insert( buttonUsingFiles )
 	
@@ -229,8 +328,8 @@ function scene:createScene( event )
 		defaultFrame = 1,
 		overFrame = 2,
 	    id = "Centered Label Button",
-	    left = 60,
-	    top = 200,
+	    left = 10,
+	    top = 165,
 	    label = "ImageSheet",
 		labelAlign = "center",
 		fontSize = 18,
@@ -241,21 +340,19 @@ function scene:createScene( event )
 		},
 	    onEvent = test
 	}
-	buttonUsingImageSheet.x = display.contentCenterX
 	buttonUsingImageSheet.oldLabel = "ImageSheet"	
 	scrollView:insert( buttonUsingImageSheet )
 		
-
 	-- Theme button 
 	local buttonUsingTheme = widget.newButton
 	{
 	    id = "Right Label Button",
-	    left = 0,
-	    top = 280,
+	    left = 15,
+	    top = 225,
 	    label = "Theme",
-		labelAlign = "right",
+		--labelAlign = "right",
 	    width = 140, 
-		height = 50,
+		height = 40,
 		fontSize = 18,
 		labelColor =
 		{ 
@@ -265,9 +362,29 @@ function scene:createScene( event )
 	    onEvent = test
 	}
 	buttonUsingTheme.oldLabel = "Theme"
-	buttonUsingTheme.x = display.contentCenterX
 	scrollView:insert( buttonUsingTheme )
 
+	-- Slider (horizontal)
+	local sliderHorizontal = widget.newSlider
+	{
+		width = 200,
+		left = 10,
+		top = 275,
+		value = 50
+	}
+	scrollView:insert( sliderHorizontal )
+
+	local sliderVertical = widget.newSlider
+	{
+		height = 120,
+		top = 180,
+		left = 230,
+		value = 80,
+		orientation = "vertical"
+	}
+	scrollView:insert( sliderVertical )
+	
+	
 	if TEST_RESIZE_SCROLLVIEW_VERTICALLY then
 		scrollView:setScrollHeight( 400 )
 	end
@@ -297,7 +414,7 @@ function scene:createScene( event )
 		}
 	
 		-- insert image into scrollView widget
-		local bg2 = display.newImageRect( "unitTestAssets/scrollimage.jpg", 768, 1024 )
+		local bg2 = display.newImageRect( "unitTestAssets/scrollimage2.jpg", 768, 1024 )
 		if isGraphicsV1 then
 			bg2:setReferencePoint( display.TopLeftReferencePoint )
 		end

@@ -155,6 +155,7 @@ function scene:createScene( event )
 	}
 	sliderH.x = display.contentCenterX
 	sliderH.y = display.contentCenterY+180
+	group:insert( sliderH )
 
 	-- Skinned (vertical)
 	local sliderFramesVertical = {
@@ -189,7 +190,7 @@ function scene:createScene( event )
 	}
 	sliderV.x = display.contentCenterX+120
 	sliderV.y = display.contentCenterY-50
-	
+	group:insert( sliderV )
 	
 
 	----------------------------------------------------------------------------------------------------------------
