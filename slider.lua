@@ -127,12 +127,12 @@ function scene:createScene( event )
 	-- Skinned (horizontal)
 	local sliderFrames = {
 		frames = {
-			{ x=0, y=0, width=64, height=64 },
-			{ x=64, y=0, width=64, height=64 },
-			{ x=128, y=0, width=64, height=64 },
-			{ x=194, y=0, width=64, height=64 },
-			{ x=262, y=0, width=64, height=64 }
-		}, sheetContentWidth = 332, sheetContentHeight = 64
+			{ x=0, y=0, width=36, height=64 },
+			{ x=40, y=0, width=36, height=64 },
+			{ x=80, y=0, width=36, height=64 },
+			{ x=124, y=0, width=36, height=64 },
+			{ x=168, y=0, width=64, height=64 }
+		}, sheetContentWidth = 232, sheetContentHeight = 64
 	}
 	local sliderSheet = graphics.newImageSheet( "unitTestAssets/sliderSheet.png", sliderFrames )
 
@@ -142,11 +142,10 @@ function scene:createScene( event )
 		leftFrame = 1,
 		middleFrame = 2,
 		rightFrame = 3,
-		frameWidth = 64,
+		fillFrame = 4,
+		frameWidth = 36,
 		frameHeight = 64,
-		fillFrame = 5,
-		fillFrameWidth = 64,
-		handleFrame = 4,
+		handleFrame = 5,
 		handleWidth = 64,
 		handleHeight = 64,
 		width = 400,
@@ -163,8 +162,8 @@ function scene:createScene( event )
 			{ x=0, y=0, width=64, height=64 },
 			{ x=0, y=64, width=64, height=64 },
 			{ x=0, y=128, width=64, height=64 },
-			{ x=0, y=194, width=64, height=64 },
-			{ x=0, y=262, width=64, height=64 }
+			{ x=0, y=198, width=64, height=64 },
+			{ x=0, y=266, width=64, height=64 }
 		}, sheetContentWidth = 64, sheetContentHeight = 332
 	}
 	local sliderSheetVertical = graphics.newImageSheet( "unitTestAssets/sliderSheetVertical.png", sliderFramesVertical )
@@ -177,9 +176,9 @@ function scene:createScene( event )
 		bottomFrame = 3,
 		frameWidth = 64,
 		frameHeight = 64,
-		fillVerticalFrame = 5,
+		fillVerticalFrame = 4,
 		fillFrameHeight = 64,
-		handleFrame = 4,
+		handleFrame = 5,
 		handleWidth = 64,
 		handleHeight = 64,
 		orientation = "vertical",

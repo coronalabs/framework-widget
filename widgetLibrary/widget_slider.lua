@@ -359,6 +359,9 @@ local function createVerticalSlider( slider, options )
 		event.target = self._handle
 	
 		if "began" == phase then
+			-- Did the touch begin on the Handle?			
+			local touchBeganOnHandle = false
+			
 			-- The content bounds of our handle
 			local bounds = self._handle.contentBounds
 			
