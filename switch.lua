@@ -5,8 +5,6 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = true
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 --Forward reference for test function timer
@@ -14,14 +12,6 @@ local testTimer = nil
 
 function scene:createScene( event )
 	local group = self.view
-	
-	-- Test android theme
-	if USE_ANDROID_THEME then
-		widget.setTheme( "widget_theme_android" )
-	end
-	
-	--Display an iOS style background
-	local background
 	
 	local xAnchor, yAnchor
 	
@@ -33,34 +23,28 @@ function scene:createScene( event )
 		yAnchor = 0
 	end
 	
-	if USE_IOS7_THEME then
-		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
-	else
-		background = display.newImage( "unitTestAssets/background.png" )
-		background.x, background.y = xAnchor, yAnchor
-	end
+	local fontColor = 0
+	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	
+	if widget.USE_IOS_THEME then
+		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
+		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_LIGHT_THEME then
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_DARK_THEME then
+		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
+		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		fontColor = 0.5
+	else
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	end
 	group:insert( background )
 	
-	if USE_IOS7_THEME then
-		-- create a white background, 40px tall, to mask / hide the scrollView
-		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		topMask:setFillColor( 235, 235, 235, 255 )
-		group:insert( topMask )
-	end
-	
 	local backButtonPosition = 5
-	local backButtonSize = 52
+	local backButtonSize = 34
 	local fontUsed = native.systemFont
-	local textFontUsed = native.systemFontBold
-	
-	
-	if USE_IOS7_THEME then
-		backButtonPosition = 0
-		backButtonSize = 40
-		fontUsed = "HelveticaNeue-Light"
-		textFontUsed = "HelveticaNeue-Light"
-	end
 	
 	--Button to return to unit test listing
 	local returnToListing = widget.newButton
@@ -158,10 +142,10 @@ function scene:createScene( event )
 	group:insert( radioGroup )
 	
 	--
-	local radioButtonText1 = display.newText( "< Set 1", 0, 0, textFontUsed, 18 )
+	local radioButtonText1 = display.newText( "< Set 1", 0, 0, fontUsed, 18 )
 	radioButtonText1.x = 70 + radioButton.x + radioButtonText1.contentWidth * 0.5
 	radioButtonText1.y = radioButton.y - 2
-	radioButtonText1:setFillColor( 0 )
+	radioButtonText1:setFillColor( fontColor )
 	group:insert( radioButtonText1 )
 	
 	---- other
@@ -193,10 +177,10 @@ function scene:createScene( event )
 	group:insert( otherRadioGroup )
 	
 	--
-	local radioButtonText2 = display.newText( "< Set 2", 0, 0, textFontUsed, 18 )
+	local radioButtonText2 = display.newText( "< Set 2", 0, 0, fontUsed, 18 )
 	radioButtonText2.x = radioButtonText1.x
 	radioButtonText2.y = radioButtonOther2.y - 2
-	radioButtonText2:setFillColor( 0 )
+	radioButtonText2:setFillColor( fontColor )
 	group:insert( radioButtonText2 )
 	
 	

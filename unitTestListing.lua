@@ -49,7 +49,6 @@ function scene:createScene( event )
 		widget.setTheme( "widget_theme_android_holo_dark" )
 	end
 
-	
 	local xAnchor, yAnchor
 	
 	if not isGraphicsV1 then
@@ -60,37 +59,33 @@ function scene:createScene( event )
 		yAnchor = 0
 	end
 
-	--Display a solid background
 	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 
 	if USE_IOS_THEME then
 		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
 		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+		widget.USE_IOS_THEME = true
 	elseif USE_ANDROID_HOLO_LIGHT_THEME then
 		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
 		else background:setFillColor( 1, 1, 1, 1 ) end
+		widget.USE_ANDROID_HOLO_LIGHT_THEME = true
 	elseif USE_ANDROID_HOLO_DARK_THEME then
 		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
 		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		widget.USE_ANDROID_HOLO_DARK_THEME = true
+		headerTextColor = { 0.5 }
 	else
 		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
 		else background:setFillColor( 1, 1, 1, 1 ) end
 	end
 	group:insert( background )
 	
-	--Create a title to make the menu visibly clear
-	
 	-- create some skinning variables
 	local fontUsed = native.systemFont
 	local headerTextSize = 20
 	local separatorColor = { unpack( separatorColor ) }
 	
-	if USE_IOS7_THEME then
-		fontUsed = "HelveticaNeue-Medium"
-		headerTextSize = 17
-	end
-	
-	local title = display.newEmbossedText( group, "Select a unit test to view", 0, 0, fontUsed, headerTextSize )
+	local title = display.newText( group, "Select a unit test to view", 0, 0, fontUsed, headerTextSize )
 	title:setFillColor( unpack( headerTextColor ) )
 	title.x, title.y = display.contentCenterX, 20
 	group:insert( title )
@@ -99,8 +94,6 @@ function scene:createScene( event )
 		local separator = display.newRect( group, display.contentCenterX, title.contentHeight + title.y, display.contentWidth, 0.5 )
 		separator:setFillColor( unpack ( separatorColor ) )
 	end
-	
-
 	
 	--Go to selected unit test
 	local function gotoSelection( event )
@@ -242,7 +235,7 @@ function scene:createScene( event )
 	    id = "picker",
 	    x = buttonX,
 	    y = sliderButton.y + 36,
-	    label = "Picker",
+	    label = "PickerWheel",
 	    width = 200, height = 34,
 	    emboss = false,
 	    onEvent = gotoSelection

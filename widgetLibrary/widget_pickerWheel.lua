@@ -114,9 +114,17 @@ local function createPickerWheel( pickerWheel, options )
 		rowTitle.y = row.contentHeight * 0.5
 		
 		if row.index == pickerWheel._view._columns[row.id]._values.index then
-			rowTitle:setFillColor( 0 )
+			if ( event.target._fontColorSelected and type( event.target._fontColorSelected ) == "table" ) then
+				rowTitle:setFillColor( unpack( event.target._fontColorSelected ) )
+			else
+				rowTitle:setFillColor( unpack( blackColor ) )
+			end
 		else
-			rowTitle:setFillColor( unpack( labelColor ) )
+			if ( event.target._fontColor and type( event.target._fontColor ) == "table" ) then
+				rowTitle:setFillColor( unpack( event.target._fontColor ) )
+			else
+				rowTitle:setFillColor( unpack( labelColor ) )
+			end
 		end
 
 		row.value = rowTitle.text
@@ -177,12 +185,12 @@ local function createPickerWheel( pickerWheel, options )
 	viewBackground.x = viewOverlay.x
 	viewBackground.y = viewOverlay.y
 
-	-- Function to create the column seperator
-	function view:_createSeperator( x )		
-		local seperator = display.newImageRect( self, imageSheet, opt.seperatorFrame, opt.seperatorFrameWidth + 4, opt.backgroundFrameHeight )
-		seperator.x = x
-		
-		return seperator
+	-- Function to create the column separator
+	function view:_createSeparator( x )		
+		local separator = display.newImageRect( self, imageSheet, opt.separatorFrame, opt.separatorFrameWidth + 4, opt.backgroundFrameHeight )
+		separator.x = x
+
+		return separator
 	end
 
 	-- The available width for the whole pickerWheel (to fit columns)
@@ -207,12 +215,17 @@ local function createPickerWheel( pickerWheel, options )
 	end
 
 	local initialX = 0
-	local initialPos = - 144
+	local initialPos = -140
+	if _widget.isHolo() then
+		initialPos = -140
+	--else
+		--initialPos = -144
+	end
 
 	for i = 1, #opt.columnData do
 
 		if i > 1 then
-			initialPos = viewColumns[i-1].x + viewColumns[i-1]._view._width * 0.5
+			initialPos = viewColumns[i-1].x + ( viewColumns[i-1]._view._width * 0.5 )
 		end
 
 		viewColumns[i] = _widget.newTableView
@@ -230,16 +243,19 @@ local function createPickerWheel( pickerWheel, options )
 			rowColor = opt.columnColor,
 			backgroundColor = opt.backgroundColor or defaultRowColor,
 			onRowRender = _renderColumns,
-			maskFile = opt.maskFile,
+			--maskFile = opt.maskFile,
 			listener = nil,
 			onRowTouch = didTapValue
 		}
 		viewColumns[i]._view._isUsedInPickerWheel = true
-
+		
 		-- Column properties
-		viewColumns[i]._align = opt.columnData[i].align
+		viewColumns[i]._align = opt.columnData[i].align or "center"
 		viewColumns[i]._fontSize = opt.fontSize
-			
+		viewColumns[i]._fontColor = opt.fontColor
+		viewColumns[i]._fontColorSelected = opt.fontColorSelected
+		viewColumns[i]._view._fontColor = opt.fontColor
+
 		-- Set the volumns initial values
 		viewColumns[i]._values = 
 		{ 
@@ -268,11 +284,13 @@ local function createPickerWheel( pickerWheel, options )
 		viewColumns[i]:scrollToIndex( opt.columnData[i].startIndex, 0 )
 	end
 
-	-- Create the column seperators
-	for i = 1, #opt.columnData - 1 do
-		view:_createSeperator( viewColumns[i].x + viewColumns[i]._view._width * 0.5 )
+	-- Create the column separators
+	if ( opt.separatorFrame and opt.separatorFrameWidth and opt.separatorFrameHeight and not _widget.isHolo() ) then
+		for i = 1, #opt.columnData - 1 do
+			view:_createSeparator( viewColumns[i].x + viewColumns[i]._view._width * 0.5 )
+		end
 	end
-
+	
 	-- Push the view's background to the front.
 	viewOverlay:toFront()
 	
@@ -341,7 +359,11 @@ local function createPickerWheel( pickerWheel, options )
 				
 				-- update the actual values, by rerendering row
 				if nil ~= self._columns[i]._values then
-					self._columns[i]._view._rows[self._columns[i]._values.index]._view[ 2 ]:setFillColor( 0 )
+					if ( self._columns[i]._fontColorSelected and type( self._columns[i]._fontColorSelected ) == "table" ) then
+						self._columns[i]._view._rows[self._columns[i]._values.index]._view[ 2 ]:setFillColor( unpack( self._columns[i]._fontColorSelected ) )
+					else
+						self._columns[i]._view._rows[self._columns[i]._values.index]._view[ 2 ]:setFillColor( unpack( blackColor ) )
+					end
 				end
 			end
 		end
@@ -414,19 +436,19 @@ function M.new( options, theme )
 	end
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
-	opt.maskFile = customOptions.maskFile or themeOptions.maskFile
-	opt.font = customOptions.font or native.systemFontBold
-	opt.fontSize = customOptions.fontSize or 22
-	opt.fontColor = customOptions.fontColor or blackColor
-	opt.columnColor = customOptions.columnColor or defaultRowColor
-	opt.backgroundColor = customOptions.backgroundColor or defaultRowColor
+	--opt.maskFile = customOptions.maskFile or themeOptions.maskFile
+	opt.font = customOptions.font or themeOptions.font or native.systemFontBold
+	opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 22
+	opt.fontColor = customOptions.fontColor or themeOptions.fontColor or labelColor
+	opt.fontColorSelected = customOptions.fontColorSelected or themeOptions.fontColorSelected or blackColor
+	opt.columnColor = customOptions.columnColor or themeOptions.columnColor or defaultRowColor
+	opt.backgroundColor = customOptions.columnColor or themeOptions.columnColor or defaultRowColor
 	
 	if _widget.isSeven() then
 		opt.font = customOptions.font or themeOptions.font or "HelveticaNeue-Medium"
 		opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 20
-		opt.fontColor = labelColor
 	end
-		
+	
 	-- Properties
 	opt.rowHeight = customOptions.rowHeight or 40
 	opt.columnData = customOptions.columns
@@ -444,9 +466,9 @@ function M.new( options, theme )
 	opt.overlayFrameWidth = customOptions.overlayFrameWidth or themeOptions.overlayFrameWidth
 	opt.overlayFrameHeight = customOptions.overlayFrameHeight or themeOptions.overlayFrameHeight
 	
-	opt.seperatorFrame = customOptions.seperatorFrame or _widget._getFrameIndex( themeOptions, themeOptions.seperatorFrame )
-	opt.seperatorFrameWidth = customOptions.seperatorFrameWidth or themeOptions.seperatorFrameWidth
-	opt.seperatorFrameHeight = customOptions.seperatorFrameHeight or themeOptions.seperatorFrameHeight
+	opt.separatorFrame = customOptions.separatorFrame or _widget._getFrameIndex( themeOptions, themeOptions.separatorFrame ) or _widget._getFrameIndex( themeOptions, themeOptions.seperatorFrame ) or nil
+	opt.separatorFrameWidth = customOptions.separatorFrameWidth or themeOptions.separatorFrameWidth or themeOptions.seperatorFrameWidth or nil
+	opt.separatorFrameHeight = customOptions.separatorFrameHeight or themeOptions.separatorFrameHeight or themeOptions.seperatorFrameHeight or nil
 	
 	-------------------------------------------------------
 	-- Create the pickerWheel

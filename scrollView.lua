@@ -8,16 +8,11 @@ local scene = storyboard.newScene()
 --Forward reference for test function timer
 local testTimer = nil
 
-local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = true
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 function scene:createScene( event )
 	local group = self.view
-	
-	--Display an iOS style background
-	local background
-	
+
 	local xAnchor, yAnchor
 	
 	if not isGraphicsV1 then
@@ -28,35 +23,27 @@ function scene:createScene( event )
 		yAnchor = 0
 	end
 	
-	if USE_IOS7_THEME then
-		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
-	else
-		background = display.newImage( "unitTestAssets/background.png" )
-		background.x, background.y = xAnchor, yAnchor
-	end
+	local fontColor = 0
+	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	
+	if widget.USE_IOS_THEME then
+		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
+		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_LIGHT_THEME then
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_DARK_THEME then
+		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
+		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		fontColor = 0.5
+	else
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	end
 	group:insert( background )
 	
-	if USE_IOS7_THEME then
-		-- create a white background, 40px tall, to mask / hide the scrollView
-		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		topMask:setFillColor( 235, 235, 235, 255 )
-		group:insert( topMask )
-	end
-
 	local backButtonPosition = 5
-	local backButtonSize = 52
-	
-	if USE_IOS7_THEME then
-		backButtonPosition = 0
-		backButtonSize = 40
-	end
-
-	
-	-- Test android theme
-	if USE_ANDROID_THEME then
-		widget.setTheme( "widget_theme_android" )
-	end
+	local backButtonSize = 34
 
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton
@@ -66,7 +53,6 @@ function scene:createScene( event )
 	    top = backButtonPosition,
 	    label = "Exit",
 		labelAlign = "center",
-		fontSize = 18,
 	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
@@ -353,12 +339,6 @@ function scene:createScene( event )
 		--labelAlign = "right",
 	    width = 140, 
 		height = 40,
-		fontSize = 18,
-		labelColor =
-		{ 
-			default = { 0, 0, 0 },
-			--over = { 255, 255, 255 },
-		},
 	    onEvent = test
 	}
 	buttonUsingTheme.oldLabel = "Theme"
@@ -525,7 +505,7 @@ function scene:createScene( event )
 			onRowUpdate = onRowUpdate,
 			onRowTouch = onRowTouch,
 		}
-		group:insert( tableView )
+		scrollView:insert( tableView )
 
 
 		-- Create 100 rows

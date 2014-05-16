@@ -348,7 +348,11 @@ local function createTableView( tableView, options )
 				for i = 1, #self._rows do
 					-- if the row is on screen, set it to the default color
 					if nil ~= self._rows[ i ]._view then
-						self._rows[ i ]._view[ 2 ]:setFillColor( unpack( self._themeParams.colours.pickerRowColor ) )
+						if ( self._fontColor and type( self._fontColor ) == "table" ) then
+							self._rows[ i ]._view[ 2 ]:setFillColor( unpack( self._fontColor ) )
+						else
+							self._rows[ i ]._view[ 2 ]:setFillColor( unpack( self._themeParams.colours.pickerRowColor ) )
+						end
 					end
 				end
 			end

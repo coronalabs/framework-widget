@@ -5,8 +5,6 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = true
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 --Forward reference for test function timer
@@ -14,15 +12,7 @@ local testTimer = nil
 
 function scene:createScene( event )
 	local group = self.view
-	
-	-- Test android theme
-	if USE_ANDROID_THEME then
-		widget.setTheme( "widget_theme_android" )
-	end
-	
-	--Display an iOS style background
-	local background
-	
+
 	local xAnchor, yAnchor
 	
 	if not isGraphicsV1 then
@@ -33,31 +23,28 @@ function scene:createScene( event )
 		yAnchor = 0
 	end
 	
-	if USE_IOS7_THEME then
-		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
-	else
-		background = display.newImage( "unitTestAssets/background.png" )
-		background.x, background.y = xAnchor, yAnchor
-	end
+	local fontColor = 0
+	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	
+	if widget.USE_IOS_THEME then
+		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
+		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_LIGHT_THEME then
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_DARK_THEME then
+		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
+		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		fontColor = 0.5
+	else
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	end
 	group:insert( background )
 	
-	if USE_IOS7_THEME then
-		-- create a white background, 40px tall, to mask / hide the scrollView
-		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		topMask:setFillColor( 235, 235, 235, 255 )
-		group:insert( topMask )
-	end
-	
 	local backButtonPosition = 5
-	local backButtonSize = 52
-	local fontUsed = native.systemFontBold
-
-	if USE_IOS7_THEME then
-		backButtonPosition = 0
-		backButtonSize = 40
-		fontUsed = "HelveticaNeue-Light"
-	end
+	local backButtonSize = 34
+	local fontUsed = native.systemFont
 
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
@@ -83,7 +70,7 @@ function scene:createScene( event )
 	currentSegment.x = display.contentWidth * 0.5
 	currentSegment.y = display.contentHeight * 0.5 + 40
 	group:insert( currentSegment )
-	currentSegment:setFillColor( 0 )
+	currentSegment:setFillColor( fontColor )
 	
 	local function onPress( event )
 		--	print( "Segment no:", event.target.segmentNumber )
@@ -94,7 +81,7 @@ function scene:createScene( event )
 	-- Create a new segmented control object
 	local newSegmentedControl = widget.newSegmentedControl
 	{
-		left = 45,
+		left = 35,
 		top = 80,
 		segments = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" },
 		defaultSegment = 1,

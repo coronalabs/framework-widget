@@ -5,57 +5,45 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = true
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
-
-local xAnchor, yAnchor
-
-if not isGraphicsV1 then
-	xAnchor = display.contentCenterX
-	yAnchor = display.contentCenterY
-else
-	xAnchor = 0
-	yAnchor = 0
-end
 
 -- Forward reference for test function timer
 local testTimer = nil
 
 function scene:createScene( event )
 	local group = self.view
-	
-	--Display an iOS style background
-	local background
-	
-	if USE_IOS7_THEME then
-		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
+
+	local xAnchor, yAnchor
+
+	if not isGraphicsV1 then
+		xAnchor = display.contentCenterX
+		yAnchor = display.contentCenterY
 	else
-		background = display.newImage( "unitTestAssets/background.png" )
-		background.x, background.y = xAnchor, yAnchor
+		xAnchor = 0
+		yAnchor = 0
 	end
 	
+	local fontColor = 0
+	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
+	
+	if widget.USE_IOS_THEME then
+		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
+		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_LIGHT_THEME then
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_DARK_THEME then
+		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
+		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		fontColor = 0.5
+	else
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	end
 	group:insert( background )
 	
-	if USE_IOS7_THEME then
-		-- create a white background, 40px tall, to mask / hide the scrollView
-		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		topMask:setFillColor( 235, 235, 235, 255 )
-		group:insert( topMask )
-	end
-	
 	local backButtonPosition = 5
-	local backButtonSize = 52
-	
-	if USE_IOS7_THEME then
-		backButtonPosition = 0
-		backButtonSize = 40
-	end
-	
-	-- Test android theme
-	if USE_ANDROID_THEME then
-		widget.setTheme( "widget_theme_android" )
-	end
+	local backButtonSize = 34
 	
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton
@@ -65,7 +53,6 @@ function scene:createScene( event )
 	    top = backButtonPosition,
 	    label = "Exit",
 		labelAlign = "center",
-		fontSize = 18,
 	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
@@ -184,13 +171,7 @@ function scene:createScene( event )
 	    label = "Theme",
 		labelAlign = "center",
 	    width = 140, 
-		height = 50,
-		fontSize = 18,
-		labelColor =
-		{ 
-			default = { 23, 127, 252 },
-			--over = { 255, 255, 255 },
-		},
+		height = 44,
 	    onEvent = onButtonEvent
 	}
 	buttonUsingTheme.oldLabel = "Theme"
@@ -236,10 +217,9 @@ function scene:createScene( event )
 		cornerRadius = 2,
 		radius = 30,
 		vertices = { -20,-25,40,0,-20,25 },
-		fillColor = { default={ 255,0,0,255 }, over={ 255,40,160,100 } },
-		strokeColor = { default={ 255,100,0,255 }, over={ 200,200,255,255 } },
+		fillColor = { default={ 1,0,0,1 }, over={ 1,40/255,160/255,100/255 } },
+		strokeColor = { default={ 1,100/255,0,1 }, over={ 200/255,200/255,1,1 } },
 		strokeWidth = 4,
-		--emboss = false,
 		onEvent = onButtonEvent
 	}
 	buttonUsingVector.oldLabel = "Vector button"
@@ -248,12 +228,6 @@ function scene:createScene( event )
 	
 	--buttonUsingVector:setFillColor(0,0,255)
 	--buttonUsingVector:setStrokeColor(0,255,0)
-
-
-
-
-
-
 
 	local options9Slice = {
 		frames =

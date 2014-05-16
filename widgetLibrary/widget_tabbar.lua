@@ -89,7 +89,7 @@ local function initWithImageFiles( tabBar, options )
 	viewButtons = {}
 	
 	-- Create the tab buttons
-	for i = 1, #opt.tabButtons do		
+	for i = 1, #opt.tabButtons do
 		local defaultFile = opt.tabButtons[i].defaultFile or error( "ERROR: " .. M._widgetName .. ": defaultFile expected, got nil", 3 )
 		local overFile = opt.tabButtons[i].overFile or error( "ERROR: " .. M._widgetName .. ": overFile expected, got nil", 3 )
 		local width = opt.tabButtons[i].width or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
@@ -436,11 +436,13 @@ local function initWithImageSheet( tabBar, options )
             else
                 viewButtons[i].over = display.newImageRect( tabBar, opt.tabButtons[i].overFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
 			end
-		viewButtons[i].over.isVisible = false
-			
-
-			
-			
+			viewButtons[i].over.isVisible = false
+		end
+		
+		-- If an Android Holo theme is present AND the user hasn't defined button images in their instantiation, then make them invisible
+		if ( not opt.tabButtons[i].defaultFrame and not opt.tabButtons[i].defaultFile and not opt.tabButtons[i].overFile and _widget.isHolo() ) then
+			if ( viewButtons[i] ) then viewButtons[i].alpha = 0 end
+			if ( viewButtons[i].over ) then viewButtons[i].over.alpha = 0 end
 		end
 		
 		-- Get the passed in properties if any
@@ -451,6 +453,9 @@ local function initWithImageSheet( tabBar, options )
 		local labelXOffset = opt.tabButtons[i].labelXOffset or 0
 		local labelYOffset = opt.tabButtons[i].labelYOffset or 0
 		
+		-- If an Android Holo theme, raise the label up
+		if ( _widget.isHolo() ) then labelYOffset = labelYOffset - 11 end
+
 		-- Create the tab button's label
 		viewButtons[i].label = display.newText( tabBar, label, 0, 0, labelFont, labelSize )
 		viewButtons[i].label:setFillColor( unpack( labelColor.default ) )
@@ -743,11 +748,11 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = opt.baseDir or system.ResourceDirectory
 	opt.tabButtons = customOptions.buttons
-	opt.defaultLabelFont = native.systemFontBold
-	opt.defaultLabelSize = 8
-	opt.defaultLabelColor = labelDefault
+	opt.defaultLabelFont = themeOptions.defaultLabelFont or native.systemFontBold
+	opt.defaultLabelSize = themeOptions.defaultLabelSize or 8
+	opt.defaultLabelColor = themeOptions.defaultLabelColor or labelDefault
 	opt.onPress = customOptions.onPress
-	
+
 	-- Frames & Images
 	opt.sheet = customOptions.sheet
 	opt.themeSheetFile = themeOptions.sheet
