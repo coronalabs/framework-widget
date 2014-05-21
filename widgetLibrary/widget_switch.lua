@@ -214,12 +214,13 @@ local function createOnOffSwitch( switch, options )
 	-- Create the imageSheet
 	if opt.sheet then
 		imageSheet = opt.sheet
+		switch.isCustom = true
 	else
 		local themeData = require( opt.themeData )
 		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		-- The view is the switches background image
 		view = display.newImageRect( switch, imageSheet, backgroundFrame, opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
 	else
@@ -239,12 +240,12 @@ local function createOnOffSwitch( switch, options )
 		end
 	end
 	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		-- The view's overlay is the "shine" effect
 		viewOverlay = display.newImageRect( switch, imageSheet, overlayFrame, opt.onOffOverlayWidth, opt.onOffOverlayHeight )
 	end
 	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		-- The view's handle
 		viewHandle = display.newSprite( switch, imageSheet, handleSheetOptions )
 		viewHandle:setSequence( "off" )
@@ -252,8 +253,7 @@ local function createOnOffSwitch( switch, options )
 		viewHandle = display.newImageRect( switch, imageSheet, 63, 40, 40 )	
 	end
 	
-	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		-- The view's mask
 		viewMask = graphics.newMask( opt.onOffMask, opt.baseDir )
 		view:setMask( viewMask )
@@ -267,7 +267,7 @@ local function createOnOffSwitch( switch, options )
 	local startRange 
 	local endRange
 	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		startRange = - mRound( viewOverlay.width - viewHandle.contentWidth ) / 2
 		endRange = mAbs( startRange )
 	end
@@ -280,7 +280,7 @@ local function createOnOffSwitch( switch, options )
 	view._onPress = opt.onPress
 	view._onRelease = opt.onRelease
 	
-	if _widget.isSeven() then
+	if _widget.isSeven() or not switch.isCustom then
 		view._offView = offView
 		view._onView = onView
 		view._interView = interView
@@ -308,7 +308,7 @@ local function createOnOffSwitch( switch, options )
 		switch.anchorChildren = false
 	end
 	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		
 		-- Set the switch position based on the chosen default value (ie on/off)
 		if switch.isOn then
@@ -384,8 +384,8 @@ local function createOnOffSwitch( switch, options )
 		if _widget.isHolo() then
 			switchTransitionTime = 2
 		end
-		
-		if not _widget.isSeven() then
+
+		if not _widget.isSeven() or switch.isCustom then
 		
 			-- Transition the switch from on>off and vice versa
 			if _switch.isOn then
@@ -397,7 +397,7 @@ local function createOnOffSwitch( switch, options )
 			end
 		
 		else
-		
+
 			local originalScale = self._offView.xScale
 		
 			-- Transition the switch from on>off and vice versa
@@ -461,7 +461,7 @@ local function createOnOffSwitch( switch, options )
 		local phase = event.phase
 	
 		-- Android onOff switch doesn't do sliding
-		if _widget.isSeven() or _widget.isHolo() then
+		if (_widget.isSeven() and not switch.isCustom) or _widget.isHolo() then
 			return true
 		end
 	
@@ -598,7 +598,7 @@ local function createOnOffSwitch( switch, options )
 		
 		-- Temporary until we wrap up theme definition of ios7 
 		
-		if not _widget.isSeven() then
+		if not _widget.isSeven() or switch.isCustom then
 		
 			-- Set the switch to on/off visually
 			if _isSwitchOn then
