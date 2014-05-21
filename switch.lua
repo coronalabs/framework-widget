@@ -207,6 +207,40 @@ function scene:createScene( event )
 	onOffSwitch.x = display.contentCenterX
 	group:insert( onOffSwitch )
 	
+
+	-- Skinned On-Off Switch
+	local onOffSwitchOptions = {
+		frames =
+		{
+			{ x=0, y=0, width=160, height=44 },
+			{ x=0, y=45, width=42, height=42 },
+			{ x=44, y=45, width=42, height=42 },
+			{ x=88, y=44, width=96, height=44 }
+		},
+		sheetContentWidth = 184,
+		sheetContentHeight = 88
+	}
+	local onOffSwitchSheet = graphics.newImageSheet( "unitTestAssets/on-off-sheet.png", onOffSwitchOptions )
+
+    local switch = widget.newSwitch {
+		left = 100,
+		top = 200,
+		style = "onOff",
+		sheet = onOffSwitchSheet,
+		onOffMask = "unitTestAssets/switch-mask.png",
+
+		onOffBackgroundFrame = 1,
+		onOffBackgroundWidth = 160,
+		onOffBackgroundHeight = 44,
+			  
+		onOffOverlayFrame = 4,
+		onOffOverlayWidth = 96,
+		onOffOverlayHeight = 44,
+			  
+		onOffHandleDefaultFrame = 2,
+		onOffHandleOverFrame = 2,
+	}
+	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------
