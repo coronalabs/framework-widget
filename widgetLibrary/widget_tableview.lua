@@ -1583,7 +1583,8 @@ local function createTableView( tableView, options )
 		end
 			
 		-- if the y position is greater than the end of the table, we transition at the end of the table - the widget height
-		if math.abs( newPosition ) + self.parent.height > self._scrollHeight then
+		-- we only do this if we do not have a picker wheel
+		if math.abs( newPosition ) + self.parent.height > self._scrollHeight and not self._isUsedInPickerWheel then
 			newPosition = - ( self._scrollHeight - self.parent.height ) 
 		end
 			

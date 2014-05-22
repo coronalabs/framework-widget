@@ -99,8 +99,8 @@ local function handleSnapBackVertical( self, view, snapBack )
 	
 	-- Snap back vertically
 	if not view._isVerticalScrollingDisabled then
-		-- Put the view back to the top if it isn't already there ( and should be )
-		if view.y > self.bottomLimit or view._scrollHeight < view.parent.height then
+		-- Put the view back to the top if it isn't already there ( and should be ), if we're not in a picker wheel
+		if view.y > self.bottomLimit or ( view._scrollHeight < view.parent.height and not view._isUsedInPickerWheel ) then
 			-- Set the hit limit
 			limitHit = "bottom"
 			
