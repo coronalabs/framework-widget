@@ -106,11 +106,12 @@ local function createPickerWheel( pickerWheel, options )
 	local function _renderColumns( event )
 		local phase = event.phase
 		local row = event.row
+		local font = event.target._font or opt.font
 		local fontSize = event.target._fontSize
 		local alignment = event.target._align
 
 		-- Create the column's title text
-		local rowTitle = display.newText( row, row._label, 0, 0, opt.font, fontSize )
+		local rowTitle = display.newText( row, row._label, 0, 0, font, fontSize )
 		rowTitle.y = row.contentHeight * 0.5
 		
 		if row.index == pickerWheel._view._columns[row.id]._values.index then
@@ -252,6 +253,7 @@ local function createPickerWheel( pickerWheel, options )
 		-- Column properties
 		viewColumns[i]._align = opt.columnData[i].align or "center"
 		viewColumns[i]._fontSize = opt.fontSize
+		viewColumns[i]._font = opt.font
 		viewColumns[i]._fontColor = opt.fontColor
 		viewColumns[i]._fontColorSelected = opt.fontColorSelected
 		viewColumns[i]._view._fontColor = opt.fontColor

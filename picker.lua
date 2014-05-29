@@ -107,43 +107,6 @@ function scene:createScene( event )
 	
 	-- Scroll the second column to it's 8'th row
 	--pickerWheel:scrollToIndex( 2, 8, 0 )
-
-
-	-- CUSTOM-SKINNED TEST
-	--
-	-- Image sheet options and declaration
-	local options = {
-		frames = 
-		{
-			{ x=0, y=0, width=320, height=222 },
-			{ x=320, y=0, width=320, height=222 },
-			{ x=640, y=0, width=8, height=222 }
-		},
-		sheetContentWidth = 648,
-		sheetContentHeight = 222
-	}
-	local pickerWheelSheet = graphics.newImageSheet( "unitTestAssets/pickerSheet.png", options )
-
-	-- Create the widget
-	local pickerWheel2 = widget.newPickerWheel
-	{
-		top = display.contentHeight - 222,
-		columns = columnData,
-		sheet = pickerWheelSheet,
-		overlayFrame = 1,
-		overlayFrameWidth = 320,
-		overlayFrameHeight = 222,
-		backgroundFrame = 2,
-		backgroundFrameWidth = 320,
-		backgroundFrameHeight = 222,
-		separatorFrame = 3,
-		separatorFrameWidth = 8,
-		separatorFrameHeight = 222,
-		columnColor = { 0, 0, 0, 0 },
-		fontColor = { 0.4, 0.4, 0.4, 0.5 },
-		fontColorSelected = { 0.2, 0.6, 0.4 }
-	}
-	group:insert( pickerWheel2 )
 	
 	
 	
