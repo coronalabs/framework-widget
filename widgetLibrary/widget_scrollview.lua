@@ -282,6 +282,11 @@ local function createScrollView( scrollView, options )
 		end	
 	end
 	
+	-- getter for the widget's view
+	function scrollView:getView()
+		return self._view
+	end
+	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------	
