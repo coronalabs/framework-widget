@@ -214,12 +214,13 @@ local function createOnOffSwitch( switch, options )
 	-- Create the imageSheet
 	if opt.sheet then
 		imageSheet = opt.sheet
+		switch.isCustom = true
 	else
 		local themeData = require( opt.themeData )
 		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
 	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		-- The view is the switches background image
 		view = display.newImageRect( switch, imageSheet, backgroundFrame, opt.onOffBackgroundWidth, opt.onOffBackgroundHeight )
 	else
@@ -239,12 +240,12 @@ local function createOnOffSwitch( switch, options )
 		end
 	end
 	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		-- The view's overlay is the "shine" effect
 		viewOverlay = display.newImageRect( switch, imageSheet, overlayFrame, opt.onOffOverlayWidth, opt.onOffOverlayHeight )
 	end
 	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		-- The view's handle
 		viewHandle = display.newSprite( switch, imageSheet, handleSheetOptions )
 		viewHandle:setSequence( "off" )
@@ -252,8 +253,7 @@ local function createOnOffSwitch( switch, options )
 		viewHandle = display.newImageRect( switch, imageSheet, 63, 40, 40 )	
 	end
 	
-	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		-- The view's mask
 		viewMask = graphics.newMask( opt.onOffMask, opt.baseDir )
 		view:setMask( viewMask )
@@ -267,7 +267,7 @@ local function createOnOffSwitch( switch, options )
 	local startRange 
 	local endRange
 	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		startRange = - mRound( viewOverlay.width - viewHandle.contentWidth ) / 2
 		endRange = mAbs( startRange )
 	end
@@ -280,7 +280,7 @@ local function createOnOffSwitch( switch, options )
 	view._onPress = opt.onPress
 	view._onRelease = opt.onRelease
 	
-	if _widget.isSeven() then
+	if _widget.isSeven() or not switch.isCustom then
 		view._offView = offView
 		view._onView = onView
 		view._interView = interView
@@ -297,13 +297,18 @@ local function createOnOffSwitch( switch, options )
 	
 	-- Assign properties to the switch	
 	switch.isOn = opt.initialSwitchState
+	-- Add support for the new Android themes that have the off button reversed
+	-- or for skinned switches to flip the side.
+	if opt.offDirection == "left" or _widget.isHolo() then
+		switch.isOn = not switch.isOn
+	end
 	
 	-- For non-graphics v1 mode, the children have to be non-anchored
 	if not isGraphicsV1 then
 		switch.anchorChildren = false
 	end
 	
-	if not _widget.isSeven() then
+	if not _widget.isSeven() or switch.isCustom then
 		
 		-- Set the switch position based on the chosen default value (ie on/off)
 		if switch.isOn then
@@ -375,8 +380,12 @@ local function createOnOffSwitch( switch, options )
 				
 		-- Set the switches transition time
 		local switchTransitionTime = 200
-		
-		if not _widget.isSeven() then
+		-- Modern Android switches have no apparent transition
+		if _widget.isHolo() then
+			switchTransitionTime = 2
+		end
+
+		if not _widget.isSeven() or switch.isCustom then
 		
 			-- Transition the switch from on>off and vice versa
 			if _switch.isOn then
@@ -388,7 +397,7 @@ local function createOnOffSwitch( switch, options )
 			end
 		
 		else
-		
+
 			local originalScale = self._offView.xScale
 		
 			-- Transition the switch from on>off and vice versa
@@ -451,7 +460,10 @@ local function createOnOffSwitch( switch, options )
 	function view:touch( event )
 		local phase = event.phase
 	
-		if not _widget.isSeven() then
+		-- Android onOff switch doesn't do sliding
+		if (_widget.isSeven() and not switch.isCustom) or _widget.isHolo() then
+			return true
+		end
 	
 		if "began" == phase then
 			-- Cancel current view transition if there is one
@@ -508,7 +520,11 @@ local function createOnOffSwitch( switch, options )
 				
 				-- Set the switches transition time
 				local switchTransitionTime = 200
-				
+				-- Modern Android switches have no apparent transition
+				if _widget.isHolo() then
+					switchTransitionTime = 2
+				end
+
 				-- Transition the switch from on>off and vice versa
 				if self._handle.x < 0 then
 					_switch.isOn = false
@@ -527,10 +543,6 @@ local function createOnOffSwitch( switch, options )
 				display.getCurrentStage():setFocus( nil )
 				self._isFocus = false
 			end
-		end
-		
-		else
-		
 		end
 		
 		-- If self has a _onEvent method execute it
@@ -579,10 +591,14 @@ local function createOnOffSwitch( switch, options )
 		
 		-- Set the switches transition time
 		local switchTransitionTime = 200
+		-- Modern Android switches have no apparent transition
+		if _widget.isHolo() then
+			switchTransitionTime = 2
+		end
 		
 		-- Temporary until we wrap up theme definition of ios7 
 		
-		if not _widget.isSeven() then
+		if not _widget.isSeven() or switch.isCustom then
 		
 			-- Set the switch to on/off visually
 			if _isSwitchOn then
@@ -706,7 +722,28 @@ local function createStandardSwitch( switch, options )
 	
 	-- Function to set the switches state (on/off) programatically
 	function switch:setState( options )
-		return self._view:_setState( options )
+		-- If this is a radio button
+		local _switch = self
+		if "radio" == self._view._switchType then
+			-- Loop through all objects contained in the switches parent group
+			for i = 1, _switch.parent.numChildren do
+				local child = _switch.parent[i]
+				
+				-- Turn off all radio buttons in this group
+				if "table" == type( child._view ) then
+					if "string" == type( child._view._switchType ) then
+						if "radio" == child._view._switchType then
+							child._view:_setState( { isOn = false } )
+						end
+					end
+				end
+			end
+			
+			-- Set the pressed/selected radio switch to on
+			return self._view:_setState( { isOn = true } )
+		else
+			return self._view:_setState( options )
+		end
 	end
 
 	-- Handle touches on the switch
@@ -866,6 +903,7 @@ function M.new( options, theme )
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.switchType = customOptions.style or "onOff"
 	opt.initialSwitchState = customOptions.initialSwitchState or false
+	opt.offDirection = customOptions.offDirection or themeOptions.offDirection or "right"
 	opt.onPress = customOptions.onPress
 	opt.onRelease = customOptions.onRelease
 	opt.onEvent = customOptions.onEvent

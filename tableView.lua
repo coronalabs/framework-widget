@@ -8,9 +8,7 @@ local scene = storyboard.newScene()
 --Forward reference for test function timer
 local testTimer = nil
 
-local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = true
---widget.setTheme( "widget_theme_ios" )
+local USE_IOS7_THEME = false
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 local tableSeparatorColor = { 0.86, 0.86, 0.86, 1 }
@@ -24,14 +22,6 @@ local tableView
 function scene:createScene( event )
 	local group = self.view
 	
-	-- Test android theme
-	if USE_ANDROID_THEME then
-		widget.setTheme( "widget_theme_android" )
-	end
-
-	--Display an iOS style background
-	local background
-	
 	local xAnchor, yAnchor
 	
 	if not isGraphicsV1 then
@@ -42,34 +32,30 @@ function scene:createScene( event )
 		yAnchor = 0
 	end
 	
-	if USE_IOS7_THEME then
-		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
-	else
-		background = display.newImage( "unitTestAssets/background.png" )
-		background.x, background.y = xAnchor, yAnchor
-	end
+	local fontColor = 0
+	local backColor = { 1 }
+	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	
+	if widget.USE_IOS_THEME then
+		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
+		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_LIGHT_THEME then
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_DARK_THEME then
+		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
+		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		fontColor = 0.5
+		backColor = { 34/255 }
+		tableSeparatorColor = { 34/255 }
+	else
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	end
 	group:insert( background )
 	
-	if USE_IOS7_THEME then
-		-- create a white background, 40px tall, to mask / hide the scrollView
-		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		topMask:setFillColor( 235, 235, 235, 255 )
-		group:insert( topMask )
-	end
-	
 	local backButtonPosition = 5
-	local backButtonSize = 52
-	local fontUsed = native.systemFont
-	local textFontUsed = native.systemFontBold
-	
-	
-	if USE_IOS7_THEME then
-		backButtonPosition = 0
-		backButtonSize = 40
-		fontUsed = "HelveticaNeue-Light"
-		textFontUsed = "HelveticaNeue-Light"
-	end
+	local backButtonSize = 34
 	
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton
@@ -79,7 +65,6 @@ function scene:createScene( event )
 	    top = backButtonPosition,
 	    label = "Exit",
 		labelAlign = "center",
-		fontSize = 18,
 	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
@@ -247,6 +232,7 @@ function scene:createScene( event )
 		y = 260,
 		width = display.contentWidth, 
 		height = display.contentHeight - 40,
+		backgroundColor = backColor,
 		onRowRender = onRowRender,
 		onRowTouch = onRowTouch,
 	}

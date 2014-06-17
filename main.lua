@@ -13,6 +13,10 @@ package.preload.widget_theme_ios7 = nil
 package.preload.widget_theme_ios7_sheet = nil
 package.preload.widget_theme_android = nil
 package.preload.widget_theme_android_sheet = nil
+package.preload.widget_theme_android_holo_light = nil
+package.preload.widget_theme_android_holo_light_sheet = nil
+package.preload.widget_theme_android_holo_dark = nil
+package.preload.widget_theme_android_holo_dark_sheet = nil
 
 -- Override Corona's core widget libraries with the files contained in this project's subdirectory.
 -- Argument "name" will be set to the name of the library being loaded by the require() function.

@@ -233,9 +233,9 @@ theme.progressView =
 	data = sheetData,
 	fillXOffset = 0,
 	fillYOffset = 0,
-	fillOuterWidth = 12,
+	fillOuterWidth = 4,
 	fillOuterHeight = 4,
-	fillWidth = 8, 
+	fillWidth = 4, 
 	fillHeight = 4,
 	
 	fillOuterLeftFrame = "progressView_leftFillBorder",
@@ -255,8 +255,10 @@ theme.segmentedControl =
 {
 	sheet = sheetFile,
 	data = sheetData,
-	width = 4,
-	height = 29,
+	segmentFrameWidth = 4,
+	segmentFrameHeight = 29,
+	dividerFrameWidth = 1,
+	dividerFrameHeight = 29,
 	leftSegmentFrame = "segmentedControl_left",
 	leftSegmentSelectedFrame = "segmentedControl_leftOn",
 	rightSegmentFrame = "segmentedControl_right",
@@ -269,6 +271,7 @@ theme.segmentedControl =
         default = { 0.08, 0.49, 0.98, 1 },
         over = { 1, 1, 1, 1 },
     },
+	emboss = false
 }
 
 -- convert to v1 style values if it's the case

@@ -205,6 +205,12 @@ function widget.isSeven()
 	return widget.themeName == "widget_theme_ios7"
 end
 
+function widget.isHolo()
+	if widget.themeName == "widget_theme_android_holo_dark" or widget.themeName == "widget_theme_android_holo_light" then
+		return true
+	end
+end
+
 -- Function to retrieve a widget's theme settings
 local function _getTheme( widgetTheme, options )	
 	local theme = nil

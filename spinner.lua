@@ -5,23 +5,14 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = true
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 --Forward reference for test function timer
 local testTimer = nil
 
+
 function scene:createScene( event )
 	local group = self.view
-	
-	-- Test android theme
-	if USE_ANDROID_THEME then
-		widget.setTheme( "widget_theme_android" )
-	end
-	
-	--Display an iOS style background
-	local background
 	
 	local xAnchor, yAnchor
 	
@@ -32,33 +23,29 @@ function scene:createScene( event )
 		xAnchor = 0
 		yAnchor = 0
 	end
+
+	local fontColor = 0
+	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	
-	if USE_IOS7_THEME then
-		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
+	if widget.USE_IOS_THEME then
+		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
+		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_LIGHT_THEME then
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_DARK_THEME then
+		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
+		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		fontColor = 0.5
 	else
-		background = display.newImage( "unitTestAssets/background.png" )
-		background.x, background.y = xAnchor, yAnchor
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
 	end
-	
 	group:insert( background )
 	
-	if USE_IOS7_THEME then
-		-- create a white background, 40px tall, to mask / hide the scrollView
-		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		topMask:setFillColor( 235, 235, 235, 255 )
-		group:insert( topMask )
-	end
-	
 	local backButtonPosition = 5
-	local backButtonSize = 52
+	local backButtonSize = 34
 	local fontUsed = native.systemFont
-	
-	
-	if USE_IOS7_THEME then
-		backButtonPosition = 0
-		backButtonSize = 40
-		fontUsed = "HelveticaNeue-Light"
-	end
 	
 	--Button to return to unit test listing
 	local returnToListing = widget.newButton{
@@ -95,7 +82,7 @@ function scene:createScene( event )
 	
 	
 	local spinnerText = display.newText( "Default spinner (From theme)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, fontUsed, 14 )
-	spinnerText:setFillColor( 0 )
+	spinnerText:setFillColor( fontColor )
 	spinnerText.x = display.contentCenterX + 20
 	spinnerText.y = spinnerDefault.y + ( spinnerDefault.contentWidth * 0.5 ) + 20
 	group:insert( spinnerText )
@@ -122,7 +109,7 @@ function scene:createScene( event )
 	
 	
 	local spinnerCustomText = display.newText( "Custom spinner (Custom graphics)\nAnimating sprite from imagesheet", 0, 0, display.contentWidth, 0, fontUsed, 14 )
-	spinnerCustomText:setFillColor( 0 )
+	spinnerCustomText:setFillColor( fontColor )
 	spinnerCustomText.x = display.contentCenterX + 20
 	spinnerCustomText.y = spinnerCustom.y + ( spinnerCustom.contentWidth * 0.5 ) + 20
 	group:insert( spinnerCustomText )
@@ -144,7 +131,7 @@ function scene:createScene( event )
 	group:insert( spinnerCustomJustRotates )
 	
 	local spinnerCustomJustRotatesText = display.newText( "Custom spinner (Custom graphics)\nSingle Rotating Image from imagesheet", 0, 0, display.contentWidth, 0, fontUsed, 14 )
-	spinnerCustomJustRotatesText:setFillColor( 0 )
+	spinnerCustomJustRotatesText:setFillColor( fontColor )
 	spinnerCustomJustRotatesText.x = display.contentCenterX + 20
 	spinnerCustomJustRotatesText.y = spinnerCustomJustRotates.y + ( spinnerCustomJustRotates.contentWidth * 0.5 ) + 20
 	group:insert( spinnerCustomJustRotatesText )

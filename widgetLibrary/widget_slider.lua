@@ -186,16 +186,16 @@ local function createHorizontalSlider( slider, options )
 				-- Get handle position
 				local handlePosition = ( self._handle.x - self._left.x - self._left.contentWidth * 0.5 ) 
 				
-				-- Get the fills new horizontal position
-				local fillXPos = self._left.x + ( handlePosition * 0.5 )
-
 				-- Calculate the current percent
 				self._currentPercent = ( handlePosition * 100 ) / ( ( self._width - self._left.contentWidth ) - ( self._right.contentWidth ) )
 				
+				-- Get the fills new horizontal position
+				local fillXPos = self._left.x + ( handlePosition * 0.5 ) + ( self._left.contentWidth * 0.5 )
+
 				-- Set the fill's width & position
 				self._fill.width = handlePosition
 				self._fill.x = fillXPos
-			
+
 			elseif "ended" == phase or "cancelled" == phase then
 				-- Remove focus
 				display.getCurrentStage():setFocus( nil )
@@ -359,6 +359,9 @@ local function createVerticalSlider( slider, options )
 		event.target = self._handle
 	
 		if "began" == phase then
+			-- Did the touch begin on the Handle?			
+			local touchBeganOnHandle = false
+			
 			-- The content bounds of our handle
 			local bounds = self._handle.contentBounds
 			
@@ -520,7 +523,7 @@ function M.new( options, theme )
 			error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
 		end
 	else
-		error( "ERROR: " .. M._widgetName .. ": Unexpected orientation" .. M._widgetName .. " supports either 'horizonal' or 'vertical' for the orientation", 3 )
+		error( "ERROR: " .. M._widgetName .. ": Unexpected orientation " .. M._widgetName .. " supports either 'horizontal' or 'vertical' for the orientation", 3 )
 	end
 	
 	-------------------------------------------------------

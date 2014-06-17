@@ -227,11 +227,11 @@ theme.progressView =
 {
 	sheet = sheetFile,
 	data = sheetData,
-	fillXOffset = 4.5,
+	fillXOffset = 4, -- 4.5,
 	fillYOffset = 4,
-	fillOuterWidth = 12,
+	fillOuterWidth = 16,
 	fillOuterHeight = 18,
-	fillWidth = 8, 
+	fillWidth = 12, 
 	fillHeight = 10,
 	
 	fillOuterLeftFrame = "progressView_leftFillBorder",
@@ -251,8 +251,10 @@ theme.segmentedControl =
 {
 	sheet = sheetFile,
 	data = sheetData,
-	width = 11,
-	height = 29,
+	segmentFrameWidth = 11,
+	segmentFrameHeight = 29,
+	dividerFrameWidth = 1,
+	dividerFrameHeight = 29,
 	leftSegmentFrame = "segmentedControl_left",
 	leftSegmentSelectedFrame = "segmentedControl_leftOn",
 	rightSegmentFrame = "segmentedControl_right",
@@ -260,6 +262,12 @@ theme.segmentedControl =
 	middleSegmentFrame = "segmentedControl_middle",
 	middleSegmentSelectedFrame = "segmentedControl_middleOn",
 	dividerFrame = "segmentedControl_divider",
+	labelColor = 
+    { 
+        default = { 1 },
+        over = { 1 },
+    },
+	emboss = true
 }
 
 -----------------------------------------------------------------------------------------

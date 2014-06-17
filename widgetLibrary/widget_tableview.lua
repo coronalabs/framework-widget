@@ -176,6 +176,11 @@ local function createTableView( tableView, options )
 		return self._view:_deleteRow( rowIndex )
 	end
 	
+	-- Function to delete a set of rows from a tableView
+	function tableView:deleteRows( rowIndexesTable )
+		return self._view:_deleteRows( rowIndexesTable )
+	end
+	
 	-- Function to delete all rows from a tableView
 	function tableView:deleteAllRows()
 		return self._view:_deleteAllRows()
@@ -296,9 +301,12 @@ local function createTableView( tableView, options )
 	function view:_getRowAtIndex( index )
 		local currentIndex = index
 		local currentRow = self._rows[currentIndex]
-
-		return currentRow._view
-	
+		
+		if currentRow and currentRow._view then
+			return currentRow._view
+		end
+		
+		return nil
 	end
 
 	
@@ -340,7 +348,11 @@ local function createTableView( tableView, options )
 				for i = 1, #self._rows do
 					-- if the row is on screen, set it to the default color
 					if nil ~= self._rows[ i ]._view then
-						self._rows[ i ]._view[ 2 ]:setFillColor( unpack( self._themeParams.colours.pickerRowColor ) )
+						if ( self._fontColor and type( self._fontColor ) == "table" ) then
+							self._rows[ i ]._view[ 2 ]:setFillColor( unpack( self._fontColor ) )
+						else
+							self._rows[ i ]._view[ 2 ]:setFillColor( unpack( self._themeParams.colours.pickerRowColor ) )
+						end
 					end
 				end
 			end
@@ -513,26 +525,41 @@ local function createTableView( tableView, options )
 		local _tableView = self.parent
 		
 		-- If we have finished rendering all rows
-		if self._hasRenderedRows then			
+		if self._hasRenderedRows then	
+		
+			-- calculate the total heights from the row table
+			local totalHeight = 0
+			for i, v in pairs( view._rows ) do
+				if v and v._height then
+					totalHeight = totalHeight + v._height
+				end
+			end
+				
 			-- Create the scrollBar
 			if not self._hideScrollBar then
-				if not self._scrollBar and not self._isLocked and not self._scrollBar then
+				if not self._scrollBar and not self._isLocked and not self._scrollBar and totalHeight > self._height then
 					self._scrollBar = _momentumScrolling.createScrollBar( view, opt.scrollBarOptions )
 				end
 			end
-			
+
 			-- If the calculated scrollHeight is less than the height of the tableView, set it to that.
 			if "number" == type( self._scrollHeight ) then
 				if not self._isUsedInPickerWheel then
-					if self._scrollHeight < self._height then
+
+
+					if totalHeight < self._height then
 						self._scrollHeight = self._height
+					else
+						self._scrollHeight = totalHeight
 					end
 				end
 			end
-
+			
 			-- Set the renderedRows back to false
 			self._hasRenderedRows = false
 		end
+		
+
 		
 		-- Handle momentum @ runtime
 		_momentumScrolling._runtime( self, event )
@@ -679,7 +706,7 @@ local function createTableView( tableView, options )
 
 
 	-- Function to render a category
-	function view:_renderCategory( row )
+	function view:_renderCategory( row, reloadDataInvocation )
 		-- Create a reference to the row
 		local currentRow = row
 		
@@ -792,7 +819,7 @@ local function createTableView( tableView, options )
 		if not self._currentCategory then 
 			initNewCategory()
 		else
-			if self._currentCategory.index ~= currentRow.index then
+			if ( currentRow and self._currentCategory.index ~= currentRow.index ) or reloadDataInvocation then
 				initNewCategory()
 			end
 		end		
@@ -901,7 +928,7 @@ local function createTableView( tableView, options )
 		-- Render current category (if there are any categories)
 		if self._numCategories > 0 then
 			if self._currentCategoryIndex and self._currentCategoryIndex > 0 then
-				self:_renderCategory( self._rows[self._currentCategoryIndex] )
+				self:_renderCategory( self._rows[self._currentCategoryIndex], false )
 			end
 		end
 	end
@@ -927,6 +954,7 @@ local function createTableView( tableView, options )
 				{
 					phase = "tap",
 					target = row,
+					row = row,
 				}
 
 				-- Set the row cell's fill color
@@ -1063,7 +1091,9 @@ local function createTableView( tableView, options )
 					currentRow._view:addEventListener( "touch", _handleRowTouch )
 					currentRow._view:addEventListener( "tap", _handleRowTap )
 				else
+					-- Obsolete: if the row is a category, just do nothing. This preserves the category rows ability to scroll with momentum like the normal rows
 					-- If the row is a category, pass the touch event back to the view
+					--[[
 					local function scrollList( event )
 						-- Handle momentum scrolling (if the view isn't locked)
 						if not self._isLocked then
@@ -1072,8 +1102,10 @@ local function createTableView( tableView, options )
 
 						return true
 					end
-
+					
 					currentRow._view:addEventListener( "touch", scrollList )
+					--]]
+
 				end
 				
 				-- Row methods
@@ -1220,7 +1252,7 @@ local function createTableView( tableView, options )
 			print( "Warning: A row cannot be deleted whilst the tableView is scrolling" )
 			return
 		end
-				
+		
 		----------------------------------------------------------------
 		-- Check if the row we are deleting is on screen or off screen
 		----------------------------------------------------------------
@@ -1234,27 +1266,25 @@ local function createTableView( tableView, options )
 				if nil~= self._rows[i]._view and "table" == type( self._rows[i]._view ) then
 					if self._rows[i].isCategory then
 						if nil ~= self._rows[i-1] then
-							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ) + 1, transition = easing.outQuad } )
-							self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height ) - 1 
+							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ), transition = easing.outQuad } )
+							self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height )
 						end
 					else
-						transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ) + 1, transition = easing.outQuad } )
-						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
+						transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - ( self._rows[rowIndex]._view.contentHeight ), transition = easing.outQuad } )
+						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height )
 					end
 				-- We are now moving up the off screen rows
 				else
 					if self._rows[i].isCategory then
 						if nil ~= self._rows[i-1] then
-							self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
+							self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height )
 						end
 					else
-						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height ) - 1
+						self._rows[i].y = self._rows[i].y - ( self._rows[rowIndex]._height )
 					end
 				end
 				end
 			end
-			
-
 			
 			-- Remove the row from display
 			display.remove( self._rows[rowIndex]._view )
@@ -1262,6 +1292,11 @@ local function createTableView( tableView, options )
 							
 			-- Remove the row from the rows table
 			self._rows[rowIndex] = nil 
+
+			-- We calculate the total height of the tableView
+			if self._scrollHeight < self.parent.height then
+				self.y = _momentumScrolling.bottomLimit
+			end
 			
 		end
 		
@@ -1293,10 +1328,161 @@ local function createTableView( tableView, options )
 			-- decrement the table rows variable
 			self._numberOfRows =  self._numberOfRows - 1
 			removeRow()
+			
 		end
 		
 		-- NOTE: this was the previous location of the scrollHeight calculation. If we resize the scrollheight after the transition.to above, you get a funny motion effect on the tableview. This way, it does not happen.
+		-- set the did render variable to true
+		self._hasRenderedRows = true
+	end
+	
+	-- Function to delete a set of rows from the tableView
+	function view:_deleteRows( rowIndexesTable )
+		if "table" ~= type( rowIndexesTable ) then
+			print( "Warning: deleteRows accepts a table of row indexes as a parameter. Ex.: tableView:deleteRows( { 1, 3, 5 } )" )
+			return
+		else
+			if #rowIndexesTable < 1 then
+				print( "Warning: deleteRows accepts a table with at least one row index as a parameter. Ex.: tableView:deleteRows( { 1, 3, 5 } )" )
+				return				
+			end
+		end		
 		
+		for i = 1, #rowIndexesTable do
+			local row = self._rows[ rowIndexesTable[ i ] ]
+			if type( row ) ~= "table" then
+				print( "WARNING: deleteRows( " .. rowIndex .. " ) - Row does not exist" )
+				return
+			end
+			
+			-- Deleting categories isn't currently supported
+			if row.isCategory then
+				print( "Warning: deleteRows on rowIndex " .. rowIndex .. " - deleting categories is not supported" )
+				return
+			end
+		end
+		
+		-- If the view is scrolling, don't allow a row to be deleted
+		if mAbs( self._velocity ) > 0 then
+			print( "Warning: A row cannot be deleted whilst the tableView is scrolling" )
+			return
+		end
+
+		----------------------------------------------------------------
+		-- Check if the row we are deleting is on screen or off screen
+		----------------------------------------------------------------
+		
+		-- Function to remove the row from display
+		local function removeRows( theRows, deletedContentHeight )
+			local heightToBeDeleted = 0
+			for j = 1, #theRows do
+			
+				local currentRowIndex = theRows[ j ]
+				heightToBeDeleted = heightToBeDeleted + self._rows[ currentRowIndex ]._view.height
+				
+				-- Loop through the remaining rows, starting at the next row after the deleted one
+				for i = currentRowIndex + 1, table.maxn(self._rows) do
+					-- Move up the row's which are within our views visible bounds
+					if nil~= self._rows[i] then
+					if nil~= self._rows[i]._view and "table" == type( self._rows[i]._view ) then
+						if self._rows[i].isCategory then
+							if nil ~= self._rows[i-1] then
+								transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - heightToBeDeleted, transition = easing.outQuad } )
+								self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height )
+							end
+						else
+							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - heightToBeDeleted, transition = easing.outQuad } )
+							self._rows[i].y = self._rows[i].y - ( self._rows[ currentRowIndex ]._height )
+						end
+					-- We are now moving up the off screen rows
+					else
+						if self._rows[i].isCategory then
+							if nil ~= self._rows[i-1] then
+								self._rows[i].y = self._rows[i].y - ( self._rows[ currentRowIndex ]._height )
+							end
+						else
+							self._rows[i].y = self._rows[i].y - ( self._rows[ currentRowIndex ]._height )
+						end
+					end
+					end
+				end
+			
+				-- Remove the row from display
+				display.remove( self._rows[ currentRowIndex ]._view )
+				self._rows[ currentRowIndex ]._view = nil
+							
+				-- Remove the row from the rows table
+				self._rows[ currentRowIndex ] = nil 
+
+				-- We calculate the total height of the tableView
+				if self._scrollHeight < self.parent.height then
+					self.y = _momentumScrolling.bottomLimit
+				end
+			
+			end
+			
+		end
+		
+		-- main loop over the rows to be deleted
+		local rowsToBeRemoved = {}
+		
+		for i = 1, #rowIndexesTable do
+			local row = self._rows[ rowIndexesTable[ i ] ]
+			
+			-- If the row is within the visible view
+			if "table" == type( row._view ) then
+				-- Transition out & delete the row in question
+				-- decrement the table rows variable
+				self._numberOfRows =  self._numberOfRows - 1
+				-- remove the event listeners on the row before starting the transition
+				row._view:removeEventListener( "touch", _handleRowTouch )
+				row._view:removeEventListener( "tap", _handleRowTap )
+			
+				-- Re calculate the scrollHeight
+				self._scrollHeight = self._scrollHeight - row._height
+				-- only if the scrollbar exists, reposition it
+				if self._scrollBar then
+					self._scrollBar:repositionY()
+				end
+			
+				-- transition the row
+				rowsToBeRemoved[ #rowsToBeRemoved + 1 ] = rowIndexesTable[ i ]
+			-- The row isn't within the visible bounds of our view
+			else
+			
+				-- Re calculate the scrollHeight
+				self._scrollHeight = self._scrollHeight - row._height
+				self._scrollBar:repositionY()
+		
+				-- decrement the table rows variable
+				self._numberOfRows =  self._numberOfRows - 1
+				removeRow( i )
+			
+			end
+		
+		end
+		
+		local deletedContentHeight = 0
+		-- we calculate the total height we delete by deleting the rows
+		for i = 1, #rowsToBeRemoved do
+			local row = self._rows[ rowsToBeRemoved[ i ] ]
+			deletedContentHeight = deletedContentHeight + row._view.height
+		end
+
+		-- we transition the rows 
+		for i = 1, #rowsToBeRemoved do
+			local row = self._rows[ rowsToBeRemoved[ i ] ]
+			if i == #rowsToBeRemoved then
+				transition.to( row._view, { x = - ( row._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = function() removeRows( rowsToBeRemoved, deletedContentHeight ) end } )
+			else
+				transition.to( row._view, { x = - ( row._view.contentWidth * 0.5 ), transition = easing.inQuad } )
+			end
+		end
+
+		
+		-- NOTE: this was the previous location of the scrollHeight calculation. If we resize the scrollheight after the transition.to above, you get a funny motion effect on the tableview. This way, it does not happen.
+		-- set the did render variable to true
+		self._hasRenderedRows = true
 	end
 	
 	-- Function to deleta all rows from the tableView
@@ -1396,6 +1582,12 @@ local function createTableView( tableView, options )
 			newPosition = newPosition + self._currentCategory.contentHeight
 		end
 			
+		-- if the y position is greater than the end of the table, we transition at the end of the table - the widget height
+		-- we only do this if we do not have a picker wheel
+		if math.abs( newPosition ) + self.parent.height > self._scrollHeight and not self._isUsedInPickerWheel then
+			newPosition = - ( self._scrollHeight - self.parent.height ) 
+		end
+			
 		-- Transition the view to the row index	
 		transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad, onComplete = executeOnComplete } )
 		
@@ -1432,6 +1624,12 @@ local function createTableView( tableView, options )
 				self:_createRow( row, true )
 			end
 		end
+		
+		-- we have to rerender the stuck category on the top, if it exists
+		if ( self._rows[ 1 ].isCategory ) then
+			self:_renderCategory( self._rows[ 1 ], true )
+		end
+		
 	end
 	
 	-- isLocked variable setter function

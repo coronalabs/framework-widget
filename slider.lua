@@ -5,60 +5,46 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = true
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
-
-local xAnchor, yAnchor
-
-if not isGraphicsV1 then
-	xAnchor = display.contentCenterX
-	yAnchor = display.contentCenterY
-else
-	xAnchor = 0
-	yAnchor = 0
-end
 
 --Forward reference for test function timer
 local testTimer = nil
 
 function scene:createScene( event )
 	local group = self.view
-	
-	--Display an iOS style background
-	local background
-	
-	if USE_IOS7_THEME then
-		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
+
+	local xAnchor, yAnchor
+
+	if not isGraphicsV1 then
+		xAnchor = display.contentCenterX
+		yAnchor = display.contentCenterY
 	else
-		background = display.newImage( "unitTestAssets/background.png" )
-		background.x, background.y = xAnchor, yAnchor
+		xAnchor = 0
+		yAnchor = 0
 	end
+
+	local fontColor = 0
+	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	
+	if widget.USE_IOS_THEME then
+		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
+		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_LIGHT_THEME then
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_DARK_THEME then
+		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
+		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		fontColor = 0.5
+	else
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	end
 	group:insert( background )
 	
-	if USE_IOS7_THEME then
-		-- create a white background, 40px tall, to mask / hide the scrollView
-		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		topMask:setFillColor( 235, 235, 235, 255 )
-		group:insert( topMask )
-	end
-	
 	local backButtonPosition = 5
-	local backButtonSize = 52
+	local backButtonSize = 34
 	local fontUsed = native.systemFont
-	
-	
-	if USE_IOS7_THEME then
-		backButtonPosition = 0
-		backButtonSize = 40
-		fontUsed = "HelveticaNeue-Light"
-	end
-		
-	-- Test android theme
-	if USE_ANDROID_THEME then
-		widget.setTheme( "widget_theme_android" )
-	end
 
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
@@ -81,8 +67,8 @@ function scene:createScene( event )
 	local TEST_SET_VALUE = false
 	
 	--Create some text to show the sliders output
-	local sliderResult = display.newEmbossedText( "Slider at 50%", 0, 0, fontUsed, 22 )
-	sliderResult:setFillColor( 0 )
+	local sliderResult = display.newText( "Slider at 50%", 0, 0, fontUsed, 18 )
+	sliderResult:setFillColor( fontColor )
 	
 	if isGraphicsV1 then
 		sliderResult:setReferencePoint( display.CenterReferencePoint )
@@ -95,7 +81,7 @@ function scene:createScene( event )
 	-- Slider listener function
 	local function sliderListener( event )
 		--print( "phase is:", event.phase )
-		sliderResult:setText( "Slider at " .. event.value .. "%" )
+		sliderResult.text = "Slider at " .. event.value .. "%"
 	end
 
 	-- Create a horizontal slider
@@ -121,7 +107,8 @@ function scene:createScene( event )
 		listener = sliderListener,
 	}
 	group:insert( sliderVertical )
-		
+	
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS
 	----------------------------------------------------------------------------------------------------------------

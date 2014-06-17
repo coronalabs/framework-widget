@@ -196,7 +196,19 @@ local function createScrollView( scrollView, options )
 		end
 		
 		-- Transition the view to the new position
-		transition.to( self._view, { x = newX, y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
+		transition.to( self._view, { x = newX, y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = function()
+		
+			if "function" == type( onTransitionComplete ) then
+				onTransitionComplete()
+			end
+			-- Stop updating Runtime & tracking velocity
+			self._view._updateRuntime = false
+			self._view._trackVelocity = false
+			-- Reset velocity back to 0
+			self._view._velocity = 0
+		
+		end
+		 } )
 	end
 	
 	function scrollView:takeFocus( event )
@@ -209,7 +221,11 @@ local function createScrollView( scrollView, options )
 		if "table" == type( target ) then
 			if "string" == type( target._widgetType ) then
 				-- Remove focus from the widget
-				target:_loseFocus()
+				if "scrollView" == target._widgetType then
+					target.parent:_loseFocus()
+				else
+					target:_loseFocus()
+				end
 			end
 		end
 		
@@ -264,6 +280,11 @@ local function createScrollView( scrollView, options )
 				end)
 			end
 		end	
+	end
+	
+	-- getter for the widget's view
+	function scrollView:getView()
+		return self._view
 	end
 	
 	----------------------------------------------------------
@@ -505,6 +526,25 @@ local function createScrollView( scrollView, options )
 		if type( lockedState ) ~= "boolean" then return end
 		self._isVerticalScrollingDisabled = lockedState
 		self._isLocked = lockedState
+		-- if we unlock the scrollview and the scrollview's content is bigger than the widget bounds, init the scrollbar.
+		if not opt.hideScrollBar then
+			if self._scrollBar then
+				display.remove( self._scrollBar )
+				self._scrollBar = nil
+			end
+			
+			if not self._isLocked then
+				-- Need a delay here also..
+				timer.performWithDelay( 2, function()
+					--[[
+					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
+					--]]								
+					if not self._scrollBar and not self._isVerticalScrollingDisabled and self._scrollHeight > self._height then
+						self._scrollBar = _momentumScrolling.createScrollBar( self, opt.scrollBarOptions )
+					end
+				end)
+			end
+		end			
 	end
 		
 	-- Finalize function for the scrollView

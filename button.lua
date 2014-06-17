@@ -5,57 +5,45 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = true
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
-
-local xAnchor, yAnchor
-
-if not isGraphicsV1 then
-	xAnchor = display.contentCenterX
-	yAnchor = display.contentCenterY
-else
-	xAnchor = 0
-	yAnchor = 0
-end
 
 -- Forward reference for test function timer
 local testTimer = nil
 
 function scene:createScene( event )
 	local group = self.view
-	
-	--Display an iOS style background
-	local background
-	
-	if USE_IOS7_THEME then
-		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
+
+	local xAnchor, yAnchor
+
+	if not isGraphicsV1 then
+		xAnchor = display.contentCenterX
+		yAnchor = display.contentCenterY
 	else
-		background = display.newImage( "unitTestAssets/background.png" )
-		background.x, background.y = xAnchor, yAnchor
+		xAnchor = 0
+		yAnchor = 0
 	end
 	
+	local fontColor = 0
+	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
+	
+	if widget.USE_IOS_THEME then
+		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
+		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_LIGHT_THEME then
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_DARK_THEME then
+		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
+		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		fontColor = 0.5
+	else
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	end
 	group:insert( background )
 	
-	if USE_IOS7_THEME then
-		-- create a white background, 40px tall, to mask / hide the scrollView
-		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		topMask:setFillColor( 235, 235, 235, 255 )
-		group:insert( topMask )
-	end
-	
 	local backButtonPosition = 5
-	local backButtonSize = 52
-	
-	if USE_IOS7_THEME then
-		backButtonPosition = 0
-		backButtonSize = 40
-	end
-	
-	-- Test android theme
-	if USE_ANDROID_THEME then
-		widget.setTheme( "widget_theme_android" )
-	end
+	local backButtonSize = 34
 	
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton
@@ -65,7 +53,6 @@ function scene:createScene( event )
 	    top = backButtonPosition,
 	    label = "Exit",
 		labelAlign = "center",
-		fontSize = 18,
 	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
@@ -134,6 +121,9 @@ function scene:createScene( event )
 	buttonUsingFiles.oldLabel = "Files"	
 	group:insert( buttonUsingFiles )
 	
+	--buttonUsingFiles:setFillColor(255,0,0)
+	
+	
 	-- Set up sheet parameters for imagesheet button
 	local sheetInfo =
 	{
@@ -169,7 +159,8 @@ function scene:createScene( event )
 	buttonUsingImageSheet.x = display.contentCenterX
 	buttonUsingImageSheet.oldLabel = "ImageSheet"	
 	group:insert( buttonUsingImageSheet )
-		
+	
+	--buttonUsingImageSheet:setFillColor(255,0,0)
 
 	-- Theme button 
 	local buttonUsingTheme = widget.newButton
@@ -180,13 +171,7 @@ function scene:createScene( event )
 	    label = "Theme",
 		labelAlign = "center",
 	    width = 140, 
-		height = 50,
-		fontSize = 18,
-		labelColor =
-		{ 
-			default = { 23, 127, 252 },
-			--over = { 255, 255, 255 },
-		},
+		height = 44,
 	    onEvent = onButtonEvent
 	}
 	buttonUsingTheme.oldLabel = "Theme"
@@ -212,7 +197,97 @@ function scene:createScene( event )
 	buttonUsingTextOnly.oldLabel = "Text only button"
 	buttonUsingTextOnly.x = display.contentCenterX
 	group:insert( buttonUsingTextOnly )
+
+	-- Vector button
+	local buttonUsingVector = widget.newButton
+	{
+		id = "Vector button",
+		left = 0,
+		top = 390,
+		emboss= false,
+		label = "Vector Button",
+		labelColor = 
+		{
+			default = { 0, 0, 0 },
+			over = { 0, 255, 0 },
+		},
+		shape="roundedRect",
+		width = 200,
+		height = 40,
+		cornerRadius = 2,
+		radius = 30,
+		vertices = { -20,-25,40,0,-20,25 },
+		fillColor = { default={ 1,0,0,1 }, over={ 1,40/255,160/255,100/255 } },
+		strokeColor = { default={ 1,100/255,0,1 }, over={ 200/255,200/255,1,1 } },
+		strokeWidth = 4,
+		onEvent = onButtonEvent
+	}
+	buttonUsingVector.oldLabel = "Vector button"
+	buttonUsingVector.x = display.contentCenterX
+	group:insert( buttonUsingVector )
 	
+	--buttonUsingVector:setFillColor(0,0,255)
+	--buttonUsingVector:setStrokeColor(0,255,0)
+
+	local options9Slice = {
+		frames =
+		{
+			{ x=0, y=0, width=21, height=21 },
+			{ x=21, y=0, width=198, height=21 },
+			{ x=219, y=0, width=21, height=21 },
+			{ x=0, y=21, width=21, height=78 },
+			{ x=21, y=21, width=198, height=78 },
+			{ x=219, y=21, width=21, height=78 },
+			{ x=0, y=99, width=21, height=21 },
+			{ x=21, y=99, width=198, height=21 },
+			{ x=219, y=99, width=21, height=21 },
+			{ x=240, y=0, width=21, height=21 },
+			{ x=261, y=0, width=198, height=21 },
+			{ x=459, y=0, width=21, height=21 },
+			{ x=240, y=21, width=21, height=78 },
+			{ x=261, y=21, width=198, height=78 },
+			{ x=459, y=21, width=21, height=78 },
+			{ x=240, y=99, width=21, height=21 },
+			{ x=261, y=99, width=198, height=21 },
+			{ x=459, y=99, width=21, height=21 }
+		},
+		sheetContentWidth = 480,
+		sheetContentHeight = 120
+	}
+	local sheet9Slice = graphics.newImageSheet( "unitTestAssets/buttonSheet.png", options9Slice )
+
+	local buttonUsing9Slice = widget.newButton
+	{
+		left= 50,
+		top = 40,
+		width = 220,
+		height = 70,
+		sheet = sheet9Slice,
+		topLeftFrame = 1,
+		topMiddleFrame = 2,
+		topRightFrame = 3,
+		middleLeftFrame = 4,
+		middleFrame = 5,
+		middleRightFrame = 6,
+		bottomLeftFrame = 7,
+		bottomMiddleFrame = 8,
+		bottomRightFrame = 9,
+		topLeftOverFrame = 10,
+		topMiddleOverFrame = 11,
+		topRightOverFrame = 12,
+		middleLeftOverFrame = 13,
+		middleOverFrame = 14,
+		middleRightOverFrame = 15,
+		bottomLeftOverFrame = 16,
+		bottomMiddleOverFrame = 17,
+		bottomRightOverFrame = 18,
+		label = "9-Slice"
+	}
+
+	group:insert( buttonUsing9Slice )
+
+	--buttonUsing9Slice:setFillColor(0,255,0,100)
+
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS											 	  			  --
 	----------------------------------------------------------------------------------------------------------------

@@ -5,8 +5,11 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
+local USE_IOS_THEME = false
+local USE_IOS7_THEME = false
 local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = true
+local USE_ANDROID_HOLO_LIGHT_THEME = false
+local USE_ANDROID_HOLO_DARK_THEME = false
 
 
 
@@ -15,15 +18,11 @@ local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 local topGrayColor = { 0.92, 0.92, 0.92, 1 }
 local separatorColor = { 0.77, 0.77, 0.77, 1 }
 local headerTextColor = { 0, 0, 0, 1 }
-local scrollViewBg = { 1, 0, 0, 1 }
-
-local scrollView
 
 if isGraphicsV1 then
 	widget._convertColorToV1( topGrayColor )
 	widget._convertColorToV1( separatorColor )	
 	widget._convertColorToV1( headerTextColor )
-	widget._convertColorToV1( scrollViewBg )
 end
 
 function scene:createScene( event )	
@@ -34,13 +33,22 @@ function scene:createScene( event )
 		widget.setTheme( "widget_theme_android" )
 	end
 	
-	if USE_IOS7_THEME then
-		--widget.setTheme( "widget_theme_ios7" )
+	if USE_IOS_THEME then
+		widget.setTheme( "widget_theme_ios" )
 	end
 	
-	--Display an iOS style background
-	local background
-	
+	if USE_IOS7_THEME then
+		widget.setTheme( "widget_theme_ios7" )
+	end
+
+	if USE_ANDROID_HOLO_LIGHT_THEME then
+		widget.setTheme( "widget_theme_android_holo_light" )
+	end
+
+	if USE_ANDROID_HOLO_DARK_THEME then
+		widget.setTheme( "widget_theme_android_holo_dark" )
+	end
+
 	local xAnchor, yAnchor
 	
 	if not isGraphicsV1 then
@@ -50,277 +58,216 @@ function scene:createScene( event )
 		xAnchor = 0
 		yAnchor = 0
 	end
-	
-	if USE_IOS7_THEME then
-		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
+
+	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
+
+	if USE_IOS_THEME then
+		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
+		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+		widget.USE_IOS_THEME = true
+	elseif USE_ANDROID_HOLO_LIGHT_THEME then
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+		widget.USE_ANDROID_HOLO_LIGHT_THEME = true
+	elseif USE_ANDROID_HOLO_DARK_THEME then
+		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
+		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		widget.USE_ANDROID_HOLO_DARK_THEME = true
+		headerTextColor = { 0.5 }
 	else
-		background = display.newImage( "unitTestAssets/background.png" )
-		background.x, background.y = xAnchor, yAnchor
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
 	end
-
 	group:insert( background )
-
-	scrollView = widget.newScrollView
-	{
-		left = 0,
-		top = 40,
-		x = 160,
-		y = 260,
-		width = display.contentWidth,
-		height = display.contentHeight - 40,
-		horizontalScrollDisabled = true,
-		hideScrollBar = false,
-		hideBackground = true,
-		backgroundColor = scrollViewBg
-	}
-	group:insert( scrollView )
-	
-	if USE_IOS7_THEME then
-		-- create a white background, 40px tall, to mask / hide the scrollView
-		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		if not isGraphicsV1 then
-			topMask.x = topMask.x + topMask.contentWidth * 0.5
-			topMask.y = topMask.y + topMask.contentHeight * 0.5
-		end
-		topMask:setFillColor( unpack( topGrayColor ) )
-		topMask.alpha = 0
-		group:insert( topMask )
-	end
-	
-	--Create a title to make the menu visibly clear
 	
 	-- create some skinning variables
 	local fontUsed = native.systemFont
 	local headerTextSize = 20
 	local separatorColor = { unpack( separatorColor ) }
 	
-	if USE_IOS7_THEME then
-		fontUsed = "HelveticaNeue-Medium"
-		headerTextSize = 17
-	end
-	
-	local title = display.newEmbossedText( group, "Select a unit test to view", 0, 0, fontUsed, headerTextSize )
+	local title = display.newText( group, "Select a unit test to view", 0, 0, fontUsed, headerTextSize )
 	title:setFillColor( unpack( headerTextColor ) )
 	title.x, title.y = display.contentCenterX, 20
 	group:insert( title )
 	
 	if USE_IOS7_THEME then
-		local separator = display.newRect( group, 0, title.contentHeight + title.y, display.contentWidth, 0.5 )
+		local separator = display.newRect( group, display.contentCenterX, title.contentHeight + title.y, display.contentWidth, 0.5 )
 		separator:setFillColor( unpack ( separatorColor ) )
 	end
-	
-
 	
 	--Go to selected unit test
 	local function gotoSelection( event )
 		local phase = event.phase
 		
-		if "moved" == phase then		
-			local dy = math.abs( event.y - event.yStart )
-		
-			if dy > 15 then
-				scrollView:takeFocus( event )
-			end
-		elseif "ended" == phase then
+		if "ended" == phase then
 			local targetScene = event.target.id
-		
 			storyboard.gotoScene( targetScene )
 		end
 		
 		return true
 	end
 
-	local buttonX = 0
-	if isGraphicsV1 then
-		buttonX = 160
-	end
-	
-	local function yCoord( coord )
-		if isGraphicsV1 then
-			coord = coord + scrollView.contentHeight * 0.5
-		end
-		return coord
-	end
+	local buttonX = 160
 
 	-- spinner unit test
 	local spinnerButton = widget.newButton
 	{
 	    id = "spinner",
-	    left = -100,
-	    top = - 230,
 	    x = buttonX,
-	    y = yCoord( -190 ),
+	    y = 75,
 	    label = "Spinner",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( spinnerButton )
+	group:insert( spinnerButton )
 	
 	-- switch unit test
 	local switchButton = widget.newButton
 	{
 	    id = "switch",
 	    x = buttonX,
-	    y = spinnerButton.y + 50,
+	    y = spinnerButton.y + 36,
 	    label = "Switch",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( switchButton )
+	group:insert( switchButton )
 	
 	-- Stepper unit test
 	local stepperButton = widget.newButton
 	{
 	    id = "stepper",
-	    left = -100,
-	    top = switchButton.y + 50,
 	    x = buttonX,
-	    y = switchButton.y + 50,
+	    y = switchButton.y + 36,
 	    label = "Stepper",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( stepperButton )
+	group:insert( stepperButton )
 	
 	
 	-- Search field unit test
+	--[[
 	local searchFieldButton = widget.newButton
 	{
 	    id = "searchField",
-	    left = -100,
-	    top = stepperButton.y + 50,
 	    x = buttonX,
-	    y = stepperButton.y + 50,
+	    y = stepperButton.y + 36,
 	    label = "Search Field",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( searchFieldButton )
-	
+	group:insert( searchFieldButton )
+	--]]
+
 	-- progressView unit test
 	local progressViewButton = widget.newButton
 	{
 	    id = "progressView",
-	    left = -100,
-	    top = searchFieldButton.y + 50,
 	    x = buttonX,
-	    y = searchFieldButton.y + 50,
-	    label = "Progress View",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    y = stepperButton.y + 36,
+	    label = "ProgressView",
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( progressViewButton )
+	group:insert( progressViewButton )
 	
 	-- segmentedControl unit test
 	local segmentedControlButton = widget.newButton
 	{
 	    id = "segmentedControl",
-	    left = -100,
-	    top = progressViewButton.y + 50,
 	    x = buttonX,
-	    y = progressViewButton.y + 50,
-	    label = "Segmented Control",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    y = progressViewButton.y + 36,
+	    label = "SegmentedControl",
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( segmentedControlButton )
+	group:insert( segmentedControlButton )
 	
 	-- button unit test
 	local buttonButton = widget.newButton
 	{
 	    id = "button",
-	    left = -100,
-	    top = segmentedControlButton.y + 50,
 	    x = buttonX,
-	    y = segmentedControlButton.y + 50,
+	    y = segmentedControlButton.y + 36,
 	    label = "Button",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( buttonButton )
+	group:insert( buttonButton )
 	
 	-- tabBar unit test
 	local tabBarButton = widget.newButton
 	{
 	    id = "tabBar",
-	    left = -100,
-	    top = buttonButton.y + 50,
 	    x = buttonX,
-	    y = buttonButton.y + 50,
+	    y = buttonButton.y + 36,
 	    label = "TabBar",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( tabBarButton )
+	group:insert( tabBarButton )
 	
 	-- slider unit test
 	local sliderButton = widget.newButton
 	{
 	    id = "slider",
-	    left = -100,
-	    top = tabBarButton.y + 50,
 	    x = buttonX,
-	    y = tabBarButton.y + 50,
+	    y = tabBarButton.y + 36,
 	    label = "Slider",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( sliderButton )
+	group:insert( sliderButton )
 	
 	-- picker unit test
 	local pickerButton = widget.newButton
 	{
 	    id = "picker",
-	    left = -100,
-	    top = sliderButton.y + 50,
 	    x = buttonX,
-	    y = sliderButton.y + 50,
-	    label = "Picker",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    y = sliderButton.y + 36,
+	    label = "PickerWheel",
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( pickerButton )
+	group:insert( pickerButton )
 	
 	-- tableView unit test
 	local tableViewButton = widget.newButton
 	{
 	    id = "tableView",
-	    left = -100,
-	    top = pickerButton.y + 50,
 	    x = buttonX,
-	    y = pickerButton.y + 50,
+	    y = pickerButton.y + 36,
 	    label = "TableView",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( tableViewButton )
+	group:insert( tableViewButton )
 	
 	-- scrollView unit test
 	local scrollViewButton = widget.newButton
 	{
 	    id = "scrollView",
-	    left = -100,
-	    top = tableViewButton.y + 50,
 	    x = buttonX,
-	    y = tableViewButton.y + 50,
+	    y = tableViewButton.y + 36,
 	    label = "ScrollView",
-	    width = 200, height = 52,
-	    cornerRadius = 8,
+	    width = 200, height = 34,
+	    emboss = false,
 	    onEvent = gotoSelection
 	}
-	scrollView:insert( scrollViewButton )
-	
+	group:insert( scrollViewButton )
+
 end
 
 function scene:didExitScene( event )

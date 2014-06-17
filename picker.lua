@@ -5,54 +5,42 @@ local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local USE_ANDROID_THEME = false
-local USE_IOS7_THEME = true
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
-
-local xAnchor, yAnchor
-
-if not isGraphicsV1 then
-	xAnchor = display.contentCenterX
-	yAnchor = display.contentCenterY
-else
-	xAnchor = 0
-	yAnchor = 0
-end
 
 function scene:createScene( event )
 	local group = self.view
-	
-	-- Test android theme
-	if USE_ANDROID_THEME then
-		widget.setTheme( "widget_theme_android" )
-	end
-	
-	--Display an iOS style background
-	local background
-	
-	if USE_IOS7_THEME then
-		background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
+
+	local xAnchor, yAnchor
+
+	if not isGraphicsV1 then
+		xAnchor = display.contentCenterX
+		yAnchor = display.contentCenterY
 	else
-		background = display.newImage( "unitTestAssets/background.png" )
-		background.x, background.y = xAnchor, yAnchor
+		xAnchor = 0
+		yAnchor = 0
 	end
+
+	local fontColor = 0
+	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
 	
+	if widget.USE_IOS_THEME then
+		if isGraphicsV1 then background:setFillColor( 197, 204, 212, 255 )
+		else background:setFillColor( 197/255, 204/255, 212/255, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_LIGHT_THEME then
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	elseif widget.USE_ANDROID_HOLO_DARK_THEME then
+		if isGraphicsV1 then background:setFillColor( 34, 34, 34, 255 )
+		else background:setFillColor( 34/255, 34/255, 34/255, 1 ) end
+		fontColor = 0.5
+	else
+		if isGraphicsV1 then background:setFillColor( 255, 255, 255, 255 )
+		else background:setFillColor( 1, 1, 1, 1 ) end
+	end
 	group:insert( background )
 	
-	if USE_IOS7_THEME then
-		-- create a white background, 40px tall, to mask / hide the scrollView
-		local topMask = display.newRect( 0, 0, display.contentWidth, 40 )
-		topMask:setFillColor( 235, 235, 235, 255 )
-		group:insert( topMask )
-	end
-	
 	local backButtonPosition = 5
-	local backButtonSize = 52
-	
-	if USE_IOS7_THEME then
-		backButtonPosition = 0
-		backButtonSize = 40
-	end
+	local backButtonSize = 34
 	
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
@@ -60,7 +48,7 @@ function scene:createScene( event )
 	    left = 60,
 	    top = backButtonPosition,
 	    label = "Exit",
-	    width = 200, height = 40,
+	    width = 200, height = backButtonSize,
 	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
 	}
 	returnToListing.x = display.contentCenterX
@@ -86,14 +74,14 @@ function scene:createScene( event )
 	{ 
 		{ 
 			align = "right",
-			width = 150,
+			width = 140,
 			startIndex = 1,
 			labels = 
 			{
 				"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" 
 			},
 		},
-		
+
 		{
 			align = "center",
 			width = 60,
@@ -112,14 +100,15 @@ function scene:createScene( event )
 	-- Create a new Picker Wheel
 	local pickerWheel = widget.newPickerWheel
 	{
-		top = display.contentHeight - 222,
+		top = display.contentHeight - 444,
 		columns = columnData,
 	}
 	group:insert( pickerWheel )
 	
 	-- Scroll the second column to it's 8'th row
 	--pickerWheel:scrollToIndex( 2, 8, 0 )
-		
+	
+	
 	
 	local function showValues( event )		
 		local values = pickerWheel:getValues()
@@ -139,13 +128,13 @@ function scene:createScene( event )
 	
 	local getValuesButton = widget.newButton{
 	    id = "getValues",
-	    left = display.contentWidth * 0.5 - 50,
-	    top = 60,
-	    label = "Values",
-	    width = 100, height = 52,
+	    --left = display.contentWidth * 0.5,
+	    top = 300,
+	    label = "print() values",
+	    width = 200, height = backButtonSize,
 	    onRelease = showValues;
 	}
-	returnToListing.x = display.contentCenterX
+	getValuesButton.x = display.contentCenterX
 	group:insert( getValuesButton )
 end
 
