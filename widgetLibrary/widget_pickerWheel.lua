@@ -340,9 +340,11 @@ local function createPickerWheel( pickerWheel, options )
 		-- Update the y position	
 		-- this has to be calculated in content coordinates to abstract the widget being in a group
 		local xPos, yPos = _pickerWheel:localToContent( 0, 0 )
-		self._yPosition = yPos + ( self._height * 0.5 )
+		
 		if isGraphicsV1 then
 			self._yPosition = yPos + self.y + ( self._height * 0.5 )
+		else
+			self._yPosition = yPos + ( self._height * 0.5 )
 		end
 		
 		-- Manage the Picker Wheels columns
@@ -351,9 +353,6 @@ local function createPickerWheel( pickerWheel, options )
 			if "ended" == self._columns[i]._view._phase and not self._columns[i]._view._updateRuntime then
 			    if not self._didTap then
 			    	local calculatePosition = self._yPosition - self.parent.contentHeight * 0.5
-			    	--if isGraphicsV1 then
-			    	--	calculatePosition = self._yPosition - self.parent.contentHeight * 0.5
-			    	--end
 				    self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( calculatePosition )
 				else
 				    self._columns[i]._values = self._columns[i]._view:_getRowAtIndex( self._columns[ i ]._view._lastRowIndex )
