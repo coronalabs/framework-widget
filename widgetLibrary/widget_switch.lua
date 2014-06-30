@@ -279,6 +279,7 @@ local function createOnOffSwitch( switch, options )
 	view._endRange = endRange
 	view._onPress = opt.onPress
 	view._onRelease = opt.onRelease
+	view._onEvent = opt.onEvent
 	
 	if _widget.isSeven() or not switch.isCustom then
 		view._offView = offView
