@@ -406,9 +406,13 @@ local function createScrollView( scrollView, options )
 					--[[
 					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
 					--]]
-															
-					if not self._view._scrollBar and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
-						self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
+					
+					-- because this is performed with a delay, we have to check if we still have the scrollHeight property. This prevents
+					-- issues when removing the scrollview after creation in the same frame.
+					if self._view._scrollHeight then										
+						if not self._view._scrollBar and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
+							self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
+						end
 					end
 				end)
 			end
