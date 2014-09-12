@@ -709,6 +709,15 @@ local function createStandardSwitch( switch, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
+	local imageSheet
+	-- Check for a imageSheet
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
+	end
+	
 	-- Are we using a sprite (assume false)
 	local usingSprite = false
 	

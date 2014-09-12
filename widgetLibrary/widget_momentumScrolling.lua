@@ -199,6 +199,7 @@ end
 function M._touch( view, event )
 	local phase = event.phase
 	local time = event.time
+	local limit
 
 	if "began" == phase then	
 		-- Reset values	
@@ -313,8 +314,6 @@ function M._touch( view, event )
 					
 					view._prevDeltaX = view._delta
 					
-					local limit
-					
 					if view.isBounceEnabled == true then 
 					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
 					    if view._isUsedInPickerWheel == true then
@@ -382,7 +381,6 @@ function M._touch( view, event )
 					
 					-- Handle limits
 					-- if bounce is true, then the snapback parameter has to be true, otherwise false
-					local limit
 					
 					if view.isBounceEnabled == true then 
 					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
@@ -446,7 +444,7 @@ end
 
 -- Handle runtime momentum scrolling events.
 function M._runtime( view, event )
-
+	local limit
 	-- If we are tracking runtime
 	if view._updateRuntime then		
 		local timePassed = event.time - view._lastTime
@@ -481,7 +479,6 @@ function M._runtime( view, event )
 				view.x = view.x + view._velocity * timePassed
 			
 				-- Handle limits
-				local limit
 				if "horizontal" == view._moveDirection then
                     limit = handleSnapBackHorizontal( M, view, true )
                 else
@@ -548,7 +545,6 @@ function M._runtime( view, event )
 	
 				-- Handle limits
 				-- if we have motion, then we check for snapback. otherwise, we don't.
-				local limit
 				
 				if "vertical" == view._moveDirection then
                     limit = handleSnapBackVertical( M, view, true )
