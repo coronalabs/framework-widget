@@ -114,18 +114,29 @@ local function createPickerWheel( pickerWheel, options )
 		local rowTitle = display.newText( row, row._label, 0, 0, font, fontSize )
 		rowTitle.y = row.contentHeight * 0.5
 		
-		if row.index == pickerWheel._view._columns[row.id]._values.index then
-			if ( event.target._fontColorSelected and type( event.target._fontColorSelected ) == "table" ) then
-				rowTitle:setFillColor( unpack( event.target._fontColorSelected ) )
+		-- when the widget is outside the view so no column is rendered, then _values does not exist, so we check for it
+		if pickerWheel._view._columns[row.id]._values then
+		
+			if row.index == pickerWheel._view._columns[row.id]._values.index then
+				if ( event.target._fontColorSelected and type( event.target._fontColorSelected ) == "table" ) then
+					rowTitle:setFillColor( unpack( event.target._fontColorSelected ) )
+				else
+					rowTitle:setFillColor( unpack( blackColor ) )
+				end
 			else
-				rowTitle:setFillColor( unpack( blackColor ) )
+				if ( event.target._fontColor and type( event.target._fontColor ) == "table" ) then
+					rowTitle:setFillColor( unpack( event.target._fontColor ) )
+				else
+					rowTitle:setFillColor( unpack( labelColor ) )
+				end
 			end
+		
 		else
-			if ( event.target._fontColor and type( event.target._fontColor ) == "table" ) then
-				rowTitle:setFillColor( unpack( event.target._fontColor ) )
-			else
-				rowTitle:setFillColor( unpack( labelColor ) )
-			end
+				if ( event.target._fontColor and type( event.target._fontColor ) == "table" ) then
+					rowTitle:setFillColor( unpack( event.target._fontColor ) )
+				else
+					rowTitle:setFillColor( unpack( labelColor ) )
+				end			
 		end
 
 		row.value = rowTitle.text
