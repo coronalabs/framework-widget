@@ -220,8 +220,8 @@ local function createScrollView( scrollView, options )
 		-- Handle turning widget buttons back to their default state (visually, ie their default button images & labels)
 		if "table" == type( target ) then
 			if "string" == type( target._widgetType ) then
-				-- Remove focus from the widget
-				if "scrollView" == target._widgetType then
+				-- Remove focus from the widget. From parent if the scrollview is in another scrollview, from self otherwise
+				if "scrollView" == target.parent._widgetType then
 					target.parent:_loseFocus()
 				else
 					target:_loseFocus()
