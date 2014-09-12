@@ -420,8 +420,8 @@ local function createScrollView( scrollView, options )
     end
     
     -- isLocked setter function
-	function scrollView:setIsLocked( lockedState )
-		return self._view:_setIsLocked( lockedState )
+	function scrollView:setIsLocked( lockedState, direction )
+		return self._view:_setIsLocked( lockedState, direction )
 	end
 
 	-- Transfer touch from the view's background to the view's content
@@ -526,10 +526,35 @@ local function createScrollView( scrollView, options )
 	Runtime:addEventListener( "enterFrame", view )
 	
 	-- isLocked variable setter function
-	function view:_setIsLocked( lockedState )
-		if type( lockedState ) ~= "boolean" then return end
-		self._isVerticalScrollingDisabled = lockedState
-		self._isLocked = lockedState
+	function view:_setIsLocked( lockedState, direction )
+		if type( lockedState ) ~= "boolean" then
+			return
+		end
+		
+		if direction and type ( direction ) ~= "string" then
+			return
+		end
+		
+		-- if we received a direction to set a lockstate on, proceed
+		if direction then
+			if "horizontal" == direction then
+				self._isHorizontalScrollingDisabled = lockedState
+			elseif "vertical" == direction then
+				self._isVerticalScrollingDisabled = lockedState
+			end
+		-- otherwise set both directions to the received lockstate
+		else
+			self._isVerticalScrollingDisabled = lockedState
+			self._isHorizontalScrollingDisabled = lockedState
+		end
+		
+		-- if both scroll axis variables are disabled, then the scrollview is locked
+		if self._isHorizontalScrollingDisabled and self.isVerticalScrollingDisabled then
+			self._isLocked = true
+		else
+			self._isLocked = false
+		end
+		
 		-- if we unlock the scrollview and the scrollview's content is bigger than the widget bounds, init the scrollbar.
 		if not opt.hideScrollBar then
 			if self._scrollBar then
