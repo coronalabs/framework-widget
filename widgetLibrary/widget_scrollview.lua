@@ -156,7 +156,7 @@ local function createScrollView( scrollView, options )
 	
 	-- Function to retrieve the x/y position of the scrollView's content
 	function scrollView:getContentPosition()
-		return self._view.x, self._view.y
+		return self._view:_getContentPosition()
 	end
 	
 	-- Function to scroll the view to a specific position
@@ -524,6 +524,35 @@ local function createScrollView( scrollView, options )
 	end
 	
 	Runtime:addEventListener( "enterFrame", view )
+	
+	-- _getContentPosition
+	-- returns the x,y coordinates of the scrollview
+	function view:getContentPosition()
+		return self:_getContentPosition()
+	end
+	
+	function view:_getContentPosition()
+		local returnX = self.x
+		local returnY = self.y
+		
+		-- if we are above the top limit
+		if ( returnY > 0 ) then
+			returnY = 0
+		-- and the bottom limit
+		elseif returnY < - self._scrollHeight + self.parent.contentHeight then
+			returnY = - self._scrollHeight + self.parent.contentHeight
+		end
+		
+		-- if we are above the left limit
+		if ( returnX > 0 ) then
+			returnX = 0
+		-- and the right limit
+		elseif returnX < - self._scrollWidth + self.parent.contentWidth then
+			returnX = - self._scrollWidth + self.parent.contentWidth
+		end
+		
+		return returnX, returnY
+	end
 	
 	-- isLocked variable setter function
 	function view:_setIsLocked( lockedState, direction )
