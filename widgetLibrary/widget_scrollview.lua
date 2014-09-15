@@ -232,11 +232,15 @@ local function createScrollView( scrollView, options )
 		if "top" == newPosition then
 			newY = self._view._topPadding
 		elseif "bottom" == newPosition then
-			newY = self._view._background.y - ( self._view.contentHeight ) + ( self._view._background.contentHeight * 0.5 ) - self._view._bottomPadding
+			--newY = self._view._background.y - ( self._view.contentHeight ) + ( self._view._background.contentHeight * 0.5 ) - self._view._bottomPadding
+			-- bottom is the scrollHeight ( the view's content height ) minus padding and the actual widget height
+			newY = - self._view.contentHeight + self._view._bottomPadding + self.contentHeight
 		elseif "left" == newPosition then
 			newX = self._view._leftPadding
 		elseif "right" == newPosition then
-			newX = self._view._background.x - ( self._view.contentWidth ) + ( self._view._background.contentWidth * 0.5 ) - self._view._rightPadding
+			--newX = self._view._background.x - ( self._view.contentWidth ) + ( self._view._background.contentWidth * 0.5 ) - self._view._rightPadding
+			-- right is the scrollWidth ( the view's content width ) minus padding and the actual widget width
+			newX = - self._view.contentWidth + self._view._rightPadding + self.contentWidth
 		end
 		
 		-- Transition the view to the new position
