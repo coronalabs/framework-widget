@@ -300,7 +300,7 @@ local function createOnOffSwitch( switch, options )
 	switch.isOn = opt.initialSwitchState
 	
 	-- For non-graphics v1 mode, the children have to be non-anchored
-	if not isGraphicsV1 then
+	if not isGraphicsV1 and not _widget.isSeven() then
 		switch.anchorChildren = false
 	end
 	
