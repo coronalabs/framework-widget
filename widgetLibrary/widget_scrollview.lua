@@ -159,6 +159,50 @@ local function createScrollView( scrollView, options )
 		return self._view:_getContentPosition()
 	end
 	
+	-- Function to set the frame of the widget post creation
+	function scrollView:setSize( newWidth, newHeight )
+		-- resize the widget
+		self.width = newWidth
+		self.height = newHeight
+		--resize the widget's view
+		self._view._width = newWidth
+		self._view._height = newHeight
+		--resize the widget's background
+		self._view._background.width = newWidth
+		self._view._background.height = newHeight
+		-- reposition the collector group if graphics 2.0
+		if not isGraphicsV1 then
+			self._collectorGroup.x = - newWidth * 0.5
+			self._collectorGroup.y = - newHeight * 0.5
+		end
+		-- Update the scrollWidth
+		self._view._scrollWidth = self._view.width
+
+		-- Update the scrollHeight
+		self._view._scrollHeight = self._view.height
+				
+		-- after the contentWidth / Height updates are complete, scroll the view to the position it was at before inserting the new object
+		self:scrollToPosition( { x = self._view.x, y = self._view.y, time = 0 } )
+		
+		-- Create the scrollBar
+		if not opt.hideScrollBar then
+			if not self._view._isLocked then
+				-- Need a delay here also..
+				timer.performWithDelay( 2, function()
+					-- because this is performed with a delay, we have to check if we still have the scrollHeight property. This prevents
+					-- issues when removing the scrollview after creation in the same frame.
+					if self._view._scrollHeight then	
+						if not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then							
+							display.remove( self._view._scrollBar )
+							self._view._scrollBar = nil
+							self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
+						end
+					end
+				end)
+			end
+		end	
+	end
+	
 	-- Function to scroll the view to a specific position
 	function scrollView:scrollToPosition( options )
 		local newX = options.x or self._view.x
