@@ -285,8 +285,14 @@ local function createTableView( tableView, options )
 				end
 			
 				-- If the row is within bounds
-				if isWithinBounds then
-					local translateToPos = - currentRow.y - self.parent.y - 6
+				if isWithinBounds then                                                                                                                        
+                                        local translateToPos = - currentRow.y - self.parent.y - 6
+                                        
+                                        if self._isUsedInPickerWheel then
+                                            local screenScaleFactor = display.contentWidth / 320;  -- factor that adjust the pickerWheel to work with config.content.width > 320
+                                            translateToPos = - currentRow.y - self.parent.y - 6 * screenScaleFactor
+                                        end
+                                        
 					if isGraphicsV1 then
 						translateToPos = - currentRow.y - self.parent.y
 					end								
@@ -1569,8 +1575,11 @@ local function createTableView( tableView, options )
 		
 		-- The calculation needs altering for pickerWheels
 		if self._isUsedInPickerWheel then
+                        
+                        local screenScaleFactor = display.contentWidth / 320;  -- factor that adjust the pickerWheel to work with config.content.width > 320
+                    
 			-- TODO: this is just because we have a single theme for all the pickers, we'll have to add a real solution here.
-			local jumpY = - 26 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
+			local jumpY = - 26 * screenScaleFactor - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 			if isGraphicsV1 then
 				jumpY =  - self._rows[rowIndex]._height * 0.5 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 			end

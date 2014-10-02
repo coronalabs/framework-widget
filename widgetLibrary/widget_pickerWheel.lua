@@ -42,6 +42,8 @@ local labelColor = { 0.60 }
 local defaultRowColor = { 1 }
 local blackColor = { 0 }
 
+local screenScaleFactor = display.contentWidth / 320;  -- factor that adjust the pickerWheel to work with config.content.width > 320
+
 if isByteColorRange then
 	_widget._convertColorToV1( labelColor )
 	_widget._convertColorToV1( defaultRowColor )
@@ -131,12 +133,12 @@ local function createPickerWheel( pickerWheel, options )
 		row.value = rowTitle.text
 		
 		-- check if the text is greater than the actual column size
-		local availableWidth = viewOverlay.width - 28
+		local availableWidth = viewOverlay.width - 28 * screenScaleFactor
 		local columnWidth = view._columns[ row.id ].width or availableWidth / #view._columns
 		local textWidth = rowTitle.contentWidth
 		if textWidth > columnWidth - 1 then
 	        --cap the text
-	        local pixelsPerChar = 23 -- aproximate median value
+	        local pixelsPerChar = 23 * screenScaleFactor -- aproximate median value
 	        local numChars = columnWidth / pixelsPerChar
 	        row._label = row._label:sub(1, numChars)
 	        rowTitle.text = row._label
@@ -158,9 +160,9 @@ local function createPickerWheel( pickerWheel, options )
 
 			local rowTitleX
 			if isGraphicsV1 then
-				rowTitleX = ( rowTitle.contentWidth * 0.5 ) + 6
+				rowTitleX = ( rowTitle.contentWidth * 0.5 ) + 6 * screenScaleFactor
 			else
-				rowTitleX = row.x + 6
+				rowTitleX = row.x + 6 * screenScaleFactor
 				rowTitle.anchorX = 0
 			end
 			rowTitle.x = rowTitleX
@@ -169,9 +171,9 @@ local function createPickerWheel( pickerWheel, options )
 			
 			local rowTitleX
 			if isGraphicsV1 then
-				rowTitleX = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 6
+				rowTitleX = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 6 * screenScaleFactor
 			else
-				rowTitleX = row.x + columnWidth - 6
+				rowTitleX = row.x + columnWidth - 6 * screenScaleFactor
 				rowTitle.anchorX = 1
 			end
 			rowTitle.x = rowTitleX
@@ -195,7 +197,7 @@ local function createPickerWheel( pickerWheel, options )
 	end
 
 	-- The available width for the whole pickerWheel (to fit columns)
-	local availableWidth = viewOverlay.width - 28
+	local availableWidth = viewOverlay.width - 28 * screenScaleFactor
 	
 	-- local method that handles scrolling to the tapped / touched index
 	local function didTapValue( event )
@@ -214,6 +216,9 @@ local function createPickerWheel( pickerWheel, options )
 		topPadding = 90
 		bottomPadding = pickerWheel.contentHeight - 20 -- 20 is half a row height
 	end
+        
+        topPadding = topPadding * screenScaleFactor
+        bottomPadding = bottomPadding * screenScaleFactor
 
 	local initialX = 0
 	local initialPos = -140
@@ -222,18 +227,22 @@ local function createPickerWheel( pickerWheel, options )
 	--else
 		--initialPos = -144
 	end
-
-	for i = 1, #opt.columnData do
+        initialPos = initialPos * screenScaleFactor
+        
+        for i = 1, #opt.columnData do
 
 		if i > 1 then
 			initialPos = viewColumns[i-1].x + ( viewColumns[i-1]._view._width * 0.5 )
 		end
-
+                
+                local tableViewWidth = opt.columnData[i].width or availableWidth / #opt.columnData
+                tableViewWidth = tableViewWidth * screenScaleFactor
+                  
 		viewColumns[i] = _widget.newTableView
 		{
 			left = initialPos,
-			top = -110,
-			width = opt.columnData[i].width or availableWidth / #opt.columnData,
+			top = -110 * screenScaleFactor,
+			width = tableViewWidth,
 			height = opt.overlayFrameHeight - 1,
 			topPadding = topPadding,
 			bottomPadding = bottomPadding,
@@ -269,7 +278,7 @@ local function createPickerWheel( pickerWheel, options )
 		for j = 1, #opt.columnData[i].labels do
 			viewColumns[i]:insertRow
 			{
-				rowHeight = 40,
+				rowHeight = opt.rowHeight,
 				rowColor = { 
 					default = opt.columnColor,
     				over = opt.columnColor, 
@@ -440,7 +449,7 @@ function M.new( options, theme )
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	--opt.maskFile = customOptions.maskFile or themeOptions.maskFile
 	opt.font = customOptions.font or themeOptions.font or native.systemFontBold
-	opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 22
+	opt.fontSize = customOptions.fontSize or (themeOptions.fontSize and themeOptions.fontSize * screenScaleFactor) or 22 * screenScaleFactor
 	opt.fontColor = customOptions.fontColor or themeOptions.fontColor or labelColor
 	opt.fontColorSelected = customOptions.fontColorSelected or themeOptions.fontColorSelected or blackColor
 	opt.columnColor = customOptions.columnColor or themeOptions.columnColor or defaultRowColor
@@ -448,11 +457,11 @@ function M.new( options, theme )
 	
 	if _widget.isSeven() then
 		opt.font = customOptions.font or themeOptions.font or "HelveticaNeue-Medium"
-		opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 20
+		opt.fontSize = customOptions.fontSize or (themeOptions.fontSize and themeOptions.fontSize * screenScaleFactor) or 20 * screenScaleFactor
 	end
 	
 	-- Properties
-	opt.rowHeight = customOptions.rowHeight or 40
+	opt.rowHeight = customOptions.rowHeight or 40 * screenScaleFactor
 	opt.columnData = customOptions.columns
 
 	-- Frames & images
@@ -461,17 +470,17 @@ function M.new( options, theme )
 	opt.themeData = themeOptions.data
 	
 	opt.backgroundFrame = customOptions.backgroundFrame or _widget._getFrameIndex( themeOptions, themeOptions.backgroundFrame )
-	opt.backgroundFrameWidth = customOptions.backgroundFrameWidth or themeOptions.backgroundFrameWidth
-	opt.backgroundFrameHeight = customOptions.backgroundFrameHeight or themeOptions.backgroundFrameHeight
+	opt.backgroundFrameWidth = customOptions.backgroundFrameWidth or (themeOptions.backgroundFrameWidth and themeOptions.backgroundFrameWidth * screenScaleFactor)
+	opt.backgroundFrameHeight = customOptions.backgroundFrameHeight or (themeOptions.backgroundFrameHeight and themeOptions.backgroundFrameHeight * screenScaleFactor)
 	
 	opt.overlayFrame = customOptions.overlayFrame or _widget._getFrameIndex( themeOptions, themeOptions.overlayFrame )
-	opt.overlayFrameWidth = customOptions.overlayFrameWidth or themeOptions.overlayFrameWidth
-	opt.overlayFrameHeight = customOptions.overlayFrameHeight or themeOptions.overlayFrameHeight
+	opt.overlayFrameWidth = customOptions.overlayFrameWidth or (themeOptions.overlayFrameWidth and themeOptions.overlayFrameWidth * screenScaleFactor)
+	opt.overlayFrameHeight = customOptions.overlayFrameHeight or (themeOptions.overlayFrameHeight and themeOptions.overlayFrameHeight * screenScaleFactor)
 	
 	opt.separatorFrame = customOptions.separatorFrame or _widget._getFrameIndex( themeOptions, themeOptions.separatorFrame ) or _widget._getFrameIndex( themeOptions, themeOptions.seperatorFrame ) or nil
-	opt.separatorFrameWidth = customOptions.separatorFrameWidth or themeOptions.separatorFrameWidth or themeOptions.seperatorFrameWidth or nil
-	opt.separatorFrameHeight = customOptions.separatorFrameHeight or themeOptions.separatorFrameHeight or themeOptions.seperatorFrameHeight or nil
-	
+	opt.separatorFrameWidth = customOptions.separatorFrameWidth or (themeOptions.separatorFrameWidth and themeOptions.separatorFrameWidth * screenScaleFactor) or (themeOptions.seperatorFrameWidth and themeOptions.seperatorFrameWidth * screenScaleFactor) or nil
+	opt.separatorFrameHeight = customOptions.separatorFrameHeight or (themeOptions.separatorFrameHeight and themeOptions.separatorFrameHeight * screenScaleFactor) or (themeOptions.seperatorFrameHeight and themeOptions.seperatorFrameHeight * screenScaleFactor) or nil
+        
 	-------------------------------------------------------
 	-- Create the pickerWheel
 	-------------------------------------------------------
