@@ -553,18 +553,18 @@ local function createScrollView( scrollView, options )
 		_momentumScrolling._runtime( self, event )		
 		
 		-- Constrain x/y scale values to 1.0
-		if _scrollView.xScale ~= 1.0 then
+		if _scrollview and _scrollView.xScale ~= 1.0 then
 			_scrollView.xScale = 1.0
 			print( M._widgetName, "Does not support scaling" )
 		end
 		
-		if _scrollView.yScale ~= 1.0 then
+		if _scrollview and _scrollView.yScale ~= 1.0 then
 			_scrollView.yScale = 1.0
 			print( M._widgetName, "Does not support scaling" )
 		end
 
 		-- Update the top position of the scrollView (if moved)
-		if _scrollView.y ~= self._top then
+		if _scrollView and _scrollView.y ~= self._top then
 			self._top = _scrollView.y
 		end
 
