@@ -777,7 +777,9 @@ local function createStandardSwitch( switch, options )
 			end
 			
 			-- Set the pressed/selected radio switch to on
-			return self._view:_setState( { isOn = true } )
+			if options and options.isOn then
+				return self._view:_setState( { isOn = true } )
+			end
 		else
 			return self._view:_setState( options )
 		end
