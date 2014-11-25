@@ -1323,7 +1323,9 @@ local function createTableView( tableView, options )
 			
 			-- Re calculate the scrollHeight
 			self._scrollHeight = self._scrollHeight - self._rows[rowIndex]._height
-			self._scrollBar:repositionY()
+			if self._scrollBar then
+				self._scrollBar:repositionY()
+			end
 		
 			-- decrement the table rows variable
 			self._numberOfRows =  self._numberOfRows - 1
@@ -1452,7 +1454,9 @@ local function createTableView( tableView, options )
 			
 				-- Re calculate the scrollHeight
 				self._scrollHeight = self._scrollHeight - row._height
-				self._scrollBar:repositionY()
+				if self._scrollBar then
+					self._scrollBar:repositionY()
+				end
 		
 				-- decrement the table rows variable
 				self._numberOfRows =  self._numberOfRows - 1

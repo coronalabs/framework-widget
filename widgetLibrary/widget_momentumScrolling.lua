@@ -199,6 +199,7 @@ end
 function M._touch( view, event )
 	local phase = event.phase
 	local time = event.time
+	local limit
 
 	if "began" == phase then	
 		-- Reset values	
@@ -313,8 +314,6 @@ function M._touch( view, event )
 					
 					view._prevDeltaX = view._delta
 					
-					local limit
-					
 					if view.isBounceEnabled == true then 
 					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
 					    if view._isUsedInPickerWheel == true then
@@ -382,7 +381,6 @@ function M._touch( view, event )
 					
 					-- Handle limits
 					-- if bounce is true, then the snapback parameter has to be true, otherwise false
-					local limit
 					
 					if view.isBounceEnabled == true then 
 					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
@@ -446,7 +444,7 @@ end
 
 -- Handle runtime momentum scrolling events.
 function M._runtime( view, event )
-
+	local limit
 	-- If we are tracking runtime
 	if view._updateRuntime then		
 		local timePassed = event.time - view._lastTime
@@ -481,7 +479,6 @@ function M._runtime( view, event )
 				view.x = view.x + view._velocity * timePassed
 			
 				-- Handle limits
-				local limit
 				if "horizontal" == view._moveDirection then
                     limit = handleSnapBackHorizontal( M, view, true )
                 else
@@ -548,7 +545,6 @@ function M._runtime( view, event )
 	
 				-- Handle limits
 				-- if we have motion, then we check for snapback. otherwise, we don't.
-				local limit
 				
 				if "vertical" == view._moveDirection then
                     limit = handleSnapBackVertical( M, view, true )
@@ -750,11 +746,16 @@ function M.createScrollBar( view, options )
 		    scrollBarHeight = minimumScrollBarHeight
 	    end
 	
-        M.middleFrame.height = scrollBarHeight - ( M.topFrame.contentHeight + M.bottomFrame.contentHeight ) 
-    
-    	-- Positioning of the middle and bottom frames according to the new scrollbar height
-		M.middleFrame.y = M.topFrame.y + M.topFrame.contentHeight * 0.5 + M.middleFrame.contentHeight * 0.5
-		M.bottomFrame.y = M.middleFrame.y + M.middleFrame.contentHeight * 0.5 + M.bottomFrame.contentHeight * 0.5
+        M.middleFrame.height = scrollBarHeight
+        
+        -- if we have topFrame and bottomFrame as non-collected objects, we use their dimensions to recalculate the position of the scrollbar
+        if M.topFrame and M.topFrame.contentHeight and M.bottomFrame and M.bottomFrame.contentHeight then
+        	M.middleFrame.height = M.middleFrame.height - ( M.topFrame.contentHeight + M.bottomFrame.contentHeight )
+			-- Positioning of the middle and bottom frames according to the new scrollbar height
+			M.middleFrame.y = M.topFrame.y + M.topFrame.contentHeight * 0.5 + M.middleFrame.contentHeight * 0.5
+			M.bottomFrame.y = M.middleFrame.y + M.middleFrame.contentHeight * 0.5 + M.bottomFrame.contentHeight * 0.5 
+    	end
+    	
 	end
 	
 	-- Function to move the scrollBar

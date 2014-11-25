@@ -393,7 +393,8 @@ local function initWithSprite( stepper, options )
 		self._imageSheet = nil
 	end
 	
-	return self
+	-- Commented this out. There's obviously an error returning self from a method that has no return
+	--return self
 end
 
 

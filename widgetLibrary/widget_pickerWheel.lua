@@ -114,18 +114,29 @@ local function createPickerWheel( pickerWheel, options )
 		local rowTitle = display.newText( row, row._label, 0, 0, font, fontSize )
 		rowTitle.y = row.contentHeight * 0.5
 		
-		if row.index == pickerWheel._view._columns[row.id]._values.index then
-			if ( event.target._fontColorSelected and type( event.target._fontColorSelected ) == "table" ) then
-				rowTitle:setFillColor( unpack( event.target._fontColorSelected ) )
+		-- when the widget is outside the view so no column is rendered, then _values does not exist, so we check for it
+		if pickerWheel._view._columns[row.id]._values then
+		
+			if row.index == pickerWheel._view._columns[row.id]._values.index then
+				if ( event.target._fontColorSelected and type( event.target._fontColorSelected ) == "table" ) then
+					rowTitle:setFillColor( unpack( event.target._fontColorSelected ) )
+				else
+					rowTitle:setFillColor( unpack( blackColor ) )
+				end
 			else
-				rowTitle:setFillColor( unpack( blackColor ) )
+				if ( event.target._fontColor and type( event.target._fontColor ) == "table" ) then
+					rowTitle:setFillColor( unpack( event.target._fontColor ) )
+				else
+					rowTitle:setFillColor( unpack( labelColor ) )
+				end
 			end
+		
 		else
-			if ( event.target._fontColor and type( event.target._fontColor ) == "table" ) then
-				rowTitle:setFillColor( unpack( event.target._fontColor ) )
-			else
-				rowTitle:setFillColor( unpack( labelColor ) )
-			end
+				if ( event.target._fontColor and type( event.target._fontColor ) == "table" ) then
+					rowTitle:setFillColor( unpack( event.target._fontColor ) )
+				else
+					rowTitle:setFillColor( unpack( labelColor ) )
+				end			
 		end
 
 		row.value = rowTitle.text
@@ -337,11 +348,15 @@ local function createPickerWheel( pickerWheel, options )
 	-- EnterFrame listener for our pickerWheel
 	function view:enterFrame( event )
 		local _pickerWheel = self.parent
-		
 		-- Update the y position	
 		-- this has to be calculated in content coordinates to abstract the widget being in a group
 		local xPos, yPos = _pickerWheel:localToContent( 0, 0 )
-		self._yPosition = yPos + ( self._height * 0.5 )
+		
+		if isGraphicsV1 then
+			self._yPosition = yPos + self.y + ( self._height * 0.5 )
+		else
+			self._yPosition = yPos + ( self._height * 0.5 )
+		end
 		
 		-- Manage the Picker Wheels columns
 		for i = 1, #self._columns do
@@ -349,9 +364,6 @@ local function createPickerWheel( pickerWheel, options )
 			if "ended" == self._columns[i]._view._phase and not self._columns[i]._view._updateRuntime then
 			    if not self._didTap then
 			    	local calculatePosition = self._yPosition - self.parent.contentHeight * 0.5
-			    	if isGraphicsV1 then
-			    		calculatePosition = self._yPosition
-			    	end
 				    self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( calculatePosition )
 				else
 				    self._columns[i]._values = self._columns[i]._view:_getRowAtIndex( self._columns[ i ]._view._lastRowIndex )
