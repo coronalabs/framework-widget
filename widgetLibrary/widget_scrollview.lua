@@ -35,9 +35,6 @@ local M =
 
 -- Require needed widget files
 local _widget = require( "widget" )
-local _momentumScrolling = require( "widget_momentumScrolling" )
--- TODO: this is temporary, because the tableview view height is calculated wrong. we need to pass in the widget type to know how to position the scrollbar
-_momentumScrolling.widgetType = "scrollView"
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
@@ -150,6 +147,11 @@ local function createScrollView( scrollView, options )
 	scrollView:insert( view )
 	scrollView:insert( viewFixed )
 	
+	-- assign the momentum variable to the scrollview
+	scrollView._momentumScrolling = require( "widget_momentumScrolling" ):new()
+	-- TODO: this is temporary, because the tableview view height is calculated wrong. we need to pass in the widget type to know how to position the scrollbar
+	scrollView._momentumScrolling.widgetType = "scrollView"
+	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
 	----------------------------------------------------------
@@ -195,7 +197,7 @@ local function createScrollView( scrollView, options )
 						if not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then							
 							display.remove( self._view._scrollBar )
 							self._view._scrollBar = nil
-							self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
+							self._view._scrollBar = self._momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
 						end
 					end
 				end)
@@ -323,7 +325,7 @@ local function createScrollView( scrollView, options )
 					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
 					--]]								
 					if not self._view._scrollBar and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
-						self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
+						self._view._scrollBar = self._momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
 					end
 				end)
 			end
@@ -459,7 +461,7 @@ local function createScrollView( scrollView, options )
 					-- issues when removing the scrollview after creation in the same frame.
 					if self._view._scrollHeight then										
 						if not self._view._scrollBar and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
-							self._view._scrollBar = _momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
+							self._view._scrollBar = self._momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
 						end
 					end
 				end)
@@ -510,7 +512,7 @@ local function createScrollView( scrollView, options )
 						
 		-- Handle momentum scrolling (and the view isn't locked)
 		if not self._isLocked then
-			_momentumScrolling._touch( self, event )
+			self.parent._momentumScrolling._touch( self, event )
 		end
 		
 		-- Execute the listener if one is specified
@@ -522,8 +524,8 @@ local function createScrollView( scrollView, options )
 			end
 			
 			-- check if the momentum scrolling module has a non-nil direction variable
-			if _momentumScrolling._direction then
-				newEvent.direction = _momentumScrolling._direction
+			if self.parent._momentumScrolling._direction then
+				newEvent.direction = self.parent._momentumScrolling._direction
 			end
 			
 			-- Set event.target to the scrollView object, not the view
@@ -550,7 +552,7 @@ local function createScrollView( scrollView, options )
 		local _scrollView = self.parent
 
 		-- Handle momentum @ runtime
-		_momentumScrolling._runtime( self, event )		
+		_scrollView._momentumScrolling._runtime( self, event )		
 		
 		-- Constrain x/y scale values to 1.0
 		if _scrollview and _scrollView.xScale ~= 1.0 then
@@ -647,7 +649,7 @@ local function createScrollView( scrollView, options )
 					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
 					--]]								
 					if not self._scrollBar and not self._isVerticalScrollingDisabled and self._scrollHeight > self._height then
-						self._scrollBar = _momentumScrolling.createScrollBar( self, opt.scrollBarOptions )
+						self._scrollBar = self.parent._momentumScrolling.createScrollBar( self, opt.scrollBarOptions )
 					end
 				end)
 			end
@@ -675,7 +677,7 @@ function M.new( options )
 	local customOptions = options or {}
 	
 	-- Create a local reference to our options table
-	local opt = M._options
+	local opt = {}
 	
 	-------------------------------------------------------
 	-- Properties
