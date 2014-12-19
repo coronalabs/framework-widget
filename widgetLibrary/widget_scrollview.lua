@@ -629,7 +629,7 @@ local function createScrollView( scrollView, options )
 		end
 		
 		-- if both scroll axis variables are disabled, then the scrollview is locked
-		if self._isHorizontalScrollingDisabled and self.isVerticalScrollingDisabled then
+		if self._isHorizontalScrollingDisabled and self._isVerticalScrollingDisabled then
 			self._isLocked = true
 		else
 			self._isLocked = false

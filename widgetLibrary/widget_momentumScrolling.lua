@@ -200,6 +200,14 @@ function lib._touch( view, event )
 	local phase = event.phase
 	local time = event.time
 	local limit
+	
+	-- if the touch is not inside the actual scrollview container, return and reset focus.	
+	if ( event.x < view.parent.contentBounds.xMin or event.x > view.parent.contentBounds.xMax or event.y < view.parent.contentBounds.yMin or event.y > view.parent.contentBounds.yMax ) then
+		display.getCurrentStage():setFocus( nil )
+		view._isFocus = nil
+		
+		return true
+	end
 
 	if "began" == phase then	
 		-- Reset values	
