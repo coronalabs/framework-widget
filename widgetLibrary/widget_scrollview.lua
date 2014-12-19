@@ -401,10 +401,10 @@ local function createScrollView( scrollView, options )
 			-- Update the scroll content area size (NOTE: Seems to need a 1ms delay for the group to reflect it's new content size? ) odd ...
 			timer.performWithDelay( 1, function()
 				-- Update the scrollWidth
-				self._view._scrollWidth = self._view.width
+				--self._view._scrollWidth = self._view.width
 
 				-- Update the scrollHeight
-				self._view._scrollHeight = self._view.height
+				--self._view._scrollHeight = self._view.height
 				
 				-- Override the scroll height if it is less than the height of the window
 				if "number" == type( self._view._scrollHeight ) and "number" == type( self._view._height ) then
@@ -419,6 +419,16 @@ local function createScrollView( scrollView, options )
 						self._view._scrollWidth = self._view._width
 					end
 				end
+				
+				-- override also if the values are nil
+				if not self._view._scrollWidth then
+					self._view._scrollWidth = self._view._width
+				end
+				
+				if not self._view._scrollHeight then
+					self._view._scrollHeight = self._view._height
+				end
+				
 			end)
 			
 			-- after the contentWidth / Height updates are complete, scroll the view to the position it was at before inserting the new object
