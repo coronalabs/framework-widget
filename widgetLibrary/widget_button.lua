@@ -248,7 +248,7 @@ local function createUsingText( button, options )
 	
 	-- Function to get the button's label
 	function view:_getLabel()
-		return self._label.text
+		return self.text
 	end
 	
 	-- Function to set the buttons current state
