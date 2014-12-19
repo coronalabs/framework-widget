@@ -1591,6 +1591,12 @@ local function createTableView( tableView, options )
 		if math.abs( newPosition ) + self.parent.height > self._scrollHeight and not self._isUsedInPickerWheel then
 			newPosition = - ( self._scrollHeight - self.parent.height ) 
 		end
+		
+		-- if the y position is smaller than the top coordinate of the table, we transition at the top of the table - the widget height
+		-- we only do this if we do not have a picker wheel
+		if newPosition > 0 and not self._isUsedInPickerWheel then
+			newPosition = 0
+		end
 			
 		-- Transition the view to the row index	
 		transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad, onComplete = executeOnComplete } )
