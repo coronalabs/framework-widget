@@ -1512,6 +1512,24 @@ local function createTableView( tableView, options )
 			newPosition = newPosition + self._currentCategory.contentHeight
 		end
 			
+		-- if we have at least one category row in the table structure before the current row, we have to adjust
+		if nil == self._currentCategory and not self._isUsedInPickerWheel then
+			local willShowCategoryRow = false
+			local categoryRowHeight = 0
+			for i = 1, rowIndex do
+				local row = self._rows[ i ]
+				if row.isCategory then
+					willShowCategoryRow = true
+					categoryRowHeight = row._height
+					break
+				end
+			end
+			
+			if willShowCategoryRow then
+				newPosition = newPosition + categoryRowHeight
+			end
+		end
+			
 		-- if the y position is greater than the end of the table, we transition at the end of the table - the widget height
 		-- we only do this if we do not have a picker wheel
 		if math.abs( newPosition ) + self.parent.height > self._scrollHeight and not self._isUsedInPickerWheel then
