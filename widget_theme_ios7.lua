@@ -191,7 +191,7 @@ theme.switch =
 		sheet = sheetFile,
 		data = sheetData,
 		width = 33,
-		height = 34,
+		height = 33,
 		frameOff = "switch_radioButtonDefault",
 		frameOn = "switch_radioButtonSelected",
 	},
