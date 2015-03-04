@@ -90,8 +90,8 @@ theme.slider =
 	middleVerticalFrame = "silder_middleFrameVertical",
 	fillVerticalFrame = "slider_fillVertical",
 	
-	frameWidth = 4,
-	frameHeight = 4,
+	frameWidth = 2,
+	frameHeight = 2,
 	handleFrame = "slider_handle",
 	handleWidth = 45, 
 	handleHeight = 45,

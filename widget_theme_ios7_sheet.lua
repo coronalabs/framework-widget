@@ -351,7 +351,7 @@ SheetInfo.sheet =
 
         },
         {
-            -- silder_middleFrame
+            -- slider_middleFrame
             x=413,
             y=212,
             width=2,
@@ -359,7 +359,7 @@ SheetInfo.sheet =
 
         },
         {
-            -- silder_middleFrameVertical
+            -- slider_middleFrameVertical
             x=409,
             y=218,
             width=2,
