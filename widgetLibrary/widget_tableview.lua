@@ -725,7 +725,7 @@ local function createTableView( tableView, options )
 			local rowCell = display.newRect( category, 0, 0, currentRow._width, currentRow._height )
 			local rowCellX = rowCell.contentWidth * 0.5
 			if isGraphicsV1 then
-				rowCellX = 0
+				rowCellX = rowCell.contentWidth * 0.5
 			end
 			rowCell.x = rowCellX
 			rowCell.y = rowCell.contentHeight * 0.5
