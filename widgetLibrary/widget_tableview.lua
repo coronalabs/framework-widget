@@ -177,8 +177,8 @@ local function createTableView( tableView, options )
 	end
 	
 	-- Function to delete a set of rows from a tableView
-	function tableView:deleteRows( rowIndexesTable )
-		return self._view:_deleteRows( rowIndexesTable )
+	function tableView:deleteRows( rowIndexesTable, animationOptions )
+		return self._view:_deleteRows( rowIndexesTable, animationOptions )
 	end
 	
 	-- Function to delete all rows from a tableView
@@ -1263,7 +1263,7 @@ local function createTableView( tableView, options )
 	end
 	
 	-- Function to delete a set of rows from the tableView
-	function view:_deleteRows( rowIndexesTable )
+	function view:_deleteRows( rowIndexesTable, animationOptions )
 		if "table" ~= type( rowIndexesTable ) then
 			print( "Warning: deleteRows accepts a table of row indexes as a parameter. Ex.: tableView:deleteRows( { 1, 3, 5 } )" )
 			return
@@ -1293,6 +1293,18 @@ local function createTableView( tableView, options )
 			print( "Warning: A row cannot be deleted whilst the tableView is scrolling" )
 			return
 		end
+		
+		-- Check for animation options that get passed
+		local slideLeftAnimationTime = 500 -- default value, if no option passed
+		local slideUpAnimationTime = 500 -- default value, if no option passed
+
+		if animationOptions and animationOptions.slideLeftTransitionTime then
+			slideLeftAnimationTime = animationOptions.slideLeftTransitionTime
+		end
+		
+		if animationOptions and animationOptions.slideUpTransitionTime then
+			slideUpAnimationTime = animationOptions.slideUpTransitionTime
+		end
 
 		----------------------------------------------------------------
 		-- Check if the row we are deleting is on screen or off screen
@@ -1313,11 +1325,11 @@ local function createTableView( tableView, options )
 					if nil~= self._rows[i]._view and "table" == type( self._rows[i]._view ) then
 						if self._rows[i].isCategory then
 							if nil ~= self._rows[i-1] then
-								transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - heightToBeDeleted, transition = easing.outQuad } )
+								transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - heightToBeDeleted, time = slideUpAnimationTime, transition = easing.outQuad } )
 								self._rows[i].y = self._rows[i].y - ( self._rows[i-1]._height )
 							end
 						else
-							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - heightToBeDeleted, transition = easing.outQuad } )
+							transition.to( self._rows[i]._view, { y = self._rows[i]._view.y - heightToBeDeleted, time = slideUpAnimationTime, transition = easing.outQuad } )
 							self._rows[i].y = self._rows[i].y - ( self._rows[ currentRowIndex ]._height )
 						end
 					-- We are now moving up the off screen rows
@@ -1404,9 +1416,9 @@ local function createTableView( tableView, options )
 		for i = 1, #rowsToBeRemoved do
 			local row = self._rows[ rowsToBeRemoved[ i ] ]
 			if i == #rowsToBeRemoved then
-				transition.to( row._view, { x = - ( row._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = function() removeRows( rowsToBeRemoved, deletedContentHeight ); self._isDeletingRow = false end } )
+				transition.to( row._view, { x = - ( row._view.contentWidth * 0.5 ), time = slideLeftAnimationTime, transition = easing.inQuad, onComplete = function() removeRows( rowsToBeRemoved, deletedContentHeight ); self._isDeletingRow = false end } )
 			else
-				transition.to( row._view, { x = - ( row._view.contentWidth * 0.5 ), transition = easing.inQuad, onComplete = function() self._isDeletingRow = false end } )
+				transition.to( row._view, { x = - ( row._view.contentWidth * 0.5 ), time = slideLeftAnimationTime, transition = easing.inQuad, onComplete = function() self._isDeletingRow = false end } )
 			end
 		end
 
