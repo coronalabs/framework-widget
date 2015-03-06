@@ -852,7 +852,7 @@ local function createTableView( tableView, options )
 			-- If this row's view property doesn't exist
 			if type( currentRow._view ) ~= "table" then
 				-- Is this row within the visible bounds of our view?				
-				local isRowWithinBounds = ( currentRow.y + self.y ) + currentRow._height > upperLimit and ( currentRow.y + self.y ) - currentRow._height * 2 < lowerLimit
+				local isRowWithinBounds = ( currentRow.y + self.y ) + currentRow._height > upperLimit and ( currentRow.y + self.y ) - currentRow._height < lowerLimit
 				
 				-- If this row is within bounds, create it
 				if isRowWithinBounds then
