@@ -224,6 +224,10 @@ local function createScrollView( scrollView, options )
 	
 	-- Function to scroll the view to a specified position from a list of constants ( i.e. top/bottom/left/right )
 	function scrollView:scrollTo( position, options )
+		
+		-- check if any scrolling is going on, and cancel the transition
+		transition.cancel( "_widgetScrollTransition" )
+	
 		local newPosition = position or "top"
 		local newX = self._view.x
 		local newY = self._view.y
@@ -246,7 +250,7 @@ local function createScrollView( scrollView, options )
 		end
 		
 		-- Transition the view to the new position
-		transition.to( self._view, { x = newX, y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = function()
+		transition.to( self._view, { tag = "_widgetScrollTransition", x = newX, y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = function()
 		
 			if "function" == type( onTransitionComplete ) then
 				onTransitionComplete()
