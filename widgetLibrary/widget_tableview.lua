@@ -962,7 +962,7 @@ local function createTableView( tableView, options )
 				if row._separator then
 					row._separator.isVisible = false
 				end
-				if view._rows[ row.index - 1 ] then
+				if view._rows[ row.index - 1 ] and view._rows[ row.index - 1 ]._view then
 					if view._rows[ row.index - 1 ]._view._separator then
 						view._rows[ row.index - 1 ]._view._separator.isVisible = false
 					end
@@ -975,7 +975,7 @@ local function createTableView( tableView, options )
 					if row._separator then
 						row._separator.isVisible = true
 					end
-					if view._rows[ row.index - 1 ] then
+					if view._rows[ row.index - 1 ] and view._rows[ row.index - 1 ]._view then
 						if view._rows[ row.index - 1 ]._view._separator then
 							view._rows[ row.index - 1 ]._view._separator.isVisible = true
 						end
