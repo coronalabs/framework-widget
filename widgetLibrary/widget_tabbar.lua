@@ -777,8 +777,8 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = opt.baseDir or system.ResourceDirectory
 	opt.tabButtons = customOptions.buttons
-	opt.defaultLabelFont = themeOptions.defaultLabelFont or native.systemFontBold
-	opt.defaultLabelSize = themeOptions.defaultLabelSize or 8
+	opt.defaultLabelFont = themeOptions.defaultLabelFont or native.systemFont
+	opt.defaultLabelSize = themeOptions.defaultLabelSize or 10
 	opt.defaultLabelColor = themeOptions.defaultLabelColor or labelDefault
 	opt.onPress = customOptions.onPress
 
