@@ -405,10 +405,10 @@ local function createScrollView( scrollView, options )
 			-- Update the scroll content area size (NOTE: Seems to need a 1ms delay for the group to reflect it's new content size? ) odd ...
 			timer.performWithDelay( 1, function()
 				-- Update the scrollWidth
-				--self._view._scrollWidth = self._view.width
+				self._view._scrollWidth = self._view.width
 
 				-- Update the scrollHeight
-				--self._view._scrollHeight = self._view.height
+				self._view._scrollHeight = self._view.height
 				
 				-- Override the scroll height if it is less than the height of the window
 				if "number" == type( self._view._scrollHeight ) and "number" == type( self._view._height ) then
