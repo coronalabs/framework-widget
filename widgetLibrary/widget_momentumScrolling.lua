@@ -207,6 +207,16 @@ function lib._touch( view, event )
 		if ( event.x < view.parent.contentBounds.xMin or event.x > view.parent.contentBounds.xMax or event.y < view.parent.contentBounds.yMin or event.y > view.parent.contentBounds.yMax ) then
 			display.getCurrentStage():setFocus( nil )
 			view._isFocus = nil
+			
+			-- handle snap back before losing focus. Because if the scrollview has snapping enabled with animation and we don't handle it, the scrollview won't snap back if the touch leaves the object's coordinate space.
+			if view._moveDirection then
+				if view._moveDirection == "horizontal" then
+					handleSnapBackHorizontal( lib, view, true )
+				elseif view._moveDirection == "vertical" then
+					handleSnapBackVertical( lib, view, true )
+				end
+			end
+			
 			return true
 		end
 	end
