@@ -474,21 +474,10 @@ end
 
 -- determine if a file exists. Used for determining if custom assets passed to constructors actually exist in the project.
 function widget._fileExists( fileName, baseDir )
-	local baseDir = baseDir or system.ResourceDirectory
-	local filePath = system.pathForFile( fileName, baseDir )
-	local fileExists = false
- 
-	if filePath then -- the path is there, we check for the file
-		local fileHandle = io.open( filePath, "r" )
-		if fileHandle then -- file found
-			fileExists = true
-			io.close( fileHandle )
-		end
-	end
- 
-	return( fileExists )
+    local baseDir = baseDir or system.ResourceDirectory
+    local filePath = system.pathForFile( fileName, baseDir, true )
+    return( filePath )
 end
-
 
 -- Get platform
 local platformName = system.getInfo( "platformName" )
