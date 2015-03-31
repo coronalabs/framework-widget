@@ -201,10 +201,12 @@ function lib._touch( view, event )
 	local time = event.time
 	local limit
 	
-	-- only apply the focus reset if the view is not used by the picker widget
+	
+	-- only apply the focus reset if the view is not used by the picker widget and the touch phase is began
 	if not view._isUsedInPickerWheel then
 		-- if the touch is not inside the actual scrollview container, return and reset focus.
-		if ( event.x < view.parent.contentBounds.xMin or event.x > view.parent.contentBounds.xMax or event.y < view.parent.contentBounds.yMin or event.y > view.parent.contentBounds.yMax ) then
+		-- this only has to happen on the began phase ( since we just want to treat a new touch that occurs outside the bounds )
+		if phase == "began" and ( event.x < view.parent.contentBounds.xMin or event.x > view.parent.contentBounds.xMax or event.y < view.parent.contentBounds.yMin or event.y > view.parent.contentBounds.yMax ) then
 			display.getCurrentStage():setFocus( nil )
 			view._isFocus = nil
 			
