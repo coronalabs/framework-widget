@@ -223,7 +223,7 @@ local function createPickerWheel( pickerWheel, options )
 	local bottomPadding = 96
 	if isGraphicsV1 then
 		topPadding = 90
-		bottomPadding = pickerWheel.contentHeight - 20 -- 20 is half a row height
+		bottomPadding = pickerWheel.contentHeight - 20 - pickerWheel.contentHeight * 0.5 -- 20 is half a row height
 	end
 
 	local initialX = 0

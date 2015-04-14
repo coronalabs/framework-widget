@@ -316,9 +316,6 @@ theme.tableView =
 if isByteColorRange then
 	convertToV1( theme.tableView.colours.rowColor.default )
 	convertToV1( theme.tableView.colours.rowColor.over )
-	for i = 1, #theme.tableView.colours.rowColor.over do
-		print( theme.tableView.colours.rowColor.over[ i ] )
-	end
 	convertToV1( theme.tableView.colours.catColor.default )
 	convertToV1( theme.tableView.colours.catColor.over )
 	convertToV1( theme.tableView.colours.lineColor )

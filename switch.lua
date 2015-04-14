@@ -209,7 +209,7 @@ function scene:createScene( event )
 	
 
 	-- Skinned On-Off Switch
-	local onOffSwitchOptions = {
+	--[[local onOffSwitchOptions = {
 		frames =
 		{
 			{ x=0, y=0, width=160, height=44 },
@@ -239,7 +239,7 @@ function scene:createScene( event )
 			  
 		onOffHandleDefaultFrame = 2,
 		onOffHandleOverFrame = 2,
-	}
+	}--]]
 	
 	----------------------------------------------------------------------------------------------------------------
 	--											TESTS

@@ -472,6 +472,12 @@ function widget._calculatePosition( object, opt )
 	return x, y
 end
 
+-- determine if a file exists. Used for determining if custom assets passed to constructors actually exist in the project.
+function widget._fileExists( fileName, baseDir )
+    local baseDir = baseDir or system.ResourceDirectory
+    local filePath = system.pathForFile( fileName, baseDir, true )
+    return( filePath )
+end
 
 -- Get platform
 local platformName = system.getInfo( "platformName" )

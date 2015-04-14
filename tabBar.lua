@@ -75,8 +75,8 @@ function scene:createScene( event )
 				over = { 255, 255, 255, 255 },
 			}
 			
-	local tabLabelFont = native.systemFontBold
-	local tabLabelFontSize = 8
+	local tabLabelFont = native.systemFont
+	local tabLabelFontSize = 10
 	local normalTabImage = "unitTestAssets/tabIcon.png"
 	local overTabImage = "unitTestAssets/tabIcon-down.png"
 			
