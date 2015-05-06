@@ -1396,7 +1396,32 @@ local function createTableView( tableView, options )
 		
 				-- decrement the table rows variable
 				self._numberOfRows =  self._numberOfRows - 1
-				removeRow( i )
+
+				-- iterate the remaining offset rows and adjust their position
+				for j = rowIndexesTable[ i ] + 1, table.maxn( self._rows ) do
+				
+					if row.isCategory then
+						if nil ~= self._rows[ j - 1 ] then
+							self._rows[ j ].y = self._rows[ j ].y - ( row._height )
+						end
+					else
+						self._rows[ j ].y = self._rows[ j ].y - ( row._height )
+					end
+				
+				end
+				
+				-- Remove the row from display
+				display.remove( row._view )
+				row._view = nil
+							
+				-- Remove the row from the rows table
+				self._rows[ rowIndexesTable[ i ] ] = nil 
+
+				-- We calculate the total height of the tableView
+				if self._scrollHeight < self.parent.height then
+					self.y = _momentumScrolling.bottomLimit
+				end
+
 			
 			end
 		
