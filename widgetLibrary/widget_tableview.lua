@@ -490,7 +490,7 @@ local function createTableView( tableView, options )
 					if self._targetRow._separator then
 						self._targetRow._separator.isVisible = true
 					end
-					if view._rows[ self._targetRow.index - 1 ] then
+					if view._rows[ self._targetRow.index - 1 ] and view._rows[ self._targetRow.index - 1 ]._view then
 						if view._rows[ self._targetRow.index - 1 ]._view._separator then
 							view._rows[ self._targetRow.index - 1 ]._view._separator.isVisible = true
 						end
@@ -600,7 +600,7 @@ local function createTableView( tableView, options )
 						if self._targetRow._separator then
 							self._targetRow._separator.isVisible = false
 						end
-						if view._rows[ self._targetRow.index - 1 ] then
+						if view._rows[ self._targetRow.index - 1 ] and view._rows[ self._targetRow.index - 1 ]._view then
 							if view._rows[ self._targetRow.index - 1 ]._view._separator then
 								view._rows[ self._targetRow.index - 1 ]._view._separator.isVisible = false
 							end
@@ -1277,13 +1277,13 @@ local function createTableView( tableView, options )
 		for i = 1, #rowIndexesTable do
 			local row = self._rows[ rowIndexesTable[ i ] ]
 			if type( row ) ~= "table" then
-				print( "WARNING: deleteRows( " .. rowIndex .. " ) - Row does not exist" )
+				print( "WARNING: deleteRows on rowIndex " .. i .. " - Row does not exist" )
 				return
 			end
 			
 			-- Deleting categories isn't currently supported
 			if row.isCategory then
-				print( "Warning: deleteRows on rowIndex " .. rowIndex .. " - deleting categories is not supported" )
+				print( "Warning: deleteRows on rowIndex " .. i .. " - deleting categories is not supported" )
 				return
 			end
 		end
