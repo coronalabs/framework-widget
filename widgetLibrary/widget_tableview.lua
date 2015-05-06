@@ -1277,13 +1277,13 @@ local function createTableView( tableView, options )
 		for i = 1, #rowIndexesTable do
 			local row = self._rows[ rowIndexesTable[ i ] ]
 			if type( row ) ~= "table" then
-				print( "WARNING: deleteRows( " .. rowIndex .. " ) - Row does not exist" )
+				print( "WARNING: deleteRows on rowIndex " .. i .. " - Row does not exist" )
 				return
 			end
 			
 			-- Deleting categories isn't currently supported
 			if row.isCategory then
-				print( "Warning: deleteRows on rowIndex " .. rowIndex .. " - deleting categories is not supported" )
+				print( "Warning: deleteRows on rowIndex " .. i .. " - deleting categories is not supported" )
 				return
 			end
 		end
