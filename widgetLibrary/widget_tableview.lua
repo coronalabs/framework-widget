@@ -1488,7 +1488,7 @@ local function createTableView( tableView, options )
 		end
 		
 		-- Reset the view's y position
-		self.y = _tableView.y - self._top + self._topPadding
+		self.y = self._top + self._topPadding
 		
 		-- Reset the scrollHeight
 		self._scrollHeight = 0
