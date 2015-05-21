@@ -1421,7 +1421,6 @@ local function createTableView( tableView, options )
 				if self._scrollHeight < self.parent.height then
 					self.y = _momentumScrolling.bottomLimit
 				end
-
 			
 			end
 		
@@ -1446,6 +1445,9 @@ local function createTableView( tableView, options )
 				transition.to( row._view, { x = - ( row._view.contentWidth * 0.5 ), time = slideLeftAnimationTime, transition = easing.inQuad, onComplete = function() self._isDeletingRow = false end } )
 			end
 		end
+		
+		-- mark that we finished deleting a row
+		self._isDeletingRow = false
 
 		-- NOTE: this was the previous location of the scrollHeight calculation. If we resize the scrollheight after the transition.to above, you get a funny motion effect on the tableview. This way, it does not happen.
 		-- set the did render variable to true
@@ -1488,7 +1490,7 @@ local function createTableView( tableView, options )
 		end
 		
 		-- Reset the view's y position
-		self.y = self._top + self._topPadding
+		self.y = _tableView.y - self._top + self._topPadding
 		
 		-- Reset the scrollHeight
 		self._scrollHeight = 0
