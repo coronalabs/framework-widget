@@ -1491,6 +1491,8 @@ local function createTableView( tableView, options )
 		
 		-- Reset the view's y position
 		self.y = _tableView.y - self._top + self._topPadding
+		-- And reposition the view at the top
+		_tableView:scrollToY( { y = 0, time = 1 } )
 		
 		-- Reset the scrollHeight
 		self._scrollHeight = 0
