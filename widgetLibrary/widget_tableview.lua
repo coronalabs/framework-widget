@@ -564,6 +564,18 @@ local function createTableView( tableView, options )
 		-- Handle momentum @ runtime
 		_momentumScrolling._runtime( self, event )
 		
+		-- Fixing the velocity issue
+		-- Basically we read the actual y coordinate of the view and compare that to a _lastValueY 
+		-- variable that gets set after the condition
+		-- if both variables are equal but the velocity is higher than 0 we need to set it to 0
+		-- because in that case the view does not move.
+		
+		if ( self._lastValueY and self._lastValueY == self.y and self._velocity ~=0 ) then
+			self._velocity = 0
+		end
+		
+		self._lastValueY = self.y
+		
 		-- Calculate the time the touch was held
 		local timeHeld = event.time - self._timeHeld
 				

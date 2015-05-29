@@ -431,13 +431,12 @@ function lib._touch( view, event )
 		elseif "ended" == phase or "cancelled" == phase then
 			-- Reset values				
 			view._lastTime = event.time
-			view._trackVelocity = true			
+			view._trackVelocity = false			
 			view._updateRuntime = true
 			lib._direction = nil
 			
 			-- we check if the view has a scrollStopThreshold value
 			local stopThreshold = view.scrollStopThreshold or lib.scrollStopThreshold
-			
 			if event.time - view._timeHeld > stopThreshold then
 			    view._velocity = 0
 			end
@@ -458,7 +457,6 @@ function lib._touch( view, event )
 		
 			-- If on ended the scrollview is outside of the bounds, reposition it
 			limit = handleSnapBackVertical( lib, view, true )
-			
 		end
 	end
 end
@@ -467,14 +465,12 @@ end
 -- Handle runtime momentum scrolling events.
 function lib._runtime( view, event )
 	local limit
-	
 	-- If we are tracking runtime
 	if view._updateRuntime then		
 		local timePassed = event.time - view._lastTime
 		view._lastTime = view._lastTime + timePassed
 		
 		-- Stop scrolling if velocity is near zero
-		
 		if mAbs( view._velocity ) < 0.01 then
 			view._velocity = 0
 			view._updateRuntime = false
@@ -649,8 +645,6 @@ function lib._runtime( view, event )
 	
 						-- Clamp the velocity if it goes over the max range
 						clampVelocity( view )
-					else
-						view._velocity = 0
 	                end
 				end
 		
@@ -663,12 +657,11 @@ function lib._runtime( view, event )
 			if not view._isVerticalScrollingDisabled then
 				if view._prevY then
 					local possibleVelocity = ( view.y - view._prevY ) / newTimePassed
+                    
 					if possibleVelocity ~= 0 then
                         view._velocity = possibleVelocity
 						-- Clamp the velocity if it goes over the max range
 						clampVelocity( view )
-					else
-						view._velocity = 0
                     end
 				end
 		
