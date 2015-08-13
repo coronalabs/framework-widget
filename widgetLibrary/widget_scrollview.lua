@@ -610,7 +610,7 @@ local function createScrollView( scrollView, options )
 		
 		-- if we are above the left limit
 		if ( returnX > 0 ) then
-			returnX = 0
+			--returnX = 0
 		-- and the right limit
 		elseif returnX < - self._scrollWidth + self.parent.contentWidth then
 			returnX = - self._scrollWidth + self.parent.contentWidth
