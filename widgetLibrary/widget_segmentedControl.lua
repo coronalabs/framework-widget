@@ -282,59 +282,67 @@ local function initWithImage( segmentedControl, options )
 		local firstSegment = 1
 		local lastSegment = self._totalSegments
 
-		if "began" == phase then
-			-- Loop through the segments
-			for i = 1, self._totalSegments do
-				local segmentedControlXPosition = self.x - ( self.contentWidth * 0.5 )
-				-- for g2, we have to take into account the current anchorX for this position 
-				if not isGraphicsV1 then
-					local oldAnchorX = self.anchorX
-					segmentedControlXPosition = segmentedControlXPosition + ( 0.5 - oldAnchorX ) * self.contentWidth
-				end
-				
-				local currentSegment = i
-				local segmentWidth = self._segmentWidth
-				
-				-- Work out the current segments position
-
-				--local parentOffsetX = 0
-				-- First, we check if the widget is in a group
-				--[[if nil ~= self.parent and nil ~= self.parent.x then
-				    parentOffsetX = self.parent.x
-			    end--]]
-
-				--OLD VERSION (DID NOT WORK INSIDE SCROLLVIEW)
-                --local currentSegmentLeftEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) - segmentWidth + parentOffsetX
-                --local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) + parentOffsetX	
-				
-				local currentSegmentLeftEdge = self.contentBounds.xMin + ( segmentWidth * currentSegment ) - segmentWidth
-				local currentSegmentRightEdge = self.contentBounds.xMin + ( segmentWidth * currentSegment )
-				
-				-- If the touch is within the segments range
-				if event.x >= currentSegmentLeftEdge and event.x <= currentSegmentRightEdge then
-					-- First segment (Near left)
-					if firstSegment == i then
-						self:setLeftSegmentActive()
-					-- Last segment (Far right)
-					elseif lastSegment == i then
-						self:setRightSegmentActive()
-					-- Any other segment
-					else
-						self:setMiddleSegmentActive( i )
+		-- if the parent is a scrollview, lose focus
+		if ( event.target.parent and event.target.parent.parent and event.target.parent.parent._view._widgetType == "scrollView" and "moved" == phase ) then
+			--display.getCurrentStage():setFocus( nil )
+			event.target.parent.parent:takeFocus( event )
+			return true
+		else
+		
+			if "began" == phase then
+				-- Loop through the segments
+				for i = 1, self._totalSegments do
+					local segmentedControlXPosition = self.x - ( self.contentWidth * 0.5 )
+					-- for g2, we have to take into account the current anchorX for this position 
+					if not isGraphicsV1 then
+						local oldAnchorX = self.anchorX
+						segmentedControlXPosition = segmentedControlXPosition + ( 0.5 - oldAnchorX ) * self.contentWidth
 					end
+				
+					local currentSegment = i
+					local segmentWidth = self._segmentWidth
+				
+					-- Work out the current segments position
+
+					--local parentOffsetX = 0
+					-- First, we check if the widget is in a group
+					--[[if nil ~= self.parent and nil ~= self.parent.x then
+						parentOffsetX = self.parent.x
+					end--]]
+
+					--OLD VERSION (DID NOT WORK INSIDE SCROLLVIEW)
+					--local currentSegmentLeftEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) - segmentWidth + parentOffsetX
+					--local currentSegmentRightEdge = segmentedControlXPosition + ( segmentWidth * currentSegment ) + parentOffsetX	
+				
+					local currentSegmentLeftEdge = self.contentBounds.xMin + ( segmentWidth * currentSegment ) - segmentWidth
+					local currentSegmentRightEdge = self.contentBounds.xMin + ( segmentWidth * currentSegment )
+				
+					-- If the touch is within the segments range
+					if event.x >= currentSegmentLeftEdge and event.x <= currentSegmentRightEdge then
+						-- First segment (Near left)
+						if firstSegment == i then
+							self:setLeftSegmentActive()
+						-- Last segment (Far right)
+						elseif lastSegment == i then
+							self:setRightSegmentActive()
+						-- Any other segment
+						else
+							self:setMiddleSegmentActive( i )
+						end
 					
-					-- Set the segment name					
-					_segmentedControl.segmentLabel = self._segmentLabels[i].segmentName
+						-- Set the segment name					
+						_segmentedControl.segmentLabel = self._segmentLabels[i].segmentName
 					
-					-- Set the segment number
-					_segmentedControl.segmentNumber = self._segmentNumber
+						-- Set the segment number
+						_segmentedControl.segmentNumber = self._segmentNumber
 					
-					-- Execute onPress listener
-					if self._onPress and "function" == type( self._onPress ) then
-						self._onPress( event )
+						-- Execute onPress listener
+						if self._onPress and "function" == type( self._onPress ) then
+							self._onPress( event )
+						end
+					
+						break
 					end
-					
-					break
 				end
 			end
 		end
