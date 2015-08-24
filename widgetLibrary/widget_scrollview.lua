@@ -406,22 +406,30 @@ local function createScrollView( scrollView, options )
 			timer.performWithDelay( 1, function()
 				-- Update the scrollWidth
 				self._view._scrollWidth = self._view.width
+
+				-- Update the scrollHeight
+				self._view._scrollHeight = self._view.height
 				
-				local groupPadding = 0
+				local groupXPadding = 0
+				local groupYPadding = 0
 				-- for v2. we have to compute the left padding to the first object into the dimensions 
 				-- of the scrollview scroll area
 				if not isGraphicsV1 then
 					if self._collectorGroup.numChildren and self._collectorGroup.numChildren > 0 then
 						local leftPadding = self._collectorGroup[ 1 ].x - ( self._collectorGroup[ 1 ].width * 0.5 )
+						local topPadding = self._collectorGroup[ 1 ].y - (self._collectorGroup[ 1 ].height * 0.5 )
 						if leftPadding > 0 then
-							groupPadding = groupPadding + leftPadding
+							groupXPadding = groupXPadding + leftPadding
+						end
+						if topPadding > 0 then
+							groupYPadding = groupYPadding + topPadding
 						end
 					end
-					self._view._scrollWidth = self._view._scrollWidth + groupPadding
+					self._view._scrollWidth = self._view._scrollWidth + groupXPadding
+					self._view._scrollHeight = self._view._scrollHeight + groupYPadding
 				end
 
-				-- Update the scrollHeight
-				self._view._scrollHeight = self._view.height
+
 				
 				-- Override the scroll height if it is less than the height of the window
 				if "number" == type( self._view._scrollHeight ) and "number" == type( self._view._height ) then
