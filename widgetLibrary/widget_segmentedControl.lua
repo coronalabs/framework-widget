@@ -283,7 +283,7 @@ local function initWithImage( segmentedControl, options )
 		local lastSegment = self._totalSegments
 
 		-- if the parent is a scrollview, lose focus
-		if ( event.target.parent and event.target.parent.parent and event.target.parent.parent._view._widgetType == "scrollView" and "moved" == phase ) then
+		if ( event.target.parent and event.target.parent.parent and event.target.parent.parent._view and event.target.parent.parent._view._widgetType == "scrollView" and "moved" == phase ) then
 			--display.getCurrentStage():setFocus( nil )
 			event.target.parent.parent:takeFocus( event )
 			return true
@@ -522,7 +522,7 @@ function M.new( options, theme )
 	local themeOptions = theme or {}
 	
 	-- Create a local reference to our options table
-	local opt = M._options
+	local opt = {}
 	
 	-- Check if the requirements for creating a widget has been met (throws an error if not)
 	_widget._checkRequirements( customOptions, themeOptions, M._widgetName )
