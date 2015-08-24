@@ -406,6 +406,19 @@ local function createScrollView( scrollView, options )
 			timer.performWithDelay( 1, function()
 				-- Update the scrollWidth
 				self._view._scrollWidth = self._view.width
+				
+				local groupPadding = 0
+				-- for v2. we have to compute the left padding to the first object into the dimensions 
+				-- of the scrollview scroll area
+				if not isGraphicsV1 then
+					if self._collectorGroup.numChildren and self._collectorGroup.numChildren > 0 then
+						local leftPadding = self._collectorGroup[ 1 ].x - ( self._collectorGroup[ 1 ].width * 0.5 )
+						if leftPadding > 0 then
+							groupPadding = groupPadding + leftPadding
+						end
+					end
+					self._view._scrollWidth = self._view._scrollWidth + groupPadding
+				end
 
 				-- Update the scrollHeight
 				self._view._scrollHeight = self._view.height
@@ -432,7 +445,6 @@ local function createScrollView( scrollView, options )
 				if not self._view._scrollHeight then
 					self._view._scrollHeight = self._view._height
 				end
-				
 			end)
 			
 			-- after the contentWidth / Height updates are complete, scroll the view to the position it was at before inserting the new object
