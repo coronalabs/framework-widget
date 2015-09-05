@@ -173,32 +173,32 @@ local function initWithImage( segmentedControl, options )
 	
 	-- Create the segment labels & dividers
 	for i = 1, #segments do
+
 		-- Create the labels
 		local label
-		if _widget.isSeven() then
+
+		-- Use embossed text (or not) depending on theme definition
+		if ( opt.emboss ) then
+			label = display.newEmbossedText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
+		else
 			label = display.newText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
+		end
+			
+		-- Use label "default" and "over" colors (else default to white)
+		if ( view._labelColor and view._labelColor.over and view._labelColor.default ) then
+			if view._segmentNumber == i or opt.defaultSegment == i then
+				label:setFillColor( unpack( view._labelColor.over ) )
+			else
+				label:setFillColor( unpack( view._labelColor.default ) )
+			end
+		elseif _widget.isSeven() then
 			if view._segmentNumber == i or opt.defaultSegment == i then
 				label:setFillColor( unpack( view._labelColor.over ) )
 			else
 				label:setFillColor( unpack( view._labelColor.default ) )
 			end
 		else
-			-- Use embossed text (or not) depending on theme definition
-			if ( opt.emboss ) then
-				label = display.newEmbossedText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
-			else
-				label = display.newText( segmentedControl, segments[i], 0, 0, opt.labelFont, opt.labelSize )
-			end
-			-- Use label "default" and "over" colors (else default to white)
-			if ( view._labelColor and view._labelColor.over and view._labelColor.default ) then
-				if view._segmentNumber == i or opt.defaultSegment == i then
-					label:setFillColor( unpack( view._labelColor.over ) )
-				else
-					label:setFillColor( unpack( view._labelColor.default ) )
-				end
-			else
-				label:setFillColor( unpack( whiteColor ) )
-			end
+			label:setFillColor( unpack( whiteColor ) )
 		end
 		
 		label.x = leftSegment.x + opt.labelXOffset + ( segmentWidth * 0.5 + segmentWidth * ( i - 1 ) ) - leftSegment.width * 0.5
@@ -381,25 +381,25 @@ local function initWithImage( segmentedControl, options )
 		self.segmentNumber = self._segmentNumber
 		
 		-- Reset the label colors
-		if _widget.isSeven() then
-			for i = 1, #view._segmentLabels do
-				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setFillColor( unpack( view._labelColor.default ) )
-			end
-			view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
-		elseif ( view._labelColor and view._labelColor.default and view._labelColor.over ) then
+		if ( view._labelColor and view._labelColor.default and view._labelColor.over ) then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
 				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
 			view._segmentLabels[1]:setFillColor( unpack( view._labelColor.over ) )
+		elseif _widget.isSeven() then
+			for i = 1, #view._segmentLabels do
+				local currentSegment = view._segmentLabels[ i ]
+				currentSegment:setFillColor( unpack( view._labelColor.default ) )
+			end
+			view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
 		else
 			for i = 1, #view._segmentLabels do
 				view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
 			end
 		end
 	end
-	
+
 	-- Function to set the right segment active
 	function view:setRightSegmentActive()
 		-- Turn off the left segment
@@ -410,34 +410,34 @@ local function initWithImage( segmentedControl, options )
 		segmentOver.width = view._segmentWidth - self._rightSegment.width
 		-- Set the over segment's position
 		segmentOver.x = self._rightSegment.x - self._rightSegment.width * 0.5 - segmentOver.width * 0.5
-	
+
 		-- Set the segment's name
 		self._segmentLabel = self._segmentLabels[self._totalSegments].text
 		self.segmentLabel = self._segmentLabel
-		
+
 		-- Set the segment number
 		self._segmentNumber = self._totalSegments
 		self.segmentNumber = self._segmentNumber
-		
+
 		-- Reset the label colors
-		if _widget.isSeven() then
-			for i = 1, #view._segmentLabels do
-				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setFillColor( unpack( view._labelColor.default ) )
-			end
-			view._segmentLabels[ #view._segmentLabels ]:setFillColor( unpack( whiteColor ) )
-		elseif ( view._labelColor and view._labelColor.default and view._labelColor.over ) then
+		if ( view._labelColor and view._labelColor.default and view._labelColor.over ) then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
 				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
 			view._segmentLabels[ #view._segmentLabels ]:setFillColor( unpack( view._labelColor.over ) )
+		elseif _widget.isSeven() then
+			for i = 1, #view._segmentLabels do
+				local currentSegment = view._segmentLabels[ i ]
+				currentSegment:setFillColor( unpack( view._labelColor.default ) )
+			end
+			view._segmentLabels[ #view._segmentLabels ]:setFillColor( unpack( whiteColor ) )
 		else
 			for i = 1, #view._segmentLabels do
 				view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
 			end
 		end
-		
+
 	end
 	
 	-- Function to set the middle segment active
@@ -460,18 +460,18 @@ local function initWithImage( segmentedControl, options )
 		self.segmentNumber = self._segmentNumber
 		
 		-- Reset the label colors
-		if _widget.isSeven() then
-			for i = 1, #view._segmentLabels do
-				local currentSegment = view._segmentLabels[ i ]
-				currentSegment:setFillColor( unpack( view._labelColor.default ) )
-			end
-			view._segmentLabels[ segmentNum ]:setFillColor( unpack( whiteColor ) )
-		elseif ( view._labelColor and view._labelColor.default and view._labelColor.over ) then
+		if ( view._labelColor and view._labelColor.default and view._labelColor.over ) then
 			for i = 1, #view._segmentLabels do
 				local currentSegment = view._segmentLabels[ i ]
 				currentSegment:setFillColor( unpack( view._labelColor.default ) )
 			end
 			view._segmentLabels[ segmentNum ]:setFillColor( unpack( view._labelColor.over ) )
+		elseif _widget.isSeven() then
+			for i = 1, #view._segmentLabels do
+				local currentSegment = view._segmentLabels[ i ]
+				currentSegment:setFillColor( unpack( view._labelColor.default ) )
+			end
+			view._segmentLabels[ segmentNum ]:setFillColor( unpack( whiteColor ) )
 		else
 			for i = 1, #view._segmentLabels do
 				view._segmentLabels[1]:setFillColor( unpack( whiteColor ) )
@@ -517,7 +517,7 @@ end
 
 
 -- Function to create a new segmentedControl object ( widget.newSegmentedControl )
-function M.new( options, theme )	
+function M.new( options, theme )
 	local customOptions = options or {}
 	local themeOptions = theme or {}
 	
@@ -583,7 +583,7 @@ function M.new( options, theme )
 	opt.middleSegmentFrame = customOptions.middleSegmentFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleSegmentFrame )
 	opt.middleSegmentSelectedFrame = customOptions.middleSegmentSelectedFrame or _widget._getFrameIndex( themeOptions, themeOptions.middleSegmentSelectedFrame)
 
-	if ( opt.dividerFrame and opt.dividerFrameWidth and opt.dividerFrameHeight ) then
+	if ( customOptions.dividerFrame and customOptions.dividerFrameWidth and customOptions.dividerFrameHeight ) then
 		-- User has defined divider frame info, use it...
 		opt.dividerFrame = customOptions.dividerFrame
 		opt.dividerFrameWidth = customOptions.dividerFrameWidth
@@ -594,7 +594,7 @@ function M.new( options, theme )
 		opt.dividerFrameWidth = themeOptions.dividerFrameWidth
 		opt.dividerFrameHeight = themeOptions.dividerFrameHeight
 	end
-	
+
 	-------------------------------------------------------
 	-- Create the segmentedControl
 	-------------------------------------------------------
