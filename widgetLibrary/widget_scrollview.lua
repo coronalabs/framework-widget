@@ -619,23 +619,6 @@ local function createScrollView( scrollView, options )
 		local returnX = self.x
 		local returnY = self.y
 		
-		-- if we are above the top limit
-		if ( returnY > 0 ) then
-			-- Do nothing in this case. People still use the pull to refresh functionality.
-			--returnY = 0
-		-- and the bottom limit
-		elseif returnY < - self._scrollHeight + self.parent.contentHeight then
-			returnY = - self._scrollHeight + self.parent.contentHeight
-		end
-		
-		-- if we are above the left limit
-		if ( returnX > 0 ) then
-			--returnX = 0
-		-- and the right limit
-		elseif returnX < - self._scrollWidth + self.parent.contentWidth then
-			returnX = - self._scrollWidth + self.parent.contentWidth
-		end
-		
 		return returnX, returnY
 	end
 	
