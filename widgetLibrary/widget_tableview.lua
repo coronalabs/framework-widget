@@ -998,6 +998,7 @@ local function createTableView( tableView, options )
 				view._onRowTouch( newEvent )
 			end
 		end
+		return true
 	end
 	
 	

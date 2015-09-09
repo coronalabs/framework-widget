@@ -189,6 +189,9 @@ local function createHorizontalSlider( slider, options )
 				-- Calculate the current percent
 				self._currentPercent = ( handlePosition * 100 ) / ( ( self._width - self._left.contentWidth ) - ( self._right.contentWidth ) )
 				
+				-- Set the current value
+				self.value = mRound( self._currentPercent )
+				
 				-- Get the fills new horizontal position
 				local fillXPos = self._left.x + ( handlePosition * 0.5 ) + ( self._left.contentWidth * 0.5 )
 
@@ -197,6 +200,7 @@ local function createHorizontalSlider( slider, options )
 				self._fill.x = fillXPos
 
 			elseif "ended" == phase or "cancelled" == phase then
+				self.value = mRound( self._currentPercent )
 				-- Remove focus
 				display.getCurrentStage():setFocus( nil )
 				self._isFocus = false
@@ -397,6 +401,9 @@ local function createVerticalSlider( slider, options )
 				-- Calculate the current percent
 				self._currentPercent = 100 - ( ( handlePosition * 100 ) / ( ( self._height - self._top.contentHeight ) - ( self._bottom.contentHeight ) ) )
 				
+				-- Set the current value
+				self.value = mRound( self._currentPercent )
+				
 				-- Set the fill's height
 				self._fill.height = self._height - self._top.contentHeight - ( self._bottom.contentHeight ) - handlePosition
 				
@@ -407,6 +414,7 @@ local function createVerticalSlider( slider, options )
 				self._fill.y = fillYPos				
 			
 			elseif "ended" == phase or "cancelled" == phase then
+				self.value = mRound( self._currentPercent )
 				-- Remove focus
 				display.getCurrentStage():setFocus( nil )
 				self._isFocus = false

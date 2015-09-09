@@ -118,7 +118,9 @@ function scene:createScene( event )
 		testTimer = timer.performWithDelay( 1000, function()
 			sliderHorizontal:setValue( 0 )
 			sliderVertical:setValue( 0 )
-			sliderResult:setText( "Slider at " .. sliderHorizontal.value .. "%" )
+			sliderResult.text = "Slider at " .. sliderHorizontal.value .. "%"
+			--print( "Vertical slider at " .. sliderVertical.value .. "%" )
+			--print( "Horizontal slider at " .. sliderHorizontal.value .. "%" )
 		end, 1 )
 	end
 end
