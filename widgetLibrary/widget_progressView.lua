@@ -158,9 +158,11 @@ local function initWithImage( progressView, options )
 		if progress > 1.0 then
 			progress = 1.0
 		end
-		
 		-- Only execute this if the progressView's view hasn't been removed
 		if "table" == type( view ) then
+
+			if not ( view._fillLeft.x and view._fillMiddle.x and view._fillRight.x ) then return end
+
 			-- Reset the bar if requested
 			if progress <= 0 then
 				view._fillLeft.isVisible = false

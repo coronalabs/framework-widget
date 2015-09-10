@@ -83,9 +83,11 @@ local function initWithImage( spinner, options )
 	function spinner:start()
 		-- The spinner isn't a sprite > Start or resume it's timer
 		local function rotateSpinner()
-			self._view:rotate( self._view._deltaAngle )
+			if not ( self._view.rotation ) then return end
+			--self._view:rotate( self._view._deltaAngle )
+			self._view.rotation = self._view.rotation + self._view._deltaAngle
 		end
-			
+
 		-- If the timer doesn't exist > Create it
 		if not self._view._timer then
 			self._view._timer = timer.performWithDelay( self._view._increments, rotateSpinner, 0 )
