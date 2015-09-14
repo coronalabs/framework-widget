@@ -425,8 +425,12 @@ local function createScrollView( scrollView, options )
 							groupYPadding = groupYPadding + topPadding
 						end
 					end
-					self._view._scrollWidth = self._view._scrollWidth + groupXPadding
-					self._view._scrollHeight = self._view._scrollHeight + groupYPadding
+					if self._view._scrollWidth then
+						self._view._scrollWidth = self._view._scrollWidth + groupXPadding
+					end
+					if self._view._scrollHeight then
+						self._view._scrollHeight = self._view._scrollHeight + groupYPadding
+					end
 				end
 
 
