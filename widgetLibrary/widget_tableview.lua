@@ -958,7 +958,7 @@ local function createTableView( tableView, options )
 	-- Handle tap events on the row
 	local function _handleRowTap( event )
 		local row = event.target
-		
+
 		-- If tap's are allowed on the row at this time
 		if not row._cannotTap and view._permitRowTouches then
 			if "function" == type( view._onRowTouch ) then
@@ -998,7 +998,6 @@ local function createTableView( tableView, options )
 				view._onRowTouch( newEvent )
 			end
 		end
-		return true
 	end
 	
 	
