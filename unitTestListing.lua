@@ -2,8 +2,8 @@
 
 local widget = require( "widget" )
 
-local storyboard = require( "storyboard" )
-local scene = storyboard.newScene()
+local composer = require( "composer" )
+local scene = composer.newScene()
 
 local USE_IOS_THEME = false
 local USE_IOS7_THEME = false
@@ -101,7 +101,7 @@ function scene:createScene( event )
 		
 		if "ended" == phase then
 			local targetScene = event.target.id
-			storyboard.gotoScene( targetScene )
+			composer.gotoScene( targetScene )
 		end
 		
 		return true
@@ -271,10 +271,10 @@ function scene:createScene( event )
 end
 
 function scene:didExitScene( event )
-	storyboard.removeAll()
+	composer.removeAll()
 end
 
-scene:addEventListener( "createScene", scene )
-scene:addEventListener( "didExitScene", scene )
+scene:addEventListener( "create", function(event) scene:createScene(event) end )
+scene:addEventListener( "hide", function(event) print("hide"); if event.phase == 'did' then scene:didExitScene(event) end end )
 
 return scene
