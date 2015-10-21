@@ -2,8 +2,8 @@
 -- File: newSearchField unit test.
 
 local widget = require( "widget" )
-local storyboard = require( "storyboard" )
-local scene = storyboard.newScene()
+local composer = require( "composer" )
+local scene = composer.newScene()
 
 local USE_ANDROID_THEME = false
 local USE_IOS7_THEME = true
@@ -68,7 +68,7 @@ function scene:createScene( event )
 	    label = "Exit",
 	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
-	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
+	    onRelease = function() composer.gotoScene( "unitTestListing" ) end;
 	}
 	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
@@ -128,10 +128,10 @@ function scene:didExitScene( event )
 		testTimer = nil
 	end
 	
-	storyboard.removeAll()
+	composer.removeAll()
 end
 
-scene:addEventListener( "createScene", scene )
-scene:addEventListener( "didExitScene", scene )
+scene:addEventListener( "create", function(event) scene:createScene(event) end )
+scene:addEventListener( "hide", function(event) print("hide"); if event.phase == 'did' then scene:didExitScene(event) end end )
 
 return scene

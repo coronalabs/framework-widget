@@ -20,8 +20,8 @@ package.preload.widget = nil
 -------------------------------------------------------------------------------------------------
 
 local widget = require( "widget" )
-local storyboard = require( "storyboard" )
-local scene = storyboard.newScene()
+local composer = require( "composer" )
+local scene = composer.newScene()
 
 function scene:createScene( event )
 	local group = self.view
@@ -38,7 +38,7 @@ function scene:createScene( event )
 	    label = "Return To Menu",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
-	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
+	    onRelease = function() composer.gotoScene( "unitTestListing" ) end;
 	}
 	group:insert( returnToListing )
 	
@@ -72,10 +72,10 @@ function scene:createScene( event )
 end
 
 function scene:exitScene( event )
-	storyboard.purgeAll()
+	composer.purgeAll()
 end
 
-scene:addEventListener( "createScene", scene )
+scene:addEventListener( "create", function(event) scene:createScene(event) end )
 scene:addEventListener( "exitScene", scene )
 
 return scene

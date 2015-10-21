@@ -44,7 +44,6 @@ io.output():setvbuf( "no" )
 -- Hide the status bar
 display.setStatusBar( display.HiddenStatusBar )
 
-local storyboard = require( "storyboard" )
-storyboard.gotoScene( "unitTestListing" )
-
---storyboard.gotoScene( "tableView" )
+local composer = require( "composer" )
+composer.gotoScene( "unitTestListing" )
+--composer.gotoScene( "tableView" )
