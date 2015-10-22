@@ -52,7 +52,7 @@ theme.button =
 	
 	width = 180, 
 	height = 50,
-	font = "HelveticaNeue-Light",
+	font = native.systemFont,
 	fontSize = 17,
     labelColor = 
     { 
@@ -61,7 +61,7 @@ theme.button =
     },
 
 	emboss = false,
-	alphaFade = true,
+	alphaFade = false,
 }
 
 -- convert to v1 style values if it's the case

@@ -551,7 +551,7 @@ function M.new( options, theme )
 	opt.emboss = customOptions.emboss or themeOptions.emboss or nil
 
 	if _widget.isSeven() then
-		opt.labelFont = customOptions.labelFont or "HelveticaNeue"
+		opt.labelFont = customOptions.labelFont or native.systemFont
 		opt.labelSize = customOptions.labelSize or 13
 	end
 	

@@ -85,7 +85,7 @@ function scene:createScene( event )
 				default = { 146 },
 				over = { 21, 125, 251, 255 },
 			}
-		tabLabelFont = "HelveticaNeue"
+		tabLabelFont = native.systemFont
 		tabLabelFontSize = 10
 		normalTabImage = "unitTestAssets/tabIcon-ios7.png"
 		overTabImage = "unitTestAssets/tabIcon-down-ios7.png"

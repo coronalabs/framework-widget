@@ -459,7 +459,7 @@ function M.new( options, theme )
 	opt.backgroundColor = customOptions.columnColor or themeOptions.columnColor or defaultRowColor
 	
 	if _widget.isSeven() then
-		opt.font = customOptions.font or themeOptions.font or "HelveticaNeue-Medium"
+		opt.font = customOptions.font or themeOptions.font or native.systemFont
 		opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 20
 	end
 	

@@ -131,9 +131,9 @@ function scene:createScene( event )
 		
 		local rowTitle
 		if USE_IOS7_THEME and not row.isCategory then
-			rowTitle = display.newText( row, rowTitleText, 0, 0, "HelveticaNeue-Light", 17 )
+			rowTitle = display.newText( row, rowTitleText, 0, 0, native.systemFont, 17 )
 		elseif USE_IOS7_THEME and row.isCategory then
-			rowTitle = display.newText( row, rowTitleText, 0, 0, "HelveticaNeue", 14 )
+			rowTitle = display.newText( row, rowTitleText, 0, 0, native.systemFontBold, 14 )
 		else
 			rowTitle = display.newText( row, rowTitleText, 0, 0, nil, 14 )
 		end

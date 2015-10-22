@@ -57,7 +57,7 @@ function scene:createScene( event )
 	if USE_IOS7_THEME then
 		backButtonPosition = 0
 		backButtonSize = 40
-		fontUsed = "HelveticaNeue-Light"
+		fontUsed = native.systemFont
 	end
 	
 	--Button to return to unit test listing
