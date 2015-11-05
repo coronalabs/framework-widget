@@ -681,7 +681,7 @@ function lib.createScrollBar( view, options )
 	local customOptions = options or {}
 	
 	-- Setup the scrollBar's width/height
-	local parentGroup = view.parent.parent
+	--local parentGroup = view.parent.parent
 	local scrollBarWidth = options.width or 5
 	local viewHeight = view._height -- The height of the windows visible area
 	local viewContentHeight = view._scrollHeight -- The height of the total content height
