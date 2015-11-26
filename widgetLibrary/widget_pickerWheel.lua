@@ -289,6 +289,11 @@ local function createPickerWheel( pickerWheel, options )
 				id = i
 			}
 		end
+
+		-- Prevent the first and last row from being culled.
+		local columnViewRows = viewColumns[i]._view._rows
+		columnViewRows[1]._blockCulling = true
+		columnViewRows[#columnViewRows]._blockCulling = true
 		
 		-- Insert the pickerWheel column into the view
 		view:insert( viewColumns[i] )

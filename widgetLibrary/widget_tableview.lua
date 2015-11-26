@@ -919,7 +919,7 @@ local function createTableView( tableView, options )
 			-------------------------
 			
 			-- Is this row currently within the tableView bounds ? Or above or below it.
-			if "table" == type( currentRow._view ) then
+			if "table" == type( currentRow._view ) and not currentRow._blockCulling then
 				-- Is this row within the visible bounds of our view?
 				local isRowWithinBounds = ( currentRow.y + self.y ) + currentRow._height * 2 > upperLimit and ( currentRow.y + self.y ) - currentRow._height * 2 < lowerLimit
 				
