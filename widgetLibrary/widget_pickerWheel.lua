@@ -395,18 +395,39 @@ local function createPickerWheel( pickerWheel, options )
 		
 		return true
 	end
-	
+
 	Runtime:addEventListener( "enterFrame", view )
-	
+
 	-- Function to retrieve the column values
 	function view:_getValues()
 		local values = {}
-		
+
 		-- Loop through all the columns and retrieve the values
 		for i = 1, #self._columns do
-			values[i] = self._columns[i]._values
+
+			if self._columns[i]._values then
+				values[i] = self._columns[i]._values
+			elseif viewColumns then
+				if ( viewColumns[i] ) then
+					if ( self._columns[i]._view._hasHitBottomLimit == true and self._columns[i]._view._hasHitTopLimit == false ) then
+						values[i] = {
+							index = viewColumns[i]._view._rows[1]["index"],
+							value = viewColumns[i]._view._rows[1]["_label"]
+						}
+					elseif ( self._columns[i]._view._hasHitBottomLimit == false and self._columns[i]._view._hasHitTopLimit == true ) then
+						values[i] = {
+							index = viewColumns[i]._view._rows[#self._columns[i]._view._rows]["index"],
+							value = viewColumns[i]._view._rows[#self._columns[i]._view._rows]["_label"]
+						}
+					end
+				else
+					values[i] = { index = 0, value = "" }
+				end
+			else
+				values[i] = { index = 0, value = "" }
+			end
 		end
-		
+
 		return values
 	end
 

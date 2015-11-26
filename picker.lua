@@ -118,7 +118,7 @@ function scene:createScene( event )
 		---[[
 		for i = 1, #values do
 			print( "Column", i, "value is:", values[i].value )
-			--print( "Column", i, "index is:", values[i].index )
+			print( "Column", i, "index is:", values[i].index )
 		end
 		--]]
 		
