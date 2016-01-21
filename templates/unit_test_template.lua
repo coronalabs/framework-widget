@@ -20,10 +20,10 @@ package.preload.widget = nil
 -------------------------------------------------------------------------------------------------
 
 local widget = require( "widget" )
-local storyboard = require( "storyboard" )
-local scene = storyboard.newScene()
+local composer = require( "composer" )
+local scene = composer.newScene()
 
-function scene:createScene( event )
+function scene:create( event )
 	local group = self.view
 	
 	--Display an iOS style background
@@ -38,7 +38,7 @@ function scene:createScene( event )
 	    label = "Return To Menu",
 	    width = 200, height = 52,
 	    cornerRadius = 8,
-	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
+	    onRelease = function() composer.gotoScene( "unitTestListing" ) end;
 	}
 	group:insert( returnToListing )
 	
@@ -71,11 +71,13 @@ function scene:createScene( event )
 	
 end
 
-function scene:exitScene( event )
-	storyboard.purgeAll()
+function scene:hide( event )
+	if ( "ended" == event.phase ) then
+		composer.removeHidden( false )
+	end
 end
 
-scene:addEventListener( "createScene", scene )
-scene:addEventListener( "exitScene", scene )
+scene:addEventListener( "create", scene )
+scene:addEventListener( "hide", scene )
 
 return scene

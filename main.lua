@@ -23,6 +23,7 @@ package.preload.widget_theme_android_holo_dark_sheet = nil
 local function onRequireWidgetLibrary(name)
 	return require("widgetLibrary." .. name)
 end
+
 package.preload.widget = onRequireWidgetLibrary
 package.preload.widget_button = onRequireWidgetLibrary
 package.preload.widget_momentumScrolling = onRequireWidgetLibrary
@@ -44,7 +45,5 @@ io.output():setvbuf( "no" )
 -- Hide the status bar
 display.setStatusBar( display.HiddenStatusBar )
 
-local storyboard = require( "storyboard" )
-storyboard.gotoScene( "unitTestListing" )
-
---storyboard.gotoScene( "tableView" )
+local composer = require( "composer" )
+composer.gotoScene( "unitTestListing" )

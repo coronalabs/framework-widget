@@ -2,15 +2,15 @@
 -- File: newSwitch unit test.
 
 local widget = require( "widget" )
-local storyboard = require( "storyboard" )
-local scene = storyboard.newScene()
+local composer = require( "composer" )
+local scene = composer.newScene()
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
 --Forward reference for test function timer
 local testTimer = nil
 
-function scene:createScene( event )
+function scene:create( event )
 	local group = self.view
 	
 	local xAnchor, yAnchor
@@ -55,7 +55,7 @@ function scene:createScene( event )
 	    label = "Exit",
 	    width = 200, height = backButtonSize,
 	    cornerRadius = 8,
-	    onRelease = function() storyboard.gotoScene( "unitTestListing" ) end;
+	    onRelease = function() composer.gotoScene( "unitTestListing" ) end;
 	}
 	returnToListing.x = display.contentCenterX
 	group:insert( returnToListing )
@@ -267,17 +267,19 @@ function scene:createScene( event )
 	
 end
 
-function scene:didExitScene( event )
-	--Cancel test timer if active
-	if testTimer ~= nil then
-		timer.cancel( testTimer )
-		testTimer = nil
-	end
+function scene:hide( event )
+	if ( "did" == event.phase ) then
+		--Cancel test timer if active
+		if testTimer ~= nil then
+			timer.cancel( testTimer )
+			testTimer = nil
+		end
 	
-	storyboard.removeAll()
+		composer.removeHidden( false )
+	end
 end
 
-scene:addEventListener( "createScene", scene )
-scene:addEventListener( "didExitScene", scene )
+scene:addEventListener( "create", scene )
+scene:addEventListener( "hide", scene )
 
 return scene
