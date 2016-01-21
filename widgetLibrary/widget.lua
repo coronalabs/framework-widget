@@ -9,7 +9,8 @@
 local widget = 
 {
 	version = "2.0",
-	themeName = "default"
+	themeName = "default",
+	mouseEventsEnabled = false
 }
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
@@ -198,6 +199,11 @@ function widget.setTheme( themeModule )
 	-- Returns table with theme data
 	widget.theme = require( themeModule )
 	widget.themeName = themeModule
+end
+
+-- Enables mouse events on widgets
+function widget.setMouseEventsEnabled( boolVariable )
+	widget.mouseEventsEnabled = boolVariable
 end
 
 -- Check if the theme is ios7

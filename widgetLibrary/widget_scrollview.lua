@@ -511,6 +511,51 @@ local function createScrollView( scrollView, options )
 	function scrollView:setIsLocked( lockedState, direction )
 		return self._view:_setIsLocked( lockedState, direction )
 	end
+	
+	-- function for handling mouse scrolling on the scrollview widget
+	function scrollView:mouse( event )
+		if (event.scrollX ~= 0) or (event.scrollY ~= 0) then
+			local x, y = self:getContentPosition()
+			local mAbs = math.abs
+			x = x - event.scrollX
+			y = y - event.scrollY
+			
+			-- treat constraints
+			
+			-- on y
+			if y > self._view._topPadding then
+				y = self._view._topPadding
+			elseif y < ( - self._view.contentHeight + self._view._bottomPadding + self.contentHeight ) then
+				y = - self._view.contentHeight + self._view._bottomPadding + self.contentHeight
+			end
+			
+			-- on x
+			if x > self._view._leftPadding then
+				x = self._view._leftPadding
+			elseif x < ( - self._view.contentWidth + self._view._rightPadding + self.contentWidth ) then
+				x = - self._view.contentWidth + self._view._rightPadding + self.contentWidth
+			end
+			
+			self:scrollToPosition({ x = x, y = y, time = 0})
+			-- display the scrollbar
+			if self._view._scrollBar then
+				if self._view.autoHideScrollBar then
+					self._view._scrollBar:show()
+				end
+				self._view._scrollBar:move()
+			end
+		elseif ( event.scrollY == 0 and event.type == "scroll" and not self._view._isUsedInPickerWheel ) then
+			if self._view._scrollBar then
+				if self._view.autoHideScrollBar then
+					self._view._scrollBar:hide()
+				end		
+			end
+		end
+	end
+	
+	if ( _widget.mouseEventsEnabled ) then
+		scrollView:addEventListener( "mouse", scrollView )
+	end
 
 	-- Transfer touch from the view's background to the view's content
 	function viewBackground:touch( event )		

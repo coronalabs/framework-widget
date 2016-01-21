@@ -253,6 +253,57 @@ local function createTableView( tableView, options )
 		end
 	end
 	
+	-- function for handling mouse scrolling on the tableview widget
+	function tableView:mouse( event )
+		if ( event.scrollY ~= 0 and event.type == "scroll" and not self._view._isUsedInPickerWheel ) then
+			local y = self:getContentPosition()
+			y = y - event.scrollY
+			
+			if not self._view._isUsedInPickerWheel then			
+				-- stop the view at the bottom limit
+				if math.abs( y ) + self.height > self._view._scrollHeight then
+					y = - ( self._view._scrollHeight - self.height ) 
+				end
+		
+				-- stop the view at the top limit
+				if y > 0 then
+					y = 0
+				end
+			else
+				-- for the picker, we need different calculations, because we have to take into consideration the padding values
+				-- stop the view at the bottom limit
+				if math.abs( y ) + self.height > self._view._scrollHeight + self._view._bottomPadding then
+					y = - ( self._view._scrollHeight - self.height + self._view._bottomPadding ) 
+				end
+		
+				-- stop the view at the top limit
+				if y > self._view._topPadding then
+					y = self._view._topPadding
+				end
+			end
+			
+			self:scrollToY( { y = y, time = 0} ) 
+			
+			-- display the scrollbar
+			if self._view._scrollBar then
+				if self._view.autoHideScrollBar then
+					self._view._scrollBar:show()
+				end
+				self._view._scrollBar:move()
+			end
+		elseif ( event.scrollY == 0 and event.type == "scroll" and not self._view._isUsedInPickerWheel ) then
+			if self._view._scrollBar then
+				if self._view.autoHideScrollBar then
+					self._view._scrollBar:hide()
+				end		
+			end			
+		end
+	end
+	
+	if ( _widget.mouseEventsEnabled ) then
+		tableView:addEventListener( "mouse", tableView )
+	end
+	
 	-- Transfer touch from the view's background to the view's content
 	function viewBackground:touch( event )
 		view:touch( event )
@@ -263,7 +314,7 @@ local function createTableView( tableView, options )
 	viewBackground:addEventListener( "touch" )
 	
 	-- Private Function to get a row at a specific y position
-	function view:_getRowAtPosition( position )
+	function view:_getRowAtPosition( position, transitionTime )
 		local yPosition = position
 		
 		for k, v in pairs( self._rows ) do
@@ -289,8 +340,9 @@ local function createTableView( tableView, options )
 					local translateToPos = - currentRow.y - self.parent.y - 6
 					if isGraphicsV1 then
 						translateToPos = - currentRow.y - self.parent.y
-					end								
-					transition.to( self, { time = 280, y = translateToPos, transition = easing.outQuad } )
+					end							
+					local tranTime = transitionTime or 280	
+					transition.to( self, { time = tranTime, y = translateToPos, transition = easing.outQuad } )
 					
 					return currentRow._view
 				end
@@ -1612,7 +1664,7 @@ local function createTableView( tableView, options )
 		self._updateRuntime = false
 		self._trackVelocity = false
 		-- Reset velocity back to 0
-		self._velocity = 0		
+		self._velocity = 0
 	
 		transition.to( self, { y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
 	end

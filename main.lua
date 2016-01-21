@@ -39,6 +39,11 @@ package.preload.widget_switch = onRequireWidgetLibrary
 package.preload.widget_tabbar = onRequireWidgetLibrary
 package.preload.widget_tableview = onRequireWidgetLibrary
 
+local widget = require( "widget" )
+
+system.activate( "mouse" )
+widget.setMouseEventsEnabled( true )
+
 -- For xcode console output
 io.output():setvbuf( "no" )
 
