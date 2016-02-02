@@ -1,4 +1,4 @@
--- Copyright © 2013 Corona Labs Inc. All Rights Reserved.
+-- Copyright © 2016 Corona Labs Inc. All Rights Reserved.
 --
 -- Redistribution and use in source and binary forms, with or without
 -- modification, are permitted provided that the following conditions are met:
@@ -144,15 +144,6 @@ local function createPickerWheel( pickerWheel, options )
 		-- check if the text is greater than the actual column size
 		local availableWidth = viewOverlay.width - 28
 		local columnWidth = view._columns[ row.id ].width or availableWidth / #view._columns
-		local textWidth = rowTitle.contentWidth
-		if textWidth > columnWidth - 1 then
-	        --cap the text
-	        local pixelsPerChar = 23 -- aproximate median value
-	        local numChars = columnWidth / pixelsPerChar
-	        row._label = row._label:sub(1, numChars)
-	        rowTitle.text = row._label
-	        
-	    end
 		
 		-- Align the text as requested
 		if "center" == alignment then
