@@ -50,6 +50,7 @@ end
 
 -- Creates a new pickerWheel
 local function createPickerWheel( pickerWheel, options )
+
 	-- Create a local reference to our options table
 	local opt = options
 	
@@ -63,12 +64,19 @@ local function createPickerWheel( pickerWheel, options )
 		local themeData = require( opt.themeData )
 		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
 	end
-	
+
 	-- Create the view
 	view = display.newGroup()
-	
-	-- The view's background
-	viewOverlay = display.newImageRect( pickerWheel, imageSheet, opt.overlayFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
+
+	if opt.resizable == true then
+		-- For resizable pickers, begin with a transparent vector rectangle for sizing
+		viewOverlay = display.newRect( pickerWheel, 0, 0, opt.width, opt.rowHeight*5 )
+		viewOverlay.alpha = 0
+		--TODO: resizable skinning
+	else
+		viewOverlay = display.newImageRect( pickerWheel, imageSheet, opt.overlayFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
+	end
+	view._overlay = viewOverlay
 	
 	----------------------------------
 	-- Properties
@@ -76,23 +84,26 @@ local function createPickerWheel( pickerWheel, options )
 	
 	-- The table which holds our pickerWheel columns
 	viewColumns = {}
+	view._columns = viewColumns
 
 	-------------------------------------------------------
 	-- Assign properties to the view
 	-------------------------------------------------------
 	
-	-- Assign properties to our view
-	view._width = opt.overlayFrameWidth
-	view._height = opt.overlayFrameHeight
+	if opt.resizable == true then
+		view._width = opt.width
+		view._height = opt.rowHeight*5
+		view._yPosition = pickerWheel.y + ( (opt.rowHeight*5) * 0.5 )
+	else
+		view._width = opt.overlayFrameWidth
+		view._height = opt.overlayFrameHeight
+		view._yPosition = pickerWheel.y + ( view._height * 0.5 )
+	end
+
 	view._top = opt.top
-	view._yPosition = pickerWheel.y + ( view._height * 0.5 )
-	
-	-- Assign objects to our view
-	view._overlay = viewOverlay
-	view._background = viewBackground
-	view._columns = viewColumns
 	view._didTap = false
-		
+	view._forceScrollRow = nil
+
 	-------------------------------------------------------
 	-- Assign properties/objects to the pickerWheel
 	-------------------------------------------------------
@@ -104,47 +115,56 @@ local function createPickerWheel( pickerWheel, options )
 	
 	-- Function to render the pickerWheels columns
 	local function _renderColumns( event )
-		local phase = event.phase
+
 		local row = event.row
 		local font = event.target._font or opt.font
 		local fontSize = event.target._fontSize
 		local alignment = event.target._align
+		local highlightRow = false
 
-		-- Create the column's title text
+		local rh = row.contentHeight
+		local rw = row.contentWidth
+
+		-- Create the row's label text
 		local rowTitle = display.newText( row, row._label, 0, 0, font, fontSize )
-		rowTitle.y = row.contentHeight * 0.5
-		
-		-- when the widget is outside the view so no column is rendered, then _values does not exist, so we check for it
+		rowTitle.y = rh * 0.5
+
+		-- When the widget is outside the view so no column is rendered, then _values does not exist, so we check for it
 		if pickerWheel._view._columns[row.id]._values then
-		
-			if row.index == pickerWheel._view._columns[row.id]._values.index then
-				if ( event.target._fontColorSelected and type( event.target._fontColorSelected ) == "table" ) then
-					rowTitle:setFillColor( unpack( event.target._fontColorSelected ) )
-				else
-					rowTitle:setFillColor( unpack( blackColor ) )
-				end
-			else
-				if ( event.target._fontColor and type( event.target._fontColor ) == "table" ) then
-					rowTitle:setFillColor( unpack( event.target._fontColor ) )
-				else
-					rowTitle:setFillColor( unpack( labelColor ) )
-				end
+			-- Highlight the selected row as it comes into view, only if force row selection is not underway
+			if ( row.index == pickerWheel._view._columns[row.id]._values.index and nil == pickerWheel._view._forceScrollRow ) then
+				highlightRow = true
 			end
-		
+			-- If user has called force row selection, highlight row as it comes into view
+			if ( row.index == pickerWheel._view._forceScrollRow and nil ~= pickerWheel._view._forceScrollRow ) then
+				pickerWheel._view._forceScrollRow = nil
+				highlightRow = true
+			end
+		end
+
+		-- If highlight row boolean is true, highlight row according to user-defined OR default label color settings
+		if highlightRow == true then
+			if ( event.target._fontColorSelected and type( event.target._fontColorSelected ) == "table" ) then
+				rowTitle:setFillColor( unpack( event.target._fontColorSelected ) )  -- This is the user-defined label highlight color
+			else
+				rowTitle:setFillColor( unpack( blackColor ) )  -- This is the default label highlight color
+			end
 		else
-				if ( event.target._fontColor and type( event.target._fontColor ) == "table" ) then
-					rowTitle:setFillColor( unpack( event.target._fontColor ) )
-				else
-					rowTitle:setFillColor( unpack( labelColor ) )
-				end			
+			if ( event.target._fontColor and type( event.target._fontColor ) == "table" ) then
+				rowTitle:setFillColor( unpack( event.target._fontColor ) )  -- This is the user-defined label unselected color
+			else
+				rowTitle:setFillColor( unpack( labelColor ) )  -- This is the default label unselected color
+			end
 		end
 
 		row.value = rowTitle.text
-		
-		-- check if the text is greater than the actual column size
+
 		local availableWidth = viewOverlay.width - 28
-		local columnWidth = view._columns[ row.id ].width or availableWidth / #view._columns
-		
+		if opt.resizable == true then
+			availableWidth = view._width
+		end
+		local columnWidth = view._columns[row.id].width or availableWidth / #view._columns
+
 		-- Align the text as requested
 		if "center" == alignment then
 
@@ -152,17 +172,18 @@ local function createPickerWheel( pickerWheel, options )
 			if isGraphicsV1 then
 				rowTitleX = row.x
 			else
-				rowTitleX = row.x + columnWidth * 0.5
+				rowTitleX = rw - columnWidth * 0.5
 			end
 			rowTitle.x = rowTitleX
 
 		elseif "left" == alignment then
 
 			local rowTitleX
+			local labelPadding = event.target._labelPadding or 6
 			if isGraphicsV1 then
-				rowTitleX = ( rowTitle.contentWidth * 0.5 ) + 6
+				rowTitleX = ( rowTitle.contentWidth * 0.5 ) + labelPadding
 			else
-				rowTitleX = row.x + 6
+				rowTitleX = rw - columnWidth + labelPadding
 				rowTitle.anchorX = 0
 			end
 			rowTitle.x = rowTitleX
@@ -170,35 +191,46 @@ local function createPickerWheel( pickerWheel, options )
 		elseif "right" == alignment then
 			
 			local rowTitleX
+			local labelPadding = event.target._labelPadding or 6
 			if isGraphicsV1 then
-				rowTitleX = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - 6
+				rowTitleX = row.x + ( row.contentWidth * 0.5 ) - ( rowTitle.contentWidth * 0.5 ) - labelPadding
 			else
-				rowTitleX = row.x + columnWidth - 6
+				rowTitleX = rw - labelPadding
 				rowTitle.anchorX = 1
 			end
 			rowTitle.x = rowTitleX
-
 		end
-		
-		
 	end
-	
+
 	-- Create a background to sit behind the pickerWheel
-	viewBackground = display.newImageRect( view, imageSheet, opt.backgroundFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
-	viewBackground.x = viewOverlay.x
-	viewBackground.y = viewOverlay.y
+	if opt.resizable == true then
+		--TODO: consider how to implement background for resizable pickers
+	else
+		viewBackground = display.newImageRect( view, imageSheet, opt.backgroundFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
+		viewBackground.x = viewOverlay.x
+		viewBackground.y = viewOverlay.y
+	end
+	view._background = viewBackground
 
 	-- Function to create the column separator
-	function view:_createSeparator( x )		
-		local separator = display.newImageRect( self, imageSheet, opt.separatorFrame, opt.separatorFrameWidth + 4, opt.backgroundFrameHeight )
-		separator.x = x
-
+	function view:_createSeparator( x )
+		local separator
+		if opt.resizable == true then
+			separator = display.newImageRect( self, imageSheet, opt.separatorFrame, opt.separatorFrameWidth, opt.rowHeight*5 )
+			separator.x = x
+		else
+			separator = display.newImageRect( self, imageSheet, opt.separatorFrame, opt.separatorFrameWidth, opt.backgroundFrameHeight )
+			separator.x = x
+		end
 		return separator
 	end
 
 	-- The available width for the whole pickerWheel (to fit columns)
 	local availableWidth = viewOverlay.width - 28
-	
+	if opt.resizable == true then
+		availableWidth = view._width
+	end
+
 	-- local method that handles scrolling to the tapped / touched index
 	local function didTapValue( event )
 		local phase = event.phase
@@ -206,37 +238,52 @@ local function createPickerWheel( pickerWheel, options )
 		if "tap" == phase or "release" == phase then
 			view._columns[ row.id ]:scrollToIndex( row.index )
 			view._didTap = true
+			view._forceScrollRow = nil
+		end
+		-- If select value function is defined, call it
+		if ( opt.onValueSelected and "function" == type(opt.onValueSelected) ) then
+			opt.onValueSelected{ column = row.id, row = row.index }
 		end
 	end
-	
-	-- Create the pickerWheel Columns (which are tableView's)
-	local topPadding = 84
-	local bottomPadding = 96
+
+	-- Create the pickerWheel columns (which are tableViews)
+	local topPadding = 91  --84 ; 84 was illogical; 91 is 80+11 (height of 2 default rows + default edge padding)
+	local bottomPadding = 91  --96 ; 96 was illogical; 91 is 80+11 (height of 2 default rows + default edge padding)
+	local initialPos = -140  --default width of picker is 280, so this makes sense to start first column at 280/2
+
+	if opt.resizable == true then
+		topPadding = opt.rowHeight * 2
+		bottomPadding = opt.rowHeight * 2
+		initialPos = - view._width * 0.5
+	end
 	if isGraphicsV1 then
 		topPadding = 90
 		bottomPadding = pickerWheel.contentHeight - 20 - pickerWheel.contentHeight * 0.5 -- 20 is half a row height
 	end
 
-	local initialX = 0
-	local initialPos = -140
-	if _widget.isHolo() then
-		initialPos = -140
-	--else
-		--initialPos = -144
-	end
-
 	for i = 1, #opt.columnData do
+
+		local columnWidth = opt.columnData[i].width or availableWidth / #opt.columnData
 
 		if i > 1 then
 			initialPos = viewColumns[i-1].x + ( viewColumns[i-1]._view._width * 0.5 )
+		--elseif i == #opt.columnData then
+			--initialPos = math.ceil( ( availableWidth * 0.5 ) - columnWidth )
 		end
 
+		local colTop = -111
+		local colHeight = opt.overlayFrameHeight
+		if opt.resizable == true then
+			colTop = (-opt.rowHeight*3) + (opt.rowHeight*0.5)
+			colHeight = opt.rowHeight*5
+		end
+		
 		viewColumns[i] = _widget.newTableView
 		{
 			left = initialPos,
-			top = -110,
-			width = opt.columnData[i].width or availableWidth / #opt.columnData,
-			height = opt.overlayFrameHeight - 1,
+			top = colTop,
+			width = columnWidth,
+			height = colHeight,
 			topPadding = topPadding,
 			bottomPadding = bottomPadding,
 			noLines = true,
@@ -246,14 +293,16 @@ local function createPickerWheel( pickerWheel, options )
 			rowColor = opt.columnColor,
 			backgroundColor = opt.backgroundColor or defaultRowColor,
 			onRowRender = _renderColumns,
-			--maskFile = opt.maskFile,
 			listener = nil,
 			onRowTouch = didTapValue
 		}
+		viewColumns[i]._view._onValueSelected = opt.onValueSelected
 		viewColumns[i]._view._isUsedInPickerWheel = true
-		
+		viewColumns[i]._view._inUserControl = false
+
 		-- Column properties
 		viewColumns[i]._align = opt.columnData[i].align or "center"
+		viewColumns[i]._labelPadding = opt.columnData[i].labelPadding
 		viewColumns[i]._fontSize = opt.fontSize
 		viewColumns[i]._font = opt.font
 		viewColumns[i]._fontColor = opt.fontColor
@@ -267,13 +316,13 @@ local function createPickerWheel( pickerWheel, options )
 			value = opt.columnData[i].labels[opt.columnData[i].startIndex],
 		}
 		
-		-- Create the columns row's
+		-- Create the column's rows
 		for j = 1, #opt.columnData[i].labels do
 			viewColumns[i]:insertRow
 			{
-				rowHeight = 40,
+				rowHeight = opt.rowHeight,
 				rowColor = { 
-					default = opt.columnColor,
+					default = {math.random(),math.random(),math.random()},  --TODO: restore to opt.columnColor,
     				over = opt.columnColor, 
     			},
 				label = opt.columnData[i].labels[j],
@@ -281,15 +330,10 @@ local function createPickerWheel( pickerWheel, options )
 			}
 		end
 
-		-- Prevent the first and last row from being culled.
-		local columnViewRows = viewColumns[i]._view._rows
-		columnViewRows[1]._blockCulling = true
-		columnViewRows[#columnViewRows]._blockCulling = true
-		
 		-- Insert the pickerWheel column into the view
 		view:insert( viewColumns[i] )
 	
-		-- Scroll to the defined index -- TODO needs failsafe
+		-- Scroll to the defined index
 		viewColumns[i]:scrollToIndex( opt.columnData[i].startIndex, 0 )
 	end
 
@@ -321,24 +365,63 @@ local function createPickerWheel( pickerWheel, options )
 		-- If the first arg is a number, set the column to that
 		if "number" == type( arg[1] ) then
 			column = arg[1]
-			
 			-- We have retrieved the column, now set arg1 to arg2 (which is the index to scroll to) so scrollTo index gets called as expected
 			arg[1] = arg[2]
 		end
-		
+
 		arg[4] = self._view:_getValues()
-		
+
 		-- Scroll to the specified column index
 		return self._view._columns[column]:scrollToIndex( unpack( arg ) )
 	end
 	
+	-- Function to "force scroll" to a specific pickerWheel column row
+	function pickerWheel:selectValue( targetColumn, targetIndex, snapToIndex )
+
+		-- Perform argument error checking
+		if ( nil == tonumber(targetColumn) or nil == tonumber(targetIndex) ) then return
+		else
+			if ( targetColumn % 1 ~= 0 ) then return end  -- Confirm integer
+			if ( targetIndex % 1 ~= 0 ) then return end  -- Confirm integer
+			if ( targetColumn < 1 or targetColumn > #self._view._columns ) then return end  -- Confirm is within column range
+			if ( targetIndex < 1 or targetIndex > self._view._columns[targetColumn]:getNumRows() ) then return end  -- Confirm is within row range
+		end
+
+		-- If pickerWheel column is under user control (being moved, etc.) then return/cancel out of this method
+		if self._view._columns[targetColumn]._view._inUserControl == true then return end
+
+		-- Look up actual column values if available
+		if viewColumns then
+			if ( viewColumns[targetColumn] ) then
+				self._view._columns[targetColumn]._values =
+				{
+					index = viewColumns[targetColumn]._view._rows[targetIndex]["index"],
+					value = viewColumns[targetColumn]._view._rows[targetIndex]["_label"]
+				}
+			end
+		end
+
+		-- If snapToIndex argument is true, set time parameter to 0
+		local time ; if snapToIndex == true then time = 0 end
+
+		-- If select value function is defined, call it
+		--TODO: Alex, should this be called on usage of this function? May be too "forceful"
+		if ( opt.onValueSelected and "function" == type(opt.onValueSelected) ) then
+			opt.onValueSelected{ column = targetColumn, row = targetIndex }
+		end
+
+		self._view._forceScrollRow = targetIndex
+		self._view._columns[targetColumn]:reloadData()
+		self._view._columns[targetColumn]:scrollToIndex( targetIndex, time )
+	end
+
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
 
 	-- Override scale function as pickerWheels don't support it
 	function pickerWheel:scale()
-		print( M._widgetName, "Does not support scaling" )
+		print( "WARNING: " .. M._widgetName .. " does not support scaling" )
 	end
 
 	-- EnterFrame listener for our pickerWheel
@@ -347,48 +430,65 @@ local function createPickerWheel( pickerWheel, options )
 		-- Update the y position	
 		-- this has to be calculated in content coordinates to abstract the widget being in a group
 		local xPos, yPos = _pickerWheel:localToContent( 0, 0 )
-		
+
 		if isGraphicsV1 then
 			self._yPosition = yPos + self.y + ( self._height * 0.5 )
 		else
 			self._yPosition = yPos + ( self._height * 0.5 )
 		end
 		
-		-- Manage the Picker Wheels columns
+		-- Manage the pickerWheel columns
 		for i = 1, #self._columns do
 		
 			if "ended" == self._columns[i]._view._phase and not self._columns[i]._view._updateRuntime then
 			    if not self._didTap then
-			    	local calculatePosition = self._yPosition - self.parent.contentHeight * 0.5
-				    self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( calculatePosition )
+					self._columns[i]._values = self._columns[i]._view:_getRowAtPosition( yPos )
 				else
-				    self._columns[i]._values = self._columns[i]._view:_getRowAtIndex( self._columns[ i ]._view._lastRowIndex )
+				    self._columns[i]._values = self._columns[i]._view:_getRowAtIndex( self._columns[i]._view._lastRowIndex )
 				    self._didTap = false
 				end
 				self._columns[i]._view._phase = "none"
-				
-				-- update the actual values, by rerendering row
-				if nil ~= self._columns[i]._values then
+				self._columns[i]._view._inUserControl = false
+
+				if nil == self._columns[i]._values then
+					if ( viewColumns[i] ) then
+						if ( self._columns[i]._view._hasHitBottomLimit == true and self._columns[i]._view._hasHitTopLimit == false ) then
+							self._columns[i]._values = {
+								index = viewColumns[i]._view._rows[1]["index"],
+								value = viewColumns[i]._view._rows[1]["_label"]
+							}
+						elseif ( self._columns[i]._view._hasHitBottomLimit == false and self._columns[i]._view._hasHitTopLimit == true ) then
+							self._columns[i]._values = {
+								index = viewColumns[i]._view._rows[#self._columns[i]._view._rows]["index"],
+								value = viewColumns[i]._view._rows[#self._columns[i]._view._rows]["_label"]
+							}
+						end
+						-- If select value function is defined, call it
+						if ( opt.onValueSelected and "function" == type(opt.onValueSelected) ) then
+							opt.onValueSelected{ column = i, row = self._columns[i]._values.index }
+						end
+					end
+					self._columns[i]:reloadData()
+				else
 					if ( self._columns[i]._fontColorSelected and type( self._columns[i]._fontColorSelected ) == "table" ) then
-						self._columns[i]._view._rows[self._columns[i]._values.index]._view[ 2 ]:setFillColor( unpack( self._columns[i]._fontColorSelected ) )
+						self._columns[i]._view._rows[self._columns[i]._values.index]._view[2]:setFillColor( unpack( self._columns[i]._fontColorSelected ) )
 					else
-						self._columns[i]._view._rows[self._columns[i]._values.index]._view[ 2 ]:setFillColor( unpack( blackColor ) )
+						self._columns[i]._view._rows[self._columns[i]._values.index]._view[2]:setFillColor( unpack( blackColor ) )
 					end
 				end
 			end
 		end
-		
+
 		-- Constrain x/y scale values to 1.0
 		if _pickerWheel.xScale ~= 1.0 then
 			_pickerWheel.xScale = 1.0
-			print( M._widgetName, "Does not support scaling" )
+			print( "WARNING: " .. M._widgetName .. " does not support scaling" )
 		end
-		
 		if _pickerWheel.yScale ~= 1.0 then
 			_pickerWheel.yScale = 1.0
-			print( M._widgetName, "Does not support scaling" )
+			print( "WARNING: " .. M._widgetName .. " does not support scaling" )
 		end
-		
+
 		return true
 	end
 
@@ -403,24 +503,6 @@ local function createPickerWheel( pickerWheel, options )
 
 			if self._columns[i]._values then
 				values[i] = self._columns[i]._values
-			elseif viewColumns then
-				if ( viewColumns[i] ) then
-					if ( self._columns[i]._view._hasHitBottomLimit == true and self._columns[i]._view._hasHitTopLimit == false ) then
-						values[i] = {
-							index = viewColumns[i]._view._rows[1]["index"],
-							value = viewColumns[i]._view._rows[1]["_label"]
-						}
-					elseif ( self._columns[i]._view._hasHitBottomLimit == false and self._columns[i]._view._hasHitTopLimit == true ) then
-						values[i] = {
-							index = viewColumns[i]._view._rows[#self._columns[i]._view._rows]["index"],
-							value = viewColumns[i]._view._rows[#self._columns[i]._view._rows]["_label"]
-						}
-					end
-				else
-					values[i] = { index = 0, value = "" }
-				end
-			else
-				values[i] = { index = 0, value = "" }
 			end
 		end
 
@@ -467,21 +549,47 @@ function M.new( options, theme )
 	end
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
-	--opt.maskFile = customOptions.maskFile or themeOptions.maskFile
 	opt.font = customOptions.font or themeOptions.font or native.systemFontBold
 	opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 22
 	opt.fontColor = customOptions.fontColor or themeOptions.fontColor or labelColor
 	opt.fontColorSelected = customOptions.fontColorSelected or themeOptions.fontColorSelected or blackColor
 	opt.columnColor = customOptions.columnColor or themeOptions.columnColor or defaultRowColor
 	opt.backgroundColor = customOptions.columnColor or themeOptions.columnColor or defaultRowColor
-	
+	opt.onValueSelected = customOptions.onValueSelected
+
+	-- Determine pickerWheel style (accept both spellings)
+	if ( customOptions.style == "resizable" or customOptions.style == "resizeable" ) then
+		opt.resizable = true
+		-- Confirm picker width is specified for resizable pickers
+		if not tonumber(customOptions.width) then
+			print( "WARNING: " .. M._widgetName .. " 'width' parameter should be specified for resizable style; using 320 instead" )
+			opt.width = 320
+		else
+			opt.width = math.abs(customOptions.width)
+		end
+	else
+		opt.resizable = false
+	end
+
 	if _widget.isSeven() then
 		opt.font = customOptions.font or themeOptions.font or native.systemFont
 		opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 20
 	end
-	
-	-- Properties
-	opt.rowHeight = customOptions.rowHeight or 40
+
+	-- Set row height
+	opt.rowHeight = 40
+	if ( opt.resizable == true ) then
+		if tonumber(customOptions.rowHeight) then
+			opt.rowHeight = math.abs(customOptions.rowHeight)
+			if ( opt.rowHeight % 1 ~= 0 ) then
+				opt.rowHeight = math.round(opt.rowHeight)
+				print( "WARNING: " .. M._widgetName .. " 'rowHeight' parameter was rounded to the nearest positive integer (" .. opt.rowHeight .. ")" )
+			end
+		else
+			print( "WARNING: " .. M._widgetName .. " 'rowHeight' parameter must be a positive integer; using default instead (" .. opt.rowHeight .. ")" )
+		end
+	end
+
 	opt.columnData = customOptions.columns
 
 	-- Frames & images

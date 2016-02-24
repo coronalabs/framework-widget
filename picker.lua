@@ -10,15 +10,8 @@ local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 function scene:create( event )
 	local group = self.view
 
-	local xAnchor, yAnchor
-
-	if not isGraphicsV1 then
-		xAnchor = display.contentCenterX
-		yAnchor = display.contentCenterY
-	else
-		xAnchor = 0
-		yAnchor = 0
-	end
+	local xAnchor = display.contentCenterX
+	local yAnchor = display.contentCenterY
 
 	local fontColor = 0
 	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
@@ -38,7 +31,7 @@ function scene:create( event )
 		else background:setFillColor( 1, 1, 1, 1 ) end
 	end
 	group:insert( background )
-	
+	background:setFillColor(0.2)
 	local backButtonPosition = 5
 	local backButtonSize = 34
 	
@@ -73,69 +66,133 @@ function scene:create( event )
 	local columnData = 
 	{ 
 		{ 
-			align = "right",
-			width = 140,
+			align = "left",
+			width = 100,
+			--labelPadding = 20,  --NEW (default is 6)
 			startIndex = 1,
 			labels = 
 			{
-				"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" 
+				"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
 			},
 		},
-
 		{
 			align = "center",
 			width = 60,
 			startIndex = 18,
 			labels = days,
 		},
-		
 		{
 			align = "right",
-			width = 80,
+			width = 60,
+			--labelPadding = 0,  --NEW (default is 6)
 			startIndex = 10,
 			labels = years,
 		},
 	}
-		
-	-- Create a new Picker Wheel
+
+	local function valueSelected( event )
+		print( "onValueSelected() called" )
+		print( "------------------------" )
+		for k,v in pairs(event) do
+			print(k,v)
+		end
+		print( "--------------" )
+	end
+
+
+
+	-- Default picker wheel
 	local pickerWheel = widget.newPickerWheel
 	{
-		top = display.contentHeight - 444,
+		top = display.contentHeight - 436,
+		left = 0,
 		columns = columnData,
+		columnColor = { 0.8 },
+		--onValueSelected = valueSelected  --NEW
 	}
 	group:insert( pickerWheel )
+
+	local testRectA1 = display.newRect( group,display.contentCenterX,pickerWheel.y,400,40 )
+	testRectA1:setFillColor(1,0,0.2,0.3)
+	local testRectAT1 = display.newRect( group,display.contentCenterX,pickerWheel.y-(40*2),400,40 )
+	testRectAT1:setFillColor(1,0.2,0,0.2)
+	local testRectAT2 = display.newRect( group,display.contentCenterX,pickerWheel.y-40,400,40 )
+	testRectAT2:setFillColor(1,0.6,0,0.2)
+	local testRectAT3 = display.newRect( group,display.contentCenterX,pickerWheel.y+(40*2),400,40 )
+	testRectAT3:setFillColor(1,0.2,0,0.2)
+	local testRectAT4 = display.newRect( group,display.contentCenterX,pickerWheel.y+40,400,40 )
+	testRectAT4:setFillColor(1,0.6,0,0.2)
 	
-	-- Scroll the second column to it's 8'th row
-	--pickerWheel:scrollToIndex( 2, 8, 0 )
-	
-	
-	
-	local function showValues( event )		
-		local values = pickerWheel:getValues()
-		
-		--print( values )
-		
-		---[[
-		for i = 1, #values do
-			print( "Column", i, "value is:", values[i].value )
-			print( "Column", i, "index is:", values[i].index )
-		end
-		--]]
-		
-		return true
-	end
-	
-	
-	local getValuesButton = widget.newButton{
-	    id = "getValues",
-	    --left = display.contentWidth * 0.5,
-	    top = 300,
-	    label = "print() values",
-	    width = 200, height = backButtonSize,
-	    onRelease = showValues;
+	local getValuesButtonA = widget.newButton(
+		{
+			id = "getValues",
+			top = pickerWheel.contentBounds.yMax+2,
+			label = "print() values",
+			height = backButtonSize,
+			onRelease = function()
+				local values = pickerWheel:getValues()
+					for i = 1, #values do
+						print( "Column", i, "value is:", values[i].value )
+						print( "Column", i, "index is:", values[i].index )
+					end
+				end
+		})
+	getValuesButtonA.x = display.contentCenterX
+	group:insert( getValuesButtonA )
+
+
+
+	-- Resizable picker wheel
+	local rowHeight = 26
+
+	local resizablePickerWheel = widget.newPickerWheel
+	{
+		top = pickerWheel.contentBounds.yMax+45,
+		left = 20,
+		columns = columnData,
+		columnColor = { 0.8 },
+		fontSize = 12,
+		style = "resizable",  --NEW
+		width = 250,  --NEW
+		rowHeight = rowHeight,  --NEW
+		onValueSelected = valueSelected  --NEW
 	}
-	getValuesButton.x = display.contentCenterX
-	group:insert( getValuesButton )
+	group:insert( resizablePickerWheel )
+
+	local testRectB1 = display.newRect( group,display.contentCenterX,resizablePickerWheel.y,400,rowHeight )
+	testRectB1:setFillColor(1,0,0.2,0.3)
+	local testRectBT1 = display.newRect( group,display.contentCenterX,resizablePickerWheel.y-(rowHeight*2),400,rowHeight )
+	testRectBT1:setFillColor(1,0.2,0,0.2)
+	local testRectBT2 = display.newRect( group,display.contentCenterX,resizablePickerWheel.y-rowHeight,400,rowHeight )
+	testRectBT2:setFillColor(1,0.6,0,0.2)
+	local testRectBT3 = display.newRect( group,display.contentCenterX,resizablePickerWheel.y+(rowHeight*2),400,rowHeight )
+	testRectBT3:setFillColor(1,0.2,0,0.2)
+	local testRectBT4 = display.newRect( group,display.contentCenterX,resizablePickerWheel.y+rowHeight,400,rowHeight )
+	testRectBT4:setFillColor(1,0.6,0,0.2)
+	
+	local getValuesButtonB = widget.newButton(
+		{
+			id = "getValues",
+			top = resizablePickerWheel.contentBounds.yMax+2,
+			label = "print() values",
+			height = backButtonSize,
+			onRelease = function()
+				local values = resizablePickerWheel:getValues()
+					for i = 1, #values do
+						print( "Column", i, "value is:", values[i].value )
+						print( "Column", i, "index is:", values[i].index )
+					end
+				end
+		})
+	getValuesButtonB.x = display.contentCenterX
+	group:insert( getValuesButtonB )
+
+
+
+	--NEW :selectValue( targetColumn(INT), targetIndex(INT), snapToIndex(BOOL) )
+	--timer.performWithDelay( 2000, function() resizablePickerWheel:selectValue( 1, 5 ); end )
+	--timer.performWithDelay( 4000, function() resizablePickerWheel:selectValue( 1, 12 ); end )
+	--timer.performWithDelay( 6000, function() resizablePickerWheel:selectValue( 1, 1 ); end )
 end
 
 function scene:hide( event )
@@ -145,8 +202,6 @@ function scene:hide( event )
 			timer.cancel( testTimer )
 			testTimer = nil
 		end
-	
-		composer.removeHidden( false )
 	end
 end
 

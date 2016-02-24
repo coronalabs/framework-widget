@@ -111,8 +111,8 @@ local function handleSnapBackVertical( self, view, snapBack )
 					if view._scrollBar then
 						view._scrollBar:setPositionTo( "top" )
 					end
-					
 					-- Put the view back to the top
+					if view._tween then transition.cancel( view._tween ) end
 					view._tween = transition.to( view, { time = bounceTime, y = self.bottomLimit, transition = easing.outQuad } )						
 				end
 			end
@@ -129,8 +129,8 @@ local function handleSnapBackVertical( self, view, snapBack )
 					if view._scrollBar then
 						view._scrollBar:setPositionTo( "bottom" )			
 					end
-					
 					-- Put the view back to the bottom
+					if view._tween then transition.cancel( view._tween ) end
 					view._tween = transition.to( view, { time = bounceTime, y = self.upperLimit, transition = easing.outQuad } )
 				end
 			end
@@ -162,6 +162,7 @@ local function handleSnapBackHorizontal( self, view, snapBack )
 			-- Transition the view back to it's maximum position
 			if "boolean" == type( snapBack ) then
 				if snapBack == true then
+					if view._tween then transition.cancel( view._tween ) end
 					view._tween = transition.to( view, { time = bounceTime, x = self.leftLimit, transition = easing.outQuad } )
 					
 				end
@@ -175,6 +176,7 @@ local function handleSnapBackHorizontal( self, view, snapBack )
 			-- Transition the view back to it's maximum position
 			if "boolean" == type( snapBack ) then
 				if snapBack == true then
+					if view._tween then transition.cancel( view._tween ) end
 					view._tween = transition.to( view, { time = bounceTime, x = self.rightLimit, transition = easing.outQuad } )
 				end
 			end
@@ -336,12 +338,8 @@ function lib._touch( view, event )
 					
 					view._prevDeltaX = view._delta
 					
-					if view.isBounceEnabled == true then 
-					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
-					    if view._isUsedInPickerWheel == true then
-					        limit = handleSnapBackHorizontal( lib, view, true )
-					    else
-					    -- if not used in picker, we don't need snap back so we don't lose elastic behaviour on the tableview
+					if view.isBounceEnabled == true then
+					    if not view._isUsedInPickerWheel then
 					        limit = handleSnapBackHorizontal( lib, view, false )
 					    end
 					else
@@ -404,12 +402,8 @@ function lib._touch( view, event )
 					-- Handle limits
 					-- if bounce is true, then the snapback parameter has to be true, otherwise false
 					
-					if view.isBounceEnabled == true then 
-					    -- if bounce is enabled and the view is used in picker, we snap back to prevent infinite scrolling
-					    if view._isUsedInPickerWheel == true then
-					        limit = handleSnapBackVertical( lib, view, true )
-					    else
-					    -- if not used in picker, we don't need snap back so we don't lose elastic behaviour on the tableview
+					if view.isBounceEnabled == true then
+					    if not view._isUsedInPickerWheel then
 					        limit = handleSnapBackVertical( lib, view, false )
 					    end
 					else
@@ -637,7 +631,7 @@ function lib._runtime( view, event )
 		if "horizontal" == view._moveDirection then
 			-- If horizontal scrolling is enabled
 			if not view._isHorizontalScrollingDisabled then
-				if view._prevX then
+				if view._prevX and newTimePassed > 0 then
 					local possibleVelocity = ( view.x - view._prevX ) / newTimePassed
 
 	                if possibleVelocity ~= 0 then
@@ -655,7 +649,7 @@ function lib._runtime( view, event )
 		elseif "vertical" == view._moveDirection then
 			-- If vertical scrolling is enabled
 			if not view._isVerticalScrollingDisabled then
-				if view._prevY then
+				if view._prevY and newTimePassed > 0 then
 					local possibleVelocity = ( view.y - view._prevY ) / newTimePassed
                     
 					if possibleVelocity ~= 0 then

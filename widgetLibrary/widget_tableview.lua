@@ -227,7 +227,7 @@ local function createTableView( tableView, options )
 	
 	-- Override scale function as tableView's don't support it
 	function tableView:scale()
-		print( M._widgetName, "Does not support scaling" )
+		print( "WARNING: " .. M._widgetName .. " does not support scaling" )
 	end
 	
 	-- Override the insert method for tableView to insert into the view instead
@@ -314,36 +314,47 @@ local function createTableView( tableView, options )
 	viewBackground:addEventListener( "touch" )
 	
 	-- Private Function to get a row at a specific y position
-	function view:_getRowAtPosition( position, transitionTime )
+	function view:_getRowAtPosition( position )
 		local yPosition = position
 		
 		for k, v in pairs( self._rows ) do
 			local currentRow = self._rows[k]
-			
 			-- If the current row exists on screen
 			if "table" == type( currentRow._view ) then
+
 				local bounds = currentRow._view.contentBounds
 				
-				local isWithinBounds = yPosition >= bounds.yMin and yPosition <= bounds.yMax + 1
+				local isWithinBounds = yPosition >= bounds.yMin and yPosition < bounds.yMax
+				
 				-- If we have hit the bottom limit, return the first row
 				if self._hasHitBottomLimit then
+					-- If select value function is defined, call it
+					if ( self._onValueSelected and "function" == type(self._onValueSelected) ) then
+						self._onValueSelected( { column = currentRow.id, row = self._rows[1]._view.index } )
+					end
 					return self._rows[1]._view
 				end
 			
 				-- If we have hit the top limit, return the last row
 				if self._hasHitTopLimit then
+					-- If select value function is defined, call it
+					if ( self._onValueSelected and "function" == type(self._onValueSelected) ) then
+						self._onValueSelected( { column = currentRow.id, row = self._rows[#self._rows]._view.index } )
+					end
 					return self._rows[#self._rows]._view
 				end
 			
 				-- If the row is within bounds
 				if isWithinBounds then
-					local translateToPos = - currentRow.y - self.parent.y - 6
-					if isGraphicsV1 then
-						translateToPos = - currentRow.y - self.parent.y
-					end							
-					local tranTime = transitionTime or 280	
-					transition.to( self, { time = tranTime, y = translateToPos, transition = easing.outQuad } )
-					
+					local translateToPos = - currentRow.y - self.parent.y
+					-- If there is a transition underway, cancel it first
+					if self._transitionToIndex then transition.cancel( self._transitionToIndex ) end
+					-- Transition to row nearest to center
+					self._transitionToIndex = transition.to( self, { time = 280, y = translateToPos, transition = easing.outQuad } )
+					-- If select value function is defined, call it
+					if ( self._onValueSelected and "function" == type(self._onValueSelected) ) then
+						self._onValueSelected( { column = currentRow.id, row = currentRow._view.index } )
+					end
 					return currentRow._view
 				end
 			end
@@ -380,6 +391,12 @@ local function createTableView( tableView, options )
 			-- Set the initial touch
 			if not self._initalTouch then
 				self._initialTouch = true
+				self._inUserControl = true
+				-- If there is a transition underway, cancel it on initial touch
+				if self._transitionToIndex then
+					transition.cancel( self._transitionToIndex )
+					self._transitionToIndex = nil
+				end
 			end
 			
 			-- By default we allow touch events for our rows
@@ -479,11 +496,10 @@ local function createTableView( tableView, options )
 		self._targetRow = event.target
 		
 		-- Handle swipe events on the tableView
-		-- TODO: removed "moved" == phase from the if, which made swipe events to be propagated instantly, instead of at the end phase.
-		-- This conflicted however with the ability to tap, hold and then scroll the tableview
 		if "ended" == phase or "cancelled" == phase then
 			-- This wasn't the initial touch
 			self._initialTouch = false
+			self._inUserControl = false
 			
 			if mAbs( self._velocity ) < 0.01 then
 				local xStart = event.xStart
@@ -635,7 +651,7 @@ local function createTableView( tableView, options )
 		if "began" == self._phase and self._initialTouch and not self._targetRow._wasTouched then
 			-- Reset any velocity
 			self._velocity = 0
-			
+
 			-- If there is a onRowTouch listener
 			if self._onRowTouch then
 				-- If the row isn't a category
@@ -691,12 +707,12 @@ local function createTableView( tableView, options )
 		-- Constrain x/y scale values to 1.0
 		if _tableView.xScale ~= 1.0 then
 			_tableView.xScale = 1.0
-			print( M._widgetName, "Does not support scaling" )
+			print( "WARNING: " .. M._widgetName .. " does not support scaling" )
 		end
 		
 		if _tableView.yScale ~= 1.0 then
 			_tableView.yScale = 1.0
-			print( M._widgetName, "Does not support scaling" )
+			print( "WARNING: " .. M._widgetName .. " does not support scaling" )
 		end
 		
 		-- Update the top position of the tableView (if moved)
@@ -708,12 +724,10 @@ local function createTableView( tableView, options )
 	end
 	
 	Runtime:addEventListener( "enterFrame", view )	
-	
-	-- suspend / resume listener
-	-- this is for Android devices. Looks like the touch listener "dies" after the device goes in standby and back a number of times
-	-- it looks like the listener seems to be in a bad state.
-	-- this is a hack.
 
+
+	-- Suspend/resume listener
+	-- This is for Android devices. Looks like the touch listener "dies" after the device goes in standby and back a number of times. It looks like the listener seems to be in a bad state.
 	local function _handleSuspendResume( event )
 		-- if the application comes back from a suspension
 		if "applicationResume" == event.type then
@@ -971,7 +985,7 @@ local function createTableView( tableView, options )
 			-------------------------
 			
 			-- Is this row currently within the tableView bounds ? Or above or below it.
-			if "table" == type( currentRow._view ) and not currentRow._blockCulling then
+			if "table" == type( currentRow._view ) then
 				-- Is this row within the visible bounds of our view?
 				local isRowWithinBounds = ( currentRow.y + self.y ) + currentRow._height * 2 > upperLimit and ( currentRow.y + self.y ) - currentRow._height * 2 < lowerLimit
 				
@@ -1183,7 +1197,7 @@ local function createTableView( tableView, options )
 							self._rowColor.over = options.over
 						end
 					else
-						print( "WARNING: row:setRowColor - options table with default/over tables expected, got", type( options ) )
+						print( "WARNING: Function 'row:setRowColor()' - options table with default/over tables expected, got", type( options ) )
 					end
 				end
 				
@@ -1301,25 +1315,25 @@ local function createTableView( tableView, options )
 	-- Function to delete a row from the tableView
 	function view:_deleteRow( rowIndex )	
 		if type( self._rows[rowIndex] ) ~= "table" then
-			print( "WARNING: deleteRow( " .. rowIndex .. " ) - Row does not exist" )
+			print( "WARNING: Function 'deleteRow( " .. rowIndex .. " )' - Row does not exist" )
 			return
 		end
 		
 		-- Deleting categories isn't currently supported
 		if self._rows[rowIndex].isCategory then
-			print( "Warning: deleting categories is not supported" )
+			print( "WARNING: Deleting categories is not supported" )
 			return
 		end
 		
 		-- If the view is scrolling, don't allow a row to be deleted
 		if mAbs( self._velocity ) > 0 then
-			print( "Warning: A row cannot be deleted whilst the tableView is scrolling" )
+			print( "WARNING: A row cannot be deleted while the tableView is scrolling" )
 			return
 		end
 		
 		-- If we are currently deleting a row animated, don't allow a row to be deleted
 		if self._isDeletingRow then
-			print( "Warning: A row cannot be deleted while another row's deletion animation is running.")
+			print( "WARNING: A row cannot be deleted while another row's deletion animation is running")
 			return
 		end
 		
@@ -1329,11 +1343,11 @@ local function createTableView( tableView, options )
 	-- Function to delete a set of rows from the tableView
 	function view:_deleteRows( rowIndexesTable, animationOptions )
 		if "table" ~= type( rowIndexesTable ) then
-			print( "Warning: deleteRows accepts a table of row indexes as a parameter. Ex.: tableView:deleteRows( { 1, 3, 5 } )" )
+			print( "WARNING: Function 'deleteRows()' accepts a table of row indexes as a parameter, for example 'tableView:deleteRows( { 1, 3, 5 } )'" )
 			return
 		else
 			if #rowIndexesTable < 1 then
-				print( "Warning: deleteRows accepts a table with at least one row index as a parameter. Ex.: tableView:deleteRows( { 1, 3, 5 } )" )
+				print( "WARNING: Function 'deleteRows()' accepts a table with at least one row index as a parameter, for example 'tableView:deleteRows( { 1, 3, 5 } )'" )
 				return				
 			end
 		end		
@@ -1341,20 +1355,20 @@ local function createTableView( tableView, options )
 		for i = 1, #rowIndexesTable do
 			local row = self._rows[ rowIndexesTable[ i ] ]
 			if type( row ) ~= "table" then
-				print( "WARNING: deleteRows on rowIndex " .. i .. " - Row does not exist" )
+				print( "WARNING: Function 'deleteRows()' on 'rowIndex' " .. i .. " - Row does not exist" )
 				return
 			end
 			
 			-- Deleting categories isn't currently supported
 			if row.isCategory then
-				print( "Warning: deleteRows on rowIndex " .. i .. " - deleting categories is not supported" )
+				print( "WARNING: Function 'deleteRows()' on 'rowIndex' " .. i .. " - Deleting categories is not supported" )
 				return
 			end
 		end
 		
 		-- If the view is scrolling, don't allow a row to be deleted
 		if mAbs( self._velocity ) > 0 then
-			print( "Warning: A row cannot be deleted whilst the tableView is scrolling" )
+			print( "WARNING: A row cannot be deleted while the tableView is scrolling" )
 			return
 		end
 		
@@ -1586,11 +1600,6 @@ local function createTableView( tableView, options )
 		end
 		
 		local scrollTime = time or 400
-		
-		-- this makes no sense
-		if self._lastRowIndex == rowIndex then
-			--return
-		end
 				
 		-- The new position to scroll to
 		local newPosition = 0
@@ -1602,16 +1611,15 @@ local function createTableView( tableView, options )
 			newPosition = newPosition - self.parent.contentHeight * 0.5
 		end
 		
-		-- The calculation needs altering for pickerWheels
+		-- The calculation needs altering for pickerWheel
 		if self._isUsedInPickerWheel then
-			-- TODO: this is just because we have a single theme for all the pickers, we'll have to add a real solution here.
-			local jumpY = - 26 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
+			local jumpY = - self._rows[rowIndex].y
 			if isGraphicsV1 then
 				jumpY =  - self._rows[rowIndex]._height * 0.5 - self._rows[rowIndex].y + ( self._rows[rowIndex]._height * 0.5 )
 			end
 			newPosition = jumpY
 		end
-		
+
 		--Check if a category is displayed, so we adjust the position with the height of the category
 		if nil ~= self._currentCategory and nil ~= self._currentCategory.contentHeight and not self._isUsedInPickerWheel then
 			newPosition = newPosition + self._currentCategory.contentHeight
@@ -1646,9 +1654,11 @@ local function createTableView( tableView, options )
 		if newPosition > 0 and not self._isUsedInPickerWheel then
 			newPosition = 0
 		end
-			
-		-- Transition the view to the row index	
-		transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad, onComplete = executeOnComplete } )
+
+		-- If there is a transition underway, cancel it first
+		if self._transitionToIndex then transition.cancel( self._transitionToIndex ) end
+		-- Transition the view
+		self._transitionToIndex = transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad, onComplete = executeOnComplete } )
 		
 		-- Update the last row index
 		self._lastRowIndex = rowIndex
@@ -1664,9 +1674,12 @@ local function createTableView( tableView, options )
 		self._updateRuntime = false
 		self._trackVelocity = false
 		-- Reset velocity back to 0
-		self._velocity = 0
+		self._velocity = 0		
 	
-		transition.to( self, { y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
+		-- If there is a transition underway, cancel it first
+		if self._transitionToIndex then transition.cancel( self._transitionToIndex ) end
+		-- Transition the view
+		self._transitionToIndex = transition.to( self, { y = newY, time = transitionTime, transition = easing.inOutQuad, onComplete = onTransitionComplete } )
 	end
 	
 	-- Function to re-render the rows

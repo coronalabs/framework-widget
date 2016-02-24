@@ -51,4 +51,5 @@ io.output():setvbuf( "no" )
 display.setStatusBar( display.HiddenStatusBar )
 
 local composer = require( "composer" )
-composer.gotoScene( "unitTestListing" )
+--composer.gotoScene( "unitTestListing" )
+composer.gotoScene( "picker" )
