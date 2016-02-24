@@ -1217,19 +1217,19 @@ local function createUsing9Slice( button, options )
 	-- Middle
 	viewMiddleLeft.height = opt.height - ( viewTopLeft.contentHeight + viewTopRight.contentHeight )
 	viewMiddleLeft.x = viewTopLeft.x
-	viewMiddleLeft.y = viewTopLeft.y + ( viewMiddleLeft.contentHeight * 0.5 ) + ( viewBottomLeft.contentHeight * 0.5 )
+	viewMiddleLeft.y = viewTopLeft.contentBounds.yMax + ( viewMiddleLeft.height * 0.5 )
 	viewMiddleLeft._height = viewMiddleLeft.height
 	
 	viewMiddle.width = viewTopMiddle.width
 	viewMiddle.height = opt.height - ( viewTopLeft.contentHeight + ( viewTopRight.contentHeight ) )
 	viewMiddle.x = viewTopMiddle.x
-	viewMiddle.y = viewTopMiddle.y + ( viewTopMiddle.contentHeight * 0.5 ) + ( viewMiddle.contentHeight * 0.5 )
+	viewMiddle.y = viewMiddleLeft.y
 	viewMiddle._width = viewMiddle.width
 	viewMiddle._height = viewMiddle.height
 	
 	viewMiddleRight.height = opt.height - ( viewTopLeft.contentHeight + viewTopRight.contentHeight )
 	viewMiddleRight.x = viewTopRight.x
-	viewMiddleRight.y = viewTopRight.y + ( viewMiddleRight.contentHeight * 0.5 ) + ( viewBottomRight.contentHeight * 0.5 )
+	viewMiddleRight.y = viewMiddleLeft.y
 	viewMiddleRight._height = viewMiddleRight.height
 	
 	-- Bottom
@@ -1238,11 +1238,11 @@ local function createUsing9Slice( button, options )
 	
 	viewBottomMiddle.width = viewTopMiddle.width
 	viewBottomMiddle.x = viewTopMiddle.x
-	viewBottomMiddle.y = viewMiddle.y + ( viewMiddle.contentHeight * 0.5 ) + ( viewBottomMiddle.contentHeight * 0.5 )
+	viewBottomMiddle.y = viewBottomLeft.y
 	viewBottomMiddle._width = viewBottomMiddle.width
 	
 	viewBottomRight.x = viewTopRight.x
-	viewBottomRight.y = viewMiddle.y + ( viewMiddle.contentHeight * 0.5 ) + ( viewBottomRight.contentHeight * 0.5 )
+	viewBottomRight.y = viewBottomLeft.y
 
 	-- If the passed width is less than the topLeft & top right width then don't use the middle pieces
 	if opt.width <= ( viewTopLeft.contentWidth + viewTopRight.contentWidth ) then

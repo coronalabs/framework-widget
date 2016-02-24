@@ -204,7 +204,9 @@ local function createPickerWheel( pickerWheel, options )
 
 	-- Create a background to sit behind the pickerWheel
 	if opt.resizable == true then
-		--TODO: consider how to implement background for resizable pickers
+		--TODO: implement background for resizable pickers
+		viewBackground = display.newRect( view, 0, 0, opt.width, opt.rowHeight*5 )
+		viewBackground.alpha = 0
 	else
 		viewBackground = display.newImageRect( view, imageSheet, opt.backgroundFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
 		viewBackground.x = viewOverlay.x
@@ -322,7 +324,7 @@ local function createPickerWheel( pickerWheel, options )
 			{
 				rowHeight = opt.rowHeight,
 				rowColor = { 
-					default = {math.random(),math.random(),math.random()},  --TODO: restore to opt.columnColor,
+					default = opt.columnColor,
     				over = opt.columnColor, 
     			},
 				label = opt.columnData[i].labels[j],
@@ -403,12 +405,6 @@ local function createPickerWheel( pickerWheel, options )
 
 		-- If snapToIndex argument is true, set time parameter to 0
 		local time ; if snapToIndex == true then time = 0 end
-
-		-- If select value function is defined, call it
-		--TODO: Alex, should this be called on usage of this function? May be too "forceful"
-		if ( opt.onValueSelected and "function" == type(opt.onValueSelected) ) then
-			opt.onValueSelected{ column = targetColumn, row = targetIndex }
-		end
 
 		self._view._forceScrollRow = targetIndex
 		self._view._columns[targetColumn]:reloadData()

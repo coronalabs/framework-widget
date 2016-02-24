@@ -10,8 +10,15 @@ local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 function scene:create( event )
 	local group = self.view
 
-	local xAnchor = display.contentCenterX
-	local yAnchor = display.contentCenterY
+	local xAnchor, yAnchor
+
+	if not isGraphicsV1 then
+		xAnchor = display.contentCenterX
+		yAnchor = display.contentCenterY
+	else
+		xAnchor = 0
+		yAnchor = 0
+	end
 
 	local fontColor = 0
 	local background = display.newRect( xAnchor, yAnchor, display.contentWidth, display.contentHeight )
@@ -31,7 +38,7 @@ function scene:create( event )
 		else background:setFillColor( 1, 1, 1, 1 ) end
 	end
 	group:insert( background )
-	background:setFillColor(0.2)
+	
 	local backButtonPosition = 5
 	local backButtonSize = 34
 	
