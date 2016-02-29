@@ -207,8 +207,9 @@ local function initWithImageFiles( tabBar, options )
 		viewButtons[i].label.y = tabBar.y + view.contentHeight - ( viewButtons[i].label.contentHeight * 0.5 ) - 1 + viewButtons[i].label._yOffset
 		
 		-- Set the buttons id
-		viewButtons[i]._id = opt.tabButtons[i].id or "button" .. i
-		
+		viewButtons[i]._id = opt.tabButtons[i].id or "button"
+		viewButtons[i].id = opt.tabButtons[i].id or "button"
+
 		-- Assign the onPress listener to the button
 		viewButtons[i]._onPress = opt.tabButtons[i].onPress
 		
@@ -545,8 +546,9 @@ local function initWithImageSheet( tabBar, options )
 		viewButtons[i].label.y = tabBar.y + view.contentHeight - ( viewButtons[i].label.contentHeight * 0.5 ) - 1 + viewButtons[i].label._yOffset
 		
 		-- Set the buttons id
-		viewButtons[i]._id = opt.tabButtons[i].id or "button" .. i
-		
+		viewButtons[i]._id = opt.tabButtons[i].id or "button"
+		viewButtons[i].id = opt.tabButtons[i].id or "button"
+
 		-- Assign the onPress listener to the button
 		viewButtons[i]._onPress = opt.tabButtons[i].onPress
 		
