@@ -374,6 +374,11 @@ local function createScrollView( scrollView, options )
 		return self._view
 	end
 	
+	-- getter for the scrollview's velocity
+	function scrollView:getVelocity()
+		return self._view._velocity_horizontal, self._view._velocity_vertical
+	end
+	
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------	
@@ -624,7 +629,7 @@ local function createScrollView( scrollView, options )
 	function view:touch( event )
 		local phase = event.phase 
 		local time = event.time
-		
+
 		-- Set the time held
 		if "began" == phase then
 			self._timeHeld = event.time
