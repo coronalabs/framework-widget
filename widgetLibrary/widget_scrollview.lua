@@ -47,7 +47,7 @@ local function createScrollView( scrollView, options )
 	local opt = options
 	
 	-- Forward references
-	local view, viewFixed, viewBackground, viewMask
+	local view, viewFixedH, viewFixedV, viewBackground, viewMask
 	
 	-- Create the view
 	view = display.newGroup()
@@ -67,7 +67,8 @@ local function createScrollView( scrollView, options )
 	scrollView._collectorGroup = collectorGroup
 
 
-	viewFixed = display.newGroup()
+	viewFixedV = display.newGroup()
+	viewFixedH = display.newGroup()
 		
 	-- Create the view's background
 	viewBackground = display.newRect( scrollView, 0, 0, opt.width, opt.height )
@@ -140,12 +141,14 @@ local function createScrollView( scrollView, options )
 	-------------------------------------------------------
 
 	-- Assign objects to the view
-	view._fixedGroup = viewFixed
+	view._fixedGroupV = viewFixedV
+	view._fixedGroupH = viewFixedH
 
 	-- Assign objects to the scrollView
 	scrollView._view = view	
 	scrollView:insert( view )
-	scrollView:insert( viewFixed )
+	scrollView:insert( viewFixedV )
+	scrollView:insert( viewFixedH )
 	
 	-- assign the momentum variable to the scrollview
 	scrollView._momentumScrolling = require( "widget_momentumScrolling" ):new()
@@ -195,11 +198,21 @@ local function createScrollView( scrollView, options )
 					-- issues when removing the scrollview after creation in the same frame.
 					if self._view._scrollHeight then	
 						if not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then							
-							display.remove( self._view._scrollBar )
-							self._view._scrollBar = nil
-							self._view._scrollBar = self._momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
+							display.remove( self._view._scrollBarVertical )
+							self._view._scrollBarVertical = nil
+							self._view._scrollBarVertical = self._momentumScrolling.createScrollBarVertical( self._view, opt.scrollBarOptions )
 						end
 					end
+					
+					--and the horizontal scrollbar
+					if self._view._scrollWidth then	
+						if not self._view._isHorizontalScrollingDisabled and self._view._scrollWidth > self._view._width then							
+							display.remove( self._view._scrollBarHorizontal )
+							self._view._scrollBarHorizontal = nil
+							self._view._scrollBarHorizontal = self._momentumScrolling.createScrollBarHorizontal( self._view, opt.scrollBarOptions )
+						end
+					end
+					
 				end)
 			end
 		end	
@@ -305,6 +318,26 @@ local function createScrollView( scrollView, options )
 		timer.performWithDelay( 2, function()
 			self._view._scrollWidth = newValue or self._view._scrollWidth
 		end )
+		
+		-- Recreate the scrollBar
+		if not opt.hideScrollBar then
+			if self._view._scrollBarHorizontal then
+				display.remove( self._view._scrollBarHorizontal )
+				self._view._scrollBarHorizontal = nil
+			end
+			
+			if not self._view._isLocked then
+				-- Need a delay here also..
+				timer.performWithDelay( 2, function()
+					--[[
+					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
+					--]]								
+					if not self._view._scrollBarHorizontal and not self._view._isHorizontalScrollingDisabled and self._view._scrollWidth > self._view._width then
+						self._view._scrollBarHorizontal = self._momentumScrolling.createScrollBarHorizontal( self._view, opt.scrollBarOptions )
+					end
+				end)
+			end
+		end	
 				
 	end
 
@@ -316,10 +349,10 @@ local function createScrollView( scrollView, options )
 		end )
 				
 		-- Recreate the scrollBar
-		if not opt.hideScrollBar then
-			if self._view._scrollBar then
-				display.remove( self._view._scrollBar )
-				self._view._scrollBar = nil
+		if not opt.hideScrollBarVertical then
+			if self._view._scrollBarVertical then
+				display.remove( self._view._scrollBarVertical )
+				self._view._scrollBarVertical = nil
 			end
 			
 			if not self._view._isLocked then
@@ -328,8 +361,8 @@ local function createScrollView( scrollView, options )
 					--[[
 					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
 					--]]								
-					if not self._view._scrollBar and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
-						self._view._scrollBar = self._momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
+					if not self._view._scrollBarVertical and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
+						self._view._scrollBarVertical = self._momentumScrolling.createScrollBarVertical( self._view, opt.scrollBarOptions )
 					end
 				end)
 			end
@@ -483,25 +516,33 @@ local function createScrollView( scrollView, options )
 		
 		-- Create the scrollBar
 		if not opt.hideScrollBar then
-			if self._view._scrollBar then
-				display.remove( self._view._scrollBar )
-				self._view._scrollBar = nil
+			if self._view._scrollBarVertical then
+				display.remove( self._view._scrollBarVertical )
+				self._view._scrollBarVertical = nil
+			end
+			
+			if self._view._scrollBarHorizontal then
+				display.remove( self._view._scrollBarHorizontal )
+				self._view._scrollBarHorizontal = nil
 			end
 			
 			if not self._view._isLocked then
 				-- Need a delay here also..
 				timer.performWithDelay( 2, function()
-					--[[
-					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
-					--]]
-					
 					-- because this is performed with a delay, we have to check if we still have the scrollHeight property. This prevents
 					-- issues when removing the scrollview after creation in the same frame.
 					if self._view._scrollHeight then										
-						if not self._view._scrollBar and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
-							self._view._scrollBar = self._momentumScrolling.createScrollBar( self._view, opt.scrollBarOptions )
+						if not self._view._scrollBarVertical and not self._view._isVerticalScrollingDisabled and self._view._scrollHeight > self._view._height then
+							self._view._scrollBarVertical = self._momentumScrolling.createScrollBarVertical( self._view, opt.scrollBarOptions )
 						end
 					end
+					
+					if self._view._scrollWidth then										
+						if not self._view._scrollBarHorizontal and not self._view._isHorizontalScrollingDisabled and self._view._scrollWidth > self._view._width then
+							self._view._scrollBarHorizontal = self._momentumScrolling.createScrollBarHorizontal( self._view, opt.scrollBarOptions )
+						end
+					end
+					
 				end)
 			end
 		end	
@@ -537,17 +578,30 @@ local function createScrollView( scrollView, options )
 			end
 			
 			self:scrollToPosition({ x = x, y = y, time = 0})
-			-- display the scrollbar
-			if self._view._scrollBar then
+			-- display the scrollbar - vertical
+			if self._view._scrollBarVertical then
 				if self._view.autoHideScrollBar then
-					self._view._scrollBar:show()
+					self._view._scrollBarVertical:show()
 				end
-				self._view._scrollBar:move()
+				self._view._scrollBarVertical:move()
 			end
-		elseif ( event.scrollY == 0 and event.type == "scroll" and not self._view._isUsedInPickerWheel ) then
-			if self._view._scrollBar then
+			
+			if self._view._scrollBarHorizontal then
 				if self._view.autoHideScrollBar then
-					self._view._scrollBar:hide()
+					self._view._scrollBarHorizontal:show()
+				end
+				self._view._scrollBarHorizontal:move()
+			end
+			
+		elseif ( event.scrollY == 0 and event.type == "scroll" and not self._view._isUsedInPickerWheel ) then
+			if self._view._scrollBarVertical then
+				if self._view.autoHideScrollBar then
+					self._view._scrollBarVertical:hide()
+				end		
+			end
+			if self._view._scrollBarHorizontal then
+				if self._view.autoHideScrollBar then
+					self._view._scrollBarHorizontal:hide()
 				end		
 			end
 		end
@@ -703,19 +757,22 @@ local function createScrollView( scrollView, options )
 		
 		-- if we unlock the scrollview and the scrollview's content is bigger than the widget bounds, init the scrollbar.
 		if not opt.hideScrollBar then
-			if self._scrollBar then
-				display.remove( self._scrollBar )
-				self._scrollBar = nil
+			if self._scrollBarVertical then
+				display.remove( self._scrollBarVertical )
+				self._scrollBarVertical = nil
 			end
-			
+			if self._scrollBarHorizontal then
+				display.remove( self._scrollBarHorizontal )
+				self._scrollBarHorizontal = nil
+			end			
 			if not self._isLocked then
 				-- Need a delay here also..
-				timer.performWithDelay( 2, function()
-					--[[
-					Currently only vertical scrollBar's are provided, so don't show it if they can't scroll vertically
-					--]]								
-					if not self._scrollBar and not self._isVerticalScrollingDisabled and self._scrollHeight > self._height then
-						self._scrollBar = self.parent._momentumScrolling.createScrollBar( self, opt.scrollBarOptions )
+				timer.performWithDelay( 2, function()							
+					if not self._scrollBarVertical and not self._isVerticalScrollingDisabled and self._scrollHeight > self._height then
+						self._scrollBarVertical = self.parent._momentumScrolling.createScrollBarVertical( self, opt.scrollBarOptions )
+					end
+					if not self._scrollBarHorizontal and not self._isHorizontalScrollingDisabled and self._scrollWidth > self._width then
+						self._scrollBarHorizontal = self.parent._momentumScrolling.createScrollBarHorizontal( self, opt.scrollBarOptions )
 					end
 				end)
 			end
@@ -728,10 +785,17 @@ local function createScrollView( scrollView, options )
 		Runtime:removeEventListener( "enterFrame", self._view )
 				
 		-- Remove scrollBar if it exists
-		if self._view._scrollBar then
-			display.remove( self._view._scrollBar )
-			self._view._scrollBar = nil
+		if self._view._scrollBarVertical then
+			display.remove( self._view._scrollBarVertical )
+			self._view._scrollBarVertical = nil
 		end
+	
+		-- and horizontal
+		if self._view._scrollBarHorizontal then
+			display.remove( self._view._scrollBarHorizontal )
+			self._view._scrollBarHorizontal = nil
+		end
+		
 	end
 			
 	return scrollView
