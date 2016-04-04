@@ -28,6 +28,7 @@
 
 local Super = require "CoronaPrototype"
 local lib = Super:newClass( "widget_momentumScrolling" )
+local scrollbarPadding = 2
 
 -- Localize math functions
 local mAbs = math.abs
@@ -860,7 +861,7 @@ function lib.createScrollBarVertical( view, options )
 		if "top" == position then
 			self.y = view.parent.y - view._top
 		elseif "bottom" == position then
-			self.y = self._viewHeight - self.contentHeight
+			self.y = self._viewHeight - self.contentHeight - scrollbarPadding
 		end
 	end
 	
@@ -1040,7 +1041,7 @@ function lib.createScrollBarHorizontal( view, options )
 	
 	function lib.scrollBarHorizontal:setPositionTo( position )
 		if "left" == position then
-			self.x = self._viewWidth - self.contentWidth
+			self.x = self._viewWidth - self.contentWidth - scrollbarPadding
 		elseif "right" == position then
 			self.x = - view._left
 		end
