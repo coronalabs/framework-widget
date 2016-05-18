@@ -407,118 +407,67 @@ local function createScrollView( scrollView, options )
 	-- Override the insert method for scrollView to insert into the view instead
     scrollView._cachedInsert = scrollView.insert
 
-    function scrollView:insert( arg1, arg2 )
-        local index, obj
-        
-        if arg1 and type( arg1 ) == "number" then
-            index = arg1
-        elseif arg1 and type( arg1 ) == "table" then
-            obj = arg1
-        end
-        
-        if arg2 and type( arg2 ) == "table" then
-            obj = arg2
-        end
-        
-        if index then
-        	if isGraphicsV1 then
-            	self._view:insert( index, obj )
-            else
-            	self._collectorGroup:insert( index, obj )
-            end
-        else
-        	if isGraphicsV1 then
-            	self._view:insert( obj )
-        	else
-        		self._collectorGroup:insert( obj )
-        	end
-        end
-
-		local function updateScrollAreaSize()
+	function scrollView:updateScrollAreaSize()
 				
-			-- we store the original coordinates		
-			local origY = self._view.y
-			local origX = self._view.x
+		-- we store the original coordinates
+		local origY = self._view.y
+		local origX = self._view.x
 		
-			-- Update the scroll content area size (NOTE: Seems to need a 1ms delay for the group to reflect it's new content size? ) odd ...
-			timer.performWithDelay( 1, function()
-				-- Update the scrollWidth
-				self._view._scrollWidth = self._view.width
+		-- Update the scroll content area size (NOTE: Seems to need a 1ms delay for the group to reflect it's new content size? ) odd ...
+		timer.performWithDelay( 1, function()
+			-- Update the scrollWidth
+			self._view._scrollWidth = self._view.width
 
-				-- Update the scrollHeight
-				self._view._scrollHeight = self._view.height
-				
-				local groupXPadding = 0
-				local groupYPadding = 0
-				-- for v2. we have to compute the left padding to the first object into the dimensions 
-				-- of the scrollview scroll area
-				if not isGraphicsV1 then
-					if self._collectorGroup.numChildren and self._collectorGroup.numChildren > 0 then
-						local leftPadding = self._collectorGroup[ 1 ].x - ( self._collectorGroup[ 1 ].width * 0.5 )
-						local topPadding = self._collectorGroup[ 1 ].y - (self._collectorGroup[ 1 ].height * 0.5 )
-						if leftPadding > 0 then
-							groupXPadding = groupXPadding + leftPadding
-						end
-						if topPadding > 0 then
-							groupYPadding = groupYPadding + topPadding
-						end
+			-- Update the scrollHeight
+			self._view._scrollHeight = self._view.height
+
+			local groupXPadding = 0
+			local groupYPadding = 0
+			-- for v2. we have to compute the left padding to the first object into the dimensions
+			-- of the scrollview scroll area
+			if not isGraphicsV1 then
+				if self._collectorGroup.numChildren and self._collectorGroup.numChildren > 0 then
+					local leftPadding = self._collectorGroup[ 1 ].x - ( self._collectorGroup[ 1 ].width * 0.5 )
+					local topPadding = self._collectorGroup[ 1 ].y - (self._collectorGroup[ 1 ].height * 0.5 )
+					if leftPadding > 0 then
+						groupXPadding = groupXPadding + leftPadding
 					end
-					if self._view._scrollWidth then
-						self._view._scrollWidth = self._view._scrollWidth + groupXPadding
-					end
-					if self._view._scrollHeight then
-						self._view._scrollHeight = self._view._scrollHeight + groupYPadding
+					if topPadding > 0 then
+						groupYPadding = groupYPadding + topPadding
 					end
 				end
-
-
-				
-				-- Override the scroll height if it is less than the height of the window
-				if "number" == type( self._view._scrollHeight ) and "number" == type( self._view._height ) then
-					if self._view._scrollHeight < self._view._height then
-						self._view._scrollHeight = self._view._height
-					end
+				if self._view._scrollWidth then
+					self._view._scrollWidth = self._view._scrollWidth + groupXPadding
 				end
+				if self._view._scrollHeight then
+					self._view._scrollHeight = self._view._scrollHeight + groupYPadding
+				end
+			end
 
-				-- Override the scroll width if it is less than the width of the window
-				if "number" == type( self._view._scrollWidth ) and "number" == type( self._view._width ) then
-					if self._view._scrollWidth < self._view._width then
-						self._view._scrollWidth = self._view._width
-					end
-				end
-				
-				-- override also if the values are nil
-				if not self._view._scrollWidth then
-					self._view._scrollWidth = self._view._width
-				end
-				
-				if not self._view._scrollHeight then
+			-- Override the scroll height if it is less than the height of the window
+			if "number" == type( self._view._scrollHeight ) and "number" == type( self._view._height ) then
+				if self._view._scrollHeight < self._view._height then
 					self._view._scrollHeight = self._view._height
 				end
-			end)
-			
-			-- after the contentWidth / Height updates are complete, scroll the view to the position it was at before inserting the new object
-			self:scrollToPosition( { x = origX, y = origY, time = 0 } )
-		end
-
-		-- Override the removeself method for this object (so we can recalculate the content size after it is removed)
-		-- If we haven't already over-ridden it
-		if nil == obj._cachedRemoveSelf then
-			obj._cachedRemoveSelf = obj.removeSelf
-			
-			local function removeSelf( self )
-				self:_cachedRemoveSelf()
-				
-				-- Update the scroll area size
-				updateScrollAreaSize()
 			end
-			
-			obj.removeSelf = removeSelf
-		end
 
-		-- Update the scroll area size
-		updateScrollAreaSize()
-		
+			-- Override the scroll width if it is less than the width of the window
+				if "number" == type( self._view._scrollWidth ) and "number" == type( self._view._width ) then
+				if self._view._scrollWidth < self._view._width then
+					self._view._scrollWidth = self._view._width
+				end
+			end
+				
+			-- override also if the values are nil
+			if not self._view._scrollWidth then
+				self._view._scrollWidth = self._view._width
+			end
+				
+			if not self._view._scrollHeight then
+				self._view._scrollHeight = self._view._height
+			end
+		end)
+
 		-- Create the scrollBar
 		if not opt.hideScrollBar then
 			if self._view._scrollBarVertical then
@@ -550,9 +499,85 @@ local function createScrollView( scrollView, options )
 					
 				end)
 			end
-		end	
+		end
+
+		-- after the contentWidth / Height updates are complete, scroll the view to the position it was at before inserting the new object
+		self:scrollToPosition( { x = origX, y = origY, time = 0 } )
+	end
+
+    function scrollView:insert( arg1, arg2 )
+        local index, obj
+        
+        if arg1 and type( arg1 ) == "number" then
+            index = arg1
+        elseif arg1 and type( arg1 ) == "table" then
+            obj = arg1
+        end
+        
+        if arg2 and type( arg2 ) == "table" then
+            obj = arg2
+        end
+        
+        if index then
+        	if isGraphicsV1 then
+            	self._view:insert( index, obj )
+            else
+            	self._collectorGroup:insert( index, obj )
+            end
+        else
+        	if isGraphicsV1 then
+            	self._view:insert( obj )
+        	else
+        		self._collectorGroup:insert( obj )
+        	end
+        end
+
+		-- Override the removeself method for this object (so we can recalculate the content size after it is removed)
+		-- If we haven't already over-ridden it
+		if nil == obj._cachedRemoveSelf then
+			obj._cachedRemoveSelf = obj.removeSelf
+
+			local function removeSelf( self )
+				self:_cachedRemoveSelf()
+				
+				-- Update the scroll area size
+				self:updateScrollAreaSize()
+			end
+			
+			obj.removeSelf = removeSelf
+		end
+
+		-- Update the scroll area size
+		self:updateScrollAreaSize()
     end
-    
+
+	function scrollView:remove( arg1 )
+        local index, obj
+        
+        if type( arg1 ) == "number" then
+            index = arg1
+        elseif type( arg1 ) == "table" then
+            obj = arg1
+        end
+
+        if index then
+        	if isGraphicsV1 then
+            	self._view:remove( index )
+            else
+            	self._collectorGroup:remove( index )
+            end
+        elseif obj then
+        	if isGraphicsV1 then
+            	self._view:remove( obj )
+        	else
+        		self._collectorGroup:remove( obj )
+        	end
+        end
+
+		-- Update the scroll area size
+		self:updateScrollAreaSize()
+    end
+
     -- isLocked setter function
 	function scrollView:setIsLocked( lockedState, direction )
 		return self._view:_setIsLocked( lockedState, direction )

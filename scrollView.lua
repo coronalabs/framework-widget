@@ -362,8 +362,9 @@ function scene:create( event )
 		value = 80,
 		orientation = "vertical"
 	}
-	scrollView:insert( sliderVertical )
+	scrollView:insert( 2, sliderVertical )
 	
+	timer.performWithDelay( 2000, function() scrollView:remove( 2 ); end )
 	
 	if TEST_RESIZE_SCROLLVIEW_VERTICALLY then
 		scrollView:setScrollHeight( 400 )
