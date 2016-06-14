@@ -49,7 +49,7 @@ local function createTableView( tableView, options )
 	local opt = options
 	
 	-- Forward references
-	local view, viewBackground, viewMask, viewFixedV, viewFixedH, categoryGroup
+	local view, viewBackground, viewMask, viewFixed, categoryGroup
 
 	-- Create the view
 	view = display.newGroup()
@@ -60,8 +60,7 @@ local function createTableView( tableView, options )
 	end
 	
 	-- Create the fixed view
-	viewFixedV = display.newGroup()
-	viewFixedH = display.newGroup()
+	viewFixed = display.newGroup()
 		
 	-- Create the view's background
 	local bgPositionX = 0
@@ -155,15 +154,13 @@ local function createTableView( tableView, options )
 	
 	-- Assign objects to the view
 	view._categoryGroup = categoryGroup
-	view._fixedGroupV = viewFixedV
-	view._fixedGroupH = viewFixedH
+	view._fixedGroup = viewFixed
 	
 	-- Assign objects to the tableView
 	tableView._view = view
 	tableView:insert( view )
 	tableView:insert( categoryGroup )
-	tableView:insert( viewFixedH )
-	tableView:insert( viewFixedV )
+	tableView:insert( viewFixed )
 	
 	----------------------------------------------------------
 	--	PUBLIC METHODS	
@@ -608,8 +605,8 @@ local function createTableView( tableView, options )
 				
 			-- Create the scrollBar
 			if not self._hideScrollBar then
-				if not self._scrollBarVertical and not self._isLocked and not self._scrollBarVertical and totalHeight > self._height then
-					self._scrollBarVertical = _momentumScrolling.createScrollBarVertical( view, opt.scrollBarOptions )
+				if not self._scrollBar and not self._isLocked and not self._scrollBar and totalHeight > self._height then
+					self._scrollBar = _momentumScrolling.createScrollBar( view, opt.scrollBarOptions )
 				end
 			end
 
