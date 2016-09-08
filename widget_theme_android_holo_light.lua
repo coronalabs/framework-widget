@@ -117,7 +117,9 @@ theme.pickerWheel =
 	fontSize = 18,
 	columnColor = { 0,0,0,0 },
 	fontColor = { 152/255 },
-	fontColorSelected = { 0 }
+	fontColorSelected = { 0 },
+	topFadeFrame = "picker_topFade",
+	bottomFadeFrame = "picker_bottomFade",
 }
 
 -----------------------------------------------------------------------------------------

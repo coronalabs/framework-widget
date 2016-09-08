@@ -574,6 +574,38 @@ SheetInfo.sheet =
             height=26,
 
         },
+		{
+            -- picker_topFade
+            x=20,
+            y=3,
+            width=40,
+            height=34,
+
+        },
+		{
+            -- picker_bottomFade
+            x=20,
+            y=191,
+            width=40,
+            height=34,
+
+        },
+		{
+            -- picker_middleSpanTop
+            x=20,
+            y=91,
+            width=40,
+            height=1,
+
+        },
+		{
+            -- picker_middleSpanBottom
+            x=20,
+            y=136,
+            width=40,
+            height=1,
+
+        },
     },
     
     sheetContentWidth = 512,
@@ -653,6 +685,10 @@ SheetInfo.frameIndex =
     ["tabBar_tabSelectedLeft"] = 68,
     ["tabBar_tabSelectedMiddle"] = 69,
     ["tabBar_tabSelectedRight"] = 70,
+	["picker_topFade"] = 71,
+	["picker_bottomFade"] = 72,
+	["picker_middleSpanTop"] = 73,
+	["picker_middleSpanBottom"] = 74,
 }
 
 function SheetInfo:getSheet()

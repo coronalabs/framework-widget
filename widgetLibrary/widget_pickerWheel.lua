@@ -53,7 +53,13 @@ local function createPickerWheel( pickerWheel, options )
 
 	-- Create a local reference to our options table
 	local opt = options
-	
+
+	-- Issue warning if resizable construction and legacy widget themes are used
+	if opt.resizable == true and ( _widget.themeName == "widget_theme_ios" or _widget.themeName == "widget_theme_android" ) then
+		print( "WARNING: " .. M._widgetName .. " - resizable construction is not compatible with the legacy widget theme '" .. _widget.themeName .. "'; please use a different theme or the default widget construction method" )
+		return
+	end
+
 	-- Forward references
 	local imageSheet, view, viewBackground, viewOverlay, viewColumns
 	
@@ -69,12 +75,16 @@ local function createPickerWheel( pickerWheel, options )
 	view = display.newGroup()
 
 	if opt.resizable == true then
-		-- For resizable pickers, begin with a transparent vector rectangle for sizing
-		viewOverlay = display.newRect( pickerWheel, 0, 0, opt.width, opt.rowHeight*5 )
-		viewOverlay.alpha = 0
-		--TODO: resizable skinning
+		-- For resizable pickers, begin with an invisible vector rectangle for sizing
+		viewOverlay = display.newRect( pickerWheel, 0, 0, opt.width + (opt.borderPadding*2), (opt.rowHeight*5) + (opt.borderPadding*2) )
+		viewOverlay.isVisible = false
 	else
-		viewOverlay = display.newImageRect( pickerWheel, imageSheet, opt.overlayFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
+		if opt.overlayFrame then
+			viewOverlay = display.newImageRect( pickerWheel, imageSheet, opt.overlayFrame, 320, 222 )
+		else
+			viewOverlay = display.newRect( pickerWheel, 0, 0, 320, 222 )
+			viewOverlay.isVisible = false
+		end
 	end
 	view._overlay = viewOverlay
 	
@@ -95,8 +105,8 @@ local function createPickerWheel( pickerWheel, options )
 		view._height = opt.rowHeight*5
 		view._yPosition = pickerWheel.y + ( (opt.rowHeight*5) * 0.5 )
 	else
-		view._width = opt.overlayFrameWidth
-		view._height = opt.overlayFrameHeight
+		view._width = 320
+		view._height = 222
 		view._yPosition = pickerWheel.y + ( view._height * 0.5 )
 	end
 
@@ -203,27 +213,35 @@ local function createPickerWheel( pickerWheel, options )
 	end
 
 	-- Create a background to sit behind the pickerWheel
+	
 	if opt.resizable == true then
-		--TODO: implement background for resizable pickers
-		viewBackground = display.newRect( view, 0, 0, opt.width, opt.rowHeight*5 )
-		viewBackground.alpha = 0
+		if opt.backgroundFrame then
+			viewBackground = display.newImageRect( view, imageSheet, opt.backgroundFrame, opt.width, opt.rowHeight*5 )
+		else
+			viewBackground = display.newRect( view, 0, 0, opt.width, opt.rowHeight*5 )
+			viewBackground.isVisible = false
+		end
 	else
-		viewBackground = display.newImageRect( view, imageSheet, opt.backgroundFrame, opt.overlayFrameWidth, opt.overlayFrameHeight )
-		viewBackground.x = viewOverlay.x
-		viewBackground.y = viewOverlay.y
+		if opt.backgroundFrame then
+			viewBackground = display.newImageRect( view, imageSheet, opt.backgroundFrame, 320, 222 )
+		else
+			viewBackground = display.newRect( view, 0, 0, 320, 222 )
+			viewBackground.isVisible = false
+		end
 	end
+	viewBackground.x = viewOverlay.x
+	viewBackground.y = viewOverlay.y
 	view._background = viewBackground
 
 	-- Function to create the column separator
 	function view:_createSeparator( x )
-		local separator
+		local separator = display.newSprite( self, imageSheet, { name="separator", start=opt.separatorFrame, count=1 } )
 		if opt.resizable == true then
-			separator = display.newImageRect( self, imageSheet, opt.separatorFrame, opt.separatorFrameWidth, opt.rowHeight*5 )
-			separator.x = x
+			separator.height = (opt.rowHeight*5) + (opt.borderPadding*2)
 		else
-			separator = display.newImageRect( self, imageSheet, opt.separatorFrame, opt.separatorFrameWidth, opt.backgroundFrameHeight )
-			separator.x = x
+			separator.height = 222
 		end
+		separator.x = x
 		return separator
 	end
 
@@ -249,9 +267,9 @@ local function createPickerWheel( pickerWheel, options )
 	end
 
 	-- Create the pickerWheel columns (which are tableViews)
-	local topPadding = 91  --84 ; 84 was illogical; 91 is 80+11 (height of 2 default rows + default edge padding)
-	local bottomPadding = 91  --96 ; 96 was illogical; 91 is 80+11 (height of 2 default rows + default edge padding)
-	local initialPos = -140  --default width of picker is 280, so this makes sense to start first column at 280/2
+	local topPadding = 91
+	local bottomPadding = 91
+	local initialPos = -140  -- Default width of picker is 280, so start first column at -280/2
 
 	if opt.resizable == true then
 		topPadding = opt.rowHeight * 2
@@ -261,6 +279,30 @@ local function createPickerWheel( pickerWheel, options )
 	if isGraphicsV1 then
 		topPadding = 90
 		bottomPadding = pickerWheel.contentHeight - 20 - pickerWheel.contentHeight * 0.5 -- 20 is half a row height
+	end
+
+	-- Pre-check column width settings and issue warnings
+	local totalColumnWidth = 0
+	for i = 1, #opt.columnData do
+		if opt.columnData[i].width then
+			if not tonumber(opt.columnData[i].width) then
+				print( "WARNING: " .. M._widgetName .. " - 'width' parameter for column " .. i .. " should be a number; using 80 instead" )
+				opt.columnData[i].width = 80
+			elseif opt.columnData[i].width < 0 then
+				print( "WARNING: " .. M._widgetName .. " - 'width' parameter for column " .. i .. " should be a positive number; using 80 instead" )
+				opt.columnData[i].width = 80
+			end
+			totalColumnWidth = totalColumnWidth + opt.columnData[i].width
+		end
+	end
+	if opt.resizable == true then
+		if totalColumnWidth > availableWidth then
+			print( "WARNING: " .. M._widgetName .. " - total width for all columns (" .. tostring(totalColumnWidth) .. ") exceeds the defined overall widget 'width' of " .. tostring(availableWidth) .. "; bleeding may occur, so the total width of all columns should not exceed " .. tostring(availableWidth) )
+		end
+	else
+		if totalColumnWidth > 280 then
+			print( "WARNING: " .. M._widgetName .. " - total width for all columns (" .. tostring(totalColumnWidth) .. ") exceeds the recommended limit of 280; bleeding may occur, so the total width of all columns should not exceed 280" )
+		end
 	end
 
 	for i = 1, #opt.columnData do
@@ -274,7 +316,7 @@ local function createPickerWheel( pickerWheel, options )
 		end
 
 		local colTop = -111
-		local colHeight = opt.overlayFrameHeight
+		local colHeight = 222
 		if opt.resizable == true then
 			colTop = (-opt.rowHeight*3) + (opt.rowHeight*0.5)
 			colHeight = opt.rowHeight*5
@@ -339,13 +381,95 @@ local function createPickerWheel( pickerWheel, options )
 		viewColumns[i]:scrollToIndex( opt.columnData[i].startIndex, 0 )
 	end
 
+	-- Resizable skin foundation
+	if opt.resizable == true then
+		if opt.middleSpanTopFrame then
+			local middleSpanTop = display.newSprite( view, imageSheet, { name="middleSpanTop", start=opt.middleSpanTopFrame, count=1 } )
+			middleSpanTop.width = viewBackground.contentWidth + (opt.borderPadding*2)
+			middleSpanTop.x = viewBackground.x
+			middleSpanTop.anchorY = 0
+			middleSpanTop.y = viewBackground.y - (opt.rowHeight*0.5) - opt.middleSpanOffset
+		end
+		if opt.middleSpanBottomFrame then
+			local middleSpanBottom = display.newSprite( view, imageSheet, { name="middleSpanBottom", start=opt.middleSpanBottomFrame, count=1 } )
+			middleSpanBottom.width = viewBackground.contentWidth + (opt.borderPadding*2)
+			middleSpanBottom.x = viewBackground.x
+			middleSpanBottom.anchorY = 1
+			middleSpanBottom.y = viewBackground.y + (opt.rowHeight*0.5) + opt.middleSpanOffset
+		end
+		if opt.topFadeFrame then
+			local topFade = display.newSprite( view, imageSheet, { name="topFade", start=opt.topFadeFrame, count=1 } )
+			topFade.width = viewBackground.contentWidth + (opt.borderPadding*2)
+			if ( ( _widget.isHolo() or _widget.isSeven() ) and viewBackground.height < 200 ) then
+				topFade.height = (viewBackground.height/200) * topFade.contentHeight
+			end
+			topFade.x = viewBackground.x
+			topFade.anchorY = 0
+			topFade.y = viewBackground.contentBounds.yMin - opt.borderPadding
+		end
+		if opt.bottomFadeFrame then
+			local bottomFade = display.newSprite( view, imageSheet, { name="bottomFade", start=opt.bottomFadeFrame, count=1 } )
+			bottomFade.width = viewBackground.contentWidth + (opt.borderPadding*2)
+			if ( ( _widget.isHolo() or _widget.isSeven() ) and viewBackground.height < 200 ) then
+				bottomFade.height = (viewBackground.height/200) * bottomFade.contentHeight
+			end
+			bottomFade.x = viewBackground.x
+			bottomFade.anchorY = 1
+			bottomFade.y = viewBackground.contentBounds.yMax + opt.borderPadding
+		end
+	end
+
 	-- Create the column separators
-	if ( opt.separatorFrame and opt.separatorFrameWidth and opt.separatorFrameHeight and not _widget.isHolo() ) then
+	if opt.separatorFrame then
 		for i = 1, #opt.columnData - 1 do
 			view:_createSeparator( viewColumns[i].x + viewColumns[i]._view._width * 0.5 )
 		end
 	end
-	
+
+	-- Resizable skin frame
+	if ( opt.resizable == true and opt.sheet and opt.topLeftFrame and opt.topRightFrame and opt.bottomLeftFrame and opt.bottomRightFrame and opt.topMiddleFrame and opt.middleLeftFrame and opt.middleRightFrame and opt.bottomMiddleFrame ) then
+		local topLeft = display.newSprite( view, imageSheet, { name="topLeft", start=opt.topLeftFrame, count=1 } )
+		topLeft.anchorX = 0
+		topLeft.anchorY = 0
+		topLeft.x = viewBackground.contentBounds.xMin - opt.borderPadding
+		topLeft.y = viewBackground.contentBounds.yMin - opt.borderPadding
+		local topRight = display.newSprite( view, imageSheet, { name="topRight", start=opt.topRightFrame, count=1 } )
+		topRight.anchorX = 1
+		topRight.anchorY = 0
+		topRight.x = viewBackground.contentBounds.xMax + opt.borderPadding
+		topRight.y = viewBackground.contentBounds.yMin - opt.borderPadding
+		local bottomLeft = display.newSprite( view, imageSheet, { name="bottomLeft", start=opt.bottomLeftFrame, count=1 } )
+		bottomLeft.anchorX = 0
+		bottomLeft.anchorY = 1
+		bottomLeft.x = viewBackground.contentBounds.xMin - opt.borderPadding
+		bottomLeft.y = viewBackground.contentBounds.yMax + opt.borderPadding
+		local bottomRight = display.newSprite( view, imageSheet, { name="bottomRight", start=opt.bottomRightFrame, count=1 } )
+		bottomRight.anchorX = 1
+		bottomRight.anchorY = 1
+		bottomRight.x = viewBackground.contentBounds.xMax + opt.borderPadding
+		bottomRight.y = viewBackground.contentBounds.yMax + opt.borderPadding
+		local topMiddle = display.newSprite( view, imageSheet, { name="topMiddle", start=opt.topMiddleFrame, count=1 } )
+		topMiddle.width = opt.width - ( topLeft.contentWidth + topRight.contentWidth ) + (opt.borderPadding*2)
+		topMiddle.anchorY = 0
+		topMiddle.x = viewBackground.x
+		topMiddle.y = viewBackground.contentBounds.yMin - opt.borderPadding
+		local middleLeft = display.newSprite( view, imageSheet, { name="middleLeft", start=opt.middleLeftFrame, count=1 } )
+		middleLeft.height = (opt.rowHeight*5) - ( topLeft.contentHeight + bottomLeft.contentHeight ) + (opt.borderPadding*2)
+		middleLeft.anchorX = 0
+		middleLeft.x = viewBackground.contentBounds.xMin - opt.borderPadding
+		middleLeft.y = viewBackground.y
+		local middleRight = display.newSprite( view, imageSheet, { name="middleRight", start=opt.middleRightFrame, count=1 } )
+		middleRight.height = (opt.rowHeight*5) - ( topRight.contentHeight + bottomRight.contentHeight ) + (opt.borderPadding*2)
+		middleRight.anchorX = 1
+		middleRight.x = viewBackground.contentBounds.xMax + opt.borderPadding
+		middleRight.y = viewBackground.y
+		local bottomMiddle = display.newSprite( view, imageSheet, { name="bottomMiddle", start=opt.bottomMiddleFrame, count=1 } )
+		bottomMiddle.width = opt.width - ( bottomLeft.contentWidth + bottomRight.contentWidth ) + (opt.borderPadding*2)
+		bottomMiddle.anchorY = 1
+		bottomMiddle.x = viewBackground.x
+		bottomMiddle.y = viewBackground.contentBounds.yMax + opt.borderPadding
+	end
+
 	-- Push the view's background to the front.
 	viewOverlay:toFront()
 	
@@ -558,7 +682,7 @@ function M.new( options, theme )
 		opt.resizable = true
 		-- Confirm picker width is specified for resizable pickers
 		if not tonumber(customOptions.width) then
-			print( "WARNING: " .. M._widgetName .. " 'width' parameter should be specified for resizable style; using 320 instead" )
+			print( "WARNING: " .. M._widgetName .. " - for resizable construction, 'width' parameter must be specified as a positive integer; using default instead (320)" )
 			opt.width = 320
 		else
 			opt.width = math.abs(customOptions.width)
@@ -572,6 +696,11 @@ function M.new( options, theme )
 		opt.fontSize = customOptions.fontSize or themeOptions.fontSize or 20
 	end
 
+	-- Frames & images
+	opt.sheet = customOptions.sheet
+	opt.themeSheetFile = themeOptions.sheet
+	opt.themeData = themeOptions.data
+
 	-- Set row height
 	opt.rowHeight = 40
 	if ( opt.resizable == true ) then
@@ -579,32 +708,59 @@ function M.new( options, theme )
 			opt.rowHeight = math.abs(customOptions.rowHeight)
 			if ( opt.rowHeight % 1 ~= 0 ) then
 				opt.rowHeight = math.round(opt.rowHeight)
-				print( "WARNING: " .. M._widgetName .. " 'rowHeight' parameter was rounded to the nearest positive integer (" .. opt.rowHeight .. ")" )
+				print( "WARNING: " .. M._widgetName .. " - for resizable construction, 'rowHeight' parameter must be a positive integer; using " .. opt.rowHeight .. " instead" )
 			end
 		else
-			print( "WARNING: " .. M._widgetName .. " 'rowHeight' parameter must be a positive integer; using default instead (" .. opt.rowHeight .. ")" )
+			print( "WARNING: " .. M._widgetName .. " - for resizable construction, 'rowHeight' parameter must be specified as a positive integer; using default instead (" .. opt.rowHeight .. ")" )
+		end
+		opt.borderPadding = 0
+		if ( customOptions.borderPadding and opt.sheet ) then
+			if not tonumber(customOptions.borderPadding) then
+				print( "WARNING: " .. M._widgetName .. " - for resizable construction, 'borderPadding' parameter must be a number; using 0 instead" )
+			elseif customOptions.borderPadding < 0 then
+				print( "WARNING: " .. M._widgetName .. " - for resizable construction, 'borderPadding' parameter must be a positive number; using 0 instead" )
+			else
+				opt.borderPadding = customOptions.borderPadding
+			end
 		end
 	end
 
 	opt.columnData = customOptions.columns
 
-	-- Frames & images
-	opt.sheet = customOptions.sheet
-	opt.themeSheetFile = themeOptions.sheet
-	opt.themeData = themeOptions.data
-	
-	opt.backgroundFrame = customOptions.backgroundFrame or _widget._getFrameIndex( themeOptions, themeOptions.backgroundFrame )
-	opt.backgroundFrameWidth = customOptions.backgroundFrameWidth or themeOptions.backgroundFrameWidth
-	opt.backgroundFrameHeight = customOptions.backgroundFrameHeight or themeOptions.backgroundFrameHeight
-	
-	opt.overlayFrame = customOptions.overlayFrame or _widget._getFrameIndex( themeOptions, themeOptions.overlayFrame )
-	opt.overlayFrameWidth = customOptions.overlayFrameWidth or themeOptions.overlayFrameWidth
-	opt.overlayFrameHeight = customOptions.overlayFrameHeight or themeOptions.overlayFrameHeight
-	
-	opt.separatorFrame = customOptions.separatorFrame or _widget._getFrameIndex( themeOptions, themeOptions.separatorFrame ) or _widget._getFrameIndex( themeOptions, themeOptions.seperatorFrame ) or nil
-	opt.separatorFrameWidth = customOptions.separatorFrameWidth or themeOptions.separatorFrameWidth or themeOptions.seperatorFrameWidth or nil
-	opt.separatorFrameHeight = customOptions.separatorFrameHeight or themeOptions.separatorFrameHeight or themeOptions.seperatorFrameHeight or nil
-	
+	-- Default picker
+	opt.backgroundFrame = customOptions.backgroundFrame or nil
+	opt.overlayFrame = customOptions.overlayFrame or nil
+	opt.separatorFrame = customOptions.separatorFrame or customOptions.seperatorFrame or nil
+	-- If custom sheet is not defined, fall back to using frames from theme
+	if not opt.sheet then
+		opt.backgroundFrame = _widget._getFrameIndex( themeOptions, themeOptions.backgroundFrame )
+		opt.overlayFrame = _widget._getFrameIndex( themeOptions, themeOptions.overlayFrame )
+		opt.separatorFrame = _widget._getFrameIndex( themeOptions, themeOptions.separatorFrame ) or _widget._getFrameIndex( themeOptions, themeOptions.seperatorFrame )
+	end
+	-- Resizable picker
+	if opt.resizable == true then
+		opt.topLeftFrame = customOptions.topLeftFrame or nil
+		opt.topMiddleFrame = customOptions.topMiddleFrame or nil
+		opt.topRightFrame = customOptions.topRightFrame or nil
+		opt.middleLeftFrame = customOptions.middleLeftFrame or nil
+		opt.middleRightFrame = customOptions.middleRightFrame or nil
+		opt.bottomLeftFrame = customOptions.bottomLeftFrame or nil
+		opt.bottomMiddleFrame = customOptions.bottomMiddleFrame or nil
+		opt.bottomRightFrame = customOptions.bottomRightFrame or nil
+		opt.topFadeFrame = customOptions.topFadeFrame or nil
+		opt.bottomFadeFrame = customOptions.bottomFadeFrame or nil
+		opt.middleSpanTopFrame = customOptions.middleSpanTopFrame or nil
+		opt.middleSpanBottomFrame = customOptions.middleSpanBottomFrame or nil
+		-- If custom sheet is not defined, fall back to using frames from theme
+		if not opt.sheet then
+			opt.topFadeFrame = _widget._getFrameIndex( themeOptions, themeOptions.topFadeFrame )
+			opt.bottomFadeFrame = _widget._getFrameIndex( themeOptions, themeOptions.bottomFadeFrame )
+			opt.middleSpanTopFrame = _widget._getFrameIndex( themeOptions, themeOptions.middleSpanTopFrame )
+			opt.middleSpanBottomFrame = _widget._getFrameIndex( themeOptions, themeOptions.middleSpanBottomFrame )
+		end
+		opt.middleSpanOffset = customOptions.middleSpanOffset or themeOptions.middleSpanOffset or 0
+	end
+
 	-------------------------------------------------------
 	-- Create the pickerWheel
 	-------------------------------------------------------

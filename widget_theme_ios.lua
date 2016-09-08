@@ -110,8 +110,8 @@ theme.pickerWheel =
 	overlayFrameWidth = 320,
 	overlayFrameHeight = 222,
 	seperatorFrame = "picker_separator",
-	seperatorFrameWidth = 2,
-	seperatorFrameHeight = 8,
+	seperatorFrameWidth = 8,
+	seperatorFrameHeight = 1,
 	maskFile = "widget_theme_pickerWheel_mask.png",
 }
 

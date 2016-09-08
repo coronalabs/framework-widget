@@ -526,6 +526,22 @@ SheetInfo.sheet =
             height=40,
 
         },
+		{
+            -- picker_topFade
+            x=20,
+            y=3,
+            width=40,
+            height=60,
+
+        },
+		{
+            -- picker_bottomFade
+            x=20,
+            y=165,
+            width=40,
+            height=60,
+
+        },
     },
     
     sheetContentWidth = 480,
@@ -599,6 +615,8 @@ SheetInfo.frameIndex =
     ["tabBar_tabSelectedLeft"] = 62,
     ["tabBar_tabSelectedMiddle"] = 63,
     ["tabBar_tabSelectedRight"] = 64,
+	["picker_topFade"] = 65,
+	["picker_bottomFade"] = 66,
 }
 
 function SheetInfo:getSheet()
