@@ -368,7 +368,7 @@ SheetInfo.sheet =
         },
         {
             -- slider_bottomFrameVertical
-            x=407,
+            x=401,
             y=212,
             width=2,
             height=2,
@@ -400,7 +400,7 @@ SheetInfo.sheet =
         },
         {
             -- slider_leftFrame
-            x=395,
+            x=401,
             y=212,
             width=2,
             height=2,
@@ -408,7 +408,7 @@ SheetInfo.sheet =
         },
         {
             -- slider_rightFrame
-            x=389,
+            x=413,
             y=212,
             width=2,
             height=2,
@@ -416,8 +416,8 @@ SheetInfo.sheet =
         },
         {
             -- slider_topFrameVertical
-            x=479,
-            y=108,
+            x=413,
+            y=212,
             width=2,
             height=2,
 
