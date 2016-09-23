@@ -42,8 +42,9 @@ function scene:create( event )
 	local backButtonPosition = 5
 	local backButtonSize = 34
 	
-	widget.setTheme( "widget_theme_android_holo_dark" )
-	
+	--widget.setTheme( "widget_theme_android_holo_dark" )
+	background:setFillColor(0)
+
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
 	    id = "returnToListing",
@@ -60,65 +61,73 @@ function scene:create( event )
 	--										START OF UNIT TEST
 	----------------------------------------------------------------------------------------------------------------
 	
-	local days = {}
-	local years = {}
-	
-	for i = 1, 31 do
-		days[i] = i
-	end
-	
-	for i = 1, 44 do
-		years[i] = 1969 + i
-	end
-	
 	-- Set up the Picker Wheel's columns
+
 	local columnData = 
 	{ 
 		{ 
 			align = "left",
-			width = 100,
-			--labelPadding = 20,  --NEW (default is 6)
+			width = 124,
+			labelPadding = 20,  --NEW (default is 6)
+			startIndex = 2,
+			labels = { "Hoodie", "Short Sleeve", "Long Sleeve", "Sweatshirt" }
+		},
+		{
+			align = "left",
+			width = 96,
+			labelPadding = 10,
 			startIndex = 1,
-			labels = 
-			{
-				"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-			},
+			labels = { "Dark Grey", "White", "Black", "Orange" }
 		},
 		{
-			align = "center",
+			align = "left",
 			width = 60,
-			startIndex = 18,
-			labels = days,
-		},
-		{
-			align = "right",
-			width = 60,
-			--labelPadding = 0,  --NEW (default is 6)
-			startIndex = 10,
-			labels = years,
+			labelPadding = 10,
+			startIndex = 3,
+			labels = { "S", "M", "L", "XL", "XXL" }
 		},
 	}
 
-	local function valueSelected( event )
-		print( "onValueSelected() called" )
-		print( "------------------------" )
-		for k,v in pairs(event) do
-			print(k,v)
-		end
-		print( "--------------" )
+	-- Function to be called when user selects an option
+	local function valueSelectedFixed( event )
+		print( "valueSelectedFixed() function called" )
+		print( "-------------------------------" )
+		print( "Column: " .. event["column"] )
+		print( "Row: " .. event["row"] )
+	end
+	local function valueSelectedResizable( event )
+		print( "valueSelectedResizable() function called" )
+		print( "-------------------------------" )
+		print( "Column: " .. event["column"] )
+		print( "Row: " .. event["row"] )
 	end
 
-
-
-	-- Default picker wheel
-	local pickerWheel = widget.newPickerWheel
-	{
-		top = display.contentHeight - 436,
-		left = 0,
-		columns = columnData,
-		--columnColor = { 0.8 },
-		onValueSelected = valueSelected  --NEW
+	-- Fixed-size picker wheel
+	local options = {
+		frames =
+		{
+			{ x=0, y=0, width=320, height=222 },
+			{ x=328, y=0, width=320, height=222 },
+			{ x=656, y=0, width=12, height=222 }
+		},
+		sheetContentWidth = 668,
+		sheetContentHeight = 222
 	}
+	local pickerWheelSheetFixed = graphics.newImageSheet( "unitTestAssets/pickerwheel-fixed.png", options )
+
+	local pickerWheel = widget.newPickerWheel(
+	{
+		x = display.contentCenterX,
+		top = 0,
+		fontSize = 18,
+		columns = columnData,
+		onValueSelected = valueSelectedFixed,  --NEW
+		sheet = pickerWheelSheetFixed,
+		overlayFrame = 1,
+		backgroundFrame = 2,
+		separatorFrame = 3,
+		listener = testF
+	})
 	group:insert( pickerWheel )
 
 	--[[local testRectA1 = display.newRect( group,display.contentCenterX,pickerWheel.y,400,40 )
@@ -152,45 +161,42 @@ function scene:create( event )
 
 
 	-- Resizable picker wheel
-	local rowHeight = 26
+	local rowHeight = 32
 
-	local options = {
+	local options2 = {
 		frames =
 		{
-			{ x=0, y=0, width=16, height=16 },  --topLeft
-			{ x=16, y=0, width=16, height=16 },  --topMiddle
-			{ x=304, y=0, width=16, height=16 },  --topRight (adjust x later!)
-			{ x=0, y=16, width=16, height=16 },  --middleLeft
-			{ x=304, y=16, width=16, height=16 },  --middleRight (adjust x later!)
-			{ x=0, y=206, width=16, height=16 },  --bottomLeft (adjust y later!)
-			{ x=16, y=206, width=16, height=16 },  --bottomMiddle (adjust y later!)
-			{ x=304, y=206, width=16, height=16 },  --bottomRight (adjust x/y later!)
-			{ x=20, y=16, width=20, height=34 },  --topFade
-			{ x=20, y=172, width=20, height=34 },  --bottomFade
-			{ x=20, y=89, width=20, height=22 },  --middleSpanTop
-			{ x=20, y=111, width=20, height=22 },  --middleSpanBottom
-			{ x=328, y=8, width=16, height=16 },  --background
-			{ x=642, y=16, width=4, height=16 },  --separator
-			{ x=0, y=0, width=320, height=222 },  --overlay (not used for resizable, only for testing here)
+			{ x=0, y=0, width=20, height=20 },  --topLeft
+			{ x=20, y=0, width=120, height=20 },  --topMiddle
+			{ x=140, y=0, width=20, height=20 },  --topRight
+			{ x=0, y=20, width=20, height=120 },  --middleLeft
+			{ x=140, y=20, width=20, height=120 },  --middleRight (adjust x later!)
+			{ x=0, y=140, width=20, height=20 },  --bottomLeft (adjust y later!)
+			{ x=20, y=140, width=120, height=20 },  --bottomMiddle (adjust y later!)
+			{ x=140, y=140, width=20, height=20 },  --bottomRight (adjust x/y later!)
+			{ x=180, y=0, width=32, height=80 },  --topFade
+			{ x=224, y=0, width=32, height=80 },  --bottomFade
+			{ x=276, y=0, width=32, height=20 },  --middleSpanTop
+			{ x=276, y=60, width=32, height=20 },  --middleSpanBottom
+			{ x=276, y=100, width=12, height=32 }  --separator
 		},
-		sheetContentWidth = 648,
-		sheetContentHeight = 222
+		sheetContentWidth = 312,
+		sheetContentHeight = 160
 	}
-	local pickerWheelSheet = graphics.newImageSheet( "unitTestAssets/pickerSheet.png", options )
+	local pickerWheelSheetResizable = graphics.newImageSheet( "unitTestAssets/pickerwheel-resizable.png", options2 )
 
 	local resizablePickerWheel = widget.newPickerWheel
 	{
-		top = pickerWheel.contentBounds.yMax+45,
-		left = 20,
+		x = display.contentCenterX,
+		top = pickerWheel.contentBounds.yMax+40,
 		columns = columnData,
-		columnColor = { 0.8 },
-		fontSize = 12,
+		fontSize = 14,
 		style = "resizable",  --NEW (optional)
-		width = 250,  --NEW (REQUIRED for resizable!)
+		width = 280,  --NEW (REQUIRED for resizable!)
 		rowHeight = rowHeight,  --NEW (REQUIRED for resizable!)
-		onValueSelected = valueSelected,  --NEW
-		sheet = pickerWheelSheet,
-		borderPadding = 16,  --NEW (optional)
+		onValueSelected = valueSelectedResizable,  --NEW
+		sheet = pickerWheelSheetResizable,
+		borderPadding = 8,  --NEW (optional)
 		topLeftFrame = 1,  --NEW (optional)
 		topMiddleFrame = 2,  --NEW (optional)
 		topRightFrame = 3,  --NEW (optional)
@@ -203,10 +209,8 @@ function scene:create( event )
 		bottomFadeFrame = 10,  --NEW (optional)
 		middleSpanTopFrame = 11,  --NEW (optional)
 		middleSpanBottomFrame = 12,  --NEW (optional)
-		backgroundFrame = 13,  --(optional)
-		overlayFrame = 15,  --(optional)
-		separatorFrame = 14,  --(optional)
-		middleSpanOffset = 2  --NEW (optional)
+		separatorFrame = 13,  --(optional)
+		middleSpanOffset = 4  --NEW (optional)
 	}
 	group:insert( resizablePickerWheel )
 
@@ -241,9 +245,9 @@ function scene:create( event )
 
 
 	--NEW :selectValue( targetColumn(INT), targetIndex(INT), snapToIndex(BOOL) )
-	--timer.performWithDelay( 2000, function() resizablePickerWheel:selectValue( 1, 5 ); end )
-	--timer.performWithDelay( 4000, function() resizablePickerWheel:selectValue( 1, 12 ); end )
-	--timer.performWithDelay( 6000, function() resizablePickerWheel:selectValue( 1, 1 ); end )
+	timer.performWithDelay( 2000, function() resizablePickerWheel:selectValue( 1, 3 ); end )
+	timer.performWithDelay( 4000, function() resizablePickerWheel:selectValue( 1, 4 ); end )
+	timer.performWithDelay( 6000, function() resizablePickerWheel:selectValue( 1, 1 ); end )
 end
 
 function scene:hide( event )

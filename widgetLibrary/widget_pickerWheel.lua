@@ -237,7 +237,7 @@ local function createPickerWheel( pickerWheel, options )
 	function view:_createSeparator( x )
 		local separator = display.newSprite( self, imageSheet, { name="separator", start=opt.separatorFrame, count=1 } )
 		if opt.resizable == true then
-			separator.height = (opt.rowHeight*5) + (opt.borderPadding*2)
+			separator.height = (opt.rowHeight*5)
 		else
 			separator.height = 222
 		end
@@ -261,8 +261,8 @@ local function createPickerWheel( pickerWheel, options )
 			view._forceScrollRow = nil
 		end
 		-- If select value function is defined, call it
-		if ( opt.onValueSelected and "function" == type(opt.onValueSelected) ) then
-			opt.onValueSelected{ column = row.id, row = row.index }
+		if ( pickerWheel.onValueSelected and "function" == type(pickerWheel.onValueSelected) ) then
+			pickerWheel.onValueSelected{ column = row.id, row = row.index }
 		end
 	end
 
@@ -340,7 +340,7 @@ local function createPickerWheel( pickerWheel, options )
 			listener = nil,
 			onRowTouch = didTapValue
 		}
-		viewColumns[i]._view._onValueSelected = opt.onValueSelected
+		viewColumns[i]._view._onValueSelected = pickerWheel.onValueSelected
 		viewColumns[i]._view._isUsedInPickerWheel = true
 		viewColumns[i]._view._inUserControl = false
 
@@ -385,37 +385,37 @@ local function createPickerWheel( pickerWheel, options )
 	if opt.resizable == true then
 		if opt.middleSpanTopFrame then
 			local middleSpanTop = display.newSprite( view, imageSheet, { name="middleSpanTop", start=opt.middleSpanTopFrame, count=1 } )
-			middleSpanTop.width = viewBackground.contentWidth + (opt.borderPadding*2)
+			middleSpanTop.width = viewBackground.contentWidth
 			middleSpanTop.x = viewBackground.x
 			middleSpanTop.anchorY = 0
 			middleSpanTop.y = viewBackground.y - (opt.rowHeight*0.5) - opt.middleSpanOffset
 		end
 		if opt.middleSpanBottomFrame then
 			local middleSpanBottom = display.newSprite( view, imageSheet, { name="middleSpanBottom", start=opt.middleSpanBottomFrame, count=1 } )
-			middleSpanBottom.width = viewBackground.contentWidth + (opt.borderPadding*2)
+			middleSpanBottom.width = viewBackground.contentWidth
 			middleSpanBottom.x = viewBackground.x
 			middleSpanBottom.anchorY = 1
 			middleSpanBottom.y = viewBackground.y + (opt.rowHeight*0.5) + opt.middleSpanOffset
 		end
 		if opt.topFadeFrame then
 			local topFade = display.newSprite( view, imageSheet, { name="topFade", start=opt.topFadeFrame, count=1 } )
-			topFade.width = viewBackground.contentWidth + (opt.borderPadding*2)
+			topFade.width = viewBackground.contentWidth
 			if ( ( _widget.isHolo() or _widget.isSeven() ) and viewBackground.height < 200 ) then
 				topFade.height = (viewBackground.height/200) * topFade.contentHeight
 			end
 			topFade.x = viewBackground.x
 			topFade.anchorY = 0
-			topFade.y = viewBackground.contentBounds.yMin - opt.borderPadding
+			topFade.y = viewBackground.contentBounds.yMin
 		end
 		if opt.bottomFadeFrame then
 			local bottomFade = display.newSprite( view, imageSheet, { name="bottomFade", start=opt.bottomFadeFrame, count=1 } )
-			bottomFade.width = viewBackground.contentWidth + (opt.borderPadding*2)
+			bottomFade.width = viewBackground.contentWidth
 			if ( ( _widget.isHolo() or _widget.isSeven() ) and viewBackground.height < 200 ) then
 				bottomFade.height = (viewBackground.height/200) * bottomFade.contentHeight
 			end
 			bottomFade.x = viewBackground.x
 			bottomFade.anchorY = 1
-			bottomFade.y = viewBackground.contentBounds.yMax + opt.borderPadding
+			bottomFade.y = viewBackground.contentBounds.yMax
 		end
 	end
 
@@ -533,6 +533,13 @@ local function createPickerWheel( pickerWheel, options )
 		self._view._forceScrollRow = targetIndex
 		self._view._columns[targetColumn]:reloadData()
 		self._view._columns[targetColumn]:scrollToIndex( targetIndex, time )
+
+		-- If select value function is defined, call it
+		if ( self.onValueSelected and "function" == type(self.onValueSelected) ) then
+			if targetColumn and targetIndex then
+				self.onValueSelected{ column = targetColumn, row = targetIndex }
+			end
+		end
 	end
 
 	----------------------------------------------------------
@@ -584,8 +591,8 @@ local function createPickerWheel( pickerWheel, options )
 							}
 						end
 						-- If select value function is defined, call it
-						if ( opt.onValueSelected and "function" == type(opt.onValueSelected) ) then
-							opt.onValueSelected{ column = i, row = self._columns[i]._values.index }
+						if ( pickerWheel.onValueSelected and "function" == type(pickerWheel.onValueSelected) ) then
+							pickerWheel.onValueSelected{ column = i, row = self._columns[i]._values.index }
 						end
 					end
 					self._columns[i]:reloadData()
@@ -773,6 +780,7 @@ function M.new( options, theme )
 		id = opt.id or "widget_pickerWheel",
 		baseDir = opt.baseDir,
 	}
+	pickerWheel.onValueSelected = opt.onValueSelected
 
 	-- Create the pickerWheel
 	createPickerWheel( pickerWheel, opt )

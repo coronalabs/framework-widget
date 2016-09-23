@@ -389,7 +389,7 @@ local function createTableView( tableView, options )
 			self._timeHeld = event.time
 			
 			-- Set the initial touch
-			if not self._initalTouch then
+			if not self._initialTouch then
 				self._initialTouch = true
 				self._inUserControl = true
 				-- If there is a transition underway, cancel it on initial touch
@@ -512,7 +512,7 @@ local function createTableView( tableView, options )
 				local yDistance = mAbs( yEnd - yStart )
 
 				-- Horizontal Swipes
-				if xDistance > yDistance then
+				if xDistance > yDistance and not self._isUsedInPickerWheel then
 					if xStart > xEnd then
 						if ( xStart - xEnd ) > minSwipeDistance then
 							local newEvent =
