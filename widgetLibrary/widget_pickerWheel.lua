@@ -42,6 +42,10 @@ local labelColor = { 0.60 }
 local defaultRowColor = { 1 }
 local blackColor = { 0 }
 
+-- Set constants
+local kDEFAULT_WIDGET_WIDTH = 320
+local kDEFAULT_WIDGET_HEIGHT = 222
+
 if isByteColorRange then
 	_widget._convertColorToV1( labelColor )
 	_widget._convertColorToV1( defaultRowColor )
@@ -76,13 +80,14 @@ local function createPickerWheel( pickerWheel, options )
 
 	if opt.resizable == true then
 		-- For resizable pickers, begin with an invisible vector rectangle for sizing
+		-- Rectangle height is opt.rowHeight*5 (plus border padding) because pickers inherently use 5 rows to display choices
 		viewOverlay = display.newRect( pickerWheel, 0, 0, opt.width + (opt.borderPadding*2), (opt.rowHeight*5) + (opt.borderPadding*2) )
 		viewOverlay.isVisible = false
 	else
 		if opt.overlayFrame then
-			viewOverlay = display.newImageRect( pickerWheel, imageSheet, opt.overlayFrame, 320, 222 )
+			viewOverlay = display.newImageRect( pickerWheel, imageSheet, opt.overlayFrame, kDEFAULT_WIDGET_WIDTH, kDEFAULT_WIDGET_HEIGHT )
 		else
-			viewOverlay = display.newRect( pickerWheel, 0, 0, 320, 222 )
+			viewOverlay = display.newRect( pickerWheel, 0, 0, kDEFAULT_WIDGET_WIDTH, kDEFAULT_WIDGET_HEIGHT )
 			viewOverlay.isVisible = false
 		end
 	end
@@ -102,11 +107,11 @@ local function createPickerWheel( pickerWheel, options )
 	
 	if opt.resizable == true then
 		view._width = opt.width
-		view._height = opt.rowHeight*5
+		view._height = opt.rowHeight*5  -- Height is opt.rowHeight*5 because pickers inherently use 5 rows to display choices
 		view._yPosition = pickerWheel.y + ( (opt.rowHeight*5) * 0.5 )
 	else
-		view._width = 320
-		view._height = 222
+		view._width = kDEFAULT_WIDGET_WIDTH
+		view._height = kDEFAULT_WIDGET_HEIGHT
 		view._yPosition = pickerWheel.y + ( view._height * 0.5 )
 	end
 
@@ -213,8 +218,8 @@ local function createPickerWheel( pickerWheel, options )
 	end
 
 	-- Create a background to sit behind the pickerWheel
-	
 	if opt.resizable == true then
+		-- Height is opt.rowHeight*5 because pickers inherently use 5 rows to display choices
 		if opt.backgroundFrame then
 			viewBackground = display.newImageRect( view, imageSheet, opt.backgroundFrame, opt.width, opt.rowHeight*5 )
 		else
@@ -223,9 +228,9 @@ local function createPickerWheel( pickerWheel, options )
 		end
 	else
 		if opt.backgroundFrame then
-			viewBackground = display.newImageRect( view, imageSheet, opt.backgroundFrame, 320, 222 )
+			viewBackground = display.newImageRect( view, imageSheet, opt.backgroundFrame, kDEFAULT_WIDGET_WIDTH, kDEFAULT_WIDGET_HEIGHT )
 		else
-			viewBackground = display.newRect( view, 0, 0, 320, 222 )
+			viewBackground = display.newRect( view, 0, 0, kDEFAULT_WIDGET_WIDTH, kDEFAULT_WIDGET_HEIGHT )
 			viewBackground.isVisible = false
 		end
 	end
@@ -237,9 +242,10 @@ local function createPickerWheel( pickerWheel, options )
 	function view:_createSeparator( x )
 		local separator = display.newSprite( self, imageSheet, { name="separator", start=opt.separatorFrame, count=1 } )
 		if opt.resizable == true then
+			-- Height is opt.rowHeight*5 because pickers inherently use 5 rows to display choices
 			separator.height = (opt.rowHeight*5)
 		else
-			separator.height = 222
+			separator.height = kDEFAULT_WIDGET_HEIGHT
 		end
 		separator.x = x
 		return separator
@@ -267,11 +273,17 @@ local function createPickerWheel( pickerWheel, options )
 	end
 
 	-- Create the pickerWheel columns (which are tableViews)
+	-- Padding values for default (non-resizable) pickers come from the following considerations:
+	-- Rows are 40 in height and we need 2 full rows of padding at the top and bottom of the tableView widget: 40 * 2 = 80.
+	-- In addition, there are 22 extra pixels in the overall picker height: 222 (default height) - 200 (5 rows * 40) = 22.
+	-- Divide extra pixels (22) by 2, then add to top or bottom padding: (22/2) + 80 = 91.
 	local topPadding = 91
 	local bottomPadding = 91
 	local initialPos = -140  -- Default width of picker is 280, so start first column at -280/2
 
 	if opt.resizable == true then
+		-- For resizable pickers, formula is much easier:
+		-- There is no extra padding to deal with, so just add 2 full rows of padding at the top and bottom of the tableView widget.
 		topPadding = opt.rowHeight * 2
 		bottomPadding = opt.rowHeight * 2
 		initialPos = - view._width * 0.5
@@ -315,8 +327,8 @@ local function createPickerWheel( pickerWheel, options )
 			--initialPos = math.ceil( ( availableWidth * 0.5 ) - columnWidth )
 		end
 
-		local colTop = -111
-		local colHeight = 222
+		local colTop = kDEFAULT_WIDGET_HEIGHT * -0.5
+		local colHeight = kDEFAULT_WIDGET_HEIGHT
 		if opt.resizable == true then
 			colTop = (-opt.rowHeight*3) + (opt.rowHeight*0.5)
 			colHeight = opt.rowHeight*5
@@ -387,6 +399,7 @@ local function createPickerWheel( pickerWheel, options )
 			local middleSpanTop = display.newSprite( view, imageSheet, { name="middleSpanTop", start=opt.middleSpanTopFrame, count=1 } )
 			middleSpanTop.width = viewBackground.contentWidth
 			middleSpanTop.x = viewBackground.x
+			-- Align middle span (top part) to top edge of central row, minus any offset
 			middleSpanTop.anchorY = 0
 			middleSpanTop.y = viewBackground.y - (opt.rowHeight*0.5) - opt.middleSpanOffset
 		end
@@ -394,12 +407,15 @@ local function createPickerWheel( pickerWheel, options )
 			local middleSpanBottom = display.newSprite( view, imageSheet, { name="middleSpanBottom", start=opt.middleSpanBottomFrame, count=1 } )
 			middleSpanBottom.width = viewBackground.contentWidth
 			middleSpanBottom.x = viewBackground.x
+			-- Align middle span (bottom part) to bottom edge of central row, plus any offset
 			middleSpanBottom.anchorY = 1
 			middleSpanBottom.y = viewBackground.y + (opt.rowHeight*0.5) + opt.middleSpanOffset
 		end
 		if opt.topFadeFrame then
 			local topFade = display.newSprite( view, imageSheet, { name="topFade", start=opt.topFadeFrame, count=1 } )
 			topFade.width = viewBackground.contentWidth
+			-- The following clause checks if it's a default theme widget (not custom-skinned) and also checks the constructed height
+			-- If less than 200, height of fade frame is scaled down so that it doesn't visually overwhelm toward vertical center
 			if ( ( _widget.isHolo() or _widget.isSeven() ) and viewBackground.height < 200 ) then
 				topFade.height = (viewBackground.height/200) * topFade.contentHeight
 			end
@@ -410,6 +426,8 @@ local function createPickerWheel( pickerWheel, options )
 		if opt.bottomFadeFrame then
 			local bottomFade = display.newSprite( view, imageSheet, { name="bottomFade", start=opt.bottomFadeFrame, count=1 } )
 			bottomFade.width = viewBackground.contentWidth
+			-- The following clause checks if it's a default theme widget (not custom-skinned) and also checks the constructed height
+			-- If less than 200, height of fade frame is scaled down so that it doesn't visually overwhelm toward vertical center
 			if ( ( _widget.isHolo() or _widget.isSeven() ) and viewBackground.height < 200 ) then
 				bottomFade.height = (viewBackground.height/200) * bottomFade.contentHeight
 			end
@@ -426,7 +444,8 @@ local function createPickerWheel( pickerWheel, options )
 		end
 	end
 
-	-- Resizable skin frame
+	-- Resizable skin surrounding frame
+	-- This frame is only constructed if ALL of the elements are defined (docs note that this framing is "all or nothing")
 	if ( opt.resizable == true and opt.sheet and opt.topLeftFrame and opt.topRightFrame and opt.bottomLeftFrame and opt.bottomRightFrame and opt.topMiddleFrame and opt.middleLeftFrame and opt.middleRightFrame and opt.bottomMiddleFrame ) then
 		local topLeft = display.newSprite( view, imageSheet, { name="topLeft", start=opt.topLeftFrame, count=1 } )
 		topLeft.anchorX = 0
@@ -689,8 +708,8 @@ function M.new( options, theme )
 		opt.resizable = true
 		-- Confirm picker width is specified for resizable pickers
 		if not tonumber(customOptions.width) then
-			print( "WARNING: " .. M._widgetName .. " - for resizable construction, 'width' parameter must be specified as a positive integer; using default instead (320)" )
-			opt.width = 320
+			print( "WARNING: " .. M._widgetName .. " - for resizable construction, 'width' parameter must be specified as a positive integer; using default instead (" .. kDEFAULT_WIDGET_WIDTH .. ")" )
+			opt.width = kDEFAULT_WIDGET_WIDTH
 		else
 			opt.width = math.abs(customOptions.width)
 		end
