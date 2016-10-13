@@ -84,9 +84,11 @@ function scene:create( event )
 		if "began" == phase then			
 			print( "Began" )
 		elseif "moved" == phase then
-			print( "Moved" )
+			--print( "Moved" )
 		elseif "ended" == phase then
 			print( "Ended" )
+		elseif "stopped" == phase then
+			print( "Stopped" )
 		end
 		
 		if event.limitReached then
@@ -114,6 +116,7 @@ function scene:create( event )
 		width = 300,
 		height = 380,
 		id = "onBottom",
+		listener = scrollListener
 	}
 	group:insert( scrollView )
 	

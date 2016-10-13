@@ -85,6 +85,14 @@ local function setLimits( self, view )
 	end
 end
 
+-- Function to handle onComplete of "snap back"
+local function onBounceComplete( event )
+
+	local view = event
+	if not view._listener then return end
+	view._listener( { phase = "stopped", target = view } )
+end
+
 -- Function to handle vertical "snap back" on the view
 local function handleSnapBackVertical( self, view, snapBack )
 	
@@ -113,7 +121,7 @@ local function handleSnapBackVertical( self, view, snapBack )
 					end
 					-- Put the view back to the top
 					if view._tween then transition.cancel( view._tween ) end
-					view._tween = transition.to( view, { time = bounceTime, y = self.bottomLimit, transition = easing.outQuad } )						
+					view._tween = transition.to( view, { time = bounceTime, y = self.bottomLimit, transition = easing.outQuad, onComplete = onBounceComplete } )
 				end
 			end
 			
@@ -131,7 +139,7 @@ local function handleSnapBackVertical( self, view, snapBack )
 					end
 					-- Put the view back to the bottom
 					if view._tween then transition.cancel( view._tween ) end
-					view._tween = transition.to( view, { time = bounceTime, y = self.upperLimit, transition = easing.outQuad } )
+					view._tween = transition.to( view, { time = bounceTime, y = self.upperLimit, transition = easing.outQuad, onComplete = onBounceComplete } )
 				end
 			end
 		end
@@ -163,7 +171,7 @@ local function handleSnapBackHorizontal( self, view, snapBack )
 			if "boolean" == type( snapBack ) then
 				if snapBack == true then
 					if view._tween then transition.cancel( view._tween ) end
-					view._tween = transition.to( view, { time = bounceTime, x = self.leftLimit, transition = easing.outQuad } )
+					view._tween = transition.to( view, { time = bounceTime, x = self.leftLimit, transition = easing.outQuad, onComplete = onBounceComplete } )
 					
 				end
 			end
@@ -177,7 +185,7 @@ local function handleSnapBackHorizontal( self, view, snapBack )
 			if "boolean" == type( snapBack ) then
 				if snapBack == true then
 					if view._tween then transition.cancel( view._tween ) end
-					view._tween = transition.to( view, { time = bounceTime, x = self.rightLimit, transition = easing.outQuad } )
+					view._tween = transition.to( view, { time = bounceTime, x = self.rightLimit, transition = easing.outQuad, onComplete = onBounceComplete } )
 				end
 			end
 		end
@@ -466,6 +474,17 @@ function lib._runtime( view, event )
 		
 		-- Stop scrolling if velocity is near zero
 		if mAbs( view._velocity ) < 0.01 then
+		
+			-- If there is a listener specified, dispatch the "stopped" event
+			if view._listener and mAbs( view._velocity ) > 0 then
+				local newEvent =
+				{
+					phase = "stopped",
+					target = view,
+				}
+				view._listener( newEvent )
+			end
+
 			view._velocity = 0
 			view._updateRuntime = false
 			
