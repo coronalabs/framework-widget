@@ -89,6 +89,7 @@ end
 local function onBounceComplete( event )
 
 	local view = event
+	if view._isFocus ~= nil then return end
 	if not view._listener then return end
 	view._listener( { phase = "stopped", target = view } )
 end
