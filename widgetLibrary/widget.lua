@@ -1,10 +1,6 @@
---[[
-	Copyright:
-		Copyright (C) 2013 Corona Inc. All Rights Reserved.
-		
-	File: 
-		widget.lua
---]]
+
+-- Code is MIT licensed; see https://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
 local widget = 
 {

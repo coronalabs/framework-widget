@@ -1,5 +1,7 @@
--- Copyright (C) 2013 Corona Inc. All Rights Reserved.
--- File: newTableView unit test.
+
+-- Abstract: widget.newTableView() unit test
+-- Code is MIT licensed; see https://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
 local widget = require( "widget" )
 local composer = require( "composer" )
@@ -95,6 +97,8 @@ function scene:create( event )
 			--print( "Moved" )
 		elseif "ended" == phase then
 			--print( "Ended" )
+		elseif "stopped" == phase then
+			--print( "Stopped" )
 		end
 		
 		if event.limitReached then
@@ -235,6 +239,7 @@ function scene:create( event )
 		backgroundColor = backColor,
 		onRowRender = onRowRender,
 		onRowTouch = onRowTouch,
+		listener = tableViewListener,
 	}
 	group:insert( tableView )
 	

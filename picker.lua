@@ -1,5 +1,7 @@
--- Copyright (C) 2013 Corona Inc. All Rights Reserved.
--- File: newPickerWheel unit test.
+
+-- Abstract: widget.newPickerWheel() unit test
+-- Code is MIT licensed; see https://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
 local widget = require( "widget" )
 local composer = require( "composer" )
@@ -41,9 +43,6 @@ function scene:create( event )
 	
 	local backButtonPosition = 5
 	local backButtonSize = 34
-	
-	--widget.setTheme( "widget_theme_android_holo_dark" )
-	background:setFillColor(0)
 
 	-- Button to return to unit test listing
 	local returnToListing = widget.newButton{
@@ -191,39 +190,29 @@ function scene:create( event )
 		top = pickerWheel.contentBounds.yMax+40,
 		columns = columnData,
 		fontSize = 14,
-		style = "resizable",  --NEW (optional)
-		width = 280,  --NEW (REQUIRED for resizable!)
-		rowHeight = rowHeight,  --NEW (REQUIRED for resizable!)
-		onValueSelected = valueSelectedResizable,  --NEW
+		style = "resizable",
+		width = 280,
+		rowHeight = rowHeight,
+		onValueSelected = valueSelectedResizable,
 		sheet = pickerWheelSheetResizable,
-		borderPadding = 8,  --NEW (optional)
-		topLeftFrame = 1,  --NEW (optional)
-		topMiddleFrame = 2,  --NEW (optional)
-		topRightFrame = 3,  --NEW (optional)
-		middleLeftFrame = 4,  --NEW (optional)
-		middleRightFrame = 5,  --NEW (optional)
-		bottomLeftFrame = 6,  --NEW (optional)
-		bottomMiddleFrame = 7,  --NEW (optional)
-		bottomRightFrame = 8,  --NEW (optional)
-		topFadeFrame = 9,  --NEW (optional)
-		bottomFadeFrame = 10,  --NEW (optional)
-		middleSpanTopFrame = 11,  --NEW (optional)
-		middleSpanBottomFrame = 12,  --NEW (optional)
-		separatorFrame = 13,  --(optional)
-		middleSpanOffset = 4  --NEW (optional)
+		--borderPadding = 28,
+		topLeftFrame = 1,
+		topMiddleFrame = 2,
+		topRightFrame = 3,
+		middleLeftFrame = 4,
+		middleRightFrame = 5,
+		bottomLeftFrame = 6,
+		bottomMiddleFrame = 7,
+		bottomRightFrame = 8,
+		topFadeFrame = 9,
+		bottomFadeFrame = 10,
+		middleSpanTopFrame = 11,
+		middleSpanBottomFrame = 12,
+		--backgroundFrame = 11,
+		separatorFrame = 13,
+		middleSpanOffset = 4
 	}
 	group:insert( resizablePickerWheel )
-
-	--[[local testRectB1 = display.newRect( group,display.contentCenterX,resizablePickerWheel.y,400,rowHeight )
-	testRectB1:setFillColor(1,0,0.2,0.3)
-	local testRectBT1 = display.newRect( group,display.contentCenterX,resizablePickerWheel.y-(rowHeight*2),400,rowHeight )
-	testRectBT1:setFillColor(1,0.2,0,0.2)
-	local testRectBT2 = display.newRect( group,display.contentCenterX,resizablePickerWheel.y-rowHeight,400,rowHeight )
-	testRectBT2:setFillColor(1,0.6,0,0.2)
-	local testRectBT3 = display.newRect( group,display.contentCenterX,resizablePickerWheel.y+(rowHeight*2),400,rowHeight )
-	testRectBT3:setFillColor(1,0.2,0,0.2)
-	local testRectBT4 = display.newRect( group,display.contentCenterX,resizablePickerWheel.y+rowHeight,400,rowHeight )
-	testRectBT4:setFillColor(1,0.6,0,0.2)--]]
 
 	local getValuesButtonB = widget.newButton(
 		{
@@ -242,12 +231,9 @@ function scene:create( event )
 	getValuesButtonB.x = display.contentCenterX
 	group:insert( getValuesButtonB )
 
-
-
-	--NEW :selectValue( targetColumn(INT), targetIndex(INT), snapToIndex(BOOL) )
-	timer.performWithDelay( 2000, function() resizablePickerWheel:selectValue( 1, 3 ); end )
-	timer.performWithDelay( 4000, function() resizablePickerWheel:selectValue( 1, 4 ); end )
-	timer.performWithDelay( 6000, function() resizablePickerWheel:selectValue( 1, 1 ); end )
+	--timer.performWithDelay( 2000, function() resizablePickerWheel:selectValue( 1, 3 ); end )
+	--timer.performWithDelay( 4000, function() resizablePickerWheel:selectValue( 1, 4 ); end )
+	--timer.performWithDelay( 6000, function() resizablePickerWheel:selectValue( 1, 1 ); end )
 end
 
 function scene:hide( event )

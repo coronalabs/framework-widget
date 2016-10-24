@@ -1,5 +1,7 @@
--- Copyright (C) 2013 Corona Inc. All Rights Reserved.
--- File: newSearchField unit test.
+
+-- Abstract: widget.newSearchField() unit test
+-- Code is MIT licensed; see https://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
 local widget = require( "widget" )
 local composer = require( "composer" )

@@ -1,10 +1,6 @@
---[[
-	Copyright:
-		Copyright (C) 2013 Corona Inc. All Rights Reserved.
-		
-	File: 
-		main.lua
---]]
+
+-- Code is MIT licensed; see https://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
 -- Nil out the preloaded theme files so we load the local ones
 package.preload.widget_theme_ios = nil
@@ -18,10 +14,10 @@ package.preload.widget_theme_android_holo_light_sheet = nil
 package.preload.widget_theme_android_holo_dark = nil
 package.preload.widget_theme_android_holo_dark_sheet = nil
 
--- Override Corona's core widget libraries with the files contained in this project's subdirectory.
--- Argument "name" will be set to the name of the library being loaded by the require() function.
-local function onRequireWidgetLibrary(name)
-	return require("widgetLibrary." .. name)
+-- Override Corona's core widget libraries with the files contained in this project's subdirectory
+-- Argument "name" will be set to the name of the library being loaded by the require() function
+local function onRequireWidgetLibrary( name )
+	return require( "widgetLibrary." .. name )
 end
 
 package.preload.widget = onRequireWidgetLibrary

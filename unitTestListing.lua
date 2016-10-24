@@ -1,4 +1,7 @@
--- Copyright (C) 2013 Corona Inc. All Rights Reserved.
+
+-- Abstract: Widget test listing
+-- Code is MIT licensed; see https://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
 local widget = require( "widget" )
 
@@ -10,8 +13,6 @@ local USE_IOS7_THEME = false
 local USE_ANDROID_THEME = false
 local USE_ANDROID_HOLO_LIGHT_THEME = false
 local USE_ANDROID_HOLO_DARK_THEME = false
-
-
 
 local isGraphicsV1 = ( 1 == display.getDefault( "graphicsCompatibility" ) )
 
