@@ -594,9 +594,11 @@ local function createOnOffSwitch( switch, options )
 		
 		-- Set the switches transition time
 		local switchTransitionTime = 200
-		-- Modern Android switches have no apparent transition
+		local isSwitchOn = _isSwitchOn
 		if _widget.isHolo() then
+			-- Modern Android switches have no apparent transition
 			switchTransitionTime = 2
+			isSwitchOn = not isSwitchOn
 		end
 		
 		-- Temporary until we wrap up theme definition of ios7 
@@ -604,7 +606,7 @@ local function createOnOffSwitch( switch, options )
 		if not _widget.isSeven() or switch.isCustom then
 		
 			-- Set the switch to on/off visually
-			if _isSwitchOn then
+			if isSwitchOn then
 				if _isAnimated then
 					self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnComplete } )
 					self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
@@ -632,7 +634,7 @@ local function createOnOffSwitch( switch, options )
 		
 		else
 		
-			if _isSwitchOn then
+			if isSwitchOn then
 				view._handle.x = view.x + view.contentWidth * 0.5 - view._handle.contentWidth * 0.5 + 4 
 				offView.isVisible = false
 				interView.isVisible = false
@@ -992,8 +994,10 @@ function M.new( options, theme )
 		end
 	
 	end
-		
-	local x, y = _widget._calculatePosition( switch, opt )
+	
+	-- Position the widget based on its touchable view, ignoring hidden masked-out images on the side
+	-- This is needed to correctly top-left align Android and iOS 6 themed on/off switches
+	local x, y = _widget._calculatePosition( switch._view, opt )
 	switch.x, switch.y = x, y
 	
 	
