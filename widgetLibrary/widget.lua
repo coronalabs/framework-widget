@@ -488,16 +488,7 @@ local isAndroid = "Android" == platformName
 local defaultTheme = "widget_theme_ios7"
 
 if isAndroid then
-	defaultTheme = "widget_theme_android"
-elseif not isSimulator then
-	-- Only show the iOS 6 theme if its on below iOS 7
-	-- Gets the major platform version eg 10 in 10.1.3
-	local platformVersion = string.match(system.getInfo("platformVersion"), "%d+")
-	platformVersion = tonumber(platformVersion)
-	
-	if type(platformVersion) == "number" and platformVersion < 7 then
-		defaultTheme = "widget_theme_ios"
-	end
+	defaultTheme = "widget_theme_android_holo_light"
 end
 
 -- Set the default theme
