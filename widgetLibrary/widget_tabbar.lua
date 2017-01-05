@@ -295,7 +295,11 @@ local function initWithImageFiles( tabBar, options )
 	
 	-- Function to programatically set a tab button as active
 	function tabBar:setSelected( selectedTab, simulatePress )
-		return self._view:_setSelected( selectedTab, simulatePress )
+		if ( selectedTab == nil or selectedTab <= 0 or selectedTab % 1 ~= 0 ) then
+			print( "WARNING: " .. M._widgetName .. " - 'buttonIndex' parameter for 'object:setSelected()' must be a positive integer from 1 to the maximum number of tabs" )
+		else
+			return self._view:_setSelected( selectedTab, simulatePress )
+		end
 	end
 		
 	----------------------------------------------------------
@@ -659,7 +663,11 @@ local function initWithImageSheet( tabBar, options )
 	
 	-- Function to programatically set a tab button as active
 	function tabBar:setSelected( selectedTab, simulatePress )
-		return self._view:_setSelected( selectedTab, simulatePress )
+		if ( selectedTab == nil or selectedTab <= 0 or selectedTab % 1 ~= 0 ) then
+			print( "WARNING: " .. M._widgetName .. " - 'buttonIndex' parameter for 'object:setSelected()' must be a positive integer from 1 to the maximum number of tabs" )
+		else
+			return self._view:_setSelected( selectedTab, simulatePress )
+		end
 	end
 		
 	----------------------------------------------------------
