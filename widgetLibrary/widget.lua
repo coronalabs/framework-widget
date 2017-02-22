@@ -457,21 +457,28 @@ end
 -- widget position calculation based on defined anchor point
 function widget._calculatePosition( object, opt )
 	local x, y = opt.x, opt.y
+	local xNonFloor, yNonFloor = x, y
+
 	if not opt.x or not opt.y then
 		local leftPos = opt.left
 		local topPos = opt.top
 
 		x = leftPos + object.contentWidth * 0.5
 		y = topPos + object.contentHeight * 0.5
+		xNonFloor = x
+		yNonFloor = y
+
 		-- left and top values have to be adjusted in non-compatibility mode
 		if not isGraphicsV1 then
 			leftPos = leftPos + ( widget._oldAnchorX * object.contentWidth )
 			x = math.floor( leftPos )
+			xNonFloor = leftPos
 			topPos = topPos + ( widget._oldAnchorY * object.contentHeight )
 			y = math.floor( topPos )
+			yNonFloor = topPos
 		end
 	end
-	return x, y
+	return x, y, xNonFloor, yNonFloor
 end
 
 -- determine if a file exists. Used for determining if custom assets passed to constructors actually exist in the project.

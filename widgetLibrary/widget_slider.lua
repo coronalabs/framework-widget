@@ -59,7 +59,7 @@ local function createHorizontalSlider( slider, options )
 	viewLeft.x = slider.x + ( viewLeft.contentWidth * 0.5 )
 	viewLeft.y = slider.y + ( viewLeft.contentHeight * 0.5 )
 	
-	-- Position the slider's middle frame & set it's width
+	-- Position the slider's middle frame & set its width
 	viewMiddle.width = opt.width - ( viewLeft.contentWidth + viewRight.contentWidth )
 	viewMiddle.x = viewLeft.x + ( viewLeft.contentWidth * 0.5 ) + ( viewMiddle.contentWidth * 0.5 )
 	viewMiddle.y = viewLeft.y
@@ -529,15 +529,46 @@ function M.new( options, theme )
 		createVerticalSlider( slider, opt )
 	end
 	
-	-- Set the slider's position ( set the reference point to center, just to be sure )
-	
-	if ( isGraphicsV1 ) then
-		slider:setReferencePoint( display.CenterReferencePoint )
-	end
-	
-	local x, y = _widget._calculatePosition( slider, opt )
+	local x, y, xNonFloor, yNonFloor = _widget._calculatePosition( slider, opt )
 	slider.x, slider.y = x, y
-		
+
+	-- Store the bounds of the handle when group children ARE anchored
+	slider._handle.anchoredBounds = slider._handle.contentBounds
+	-- Store the bounds of the fill element when group children ARE anchored
+	slider._fill.anchoredBounds = slider._fill.contentBounds
+
+	-- Un-anchor group children
+	slider.anchorChildren = false
+
+	-- First, handle horizontal sliders
+	if ( "horizontal" == opt.orientation ) then
+		-- If user specified left alignment, position group to specified left position, otherwise position it based on center
+		if customOptions.left then
+			slider.x = customOptions.left
+		else
+			slider.x = customOptions.x - ( opt.width * 0.5 )
+		end
+		-- Calculate average of vertical shift that occured from un-anchoring children
+		-- Because the handle might be taller or shorter than fill region, this gives us the shifted amount in either case
+		local yShiftAverage = ( ( slider._handle.contentBounds.yMin - slider._handle.anchoredBounds.yMin ) + ( slider._fill.contentBounds.yMin - slider._fill.anchoredBounds.yMin ) ) * 0.5
+		-- Position group vertically, factoring in average vertical shift
+		slider.y = yNonFloor - yShiftAverage
+
+	-- Else, handle vertical sliders
+	else
+		-- If user specified top alignment, position group to specified top position, otherwise position it based on center
+		if customOptions.top then
+			slider.y = customOptions.top
+		else
+			slider.y = customOptions.y - ( opt.height * 0.5 )
+		end
+		-- Calculate average of horizontal shift that occured from un-anchoring children
+		-- Because the handle might be wider or narrower than fill region, this gives us the shifted amount in either case
+		local xShiftAverage = ( ( slider._handle.contentBounds.xMin - slider._handle.anchoredBounds.xMin ) + ( slider._fill.contentBounds.xMin - slider._fill.anchoredBounds.xMin ) ) * 0.5
+		-- Position group horizontally, factoring in average horizontal shift
+		slider.x = xNonFloor - xShiftAverage
+	end
+
 	return slider
 end
 
