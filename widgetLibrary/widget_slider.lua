@@ -546,7 +546,8 @@ function M.new( options, theme )
 		if customOptions.left then
 			slider.x = customOptions.left
 		else
-			slider.x = customOptions.x - ( opt.width * 0.5 )
+			local cx = customOptions.x or 0
+			slider.x = cx - ( opt.width * 0.5 )
 		end
 		-- Calculate average of vertical shift that occured from un-anchoring children
 		-- Because the handle might be taller or shorter than fill region, this gives us the shifted amount in either case
@@ -560,7 +561,8 @@ function M.new( options, theme )
 		if customOptions.top then
 			slider.y = customOptions.top
 		else
-			slider.y = customOptions.y - ( opt.height * 0.5 )
+			local cy = customOptions.y or 0
+			slider.y = cy - ( opt.height * 0.5 )
 		end
 		-- Calculate average of horizontal shift that occured from un-anchoring children
 		-- Because the handle might be wider or narrower than fill region, this gives us the shifted amount in either case
