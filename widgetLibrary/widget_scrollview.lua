@@ -684,21 +684,29 @@ local function createScrollView( scrollView, options )
 			return
 		end
 		
-		if direction and type ( direction ) ~= "string" then
+		if direction and type( direction ) ~= "string" then
 			return
 		end
 		
 		-- if we received a direction to set a lockstate on, proceed
 		if direction then
 			if "horizontal" == direction then
-				self._isHorizontalScrollingDisabled = lockedState
+				if opt.horizontalScrollingDisabledInConstructor == false then
+					self._isHorizontalScrollingDisabled = lockedState
+				end
 			elseif "vertical" == direction then
-				self._isVerticalScrollingDisabled = lockedState
+				if opt.verticalScrollingDisabledInConstructor == false then
+					self._isVerticalScrollingDisabled = lockedState
+				end
 			end
 		-- otherwise set both directions to the received lockstate
 		else
-			self._isVerticalScrollingDisabled = lockedState
-			self._isHorizontalScrollingDisabled = lockedState
+			if opt.verticalScrollingDisabledInConstructor == false then
+				self._isVerticalScrollingDisabled = lockedState
+			end
+			if opt.horizontalScrollingDisabledInConstructor == false then
+				self._isHorizontalScrollingDisabled = lockedState
+			end
 		end
 		
 		-- if both scroll axis variables are disabled, then the scrollview is locked
@@ -781,6 +789,8 @@ function M.new( options )
 	opt.rightPadding = customOptions.rightPadding or 0
 	opt.isHorizontalScrollingDisabled = customOptions.horizontalScrollDisabled or false
 	opt.isVerticalScrollingDisabled = customOptions.verticalScrollDisabled or false
+	opt.horizontalScrollingDisabledInConstructor = customOptions.horizontalScrollDisabled or false
+	opt.verticalScrollingDisabledInConstructor = customOptions.verticalScrollDisabled or false
 	opt.friction = customOptions.friction
 	opt.maxVelocity = customOptions.maxVelocity or 1.5
 	opt.scrollWidth = customOptions.scrollWidth or opt.width
