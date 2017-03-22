@@ -684,29 +684,21 @@ local function createScrollView( scrollView, options )
 			return
 		end
 		
-		if direction and type( direction ) ~= "string" then
+		if direction and type ( direction ) ~= "string" then
 			return
 		end
 		
 		-- if we received a direction to set a lockstate on, proceed
 		if direction then
 			if "horizontal" == direction then
-				if opt.horizontalScrollingDisabledInConstructor == false then
-					self._isHorizontalScrollingDisabled = lockedState
-				end
+				self._isHorizontalScrollingDisabled = lockedState
 			elseif "vertical" == direction then
-				if opt.verticalScrollingDisabledInConstructor == false then
-					self._isVerticalScrollingDisabled = lockedState
-				end
+				self._isVerticalScrollingDisabled = lockedState
 			end
 		-- otherwise set both directions to the received lockstate
 		else
-			if opt.verticalScrollingDisabledInConstructor == false then
-				self._isVerticalScrollingDisabled = lockedState
-			end
-			if opt.horizontalScrollingDisabledInConstructor == false then
-				self._isHorizontalScrollingDisabled = lockedState
-			end
+			self._isVerticalScrollingDisabled = lockedState
+			self._isHorizontalScrollingDisabled = lockedState
 		end
 		
 		-- if both scroll axis variables are disabled, then the scrollview is locked
