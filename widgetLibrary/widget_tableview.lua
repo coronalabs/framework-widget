@@ -1673,7 +1673,7 @@ local function createTableView( tableView, options )
 		end
 
 		-- we have to rerender the stuck category on the top, if it exists
-		if ( self._rows[ 1 ].isCategory ) then
+		if ( self._rows[ 1 ] and self._rows[ 1 ].isCategory ) then
 			self:_renderCategory( self._rows[ 1 ], true )
 		end
 
