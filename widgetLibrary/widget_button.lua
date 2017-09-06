@@ -53,7 +53,7 @@ local function manageButtonTouch( view, event )
 		view:_setState( "over" )
 		
 		-- Create the alpha fade if the theme has it
-		if view._hasAlphaFade then
+		if view._hasAlphaFade and view._labelColor == nil then
 			if view._label then
 				transition.to( view._label, { time = 50, alpha = 0.5 } )
 			else
@@ -81,7 +81,7 @@ local function manageButtonTouch( view, event )
 				view:_setState( "default" )
 				
 				-- Create the alpha fade if the theme has it
-				if view._hasAlphaFade then
+				if view._hasAlphaFade and view._labelColor == nil then
 					if view._label then
 						transition.to( view._label, { time = 50, alpha = 1.0 } )
 					else
@@ -95,7 +95,7 @@ local function manageButtonTouch( view, event )
 					view:_setState( "over" )
 					
 					-- Create the alpha fade if the theme has it
-					if view._hasAlphaFade then
+					if view._hasAlphaFade and view._labelColor == nil then
 						if view._label then
 							transition.to( view._label, { time = 50, alpha = 0.5 } )
 						else
@@ -118,7 +118,7 @@ local function manageButtonTouch( view, event )
 			view:_setState( "default" )
 
 			-- Create the alpha fade if the theme has it
-			if view._hasAlphaFade then
+			if view._hasAlphaFade and view._labelColor == nil then
 				if view._label then
 					transition.to( view._label, { time = 50, alpha = 1.0 } )
 				else
@@ -248,7 +248,7 @@ local function createUsingText( button, options )
 	
 	-- Function to get the button's label
 	function view:_getLabel()
-		return self._label.text
+		return self.text
 	end
 	
 	-- Function to set the buttons current state
@@ -284,7 +284,7 @@ local function createUsingText( button, options )
 	function button:_loseFocus()
 		self._view:_setState( "default" )
 		-- Create the alpha fade if the theme has it
-		if self._view._hasAlphaFade then
+		if self._view._hasAlphaFade and self._view._labelColor == nil then
 			if self._view._label then
 				transition.to( self._view._label, { time = 50, alpha = 1.0 } )
 			else
@@ -537,7 +537,7 @@ local function createUsingVectorObject( button, options )
 	function button:_loseFocus()
 		self._view:_setState( "default" )
 		-- Create the alpha fade if the theme has it
-		if self._view._hasAlphaFade then
+		if self._view._hasAlphaFade and self._view._labelColor == nil then
 			if self._view._label then
 				transition.to( self._view._label, { time = 50, alpha = 1.0 } )
 			else
@@ -757,7 +757,7 @@ local function createUsingImageFiles( button, options )
 	function button:_loseFocus()
 		self._view:_setState( "default" )
 		-- Create the alpha fade if the theme has it
-		if self._view._hasAlphaFade then
+		if self._view._hasAlphaFade and self._view._labelColor == nil then
 			if self._view._label then
 				transition.to( self._view._label, { time = 50, alpha = 1.0 } )
 			else
@@ -977,7 +977,7 @@ local function createUsingImageSheet( button, options )
 	function button:_loseFocus()
 		self._view:_setState( "default" )
 		-- Create the alpha fade if the theme has it
-		if self._view._hasAlphaFade then
+		if self._view._hasAlphaFade and self._view._labelColor == nil then
 			if self._view._label then
 				transition.to( self._view._label, { time = 50, alpha = 1.0 } )
 			else
@@ -1487,7 +1487,7 @@ local function createUsing9Slice( button, options )
 	function button:_loseFocus()
 		self._view:_setState( "default" )
 		-- Create the alpha fade if the theme has it
-		if self._view._hasAlphaFade then
+		if self._view._hasAlphaFade and self._view._labelColor == nil then
 			if self._view._label then
 				transition.to( self._view._label, { time = 50, alpha = 1.0 } )
 			else

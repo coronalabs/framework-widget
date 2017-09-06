@@ -61,6 +61,26 @@ end
 local function initWithImageFiles( tabBar, options )
 	-- Create a local reference to our options table
 	local opt = options
+	
+	
+	local backgroundBaseDir = opt.backgroundFile.baseDir or system.ResourceDirectory
+	
+	-- Return errors if any image file is missing
+	if not _widget._fileExists( opt.backgroundFile, backgroundBaseDir ) then
+		error( "ERROR: " .. M._widgetName .. ": The backgroundFile passed does not exist", 3 )
+	end
+
+	if not _widget._fileExists( opt.tabSelectedLeftFile ) then
+		error( "ERROR: " .. M._widgetName .. ": The tabSelectedLeftFile passed does not exist", 3 )
+	end
+	
+	if not _widget._fileExists( opt.tabSelectedMiddleFile ) then
+		error( "ERROR: " .. M._widgetName .. ": The tabSelectedMiddleFile passed does not exist", 3 )
+	end
+	
+	if not _widget._fileExists( opt.tabSelectedRightFile ) then
+		error( "ERROR: " .. M._widgetName .. ": The tabSelectedRightFile passed does not exist", 3 )
+	end
 		
 	-- Forward references
 	local view, viewSelected, viewSelectedLeft, viewSelectedRight, viewSelectedMiddle, viewButtons
@@ -94,6 +114,15 @@ local function initWithImageFiles( tabBar, options )
 		local overFile = opt.tabButtons[i].overFile or error( "ERROR: " .. M._widgetName .. ": overFile expected, got nil", 3 )
 		local width = opt.tabButtons[i].width or error( "ERROR: " .. M._widgetName .. ": width expected, got nil", 3 )
 		local height = opt.tabButtons[i].height or error( "ERROR: " .. M._widgetName .. ": height expected, got nil", 3 )
+		
+		-- also check that the images exist physically
+		if not _widget._fileExists( opt.tabButtons[i].defaultFile ) then
+			error( "ERROR: " .. M._widgetName .. ": The defaultFile passed for tab " .. i .. " does not exist", 3 )
+		end
+
+		if not _widget._fileExists( opt.tabButtons[i].overFile ) then
+			error( "ERROR: " .. M._widgetName .. ": The overFile passed for tab " .. i .. " does not exist", 3 )
+		end
 		
 		-- Get the baseDir
 		local baseDir = opt.tabButtons[i].baseDir or system.ResourceDirectory
@@ -748,8 +777,8 @@ function M.new( options, theme )
 	opt.id = customOptions.id
 	opt.baseDir = opt.baseDir or system.ResourceDirectory
 	opt.tabButtons = customOptions.buttons
-	opt.defaultLabelFont = themeOptions.defaultLabelFont or native.systemFontBold
-	opt.defaultLabelSize = themeOptions.defaultLabelSize or 8
+	opt.defaultLabelFont = themeOptions.defaultLabelFont or native.systemFont
+	opt.defaultLabelSize = themeOptions.defaultLabelSize or 10
 	opt.defaultLabelColor = themeOptions.defaultLabelColor or labelDefault
 	opt.onPress = customOptions.onPress
 

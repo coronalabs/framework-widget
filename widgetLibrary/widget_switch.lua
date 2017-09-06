@@ -279,6 +279,7 @@ local function createOnOffSwitch( switch, options )
 	view._endRange = endRange
 	view._onPress = opt.onPress
 	view._onRelease = opt.onRelease
+	view._onEvent = opt.onEvent
 	
 	if _widget.isSeven() or not switch.isCustom then
 		view._offView = offView
@@ -297,21 +298,21 @@ local function createOnOffSwitch( switch, options )
 	
 	-- Assign properties to the switch	
 	switch.isOn = opt.initialSwitchState
-	-- Add support for the new Android themes that have the off button reversed
-	-- or for skinned switches to flip the side.
-	if opt.offDirection == "left" or _widget.isHolo() then
-		switch.isOn = not switch.isOn
-	end
 	
 	-- For non-graphics v1 mode, the children have to be non-anchored
-	if not isGraphicsV1 then
+	if not isGraphicsV1 and not _widget.isSeven() then
 		switch.anchorChildren = false
 	end
 	
 	if not _widget.isSeven() or switch.isCustom then
 		
 		-- Set the switch position based on the chosen default value (ie on/off)
-		if switch.isOn then
+		local isOn = switch.isOn
+		-- if it's the holo themes, flip the position
+		if _widget.isHolo() then
+			isOn = not isOn
+		end
+		if isOn then
 			view.x = view._endRange
 			view._handle.x = view._endRange
 			view.maskX = view._handle.x - mAbs( view._startRange ) - view._endRange
@@ -320,16 +321,13 @@ local function createOnOffSwitch( switch, options )
 			view._handle.x = view._startRange
 			view.maskX = view._handle.x + mAbs( view._startRange ) + view._endRange
 		end
-
 	else
-
 		-- Set the switch position based on the chosen default value (ie on/off)
 		if switch.isOn then
 			view._handle.x = view.x + view.contentWidth * 0.5 - view._handle.contentWidth * 0.5 + 4 
 		else
 			view._handle.x = view.x - view.contentWidth * 0.5 + view._handle.contentWidth * 0.5 - 4
 		end
-	
 	end
 	
 	-- Assign objects to the switch
@@ -351,120 +349,124 @@ local function createOnOffSwitch( switch, options )
 		return self._view:_setState( options )
 	end
 
-	-- Handle taps on the switch
-	function view:tap( event )
+	-- Handle touches for non-sliding switches
+	local function nonSlidingSwitchHandler(self, event )
 		local _switch = self.parent -- self.parent == switch
 		-- Set the target to the switch
 		event.target = _switch
-				
-		-- Toggle the switch
-		_switch.isOn = not _switch.isOn
-			
-		-- Cancel current view transition if there is one
-		if self._transition then
-			transition.cancel( self._transition )
-			self._transition = nil
-		end
-		
-		if self._handleTransition then
-			transition.cancel( self._handleTransition )
-			self._handleTransition = nil
-		end
-						
-		-- If self has a _onPress method execute it
-		local function executeOnPress()
+
+		if event.phase == "began" then
 			if self._onPress and not self._onEvent then
 				self._onPress( event )
 			end
-		end
+		elseif event.phase == "ended" then
+			-- Toggle the switch
+			_switch.isOn = not _switch.isOn
 				
-		-- Set the switches transition time
-		local switchTransitionTime = 200
-		-- Modern Android switches have no apparent transition
-		if _widget.isHolo() then
-			switchTransitionTime = 2
-		end
-
-		if not _widget.isSeven() or switch.isCustom then
-		
-			-- Transition the switch from on>off and vice versa
-			if _switch.isOn then
-				self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnPress } )
-				self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
-			else
-				self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnPress } )
-				self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+			-- Cancel current view transition if there is one
+			if self._transition then
+				transition.cancel( self._transition )
+				self._transition = nil
 			end
-		
-		else
-
-			local originalScale = self._offView.xScale
-		
-			-- Transition the switch from on>off and vice versa
-			if _switch.isOn then
-				-- fade fast to gray, then show green
-				self._interView.isVisible = true
-
-				
-				transition.to ( self._offView, { time = 250, xScale = 0.1, yScale = 0.1, onComplete = function() 
-				
-					self._offView.isVisible = false
-					self._offView.xScale = originalScale
-					self._offView.yScale = originalScale
-					
-
-					self._onView.isVisible = true
-
-					transition.to ( self._interView, { time = 100, alpha = 0.0 , onComplete = function() 
-						self._interView.isVisible = false
-						self._interView.alpha = 1.0 
-					end } )
-					
-				
-				end } )
-				self._handleTransition = transition.to( self._handle, { x = self.x + self.contentWidth * 0.5 - self._handle.contentWidth * 0.5 + 4, time = switchTransitionTime, onComplete = executeOnPress } )
-			else
-			-- back to grey immediately, fade from grey to white
 			
-			self._interView.isVisible = true
-			
-			transition.to ( self._onView, { time = 100, alpha = 0.0 , onComplete = function() 
-			
-						self._onView.isVisible = false
-						self._onView.alpha = 1.0 
-						--self._interView:toFront()
-						self._offView.isVisible = true
-						transition.to ( self._interView, { time = 250, xScale = 0.1, yScale = 0.1, onComplete = function() 
-					
-							self._interView.isVisible = false
-							self._interView.xScale = originalScale
-							self._interView.yScale = originalScale
-							self._onView.isVisible = true
+			if self._handleTransition then
+				transition.cancel( self._handleTransition )
+				self._handleTransition = nil
+			end
 							
-		
+			-- If self has a _onPress method execute it
+			local function executeOnRelease()
+				if self._onRelease and not self._onEvent then
+					self._onRelease( event )
+				end
+			end
+					
+			-- Set the switches transition time
+			local switchTransitionTime = 200
+			-- Modern Android switches have no apparent transition
+			if _widget.isHolo() then
+				switchTransitionTime = 2
+			end
+
+			if not _widget.isSeven() or switch.isCustom then
+			
+				-- Transition the switch from on>off and vice versa
+				if (_switch.isOn and not _widget.isHolo()) or (not _switch.isOn and _widget.isHolo()) then
+					self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnRelease } )
+					self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
+				else
+					self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnRelease } )
+					self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+				end
+			
+			else
+
+				local originalScale = self._offView.xScale
+			
+				-- Transition the switch from on>off and vice versa
+				if _switch.isOn then
+					-- fade fast to gray, then show green
+					self._interView.isVisible = true
+
+					
+					transition.to ( self._offView, { time = 250, xScale = 0.1, yScale = 0.1, onComplete = function() 
+					
+						self._offView.isVisible = false
+						self._offView.xScale = originalScale
+						self._offView.yScale = originalScale
+						
+
+						self._onView.isVisible = true
+
+						transition.to ( self._interView, { time = 100, alpha = 0.0 , onComplete = function() 
+							self._interView.isVisible = false
+							self._interView.alpha = 1.0 
 						end } )
 						
+					
 					end } )
+					self._handleTransition = transition.to( self._handle, { x = self.x + self.contentWidth * 0.5 - self._handle.contentWidth * 0.5 + 4, time = switchTransitionTime, onComplete = executeOnRelease } )
+				else
+				-- back to grey immediately, fade from grey to white
+				
+				self._interView.isVisible = true
+				
+				transition.to ( self._onView, { time = 100, alpha = 0.0 , onComplete = function() 
+				
+							self._onView.isVisible = false
+							self._onView.alpha = 1.0 
+							--self._interView:toFront()
+							self._offView.isVisible = true
+							transition.to ( self._interView, { time = 250, xScale = 0.1, yScale = 0.1, onComplete = function() 
+						
+								self._interView.isVisible = false
+								self._interView.xScale = originalScale
+								self._interView.yScale = originalScale
+								self._onView.isVisible = true
+								
 			
-				self._handleTransition = transition.to( self._handle, { x = self.x - self.contentWidth * 0.5 + self._handle.contentWidth * 0.5 - 4, time = switchTransitionTime, onComplete = executeOnPress } )
+							end } )
+							
+						end } )
+				
+					self._handleTransition = transition.to( self._handle, { x = self.x - self.contentWidth * 0.5 + self._handle.contentWidth * 0.5 - 4, time = switchTransitionTime, onComplete = executeOnRelease } )
+				end
+			
 			end
-		
+		end		
+		-- If self has a _onEvent method execute it
+		if self._onEvent then
+			self._onEvent( event )
 		end
-		
 		return true
 	end
 	
-	view:addEventListener( "tap" )
-	
 	-- Handle touch/drag events on the switch
-	function view:touch( event )
+	local function slidingSwitchHandler(self, event )
 		local phase = event.phase
-	
-		-- Android onOff switch doesn't do sliding
-		if (_widget.isSeven() and not switch.isCustom) or _widget.isHolo() then
-			return true
-		end
-	
+		local _switch = self.parent -- self.parent == switch
+		-- Set the target to the switch
+
 		if "began" == phase then
 			-- Cancel current view transition if there is one
 			if self._transition then
@@ -485,7 +487,11 @@ local function createOnOffSwitch( switch, options )
 			self._handle.x0 = event.x - self._handle.x 
 			-- Set the handle to it's 'over' frame
 			self._handle:setSequence( "on" )
-	
+			-- handle an onPress event if it's setup
+			event.target = _switch
+			if self._onPress and not self._onEvent then
+				self._onPress( event )
+			end
 		elseif self._isFocus then
 			if "moved" == phase then
 				self._handle.x = event.x - self._handle.x0 
@@ -525,17 +531,29 @@ local function createOnOffSwitch( switch, options )
 					switchTransitionTime = 2
 				end
 
-				-- Transition the switch from on>off and vice versa
-				if self._handle.x < 0 then
-					_switch.isOn = false
-					self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnRelease } )
-					self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
-				else
-					_switch.isOn = true
-					self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnRelease } )
-					self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
+				-- check for a tap type behavior 
+				if math.abs(event.x - event.xStart) < 5 then 
+					if _switch.isOn then
+						_switch.isOn = false
+						self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnRelease } )
+						self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+					else
+						_switch.isOn = true
+						self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnRelease } )
+						self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
+					end
+				else -- the user actually tried to drag the switch
+					-- Transition the switch from on>off and vice versa
+					if self._handle.x < 0 then
+						_switch.isOn = false
+						self._transition = transition.to( self, { x = self._startRange, maskX = self._endRange, time = switchTransitionTime, onComplete = executeOnRelease } )
+						self._handleTransition = transition.to( self._handle, { x = self._startRange, time = switchTransitionTime } )
+					else
+						_switch.isOn = true
+						self._transition = transition.to( self, { x = self._endRange, maskX = self._startRange, time = switchTransitionTime, onComplete = executeOnRelease } )
+						self._handleTransition = transition.to( self._handle, { x = self._endRange, time = switchTransitionTime } )
+					end
 				end
-				
 				-- Set the handle back to it's default frame
 				self._handle:setSequence( "off" )
 				
@@ -552,7 +570,17 @@ local function createOnOffSwitch( switch, options )
 		
 		return true
 	end
-	
+	--
+	-- because we don't support sliding of iOS 7 switches and the new Android holo themed
+	-- switches are not supposed to slide, instead of shorting them in the touch handler
+	-- lets program the touch handler to pick the right function. 
+	-- This is to eliminate the "tap" handler so that all three expected events:
+	-- onPress, onRelease, onEvent work as expected
+	if (_widget.isSeven() or _widget.isHolo()) and not switch.isCustom then
+		view.touch = nonSlidingSwitchHandler
+	else
+		view.touch = slidingSwitchHandler
+	end
 	view:addEventListener( "touch" )
 	
 	----------------------------------------------------------
@@ -681,6 +709,15 @@ local function createStandardSwitch( switch, options )
 	-- Create a local reference to our options table
 	local opt = options
 	
+	local imageSheet
+	-- Check for a imageSheet
+	if opt.sheet then
+		imageSheet = opt.sheet
+	else
+		local themeData = require( opt.themeData )
+		imageSheet = graphics.newImageSheet( opt.themeSheetFile, themeData:getSheet() )
+	end
+	
 	-- Are we using a sprite (assume false)
 	local usingSprite = false
 	
@@ -740,7 +777,9 @@ local function createStandardSwitch( switch, options )
 			end
 			
 			-- Set the pressed/selected radio switch to on
-			return self._view:_setState( { isOn = true } )
+			if options and options.isOn then
+				return self._view:_setState( { isOn = true } )
+			end
 		else
 			return self._view:_setState( options )
 		end

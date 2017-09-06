@@ -486,7 +486,7 @@ function M.new( options, theme )
 		opt.top = 0
 	end
 	opt.width = customOptions.width or themeOptions.width or 200 -- from the sheet file
-	opt.height = customOptions.height or themeOptions.height or 10 -- from the sheet file
+	opt.height = customOptions.height or themeOptions.height or 200 -- from the sheet file
 	opt.id = customOptions.id
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.defaultValue = customOptions.value or 50
