@@ -549,6 +549,12 @@ local function createPickerWheel( pickerWheel, options )
 
 	-- EnterFrame listener for our pickerWheel
 	function view:enterFrame( event )
+
+		if not self.parent then
+			Runtime:removeEventListener( "enterFrame", self )
+			return true
+		end
+
 		local _pickerWheel = self.parent
 		-- Update the y position	
 		-- this has to be calculated in content coordinates to abstract the widget being in a group

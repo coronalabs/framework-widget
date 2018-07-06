@@ -24,12 +24,15 @@ function display.newGroup()
 	local function removeWidgets( group )
 		if group.numChildren then
 			for i = group.numChildren, 1, -1 do
-				if group[i]._isWidget then
-					group[i]:removeSelf()
-				
-				elseif not group[i]._isWidget and group[i].numChildren then
-					-- Nested group (that is not a widget)
-					removeWidgets( group[i] )
+				local toRemove = group[i]
+				if toRemove then
+					if toRemove._isWidget then
+						toRemove:removeSelf()
+					
+					elseif not toRemove._isWidget and toRemove.numChildren then
+						-- Nested group (that is not a widget)
+						removeWidgets( toRemove )
+					end
 				end
 			end
 		end

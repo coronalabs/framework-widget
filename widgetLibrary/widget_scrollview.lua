@@ -582,23 +582,6 @@ local function createScrollView( scrollView, options )
 		if "began" == phase then
 			self._timeHeld = event.time
 		end	
-		
-		-- Android fix for objects inserted into scrollView's
-		if self._isPlatformAndroid then
-			-- Distance moved
-	        local dy = mAbs( event.y - event.yStart )
-			local dx = mAbs( event.x - event.xStart )
-			local moveThresh = 20
-
-			-- If the finger has moved less than the desired range, set the phase back to began	(Android only fix, iOS doesn't exhibit this touch behavior..)
-			if dy < moveThresh then
-				if dx < moveThresh then
-					if phase ~= "ended" and phase ~= "cancelled" then
-						event.phase = "began"
-					end
-				end
-			end
-		end
 						
 		-- Handle momentum scrolling (and the view isn't locked)
 		if not self._isLocked then
@@ -639,6 +622,12 @@ local function createScrollView( scrollView, options )
 	
   	-- EnterFrame listener for our scrollView
 	function view:enterFrame( event )
+
+		if not self.parent then
+			Runtime:removeEventListener( "enterFrame", self )
+			return true
+		end
+
 		local _scrollView = self.parent
 
 		-- Handle momentum @ runtime

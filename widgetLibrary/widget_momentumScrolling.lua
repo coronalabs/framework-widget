@@ -673,7 +673,6 @@ function lib.createScrollBar( view, options )
 	
 	-- Setup the scrollBar's width/height
 	--local parentGroup = view.parent.parent
-	local scrollBarWidth = options.width or 5
 	local viewHeight = view._height -- The height of the windows visible area
 	local viewContentHeight = view._scrollHeight -- The height of the total content height
 	local minimumScrollBarHeight = 24 -- The minimum height the scrollbar can be
@@ -819,7 +818,7 @@ function lib.createScrollBar( view, options )
 	-- Insert the scrollBar into the fixed group and position it
 	view._fixedGroup:insert( lib.scrollBar )
 	
-	view._fixedGroup.x = view._width * 0.5 - scrollBarWidth * 0.5
+	view._fixedGroup.x = view._width * 0.5 - opt.width * 0.5
 	--local viewFixedGroupY = view.parent.y - view._top - view._height * 0.5
 	
 	-- this has to be positioned at the yCoord - half the height, no matter what.

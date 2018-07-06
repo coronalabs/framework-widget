@@ -205,8 +205,8 @@ local function initWithImageFiles( tabBar, options )
 	viewSelected.x = viewButtons[view._defaultTab].x - ( viewSelected.contentWidth * 0.5 ) - tabBar.x
 	
 	-- Throw error if tabBar width is too small to hold all passed in tab items
-	if ( view._totalTabWidth + 4 ) > opt.width then
-		error( "ERROR: " .. M._widgetName .. ": width passed is too small to fit the tab items inside, you need a width of at least " .. ( view._totalTabWidth + 4 ) .. " to fit your tab items inside", 3 )
+	if view._totalTabWidth > opt.width then
+		error( "ERROR: " .. M._widgetName .. ": width passed is too small to fit the tab items inside, you need a width of at least " .. view._totalTabWidth .. " to fit your tab items inside", 3 )
 	end
 	
 	-------------------------------------------------------
@@ -438,14 +438,22 @@ local function initWithImageSheet( tabBar, options )
 			    viewButtons[i] = display.newImageRect( tabBar, imageSheet, 7, 15, 15 )
 				--error( "ERROR: " .. M._widgetName .. ": tab button default file expected, got nil" )
 			else
-			    viewButtons[i] = display.newImageRect( tabBar, opt.tabButtons[i].defaultFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
+				if opt.tabButtons[i].width ~= nil and opt.tabButtons[i].height ~= nil then
+					viewButtons[i] = display.newImageRect( tabBar, opt.tabButtons[i].defaultFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
+				else
+					viewButtons[i] = display.newImage( tabBar, opt.tabButtons[i].defaultFile )
+				end
 			end
 			
 			if not opt.tabButtons[i].overFile then
 			    viewButtons[i].over = display.newImageRect( tabBar, imageSheet, 10, 15, 15 )
 				--error( "ERROR: " .. M._widgetName .. ": tab button default file expected, got nil" )
             else
-                viewButtons[i].over = display.newImageRect( tabBar, opt.tabButtons[i].overFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
+				if opt.tabButtons[i].width ~= nil and opt.tabButtons[i].height ~= nil then
+					viewButtons[i].over = display.newImageRect( tabBar, opt.tabButtons[i].overFile, opt.tabButtons[i].width, opt.tabButtons[i].height )
+				else
+					viewButtons[i].over = display.newImage( tabBar, opt.tabButtons[i].overFile )
+				end
 			end
 			viewButtons[i].over.isVisible = false
 		end
@@ -557,8 +565,8 @@ local function initWithImageSheet( tabBar, options )
 	--viewSelected.y = tabBar.y - viewSelected.contentHeight * 0.5
 	
 	-- Throw error if tabBar width is too small to hold all passed in tab items
-	if ( view._totalTabWidth + 4 ) > view.width then
-		error( "ERROR: " .. M._widgetName .. ": width passed is too small to fit the tab items inside, you need a width of at least " .. ( view._totalTabWidth + 4 ) .. " to fit your tab items inside", 3 )
+	if view._totalTabWidth > view.width then
+		error( "ERROR: " .. M._widgetName .. ": width passed is too small to fit the tab items inside, you need a width of at least " .. view._totalTabWidth .. " to fit your tab items inside", 3 )
 	end
 	
 	-------------------------------------------------------

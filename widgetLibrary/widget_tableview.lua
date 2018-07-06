@@ -565,6 +565,12 @@ local function createTableView( tableView, options )
 
 	-- EnterFrame listener for our tableView
 	function view:enterFrame( event )
+
+		if not self.parent then
+			Runtime:removeEventListener( "enterFrame", self )
+			return true
+		end
+
 		local _tableView = self.parent
 
 		-- If we have finished rendering all rows
@@ -1199,6 +1205,11 @@ local function createTableView( tableView, options )
 
 	-- Function to insert a row into a tableView
 	function view:_insertRow( options, reRender )
+		if not self.parent then
+			print("WARNING: trying to insert a row into a non-existant tableView")
+			return false
+		end
+
 		-- Create the row
 		self._rows[table.maxn(self._rows) + 1] = {}
 
