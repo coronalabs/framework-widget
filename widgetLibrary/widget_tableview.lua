@@ -1644,8 +1644,14 @@ local function createTableView( tableView, options )
 		-- If there is a transition underway, cancel it first
 		if self._transitionToIndex then transition.cancel( self._transitionToIndex ) end
 		-- Transition the view
-		self._transitionToIndex = transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad, onComplete = executeOnComplete } )
-
+		if scrollTime > 0 then
+			self._transitionToIndex = transition.to( self, { y = newPosition, time = scrollTime, transition = easing.outQuad, onComplete = executeOnComplete } )
+		else
+			self.y = newPosition
+			if executeOnComplete then
+				executeOnComplete()
+			end
+		end
 		-- Update the last row index
 		self._lastRowIndex = rowIndex
 	end
