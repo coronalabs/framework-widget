@@ -88,6 +88,7 @@ local function createHorizontalSlider( slider, options )
 	-- We need to assign these properties to the object
 	view._left = viewLeft
 	view._right = viewRight
+        view._isEnabled = opt.isEnabled        
 	view._fill = viewFill
 	view._middle = viewMiddle
 	view._handle = viewHandle
@@ -113,7 +114,12 @@ local function createHorizontalSlider( slider, options )
 		self.value = value
 		return self._view:_setValue( value )
 	end
-	
+        
+	-- Function to set a button as active
+	function slider:setEnabled( isEnabled )
+		self._view._isEnabled = isEnabled
+	end        
+        
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -299,12 +305,14 @@ local function createVerticalSlider( slider, options )
 	-- We need to assign these properties to the object
 	view._top = viewTop
 	view._bottom = viewBottom
+        view._isEnabled = opt.isEnabled             
 	view._fill = viewFill
 	view._middle = viewMiddle
 	view._handle = viewHandle
 	view._currentPercent = opt.defaultValue
 	view._width = opt.width
 	view._height = opt.height
+        view._isEnabled = opt.isEnabled  
 	view._listener = opt.listener
 	
 	-------------------------------------------------------
@@ -325,7 +333,12 @@ local function createVerticalSlider( slider, options )
 		self.value = value
 		return self._view:_setValue( value )
 	end
-	
+        
+	-- Function to set a button as active
+	function slider:setEnabled( isEnabled )
+		self._view._isEnabled = isEnabled
+	end            
+        
 	----------------------------------------------------------
 	--	PRIVATE METHODS	
 	----------------------------------------------------------
@@ -336,6 +349,11 @@ local function createVerticalSlider( slider, options )
 		local _slider = event.target.parent
 		-- Set the target to the handle
 		event.target = self._handle
+                
+                -- If the button isn't active, just return
+                if not view._isEnabled then
+                        return
+                end                
 	
 		if "began" == phase then
 			-- Did the touch begin on the Handle?			
@@ -471,10 +489,19 @@ function M.new( options, theme )
 	opt.width = customOptions.width or themeOptions.width or 200 -- from the sheet file
 	opt.height = customOptions.height or themeOptions.height or 200 -- from the sheet file
 	opt.id = customOptions.id
+        
+ 	opt.isEnabled = customOptions.isEnabled
+        
+	-- If the user didn't pass in a isEnabled flag, set it to true
+	if nil == opt.isEnabled then
+		opt.isEnabled = true
+	end           
+        
 	opt.baseDir = customOptions.baseDir or system.ResourceDirectory
 	opt.defaultValue = customOptions.value or 50
 	opt.orientation = customOptions.orientation or "horizontal"
 	opt.listener = customOptions.listener
+        
 	
 	-- Frames & Images
 	opt.sheet = customOptions.sheet
