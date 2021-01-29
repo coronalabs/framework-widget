@@ -424,7 +424,9 @@ local function createTableView( tableView, options )
 						if not self._targetRow.isCategory then
 							if self._targetRow._wasTouched then
 								-- Set the row cell's fill color
-								self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
+								if type(self._targetRow._cell.setFillColor)=='function' then
+									self._targetRow._cell:setFillColor( unpack( self._targetRow._rowColor.default ) )
+								end
 								-- Set back the separators
 								if self._targetRow._separator then
 									self._targetRow._separator.isVisible = true
@@ -768,7 +770,6 @@ local function createTableView( tableView, options )
 	function view:_renderCategory( row, reloadDataInvocation )
 		-- Create a reference to the row
 		local currentRow = row
-
 		-- Function to create a new category
 		local function newCategory()
 			local category = display.newGroup()
@@ -940,24 +941,27 @@ local function createTableView( tableView, options )
 						end
 					end
 
-					-- Determine which category should be rendered (Sticky category at top)
-					if currentRow.isCategory and currentRow._top <= 0 then
-						self._currentCategoryIndex = k
+				end
+				-- Determine which category should be rendered (Sticky category at top)
+				local lRowTopY=self.y + currentRow.y + self._height * 0.5-0.5*currentRow._height
+				if currentRow.isCategory and lRowTopY <= 0 then
+					self._currentCategoryIndex = k
 
-						-- Hide the current row
+					-- Hide the current row
+					if(type( currentRow._view ) == "table") then
 						currentRow._view.isVisible = false
-
-					elseif currentRow.isCategory and currentRow._top >= 0 and self._currentCategory and currentRow.index == self._currentCategory.index then
-						-- Category moved below top of tableView, render previous category
-						currentRow._view.isVisible = true
-
-						-- Remove current category if the first category moved below the top of the tableView
-						display.remove( self._currentCategory )
-						self._currentCategory = nil
-						self._currentCategoryIndex = nil
-					elseif currentRow.isCategory and currentRow._top >= 0 then
+					end
+				elseif currentRow.isCategory and lRowTopY >= 0 and self._currentCategory and currentRow.index == self._currentCategory.index then
+					-- Category moved below top of tableView, render previous category
+					if(type( currentRow._view ) == "table") then
 						currentRow._view.isVisible = true
 					end
+					-- Remove current category if the first category moved below the top of the tableView
+					display.remove( self._currentCategory )
+					self._currentCategory = nil
+					self._currentCategoryIndex = nil
+				elseif currentRow.isCategory and lRowTopY >= 0 and type( currentRow._view ) == "table" then
+					currentRow._view.isVisible = true
 				end
 			end
 
