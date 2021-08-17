@@ -224,7 +224,6 @@ local function initWithImageFiles( tabBar, options )
 	-------------------------------------------------------
 	
 	-- Assign objects to the tabBar
-	tabBar._imageSheet = imageSheet
 	tabBar._view = view
 	tabBar._viewSelected = view._selected
 	tabBar._viewButtons = view._tabs
