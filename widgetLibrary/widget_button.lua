@@ -20,8 +20,8 @@ local isByteColorRange = display.getDefault( "isByteColorRange" )
 local function manageButtonTouch( view, event )
 	local phase = event.phase
 
-	-- If the button isn't active, just return
-	if not view._isEnabled then
+	-- If the button isn't active or it has somehow already been removed, just return
+	if not view._isEnabled or type( view.parent ) ~= "table" or view.parent.x == nil then
 		return
 	end
 		
@@ -43,13 +43,9 @@ local function manageButtonTouch( view, event )
 			view._onPress( event )
 		end
 		
-		-- If the parent group still exists
-		if "table" == type( view.parent ) then
-			-- Set focus on the button
-			view._isFocus = true
-			display.getCurrentStage():setFocus( view, event.id )
-			
-		end
+		-- Set focus on the button
+		view._isFocus = true
+		display.getCurrentStage():setFocus( view, event.id )
 		
 	elseif view._isFocus then
 		if "moved" == phase then
